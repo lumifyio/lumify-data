@@ -4,7 +4,9 @@ class env::cluster::puppetmaster {
   }
 
   include my_fw
-  include tinyproxy::fw
+  class { 'tinyproxy::fw' :
+    stage => 'first',
+  }
 
   firewall { '009 allow puppetmaster' :
     proto  => tcp,

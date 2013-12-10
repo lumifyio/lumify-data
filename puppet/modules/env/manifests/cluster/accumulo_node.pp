@@ -4,8 +4,12 @@ class env::cluster::accumulo_node {
   }
 
   include my_fw
-  include accumulo::fw::tserver
-  include accumulo::fw::logger
+  class { 'accumulo::fw::tserver' :
+    site => 'first',
+  }
+  class { 'accumulo::fw::logger' :
+    site => 'first',
+  }
 
   include role::accumulo::node
 }

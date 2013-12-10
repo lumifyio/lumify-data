@@ -1,7 +1,11 @@
 class env::cluster::node {
   include hadoop_slave
-  include accumulo_node
-  include elasticsearch_node
+  class { 'accumulo_node' :
+    stage => 'first',
+  }
+  class { 'elasticsearch_node' :
+    stage => 'first',
+  }
 
   file { '/etc/yum.repos.d/lumify.repo' :
     source => 'puppet:///modules/env/dev/lumify.repo',
