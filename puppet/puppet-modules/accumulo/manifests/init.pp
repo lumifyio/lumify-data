@@ -99,6 +99,13 @@ class accumulo(
     require => Exec["copy-example-accumulo-config"],
   }
 
+  file { "accumulo-monitor-config":
+    path    => "${configdir}/monitor",
+    ensure  => file,
+    content => template("accumulo/monitor.erb"),
+    require => Exec["copy-example-accumulo-config"],
+  }
+
   file { "accumulo-gc-config":
     path    => "${configdir}/gc",
     ensure  => file,
