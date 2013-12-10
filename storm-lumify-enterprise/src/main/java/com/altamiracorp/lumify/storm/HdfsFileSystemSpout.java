@@ -16,6 +16,7 @@ import java.net.URI;
 import java.util.LinkedList;
 import java.util.Map;
 import java.util.Queue;
+import java.util.concurrent.atomic.AtomicLong;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 import static com.google.common.base.Preconditions.checkState;
@@ -116,12 +117,12 @@ public class HdfsFileSystemSpout extends BaseFileSystemSpout {
     }
 
     @Override
-    public int getToBeProcessedCount() {
+    public long getToBeProcessedCount() {
         return filesToProcess.size();
     }
 
     @Override
-    public String getPath() {
+    public String getName() {
         return this.subDir;
     }
 }

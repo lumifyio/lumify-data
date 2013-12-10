@@ -1,37 +1,14 @@
 package com.altamiracorp.lumify.storm;
 
-import java.io.File;
-import java.io.IOException;
-import java.net.URI;
-import java.net.URISyntaxException;
-
-import org.apache.accumulo.core.util.CachedConfiguration;
-import org.apache.commons.cli.CommandLine;
-import org.apache.commons.cli.OptionBuilder;
-import org.apache.commons.cli.Options;
-import org.apache.hadoop.conf.Configuration;
-import org.apache.hadoop.fs.FileSystem;
-import org.apache.hadoop.fs.Path;
-import org.apache.hadoop.util.ToolRunner;
-import org.jvnet.inflector.Noun;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import storm.kafka.KafkaConfig;
-import storm.kafka.KafkaSpout;
-import storm.kafka.SpoutConfig;
 import backtype.storm.Config;
 import backtype.storm.LocalCluster;
 import backtype.storm.StormSubmitter;
 import backtype.storm.generated.StormTopology;
-import backtype.storm.spout.Scheme;
 import backtype.storm.topology.TopologyBuilder;
 import backtype.storm.utils.Utils;
-
 import com.altamiracorp.lumify.core.cmdline.CommandLineBase;
 import com.altamiracorp.lumify.core.config.ConfigurationHelper;
 import com.altamiracorp.lumify.core.model.workQueue.WorkQueueRepository;
-import com.altamiracorp.lumify.model.KafkaJsonEncoder;
 import com.altamiracorp.lumify.storm.contentTypeSorter.ContentTypeSorterBolt;
 import com.altamiracorp.lumify.storm.document.DocumentBolt;
 import com.altamiracorp.lumify.storm.image.ImageBolt;
@@ -39,6 +16,20 @@ import com.altamiracorp.lumify.storm.structuredData.StructuredDataTextExtractorB
 import com.altamiracorp.lumify.storm.term.extraction.TermExtractionBolt;
 import com.altamiracorp.lumify.storm.video.VideoBolt;
 import com.altamiracorp.lumify.storm.video.VideoPreviewBolt;
+import org.apache.commons.cli.CommandLine;
+import org.apache.commons.cli.OptionBuilder;
+import org.apache.commons.cli.Options;
+import org.apache.hadoop.conf.Configuration;
+import org.apache.hadoop.fs.FileSystem;
+import org.apache.hadoop.fs.Path;
+import org.jvnet.inflector.Noun;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import java.io.File;
+import java.io.IOException;
+import java.net.URI;
+import java.net.URISyntaxException;
 
 public class StormEnterpriseRunner extends CommandLineBase {
 
@@ -195,29 +186,14 @@ public class StormEnterpriseRunner extends CommandLineBase {
     }
 
     private void createTextTopology(TopologyBuilder builder) {
-        SpoutConfig spoutConfig = createSpoutConfig(WorkQueueRepository.TEXT_QUEUE_NAME, null);
-        builder.setSpout("text", new KafkaSpout(spoutConfig), 1);
+        builder.setSpout("text", new LumifyKafkaSpout(getConfiguration(), WorkQueueRepository.TEXT_QUEUE_NAME), 1);
         builder.setBolt("textTermExtractionBolt", new TermExtractionBolt(), 1)
                 .shuffleGrouping("text");
     }
 
     private void createProcessedVideoTopology(TopologyBuilder builder) {
-        SpoutConfig spoutConfig = createSpoutConfig(WorkQueueRepository.PROCESSED_VIDEO_QUEUE_NAME, null);
-        builder.setSpout("processedVideoSpout", new KafkaSpout(spoutConfig), 1);
+        builder.setSpout("processedVideoSpout", new LumifyKafkaSpout(getConfiguration(), WorkQueueRepository.PROCESSED_VIDEO_QUEUE_NAME), 1);
         builder.setBolt("processedVideoBolt", new VideoPreviewBolt(), 1)
                 .shuffleGrouping("processedVideoSpout");
-    }
-
-    private SpoutConfig createSpoutConfig(String queueName, Scheme scheme) {
-        if (scheme == null) {
-            scheme = new KafkaJsonEncoder();
-        }
-        SpoutConfig spoutConfig = new SpoutConfig(
-                new KafkaConfig.ZkHosts(getConfiguration().get(com.altamiracorp.lumify.core.config.Configuration.ZK_SERVERS), "/kafka/brokers"),
-                queueName,
-                "/kafka/consumers",
-                queueName);
-        spoutConfig.scheme = scheme;
-        return spoutConfig;
     }
 }
