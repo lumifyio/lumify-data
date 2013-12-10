@@ -5,13 +5,13 @@ class env::cluster::accumulo_master {
 
   include my_fw
   class { 'accumulo::fw::master' :
-    site => 'first',
+    stage => 'first',
   }
   class { 'accumulo::fw::gc' :
-    site => 'first',
+    stage => 'first',
   }
   class { 'accumulo::fw::monitor' :
-    site => 'first',
+    stage => 'first',
   }
 
   include role::accumulo::head

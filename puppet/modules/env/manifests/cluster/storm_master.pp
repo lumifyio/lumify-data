@@ -1,10 +1,10 @@
 class env::cluster::storm_master {
   include my_fw
   class { 'storm::fw::nimbus' :
-    site => 'first',
+    stage => 'first',
   }
   class { 'storm::fw::ui' :
-    site => 'first',
+    stage => 'first',
   }
 
   include role::storm::master

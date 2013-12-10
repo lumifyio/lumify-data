@@ -1,3 +1,11 @@
+class puppetmaster::fw {
+  firewall { '009 allow puppetmaster' :
+    proto  => tcp,
+    port   => 8140,
+    action => accept,
+  }
+}
+
 class env::cluster::puppetmaster {
   class { buildtools::epel :
     proxy_url => 'disabled',
@@ -7,11 +15,8 @@ class env::cluster::puppetmaster {
   class { 'tinyproxy::fw' :
     stage => 'first',
   }
-
-  firewall { '009 allow puppetmaster' :
-    proto  => tcp,
-    port   => 8140,
-    action => accept,
+  class { 'puppetmaster::fw' :
+    stage => 'first',
   }
 
   include tinyproxy
