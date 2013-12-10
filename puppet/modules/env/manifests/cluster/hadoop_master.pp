@@ -1,7 +1,11 @@
 class env::cluster::hadoop_master {
   include my_fw
-  include hadoop::fw::namenode
-  include hadoop::fw::jobtracker
+  class { 'hadoop::fw::namenode' :
+    site => 'first',
+  }
+  class { 'hadoop::fw::jobtracker' :
+    site => 'first',
+  }
 
   include role::hadoop::master # includes namenode and jobtracker
 }

@@ -1,6 +1,8 @@
 class env::cluster::zookeeper_server {
   include my_fw
-  include zookeeper::fw::node
+  class { 'zookeeper::fw::node' :
+    stage => 'first',
+  }
 
   include zookeeper
 }

@@ -1,7 +1,11 @@
 class env::cluster::hadoop_slave {
   include my_fw
-  include hadoop::fw::datanode
-  include hadoop::fw::tasktracker
+  class { 'hadoop::fw::datanode' :
+    stage => 'first',
+  }
+  class { 'hadoop::fw::tasktracker' :
+    stage => 'first',
+  }
 
   include role::hadoop::slave
 }

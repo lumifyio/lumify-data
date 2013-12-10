@@ -1,6 +1,8 @@
 class env::cluster::elasticsearch_node {
   include my_fw
-  include elasticsearch::fw::node
+  class { 'elasticsearch::fw::node' :
+    site => 'first',
+  }
 
   include elasticsearch
 }

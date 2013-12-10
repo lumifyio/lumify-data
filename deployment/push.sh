@@ -41,7 +41,7 @@ function run_maven {
     echo 'maven ok.' >&2
   else
     echo 'running maven...' >&2
-    local mvn_output="$(cd ..; mvn clean install -DskipTests)"
+    local mvn_output="$(cd ..; mvn clean install -P storm-jar,web-war -DskipTests)"
     local mvn_exit=$?
     if [ ${mvn_exit} -ne 0 ]; then
       echo "${mvn_output}" >&2

@@ -1,12 +1,15 @@
 #!/usr/bin/env ruby
 
 MAP = {
-  'puppet'         => ['include env::cluster::puppetmaster'],
-  /^namenode/      => ['include env::cluster::hadoop_master'],
-  'accumulomaster' => ['include env::cluster::hadoop_secondary', 'include env::cluster::accumulo_master'],
-  /node\d{2}/      => ['include env::cluster::node'],
-  /zk\d{2}/        => ['include env::cluster::zookeeper_server'],
-  'www'            => ['include env::cluster::webserver']
+  'puppet'            => ['include env::cluster::puppetmaster'],
+  /^namenode/         => ['include env::cluster::hadoop_master'],
+  'secondarynamenode' => ['include env::cluster::hadoop_secondary'],
+  'accumulomaster'    => ['include env::cluster::accumulo_master'],
+  'stormmaster'       => ['include env::cluster::storm_master'],
+  /kafka\d{2}/        => ['include env::cluster::kafka_node'],
+  /node\d{2}/         => ['include env::cluster::node'],
+  /zk\d{2}/           => ['include env::cluster::zookeeper_server'],
+  'www'               => ['include env::cluster::webserver']
 }
 
 

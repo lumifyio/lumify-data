@@ -4,9 +4,15 @@ class env::cluster::accumulo_master {
   }
 
   include my_fw
-  include accumulo::fw::master
-  include accumulo::fw::gc
-  include accumulo::fw::monitor
+  class { 'accumulo::fw::master' :
+    site => 'first',
+  }
+  class { 'accumulo::fw::gc' :
+    site => 'first',
+  }
+  class { 'accumulo::fw::monitor' :
+    site => 'first',
+  }
 
   include role::accumulo::head
 

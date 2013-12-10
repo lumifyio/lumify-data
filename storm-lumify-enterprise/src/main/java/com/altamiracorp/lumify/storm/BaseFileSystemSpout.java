@@ -10,16 +10,16 @@ import com.google.common.collect.Maps;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import javax.management.*;
-import java.lang.management.ManagementFactory;
 import java.util.Map;
+import java.util.concurrent.atomic.AtomicLong;
 
-public abstract class BaseFileSystemSpout extends BaseRichSpout implements BaseFileSystemSpoutMXBean {
+public abstract class BaseFileSystemSpout extends BaseRichSpout implements LumifySpoutMXBean {
     private static final Logger LOGGER = LoggerFactory.getLogger(BaseFileSystemSpout.class);
     public static final String DATADIR_CONFIG_NAME = "datadir";
     private SpoutOutputCollector collector;
     private Map<String, String> workingFiles;
-    private int totalProcessed;
+    private AtomicLong totalProcessed = new AtomicLong();
+    private AtomicLong totalErrorCount = new AtomicLong();
 
     @Override
     public void declareOutputFields(OutputFieldsDeclarer outputFieldsDeclarer) {
@@ -33,21 +33,9 @@ public abstract class BaseFileSystemSpout extends BaseRichSpout implements BaseF
         workingFiles = Maps.newHashMap();
 
         try {
-            registerJmxBean();
+            JmxBeanHelper.registerJmxBean(this, JmxBeanHelper.SPOUT_PREFIX);
         } catch (Exception ex) {
             LOGGER.error("Could not register JMX bean", ex);
-        }
-    }
-
-    protected void registerJmxBean() throws MalformedObjectNameException, NotCompliantMBeanException, InstanceAlreadyExistsException, MBeanRegistrationException {
-        MBeanServer beanServer = ManagementFactory.getPlatformMBeanServer();
-        for (int suffix = 0; ; suffix++) {
-            ObjectName beanName = new ObjectName("com.altamiracorp.lumify.storm.spout:type=" + getClass().getName() + "-" + suffix);
-            if (beanServer.isRegistered(beanName)) {
-                continue;
-            }
-            beanServer.registerMBean(this, beanName);
-            break;
         }
     }
 
@@ -65,41 +53,51 @@ public abstract class BaseFileSystemSpout extends BaseRichSpout implements BaseF
 
     protected void emit(String path) {
         workingFiles.put(path, path);
-
         LOGGER.info("Emitting value: " + path);
         collector.emit(new Values(path), path);
     }
 
     @Override
     public final void ack(Object msgId) {
+        LOGGER.debug("received ack on: " + msgId);
         try {
             safeAck(msgId);
-            totalProcessed++;
+            totalProcessed.incrementAndGet();
+            if (workingFiles.containsKey(msgId)) {
+                workingFiles.remove(msgId);
+            }
+            super.ack(msgId);
         } catch (Exception ex) {
+            LOGGER.error("exception during ack of: " + msgId, ex);
             collector.reportError(ex);
         }
     }
 
     protected void safeAck(Object msgId) throws Exception {
-        workingFiles.remove(msgId);
-        super.ack(msgId);
     }
 
     @Override
     public void fail(Object msgId) {
-        String path = workingFiles.remove(msgId);
-
+        LOGGER.error("received fail on: " + msgId);
+        totalErrorCount.incrementAndGet();
+        if (workingFiles.containsKey(msgId)) {
+            workingFiles.remove(msgId);
+        }
         super.fail(msgId);
-        emit(path); // TODO: should we retry or move the file in a failed directory.
     }
 
     @Override
-    public int getWorkingCount() {
+    public long getWorkingCount() {
         return workingFiles.size();
     }
 
     @Override
-    public int getTotalProcessedCount() {
-        return totalProcessed;
+    public long getTotalProcessedCount() {
+        return totalProcessed.get();
+    }
+
+    @Override
+    public long getTotalErrorCount() {
+        return totalErrorCount.get();
     }
 }
