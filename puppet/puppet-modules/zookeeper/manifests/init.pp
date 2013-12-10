@@ -1,7 +1,9 @@
 class zookeeper {
+  require repo::cloudera::cdh4
+
   package { 'zookeeper-server':
     ensure  => installed,
-    require => Class['java', 'repo::cloudera::cdh4'],    
+    require => Class['java', 'repo::cloudera::cdh4'],
   }
 
   $zookeeper_nodes = hiera_hash('zookeeper_nodes')

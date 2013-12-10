@@ -20,6 +20,7 @@ class storm(
   include macro::git
   require java
   require zookeeper
+  require buildtools
 
   $zookeeper_nodes = hiera_hash('zookeeper_nodes')
   $zookeeper_port = hiera('zookeeper_port')

@@ -11,6 +11,7 @@ class kafka(
   include macro
   require java
   require zookeeper
+  require buildtools::epel
 
   $zookeeper_nodes = hiera_hash('zookeeper_nodes')
   $kafka_consumer_group_id = hiera('kafka_consumer_group_id')
@@ -100,6 +101,7 @@ class kafka(
   $java_home = hiera("java_home")
   exec { "sbt update" :
     command => "/bin/sh sbt update",
+    timeout => 600,
     user    => $user,
     group   => $group,
     cwd     => $extractdir,
