@@ -6,7 +6,7 @@ hosts_file=$1
 
 accumulomaster=$(awk '/ +accumulomaster/ {print $1}' ${hosts_file})
 
-echo "ssh to ${accumulomaster} and as the accumulo user run: accumulo init"
+echo "ssh to ${accumulomaster} and as the accumulo user run: /usr/lib/accumulo/bin/accumulo init"
 while [ "${ready}" != 'yes' ]; do
   echo "then type 'yes' and press return"
   read ready
