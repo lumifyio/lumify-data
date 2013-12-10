@@ -38,7 +38,6 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
-
 public class TwitterStreamingBolt extends BaseLumifyBolt {
     private static final Logger LOGGER = LoggerFactory.getLogger(TwitterStreamingBolt.class);
     private static final String TWITTER_HANDLE = "twitterHandle";
@@ -55,11 +54,10 @@ public class TwitterStreamingBolt extends BaseLumifyBolt {
     private static final String FOLLOWING_COUNT = "followingCount";
     private static final String CREATION_DATE = "creationDate";
     private static final String DESCRIPTION = "description";
-
+    Concept handleConcept;
     private SearchProvider searchProvider;
     private GraphVertex tweet;
     private String text;
-    Concept handleConcept;
 
     @Override
     public void safeExecute(Tuple tuple) throws Exception {
@@ -158,7 +156,8 @@ public class TwitterStreamingBolt extends BaseLumifyBolt {
         graphRepository.save(tweeterVertex, getUser());
 
         if (newVertex) {
-            auditRepository.audit(tweeterVertex.getId(), auditRepository.createEntityAuditMessage(), getUser());
+            auditRepository.audit(tweet.getId(), auditRepository.resolvedEntityAuditArtifactMessage(tweeter), getUser());
+            auditRepository.audit(tweeterVertex.getId(), auditRepository.resolvedEntityAuditMessage(tweet.getProperty(PropertyName.TITLE.toString())), getUser());
         }
 
         modifiedProperties.addAll(addHandleProperties(user, tweeterVertex));
@@ -209,7 +208,8 @@ public class TwitterStreamingBolt extends BaseLumifyBolt {
             graphRepository.save(vertex, getUser());
 
             if (newVertex) {
-                auditRepository.audit(vertex.getId(), auditRepository.createEntityAuditMessage(), getUser());
+                auditRepository.audit(tweet.getId(), auditRepository.resolvedEntityAuditArtifactMessage(sign), getUser());
+                auditRepository.audit(vertex.getId(), auditRepository.resolvedEntityAuditMessage(tweet.getProperty(PropertyName.TITLE.toString())), getUser());
             }
             auditRepository.audit(vertex.getId(), auditRepository.vertexPropertyAuditMessages(vertex, modifiedProperties), getUser());
 
