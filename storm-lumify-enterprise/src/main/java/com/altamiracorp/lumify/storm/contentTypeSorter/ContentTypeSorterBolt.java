@@ -68,12 +68,12 @@ public class ContentTypeSorterBolt extends BaseLumifyBolt {
             moveFile(fileName, FILEPATH_JOINER.join(dataDir, queueName, FilenameUtils.getName(fileName) + "__" + fileNameSuffix.format(new Date())));
 
             LOGGER.debug("Content sorted to: " + queueName);
-            getCollector().ack(input);
         } finally {
-            in.close();
+            if (in != null) {
+                in.close();
+            }
+            LOGGER.debug("[ContentTypeSorterBolt]: finished with " + fileName);
         }
-
-        LOGGER.debug("[ContentTypeSorterBolt]: finished with " + fileName);
     }
 
     private String calculateQueueName(String fileName, InputStream in) throws Exception {

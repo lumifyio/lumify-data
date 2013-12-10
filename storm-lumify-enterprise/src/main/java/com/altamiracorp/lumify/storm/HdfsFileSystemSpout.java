@@ -63,6 +63,7 @@ public class HdfsFileSystemSpout extends BaseFileSystemSpout {
 
                 String path = filesToProcess.remove();
                 if (!isInWorkingSet(path) && hdfsFileSystem.exists(new Path(path))) {
+                    LOGGER.debug("emitting path: " + path);
                     emit(path);
                     return;
                 }

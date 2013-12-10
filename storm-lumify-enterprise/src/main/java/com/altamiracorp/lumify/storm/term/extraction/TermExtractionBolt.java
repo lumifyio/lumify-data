@@ -22,7 +22,10 @@ import org.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.io.BufferedWriter;
+import java.io.FileWriter;
 import java.io.InputStream;
+import java.io.PrintWriter;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -69,10 +72,16 @@ public class TermExtractionBolt extends BaseTextProcessingBolt {
         JSONObject json = getJsonFromTuple(input);
         String graphVertexId = json.getString("graphVertexId");
 
+        PrintWriter out = new PrintWriter(new BufferedWriter(new FileWriter("/tmp/termExtraction", true)));
+        out.println("+" + graphVertexId);
+        out.close();
+
         GraphVertex artifactGraphVertex = graphRepository.findVertex(graphVertexId, getUser());
         runTextExtractions(artifactGraphVertex);
 
-        getCollector().ack(input);
+        out = new PrintWriter(new BufferedWriter(new FileWriter("/tmp/termExtraction", true)));
+        out.println("-" + graphVertexId);
+        out.close();
     }
 
     private void runTextExtractions(GraphVertex artifactGraphVertex) throws Exception {

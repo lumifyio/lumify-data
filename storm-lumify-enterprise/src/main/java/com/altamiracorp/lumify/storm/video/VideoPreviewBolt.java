@@ -56,7 +56,6 @@ public class VideoPreviewBolt extends BaseLumifyBolt {
             throw new RuntimeException("Could not create preview image for artifact: " + artifactRowKey, e);
         }
         LOGGER.debug("Finished [VideoPreviewBolt]: " + artifactRowKey);
-        getCollector().ack(input);
     }
 
     private Path saveImage(String artifactRowKey, BufferedImage previewImage, User user) throws IOException {
