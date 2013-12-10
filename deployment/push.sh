@@ -72,16 +72,6 @@ function bundle_conf {
   FILE_LIST="${FILE_LIST} setup_conf.sh ${conf_tgz}"
 }
 
-function bundle_oozie {
-  local oozie_jobs_tgz=$(git_archive oozie-jobs .. oozie/jobs)
-  local githash=$(cd ../oozie/target; git log -n 1 --format='%h')
-  local oozie_libs_tgz="/tmp/oozie-libs-${DATETIME}-${githash}.tgz"
-  run_maven
-  (cd ../oozie/target; tar czf ${oozie_libs_tgz} oozie-libs)
-
-  FILE_LIST="${FILE_LIST} setup_oozie.sh ${oozie_jobs_tgz} ${oozie_libs_tgz}"
-}
-
 function bundle_war {
   run_maven
   local war_files=$(find .. -name '*.war')
@@ -99,9 +89,6 @@ case ${component} in
   puppet)
     bundle_puppet
     ;;
-  oozie)
-    bundle_oozie
-    ;;
   www | war)
     bundle_war
     ;;
@@ -109,7 +96,6 @@ case ${component} in
     bundle_init
     bundle_puppet
     bundle_conf
-    bundle_oozie
     FILE_LIST="${FILE_LIST} setup_geonames.sh setup_import.sh"
     bundle_war
     ;;

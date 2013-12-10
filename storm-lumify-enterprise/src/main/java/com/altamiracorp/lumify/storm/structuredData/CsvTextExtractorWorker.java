@@ -2,9 +2,9 @@ package com.altamiracorp.lumify.storm.structuredData;
 
 import com.altamiracorp.lumify.core.ingest.AdditionalArtifactWorkData;
 import com.altamiracorp.lumify.core.ingest.ArtifactExtractedInfo;
+import com.altamiracorp.lumify.core.ingest.TextExtractionWorkerPrepareData;
 import com.altamiracorp.lumify.core.ingest.structuredData.StructuredDataExtractionWorker;
 import com.altamiracorp.lumify.core.model.artifact.ArtifactType;
-import com.altamiracorp.lumify.core.user.User;
 import com.altamiracorp.lumify.core.util.ThreadedTeeInputStreamWorker;
 import org.apache.commons.io.FileUtils;
 import org.json.JSONObject;
@@ -16,7 +16,6 @@ import org.supercsv.prefs.CsvPreference;
 
 import java.io.*;
 import java.util.List;
-import java.util.Map;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 import static com.google.common.base.Preconditions.checkState;
@@ -70,6 +69,6 @@ public class CsvTextExtractorWorker
     }
 
     @Override
-    public void prepare(Map stormConf, User user) {
+    public void prepare(TextExtractionWorkerPrepareData data) {
     }
 }

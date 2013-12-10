@@ -7,6 +7,16 @@ class hadoop {
   $hadoop_masters = hiera_array('hadoop_masters')
   $hadoop_slaves = hiera_array('hadoop_slaves')
 
+  group { 'hadoop' :
+    ensure => present,
+  }
+
+  user { [ 'hdfs', 'mapred' ] :
+    ensure => present,
+    gid => 'hadoop',
+    require => Group['hadoop'],
+  }
+
   package { 'hadoop.x86_64':
     ensure  => installed,
     require => Class['java', 'repo::cloudera::cdh4'],
@@ -83,7 +93,7 @@ class hadoop {
       owner   => 'hdfs',
       group   => 'hadoop',
       mode    => 'u=rwx,g=rwx,o=',
-      require =>  [ File["${name}"], Package['hadoop.x86_64'] ],
+      require =>  [ File["${name}"], Package['hadoop.x86_64'], User['hdfs'] ],
     }
 
     file { [ "${name}/hdfs", "${name}/hdfs/name", "${name}/hdfs/data" ] :
@@ -91,7 +101,7 @@ class hadoop {
       owner   => 'hdfs',
       group   => 'hadoop',
       mode    => 'u=rwx,g=rx,o=',
-      require =>  [ File["${name}"], Package['hadoop.x86_64'] ],
+      require =>  [ File["${name}"], Package['hadoop.x86_64'], User['hdfs'] ],
     }
 
     file { [ "${name}/mapred", "${name}/mapred/local" ] :
@@ -99,7 +109,7 @@ class hadoop {
       owner   => 'mapred',
       group   => 'hadoop',
       mode    => 'u=rwx,g=rx,o=',
-      require =>  [ File["${name}"], Package['hadoop.x86_64'] ],
+      require =>  [ File["${name}"], Package['hadoop.x86_64'], User['mapred'] ],
     }
   }
 

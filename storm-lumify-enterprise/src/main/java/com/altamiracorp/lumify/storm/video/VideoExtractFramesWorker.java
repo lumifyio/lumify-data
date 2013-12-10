@@ -2,8 +2,8 @@ package com.altamiracorp.lumify.storm.video;
 
 import com.altamiracorp.lumify.core.ingest.AdditionalArtifactWorkData;
 import com.altamiracorp.lumify.core.ingest.ArtifactExtractedInfo;
+import com.altamiracorp.lumify.core.ingest.TextExtractionWorkerPrepareData;
 import com.altamiracorp.lumify.core.ingest.video.VideoTextExtractionWorker;
-import com.altamiracorp.lumify.core.user.User;
 import com.altamiracorp.lumify.core.util.ProcessRunner;
 import com.altamiracorp.lumify.core.util.ThreadedTeeInputStreamWorker;
 import com.google.inject.Inject;
@@ -15,7 +15,6 @@ import org.slf4j.LoggerFactory;
 import java.io.File;
 import java.io.InputStream;
 import java.util.ArrayList;
-import java.util.Map;
 import java.util.Random;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -29,7 +28,7 @@ public class VideoExtractFramesWorker extends ThreadedTeeInputStreamWorker<Artif
     private ProcessRunner processRunner;
 
     @Override
-    public void prepare(Map stormConf, User user) {
+    public void prepare(TextExtractionWorkerPrepareData data) {
     }
 
     @Override

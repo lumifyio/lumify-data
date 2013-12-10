@@ -65,9 +65,7 @@ function stage_jobtracker {
   heading 'stage artifacts on the jobtracker'
   local jobtracker_host=$(awk '/jobtracker/ {print $1}' ${HOSTS_FILE})
   scp ${SSH_OPTS} conf-*.tgz \
-                  oozie-*.tgz \
                   setup_conf.sh \
-                  setup_oozie.sh \
                   setup_geonames.sh \
                   setup_import.sh \
                   ${jobtracker_host}:
@@ -148,7 +146,7 @@ case ${mode_or_ip} in
     setup_other
     ;;
   *.*.*.*)
-    setup_remote ${mode_or_host}
+    setup_remote ${mode_or_ip}
     ;;
   *)
     echo "invalid mode or ip: ${mode_or_ip}"
