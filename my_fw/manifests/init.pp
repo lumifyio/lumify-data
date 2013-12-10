@@ -1,3 +1,7 @@
+stage { 'first' :
+  before => Stage['main'],
+}
+
 class my_fw {
 }
 
@@ -10,6 +14,10 @@ Firewall {
   require => Class['my_fw::pre'],
 }
 
-class { ['my_fw::pre', 'my_fw::post'] : }
+class { ['my_fw::pre', 'my_fw::post'] :
+  stage => 'first',
+}
 
-class { 'firewall' : }
+class { 'firewall' :
+  stage => 'first',
+}
