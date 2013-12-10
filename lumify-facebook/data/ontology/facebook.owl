@@ -887,5 +887,85 @@
         <rdfs:domain rdf:resource="#url"/>
         <rdfs:range rdf:resource="#url"/>
     </owl:ObjectProperty>
+
+
+
+<!-- FacebookProfile Relationships -->
+
+	<owl:ObjectProperty rdf:about="profileHasEmail">
+        <rdfs:label xml:lang="en">has email address</rdfs:label>
+        <rdfs:domain rdf:resource="#facebookProfile"/>
+        <rdfs:range rdf:resource="#emailAddress"/>
+    </owl:ObjectProperty>
+	<owl:ObjectProperty rdf:about="profilePostedPost">
+        <rdfs:label xml:lang="en">posted</rdfs:label>
+        <rdfs:domain rdf:resource="#facebookProfile"/>
+        <rdfs:range rdf:resource="#artifact"/>
+    </owl:ObjectProperty>
+	<owl:ObjectProperty rdf:about="profileHasProfilePicture">
+        <rdfs:label xml:lang="en">has profile photo</rdfs:label>
+        <rdfs:domain rdf:resource="#facebookProfile"/>
+        <rdfs:range rdf:resource="#artifact"/>
+    </owl:ObjectProperty>
+	<owl:ObjectProperty rdf:about="profileHasFriend">
+        <rdfs:label xml:lang="en">has friend</rdfs:label>
+        <rdfs:domain rdf:resource="#facebookProfile"/>
+        <rdfs:range rdf:resource="#facebookProfile"/>
+    </owl:ObjectProperty>
+	<owl:ObjectProperty rdf:about="profileHasTwitterHandle">
+        <rdfs:label xml:lang="en">has</rdfs:label>
+        <rdfs:domain rdf:resource="#facebookProfile"/>
+        <rdfs:range rdf:resource="#twitterHandle"/>
+    </owl:ObjectProperty>
+
+
+<!-- Post Relationships -->
+
+    <owl:ObjectProperty rdf:about="postMentionedEvent">
+        <rdfs:label xml:lang="en">mentioned</rdfs:label>
+        <rdfs:domain rdf:resource="#artifact"/>
+        <rdfs:range rdf:resource="#event"/>
+    </owl:ObjectProperty>
+    <owl:ObjectProperty rdf:about="postMentionedPerson">
+        <rdfs:label xml:lang="en">mentioned</rdfs:label>
+        <rdfs:domain rdf:resource="#artifact"/>
+        <rdfs:range rdf:resource="#person"/>
+    </owl:ObjectProperty>
+    <owl:ObjectProperty rdf:about="postMentionedOrganization">
+        <rdfs:label xml:lang="en">mentioned</rdfs:label>
+        <rdfs:domain rdf:resource="#artifact"/>
+        <rdfs:range rdf:resource="#organization"/>
+    </owl:ObjectProperty>
+    <owl:ObjectProperty rdf:about="postMentionedHandle">
+        <rdfs:label xml:lang="en">mentioned</rdfs:label>
+        <rdfs:domain rdf:resource="#artifact"/>
+        <rdfs:range rdf:resource="#twitterHandle"/>
+    </owl:ObjectProperty>
+    <owl:ObjectProperty rdf:about="postMentionedProfile">
+        <rdfs:label xml:lang="en">mentioned</rdfs:label>
+        <rdfs:domain rdf:resource="#artifact"/>
+        <rdfs:range rdf:resource="#facebookProfile"/>
+    </owl:ObjectProperty>
+    <owl:ObjectProperty rdf:about="postMentionedLocation">
+        <rdfs:label xml:lang="en">mentioned</rdfs:label>
+        <rdfs:domain rdf:resource="#artifact"/>
+        <rdfs:range rdf:resource="#location"/>
+    </owl:ObjectProperty>
+    <owl:ObjectProperty rdf:about="postPostedByProfile">
+        <rdfs:label xml:lang="en">posted by</rdfs:label>
+        <rdfs:domain rdf:resource="#artifact"/>
+        <rdfs:range rdf:resource="#facebookProfile"/>
+    </owl:ObjectProperty>
+    <owl:ObjectProperty rdf:about="postReplyToPost">
+        <rdfs:label xml:lang="en">replies to</rdfs:label>
+        <rdfs:domain rdf:resource="#artifact"/>
+        <rdfs:range rdf:resource="#artifact"/>
+    </owl:ObjectProperty>
+    <owl:ObjectProperty rdf:about="postHasImage">
+        <rdfs:label xml:lang="en">has</rdfs:label>
+        <rdfs:domain rdf:resource="#artifact"/>
+        <rdfs:range rdf:resource="#artifact"/>
+    </owl:ObjectProperty>
+
      
 </rdf:RDF>
