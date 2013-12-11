@@ -40,16 +40,18 @@ ARGV.each do |filename|
       end
 
       ebs, instance_storage = storage.split(',')
-      size_int, size_units = ebs.match(/(\d+)([GT])/).captures
-      size_gb = case size_units
-      when 'G'
-        size_int.to_i
-      when 'T'
-        size_int.to_i * 1024
-      else
-        raise "unexpected volume size: #{size}"
+      unless ebs == '0'
+        size_int, size_units = ebs.match(/(\d+)([GT])/).captures
+        size_gb = case size_units
+        when 'G'
+          size_int.to_i
+        when 'T'
+          size_int.to_i * 1024
+        else
+          raise "unexpected volume size: #{size}"
+        end
+        ebs_gbs += size_gb
       end
-      ebs_gbs += size_gb
 
       instance_counts[instance_type] ||= 0
       instance_counts[instance_type] += 1
