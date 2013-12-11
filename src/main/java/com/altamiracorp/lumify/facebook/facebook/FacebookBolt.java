@@ -1,7 +1,6 @@
 package com.altamiracorp.lumify.facebook.facebook;
 
 
-
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -10,6 +9,7 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.Iterator;
 import java.util.List;
 
 import com.altamiracorp.lumify.core.ingest.ArtifactExtractedInfo;
@@ -65,8 +65,6 @@ public class FacebookBolt extends BaseLumifyBolt {
     private static final String FACEBOOK_PROFILE = "facebookProfile";
 
 
-
-
     @Override
     public void safeExecute(Tuple input) throws Exception {
         JSONObject json = getJsonFromTuple(input);
@@ -113,16 +111,18 @@ public class FacebookBolt extends BaseLumifyBolt {
         graphRepository.save(userVertex, getUser());
 
         if (newVertex) {
-            auditRepository.audit(userVertex.getId(), auditRepository.createEntityAuditMessage(), getUser());
+            //get relationships for vertex and write audit message for each post
+//            auditRepository.audit(posting.getId(), auditRepository.resolvedEntityAuditArtifactMessage(tweeter), getUser());
+//            auditRepository.audit(userVertex.getId(), auditRepository.resolvedEntityAuditMessage(tweet.getProperty(PropertyName.TITLE.toString())), getUser());
         }
 
-        if (user.has(SEX) && !user.getString(SEX).equals(JSONObject.NULL)){
+        if (user.has(SEX) && !user.getString(SEX).equals(JSONObject.NULL)) {
             String gender = user.getString(SEX);
             userVertex.setProperty(GENDER, gender);
             modifiedProperties.add(GENDER);
         }
 
-        if (user.has(EMAIL) && !user.getString(EMAIL).equals(JSONObject.NULL)){
+        if (user.has(EMAIL) && !user.getString(EMAIL).equals(JSONObject.NULL)) {
             String email = user.getString(EMAIL);
             GraphVertex emailVertex = graphRepository.findVertexByPropertyAndType(EMAIL_ADDRESS, email, VertexType.ENTITY, getUser());
             if (emailVertex == null) {
@@ -138,7 +138,7 @@ public class FacebookBolt extends BaseLumifyBolt {
             modifiedProperties.add(PropertyName.GEO_LOCATION.toString());
         }
 
-        if (user.has(BIRTHDAY_DATE) && !user.getString(BIRTHDAY_DATE).equals(JSONObject.NULL)){
+        if (user.has(BIRTHDAY_DATE) && !user.getString(BIRTHDAY_DATE).equals(JSONObject.NULL)) {
             String birthday_date = user.getString(BIRTHDAY_DATE);
             SimpleDateFormat birthdayFormat = new SimpleDateFormat("MM/dd/yyyy");
             try {
@@ -201,8 +201,7 @@ public class FacebookBolt extends BaseLumifyBolt {
         //extract knowledge from post
         String message = post.getString(MESSAGE);
         String author_uid = post.getString(AUTHOR_UID);
-        JSONArray tagged_uids = post.getJSONArray(TAGGEED_UIDS);
-        Date time = new Date(post.getLong(TIMESTAMP)*1000);
+        Date time = new Date(post.getLong(TIMESTAMP) * 1000);
         //use extracted information
         ArtifactRowKey build = ArtifactRowKey.build(post.toString().getBytes());
         String rowKey = build.toString();
@@ -234,14 +233,17 @@ public class FacebookBolt extends BaseLumifyBolt {
         }
         graphRepository.saveRelationship(authorVertex.getId(), posting.getId(), POSTED_RELATIONSHIP, getUser());
 
-        for (int i = 1; i < tagged_uids.length(); i++) {
-            JSONObject tagged = tagged_uids.getJSONObject(i);
-            GraphVertex taggedVertex = graphRepository.findVertexByPropertyAndType(PROFILE_ID, tagged.toString(), VertexType.ENTITY, getUser());
-            if (taggedVertex == null) {
-                taggedVertex = new InMemoryGraphVertex();
-                authorVertex.setProperty(PROFILE_ID, tagged.toString());
+        if (post.get(TAGGEED_UIDS) instanceof facebook4j.internal.org.json.JSONObject) {
+            Iterator tagged = post.getJSONObject(TAGGEED_UIDS).keys();
+            while (tagged.hasNext()) {
+                String next = tagged.next().toString();
+                GraphVertex taggedVertex = graphRepository.findVertexByPropertyAndType(PROFILE_ID, next, VertexType.ENTITY, getUser());
+                if (taggedVertex == null) {
+                    taggedVertex = new InMemoryGraphVertex();
+                    authorVertex.setProperty(PROFILE_ID, next);
+                }
+                graphRepository.saveRelationship(taggedVertex.getId(), posting.getId(), MENTIONED_RELATIONSHIP, getUser());
             }
-            graphRepository.saveRelationship(taggedVertex.getId(), posting.getId(), MENTIONED_RELATIONSHIP, getUser());
         }
 
         if (post.has(COORDS) && !post.get(COORDS).equals(JSONObject.NULL)) {
