@@ -7,14 +7,14 @@ hosts_file=$1
 namenode=$(awk '/ +namenode/ {print $1}' ${hosts_file})
 secondarynamenode=$(awk '/ +secondarynamenode/ {print $1}' ${hosts_file})
 
-echo "ssh to ${namenode} and as the hdfs user run: hadoop namenode -format"
+echo "ssh to ${namenode} and as the hdfs user run: hdfs namenode -format"
 while [ "${ready}" != 'yes' ]; do
   echo "then type 'yes' and press return"
   read ready
 done
 
-ssh ${SSH_OPTS} ${namenode} service hadoop-0.20-namenode start
-ssh ${SSH_OPTS} ${secondarynamenode} service hadoop-0.20-secondarynamenode start
+ssh ${SSH_OPTS} ${namenode} service hadoop-hdfs-namenode start
+ssh ${SSH_OPTS} ${secondarynamenode} service hadoop-hdfs-secondarynamenode start
 
 for node in $(awk '/node[0-9]+/ {print $1}' ${hosts_file}); do
   for n in 1 2 3; do
@@ -25,8 +25,8 @@ for node in $(awk '/node[0-9]+/ {print $1}' ${hosts_file}); do
     ssh ${SSH_OPTS} ${node} mkdir -p /data${n}/mapred/local
     ssh ${SSH_OPTS} ${node} chown -R mapred:hadoop /data${n}/mapred
   done
-  ssh ${SSH_OPTS} ${node} service hadoop-0.20-datanode start
-  ssh ${SSH_OPTS} ${node} service hadoop-0.20-tasktracker start
+  ssh ${SSH_OPTS} ${node} service hadoop-hdfs-datanode start
+  ssh ${SSH_OPTS} ${node} service hadoop-0.20-mapreduce-tasktracker start
 done
 
-ssh ${SSH_OPTS} ${namenode} service hadoop-0.20-jobtracker start
+ssh ${SSH_OPTS} ${namenode} service hadoop-0.20-mapreduce-jobtracker start

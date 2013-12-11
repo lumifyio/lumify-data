@@ -1,6 +1,8 @@
 class env::cluster::webserver {
   include my_fw
-  include jetty::fw::server
+  class { 'jetty::fw::server' :
+    stage => 'first',
+  }
 
   include env::common::webserver
 }

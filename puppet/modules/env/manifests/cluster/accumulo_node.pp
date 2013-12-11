@@ -5,10 +5,10 @@ class env::cluster::accumulo_node {
 
   include my_fw
   class { 'accumulo::fw::tserver' :
-    site => 'first',
+    stage => 'first',
   }
   class { 'accumulo::fw::logger' :
-    site => 'first',
+    stage => 'first',
   }
 
   include role::accumulo::node
