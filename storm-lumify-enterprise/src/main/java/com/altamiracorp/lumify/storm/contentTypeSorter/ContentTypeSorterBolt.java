@@ -23,8 +23,6 @@ import org.slf4j.LoggerFactory;
 import java.io.BufferedInputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.text.SimpleDateFormat;
-import java.util.Date;
 import java.util.List;
 import java.util.Map;
 import java.util.ServiceLoader;
@@ -35,7 +33,6 @@ public class ContentTypeSorterBolt extends BaseLumifyBolt {
     private static final Logger LOGGER = LoggerFactory.getLogger(ContentTypeSorterBolt.class);
 
     private static final Joiner FILEPATH_JOINER = Joiner.on('/');
-    private static final SimpleDateFormat fileNameSuffix = new SimpleDateFormat("yyyy-MM-dd'T'HH-mm-ssZ");
 
     private ContentTypeExtractor contentTypeExtractor;
     private String dataDir;
@@ -65,7 +62,7 @@ public class ContentTypeSorterBolt extends BaseLumifyBolt {
         try {
             String queueName = calculateQueueName(fileName, in);
 
-            moveFile(fileName, FILEPATH_JOINER.join(dataDir, queueName, FilenameUtils.getName(fileName) + "__" + fileNameSuffix.format(new Date())));
+            moveFile(fileName, FILEPATH_JOINER.join(dataDir, queueName, getFileNameWithDateSuffix(fileName)));
 
             LOGGER.debug("Content sorted to: " + queueName);
         } finally {
