@@ -94,17 +94,4 @@ public class StormRunner extends CommandLineBase {
         builder.setBolt(spoutName + "-bolt", new TwitterStreamingBolt(), 1)
                 .shuffleGrouping(spoutName); //.shuffleGrouping("twitterStreamSpout");
     }
-
-    private SpoutConfig createSpoutConfig(String queueName, Scheme scheme) {
-        if (scheme == null) {
-            scheme = new KafkaJsonEncoder();
-        }
-        SpoutConfig spoutConfig = new SpoutConfig(
-                new KafkaConfig.ZkHosts(getConfiguration().get(com.altamiracorp.lumify.core.config.Configuration.ZK_SERVERS), "/kafka/brokers"),
-                queueName,
-                "/kafka/consumers",
-                queueName);
-        spoutConfig.scheme = scheme;
-        return spoutConfig;
-    }
 }
