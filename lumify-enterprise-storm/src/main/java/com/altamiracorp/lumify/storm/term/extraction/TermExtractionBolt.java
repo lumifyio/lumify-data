@@ -150,8 +150,8 @@ public class TermExtractionBolt extends BaseTextProcessingBolt {
                 graphRepository.saveRelationship(artifactGraphVertexId, resolvedEntityGraphVertexId, LabelName.HAS_ENTITY, getUser());
 
                 String labelDisplayName = ontologyRepository.getDisplayNameForLabel(LabelName.HAS_ENTITY.toString(), getUser());
-                auditRepository.audit(artifactGraphVertexId, auditRepository.relationshipAuditMessageOnSource(labelDisplayName, termMention.getSign()), getUser());
-                auditRepository.audit(resolvedEntityGraphVertexId, auditRepository.relationshipAuditMessageOnDest(labelDisplayName, artifactTitle), getUser());
+                auditRepository.audit(artifactGraphVertexId, auditRepository.relationshipAuditMessageOnSource(labelDisplayName, termMention.getSign(), ""), getUser());
+                auditRepository.audit(resolvedEntityGraphVertexId, auditRepository.relationshipAuditMessageOnDest(labelDisplayName, artifactTitle, ""), getUser());
 
                 termMentionModel.getMetadata().setGraphVertexId(resolvedEntityGraphVertexId);
             }
