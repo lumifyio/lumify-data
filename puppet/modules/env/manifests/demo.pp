@@ -64,7 +64,7 @@ class env::demo {
   }
 
   file { '/opt/lumify/kafka-clear.sh' :
-    source => 'puppet:///modules/env/dev/kafka-clear.sh',
+    source => 'puppet:///modules/env/common/kafka-clear.sh',
     owner => 'vagrant',
     mode => 'u=rwx,g=,o=',
   }
