@@ -18,3 +18,7 @@
 	url = git@github.com:altamiracorp/lumify-rpms.git
 	path = lumify-rpms
 	branch = master
+[subtree "lumify-root"]
+	url = git@github.com:altamiracorp/lumify-root.git
+	path = lumify-root
+	branch = master
