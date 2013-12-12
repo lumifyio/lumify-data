@@ -1,6 +1,8 @@
 package com.altamiracorp.lumify.storm.video;
 
 import com.altamiracorp.lumify.core.ingest.video.VideoTranscript;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.*;
 import java.util.regex.Matcher;
@@ -8,6 +10,7 @@ import java.util.regex.Pattern;
 
 public class SubRip {
     private static final Pattern TIME_PATTERN = Pattern.compile("([0-9]*):([0-9]*):([0-9]*),([0-9]*)");
+    private static final Logger LOGGER = LoggerFactory.getLogger(SubRip.class);
 
     private enum ReadState {
         Frame,
@@ -35,8 +38,12 @@ public class SubRip {
         while ((line = reader.readLine()) != null) {
             switch (readState) {
                 case Frame:
-                    frame = Integer.parseInt(line);
-                    readState = ReadState.Time;
+                    try {
+                        frame = Integer.parseInt(line);
+                        readState = ReadState.Time;
+                    } catch (NumberFormatException e) {
+                        LOGGER.warn(line + " is not a number.");
+                    }
                     break;
                 case Time:
                     time = parseTimeLine(line);
