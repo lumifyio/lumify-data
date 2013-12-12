@@ -64,14 +64,22 @@ rmr /kafka/brokers/consumers
     " | sudo -u zookeeper /usr/lib/zookeeper/bin/zkCli.sh &> /tmp/delete_topic.log
 }
 
-/opt/lumify/stop.sh kafka || 1
-/opt/lumify/start.sh zk
+if [ -f /opt/lumify/stop.sh ]; then
+  /opt/lumify/stop.sh kafka || 1
+  /opt/lumify/start.sh zk
+else
+  initctl stop kafka
+fi
 
 sudo rm -rf /opt/kafka/logs/*
 
 delete_topics
 
-/opt/lumify/start.sh kafka
+if [ -f /opt/lumify/start.sh ]; then
+  /opt/lumify/start.sh kafka
+else
+  initctl start kafka
+fi
 
 sleep 1  # kafka times a little bit of time to start
 
