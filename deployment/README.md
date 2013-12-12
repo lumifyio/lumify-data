@@ -35,41 +35,10 @@ ec2-modify-instance-attribute <instance id> --group-id <existing group id> --gro
 setup
 =====
 
-1. ssh from the puppet server to the Hadoop namenode to populate the HDFS /conf directory, stage GeoNames data, and setup Oozie:
-
+1. ssh from the puppet server to one of the Kafka servers and run:
 ```
-mkdir /data0/import
-mv *.tgz /data0/import
-mv setup_conf.sh setup_geonames.sh setup_oozie.sh setup_import.sh /data0/import
-chown -R hdfs:hdfs /data0/import
-su - hdfs
-cd /data0/import
-./setup_conf.sh
-./setup_geonames.sh http://10.0.3.10:8080
-./setup_oozie.sh
+/opt/lumify/kafka-clear.sh --zookeeper 10.0.3.101:2181
 ```
-
-1. ssh from the puppet server to the Haddop namenode to start Oozie: `service oozie start`
-1. ssh from the puppet server to the Haddop namenode to enable the Ooozie web interface: `cp -r /usr/lib/oozie/libext/ext-2.2 /var/lib/oozie/oozie-server/webapps/oozie`
-1. ssh from the puppet server to the Hadoop namenode to ingest the geonames data:
-
-```
-su - hdfs
-cd /data0/import
-oozie job -oozie http://localhost:11000/oozie \
-          -config jobs/job-common.properties \
-          -Doozie.wf.application.path='${nameNode}/user/${user.name}/${workflowRoot}/geonames-import' \
-          -run
-```
-
-1. browse to the web app and use the admin page to upload an ontology: http://<web-server-elastic-ip/admin/uploadOntology.html
-
-ingest data
-===========
-
-*option 1:* web upload and `oozie aggregate/mr-jobs`
-
-*option 2:* stage in HDFS `/import/1-ready` with `oozie coordinators/file-import` and `oozie aggregate/mr-jobs`
 
 turning it off
 ==============
