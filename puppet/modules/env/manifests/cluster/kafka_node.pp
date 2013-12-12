@@ -1,4 +1,4 @@
-class env::cluster::kafka_node {
+class env::cluster::kafka_node inherits env::cluster {
   include my_fw
   class { 'kafka::fw::node' :
     stage => 'first',

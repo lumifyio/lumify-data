@@ -1,5 +1,6 @@
 class env::common::webserver {
   include role::web::server
+  include config
 
   $hadoop_masters = hiera_array('hadoop_masters')
   $hadoop_slaves = hiera_array('hadoop_slaves')
@@ -7,34 +8,12 @@ class env::common::webserver {
   $elasticsearch_locations = hiera_array('elasticsearch_locations')
   $authentication_provider = hiera('authentication_provider')
 
-  file { [ '/opt', '/opt/lumify', '/opt/lumify/config' ] :
-    ensure => directory,
-  }
-
   file { '/opt/lumify/logs' :
     ensure => directory,
     owner => 'jetty',
     group => 'jetty',
     mode => 'u=rwx,g=,o=',
     require => [ File['/opt/lumify'], User['jetty'] ],
-  }
-
-  file { '/opt/lumify/config/log4j.xml' :
-    ensure => file,
-    source => 'puppet:///modules/env/cluster/log4j.xml',
-    require => File['/opt/lumify/config'],
-  }
-
-  file { '/opt/lumify/config/configuration.properties' :
-    ensure => file,
-    content => template('env/cluster/configuration.properties.erb'),
-    require => File['/opt/lumify/config'],
-  }
-
-  file { '/opt/lumify/config/credentials.properties-EXAMPLE' :
-    ensure => file,
-    source => 'puppet:///modules/env/cluster/credentials.properties-EXAMPLE',
-    require => File['/opt/lumify/config'],
   }
 
   exec { 'create default java keystore' :

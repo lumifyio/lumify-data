@@ -1,4 +1,4 @@
-class env::cluster::accumulo_master {
+class env::cluster::accumulo_master inherits env::cluster {
   package { 'hadoop-zookeeper' :
     ensure => present,
   }
