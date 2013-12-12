@@ -65,10 +65,10 @@ rmr /kafka/brokers/consumers
 }
 
 if [ -f /opt/lumify/stop.sh ]; then
-  /opt/lumify/stop.sh kafka || 1
+  /opt/lumify/stop.sh kafka || true
   /opt/lumify/start.sh zk
 else
-  initctl stop kafka
+  initctl stop kafka || true
 fi
 
 sudo rm -rf /opt/kafka/logs/*

@@ -17,12 +17,12 @@
 ############################# Server Basics #############################
 
 # The id of the broker. This must be set to a unique integer for each broker.
-brokerid=0
+brokerid=<%= @kafka_host_ipaddresses.find {|id, ip| ip == @kafka_host_ip}[0] %>
 
 # Hostname the broker will advertise to consumers. If not set, kafka will use the value returned
 # from InetAddress.getLocalHost().  If there are multiple interfaces getLocalHost
 # may not be what you want.
-hostname=<%= @kafka_host_ipaddress %>
+hostname=<%= @kafka_host_ip %>
 
 
 ############################# Socket Server Settings #############################
