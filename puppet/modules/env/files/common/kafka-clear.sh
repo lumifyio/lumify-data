@@ -39,30 +39,35 @@ function set_args {
 
 set_args $*
 
+function ensure_zookeeper_dir {
+  echo 'create /kafka ""' | sudo -u zookeeper /usr/lib/zookeeper/bin/zkCli.sh &> /tmp/ensure_zookeeper_dir.log
+}
 
 function create_topic {
-    local topicName=$1
+  local topicName=$1
 
-    echo "Creating topic ${topicName}"
-    /opt/kafka/bin/kafka-create-topic.sh --zookeeper ${ZOOKEEPER}/kafka --replica ${REPLICA} --partition ${PARTITION} --topic ${topicName} &> /tmp/create_topic.log
+  echo "Creating topic ${topicName}"
+  /opt/kafka/bin/kafka-create-topic.sh --zookeeper ${ZOOKEEPER}/kafka --replica ${REPLICA} --partition ${PARTITION} --topic ${topicName} &> /tmp/create_topic.log
 }
 
 function create_topics {
-    create_topic text
-    create_topic term
-    create_topic artifactHighlight
-    create_topic searchIndex
-    create_topic processedVideo
-    create_topic structuredData
-    create_topic twitterStream
+  create_topic text
+  create_topic term
+  create_topic artifactHighlight
+  create_topic searchIndex
+  create_topic processedVideo
+  create_topic structuredData
+  create_topic twitterStream
 }
 
 function delete_topics {
-    echo "
+  echo "
 rmr /kafka/brokers/topics
 rmr /kafka/brokers/consumers
-    " | sudo -u zookeeper /usr/lib/zookeeper/bin/zkCli.sh &> /tmp/delete_topic.log
+  " | sudo -u zookeeper /usr/lib/zookeeper/bin/zkCli.sh &> /tmp/delete_topic.log
 }
+
+ensure_zookeeper_dir
 
 if [ -f /opt/lumify/stop.sh ]; then
   /opt/lumify/stop.sh kafka || true
