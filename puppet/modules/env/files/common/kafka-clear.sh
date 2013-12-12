@@ -40,7 +40,7 @@ function set_args {
 set_args $*
 
 function ensure_zookeeper_dir {
-  echo 'create /kafka ""' | sudo -u zookeeper /usr/lib/zookeeper/bin/zkCli.sh &> /tmp/ensure_zookeeper_dir.log
+  echo 'create /kafka ""' | sudo -u zookeeper /usr/lib/zookeeper/bin/zkCli.sh -server ${ZOOKEEPER} &> /tmp/ensure_zookeeper_dir.log
 }
 
 function create_topic {
@@ -64,7 +64,7 @@ function delete_topics {
   echo "
 rmr /kafka/brokers/topics
 rmr /kafka/brokers/consumers
-  " | sudo -u zookeeper /usr/lib/zookeeper/bin/zkCli.sh &> /tmp/delete_topic.log
+  " | sudo -u zookeeper /usr/lib/zookeeper/bin/zkCli.sh -server ${ZOOKEEPER} &> /tmp/delete_topic.log
 }
 
 ensure_zookeeper_dir
