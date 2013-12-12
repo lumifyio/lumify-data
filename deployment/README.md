@@ -39,6 +39,12 @@ setup
 ```
 /opt/lumify/kafka-clear.sh --zookeeper 10.0.3.101:2181
 ```
+2. ssh from the puppet server to storm nimbus server and run:
+```
+/opt/storm/bin/storm jar lumify-storm-1.0-SNAPSHOT-jar-with-dependencies.jar com.altamiracorp.lumify.storm.StormRunner
+/opt/storm/bin/storm jar lumify-enterprise-storm-1.0-SNAPSHOT-jar-with-dependencies.jar com.altamiracorp.lumify.storm.StormEnterpriseRunner
+/opt/storm/bin/storm jar lumify-twitter-1.0-SNAPSHOT-jar-with-dependencies.jar com.altamiracorp.lumify.storm.twitter.StormRunner
+```
 
 turning it off
 ==============
