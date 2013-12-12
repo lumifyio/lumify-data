@@ -1,13 +1,53 @@
 #!/bin/bash -e
 
-function create_topic() {
+ZOOKEEPER=localhost:2181
+REPLICA=1
+PARTITION=1
+
+function print_help {
+  echo "usage: $0 [--zookeeper SERVER] [--partition NUMBER] [--replica NUMBER]"
+  echo ""
+  echo "Options:"
+  echo "  --zookeeper SERVER   Specify the zookeeper server to connect to"
+  echo "  --partition NUMBER   Specify the number of partitions to use when creating topics"
+  echo "  --replica NUMBER     Specify the number of replicas to use when creating topics"
+}
+
+function set_args {
+  while [ "$1" != "" ]; do
+    case $1 in
+      "--zookeeper")
+        shift
+        ZOOKEEPER=$1
+        ;;
+      "--partition")
+        shift
+        PARTITION=$1
+        ;;
+      "--replica")
+        shift
+        REPLICA=$1
+        ;;
+      "--help")
+        print_help
+        exit 1
+        ;;
+    esac
+    shift
+  done
+}
+
+set_args $*
+
+
+function create_topic {
     local topicName=$1
 
     echo "Creating topic ${topicName}"
-    /opt/kafka/bin/kafka-create-topic.sh --zookeeper localhost:2181/kafka --replica 1 --partition 1 --topic ${topicName} &> /tmp/create_topic.log
+    /opt/kafka/bin/kafka-create-topic.sh --zookeeper ${ZOOKEEPER}/kafka --replica ${REPLICA} --partition ${PARTITION} --topic ${topicName} &> /tmp/create_topic.log
 }
 
-function create_topics() {
+function create_topics {
     create_topic text
     create_topic term
     create_topic artifactHighlight
@@ -17,29 +57,7 @@ function create_topics() {
     create_topic twitterStream
 }
 
-function delete_topic() {
-    local topicName=$1
-
-    echo "Deleting topic ${topicName}"
-    sudo -u zookeeper /usr/lib/zookeeper/bin/zkCli.sh "delete /kafka/brokers/topics/${topicName}/0" &> /tmp/delete_topic.log
-    sudo -u zookeeper /usr/lib/zookeeper/bin/zkCli.sh "delete /kafka/brokers/topics/${topicName}" &> /tmp/delete_topic.log
-}
-
-function delete_topics() {
-    delete_topic text
-    delete_topic term
-    delete_topic artifactHighlight
-    delete_topic searchIndex
-    delete_topic processedVideo
-    delete_topic structuredData
-    delete_topic twitterStream
-
-    sudo -u zookeeper /usr/lib/zookeeper/bin/zkCli.sh "delete /kafka/brokers/topics" &> /tmp/delete_topic.log
-    sudo -u zookeeper /usr/lib/zookeeper/bin/zkCli.sh "delete /kafka/consumers/text/192.168.33.10:9092:0" &> /tmp/delete_topic.log
-    sudo -u zookeeper /usr/lib/zookeeper/bin/zkCli.sh "delete /kafka/consumers/text" &> /tmp/delete_topic.log
-    sudo -u zookeeper /usr/lib/zookeeper/bin/zkCli.sh "delete /kafka/consumers/artifactHighlight/192.168.33.10:9092:0" &> /tmp/delete_topic.log
-    sudo -u zookeeper /usr/lib/zookeeper/bin/zkCli.sh "delete /kafka/consumers/artifactHighlight" &> /tmp/delete_topic.log
-
+function delete_topics {
     echo "
 rmr /kafka/brokers/topics
 rmr /kafka/brokers/consumers
@@ -61,4 +79,4 @@ create_topics
 
 echo ""
 echo "Topic List"
-/opt/kafka/bin/kafka-list-topic.sh --zookeeper localhost:2181/kafka
+/opt/kafka/bin/kafka-list-topic.sh --zookeeper ${ZOOKEEPER}/kafka
