@@ -12,3 +12,4 @@ node_modules/
 *.swp
 allCountries.txt
 coverage-error.log
+npm-debug.log

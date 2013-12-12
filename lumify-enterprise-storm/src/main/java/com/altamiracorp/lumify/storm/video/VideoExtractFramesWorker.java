@@ -47,7 +47,8 @@ public class VideoExtractFramesWorker extends ThreadedTeeInputStreamWorker<Artif
                         "-r", "" + framesPerSecondToExtract,
                         new File(tempDir, "image-%8d.png").getAbsolutePath()
                 },
-                null
+                null,
+                additionalArtifactWorkData.getFileName() + ": "
         );
 
         long videoDuration = 0;

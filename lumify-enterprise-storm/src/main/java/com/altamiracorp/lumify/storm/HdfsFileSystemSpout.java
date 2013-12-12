@@ -27,7 +27,7 @@ public class HdfsFileSystemSpout extends BaseFileSystemSpout {
     private final String subDir;
     private FileSystem hdfsFileSystem;
     private String readPath;
-    private Queue<String> filesToProcess = new LinkedList<String>();
+    private Queue<String> filesToProcess;
 
     public HdfsFileSystemSpout(String subDir) {
         this.subDir = subDir;
@@ -36,6 +36,8 @@ public class HdfsFileSystemSpout extends BaseFileSystemSpout {
     @Override
     public void open(Map stormConf, TopologyContext context, SpoutOutputCollector collector) {
         super.open(stormConf, context, collector);
+
+        filesToProcess = new LinkedList<String>();
 
         String rootDataPath = (String) stormConf.get(BaseFileSystemSpout.DATADIR_CONFIG_NAME);
         checkNotNull(rootDataPath, BaseFileSystemSpout.DATADIR_CONFIG_NAME + " is a required configuration parameter");

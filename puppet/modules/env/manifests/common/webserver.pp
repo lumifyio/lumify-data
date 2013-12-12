@@ -19,6 +19,12 @@ class env::common::webserver {
     require => [ File['/opt/lumify'], User['jetty'] ],
   }
 
+  file { '/opt/lumify/config/log4j.xml' :
+    ensure => file,
+    source => 'puppet:///modules/env/cluster/log4j.xml',
+    require => File['/opt/lumify/config'],
+  }
+
   file { '/opt/lumify/config/configuration.properties' :
     ensure => file,
     content => template('env/cluster/configuration.properties.erb'),

@@ -115,6 +115,7 @@ public class StormEnterpriseRunner extends CommandLineBase {
     }
 
     private void copyDataFilesToHdfs(Config stormConf, String dataDir) throws URISyntaxException, IOException, InterruptedException {
+        LOGGER.debug("Copying files to HDFS");
         File dataDirFile = new File(dataDir);
         String hdfsRootDir = (String) stormConf.get(com.altamiracorp.lumify.core.config.Configuration.HADOOP_URL);
         Configuration conf = ConfigurationHelper.createHadoopConfigurationFromMap(stormConf);
@@ -122,6 +123,7 @@ public class StormEnterpriseRunner extends CommandLineBase {
         FileSystem hdfsFileSystem = FileSystem.get(new URI(hdfsRootDir), conf, "hadoop");
         Path unknownDataDir = new Path(ROOT_DATA_DIR, UNKNOWN_DATA_DIR);
 
+        int totalFileCount = dataDirFile.listFiles().length;
         int fileCount = 0;
         for (File f : dataDirFile.listFiles()) {
             Path srcPath = new Path(f.getAbsolutePath());
@@ -130,8 +132,9 @@ public class StormEnterpriseRunner extends CommandLineBase {
             }
 
             Path dstPath = new Path(unknownDataDir, srcPath.getName());
+            LOGGER.debug("Copying file (" + (fileCount + 1) + "/" + totalFileCount + "): " + srcPath + " -> " + dstPath);
             hdfsFileSystem.copyFromLocalFile(false, true, srcPath, dstPath);
-            ++fileCount;
+            fileCount++;
         }
 
         LOGGER.debug(String.format("Copied %d %s from %s to HDFS: %s", fileCount, Noun.pluralOf("file", fileCount), dataDirFile, unknownDataDir));

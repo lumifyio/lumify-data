@@ -41,7 +41,7 @@ function run_maven {
     echo 'maven ok.' >&2
   else
     echo 'running maven...' >&2
-    local mvn_output="$(cd ..; mvn clean install -P storm-jar,web-war -DskipTests)"
+    local mvn_output="$(cd ..; mvn clean install -P storm-jar,web-war -DskipTests=true)"
     local mvn_exit=$?
     if [ ${mvn_exit} -ne 0 ]; then
       echo "${mvn_output}" >&2
@@ -76,7 +76,7 @@ function bundle_war {
   run_maven
   local war_files=$(find .. -name '*.war')
 
-  FILE_LIST="${FILE_LIST} application.xml ${war_files}"
+  FILE_LIST="${FILE_LIST} lumify.xml ${war_files}"
 }
 
 

@@ -41,7 +41,9 @@ public class VideoPosterFrameWorker extends ThreadedTeeInputStreamWorker<Artifac
                             "-y",
                             "-"
                     },
-                    out);
+                    out,
+                    additionalArtifactWorkData.getLocalFileName() + ": "
+            );
         } finally {
             out.close();
         }

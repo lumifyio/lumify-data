@@ -37,7 +37,12 @@ hiera['zookeeper_nodes'] = zk_nodes
 hiera['namenode_ipaddress'] = cluster['namenode'][:ip]
 hiera['namenode_hostname'] = 'namenode'
 hiera['elasticsearch_locations'] = get(cluster, /node\d{2}/, :ip).collect{|ip| "#{ip}:9300"}
-hiera['kafka_host_ipaddress'] = get(cluster, /kafka\d{2}/, :ip).first
+kafka_nodes = Hash.new
+cluster.select{|k,v| k.match(/kafka\d/)}.each do |k,v|
+  n = k.match(/kafka(\d{2})/).captures[0].to_i
+  kafka_nodes[n] = v[:ip]
+end
+hiera['kafka_host_ipaddresses'] = kafka_nodes
 hiera['storm_nimbus_host'] = get(cluster, /stormmaster/, :ip)
 hiera['storm_nimbus_thrift_port'] = 6627
 hiera['storm_supervisor_slots_ports'] = [6700, 6701, 6702, 6703]
