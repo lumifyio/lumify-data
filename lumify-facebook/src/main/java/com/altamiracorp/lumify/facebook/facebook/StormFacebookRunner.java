@@ -94,17 +94,4 @@ public class StormFacebookRunner extends CommandLineBase {
         builder.setBolt(spoutName + "-bolt", new FacebookBolt(), 1)
                 .shuffleGrouping(spoutName);
     }
-
-    private SpoutConfig createSpoutConfig(String queueName, Scheme scheme) {
-        if (scheme == null) {
-            scheme = new KafkaJsonEncoder();
-        }
-        SpoutConfig spoutConfig = new SpoutConfig(
-                new KafkaConfig.ZkHosts(getConfiguration().get(com.altamiracorp.lumify.core.config.Configuration.ZK_SERVERS), "/kafka/brokers"),
-                queueName,
-                "/kafka/consumers",
-                queueName);
-        spoutConfig.scheme = scheme;
-        return spoutConfig;
-    }
 }
