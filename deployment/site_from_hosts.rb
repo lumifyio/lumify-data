@@ -12,6 +12,12 @@ MAP = {
   'www'               => ['include env::cluster::webserver']
 }
 
+puts <<-EOM
+stage { 'first' :
+before => Stage['main'],
+}
+
+EOM
 
 File.read(ARGV[0]).each_line do |line|
   ip, name, *aliases_and_comment = line.split(/\s+/)
