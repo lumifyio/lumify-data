@@ -48,7 +48,8 @@ public class VideoWebMEncodingWorker extends ThreadedTeeInputStreamWorker<Artifa
                             "-f", "webm",
                             "-"
                     },
-                    out
+                    out,
+                    data.getFileName() + ": "
             );
         } finally {
             out.close();

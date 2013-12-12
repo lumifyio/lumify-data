@@ -38,7 +38,9 @@ public class VideoAudioExtractWorker extends ThreadedTeeInputStreamWorker<Artifa
                             "-y",
                             "-"
                     },
-                    out);
+                    out,
+                    additionalArtifactWorkData.getFileName() + ": "
+            );
         } finally {
             out.close();
         }

@@ -48,7 +48,8 @@ public class VideoMp4EncodingWorker extends ThreadedTeeInputStreamWorker<Artifac
                             "-f", "mp4",
                             mp4File.getAbsolutePath()
                     },
-                    null
+                    null,
+                    data.getFileName() + ": "
             );
 
             processRunner.execute(
@@ -57,7 +58,9 @@ public class VideoMp4EncodingWorker extends ThreadedTeeInputStreamWorker<Artifac
                             mp4File.getAbsolutePath(),
                             mp4ReloactedFile.getAbsolutePath()
                     },
-                    null);
+                    null,
+                    data.getFileName() + ": "
+            );
 
             Path copySourcePath = new Path(mp4ReloactedFile.getAbsolutePath());
             Path copyDestPath = new Path("/tmp/videoMp4-" + random.nextInt() + ".mp4");

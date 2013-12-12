@@ -36,7 +36,8 @@ public class CCExtractorWorker extends ThreadedTeeInputStreamWorker<ArtifactExtr
                             "-in=mp4",
                             additionalArtifactWorkData.getLocalFileName()
                     },
-                    null
+                    null,
+                    additionalArtifactWorkData.getFileName() + ": "
             );
 
             VideoTranscript videoTranscript = SubRip.read(ccFile);
