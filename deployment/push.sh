@@ -66,10 +66,10 @@ function bundle_puppet {
   FILE_LIST="${FILE_LIST} ${modules_tgz} ${puppet_modules_tgz} /tmp/site-${DATETIME}.pp /tmp/hiera-${DATETIME}.yaml"
 }
 
-function bundle_conf {
-  local conf_tgz=$(git_archive conf .. 'conf/opencv conf/opennlp')
+function bundle_config {
+  local config_tgz=$(git_archive config .. 'config/opencv config/opennlp')
 
-  FILE_LIST="${FILE_LIST} setup_conf.sh ${conf_tgz}"
+  FILE_LIST="${FILE_LIST} setup_config.sh ${config_tgz}"
 }
 
 function bundle_war {
@@ -102,10 +102,13 @@ case ${component} in
   storm)
     bundle_storm
     ;;
+  config)
+    bundle_config
+    ;;
   everything)
     bundle_init
     bundle_puppet
-    bundle_conf
+    bundle_config
     FILE_LIST="${FILE_LIST} setup_geonames.sh setup_import.sh"
     bundle_war
     bundle_storm
