@@ -8,14 +8,6 @@ class env::common::webserver {
   $elasticsearch_locations = hiera_array('elasticsearch_locations')
   $authentication_provider = hiera('authentication_provider')
 
-  file { '/opt/lumify/logs' :
-    ensure => directory,
-    owner => 'jetty',
-    group => 'jetty',
-    mode => 'u=rwx,g=,o=',
-    require => [ File['/opt/lumify'], User['jetty'] ],
-  }
-
   exec { 'create default java keystore' :
     command => '/usr/java/default/bin/keytool -genkeypair -keysize 2048 -keyalg RSA -keystore /opt/lumify/config/jetty.jks -keypass password -storepass password -dname CN=demo.lumify.io',
     creates => '/opt/lumify/config/jetty.jks',

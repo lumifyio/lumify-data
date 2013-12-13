@@ -3,6 +3,13 @@ class env::common::config {
     ensure => directory,
   }
 
+  # TODO: change the permissions and make it more restrictive. Possible create a lumify group and add all the users to it
+  file { '/opt/lumify/logs' :
+    ensure => directory,
+    mode => 'u=rwx,g=rwx,o=rwx',
+    require => [ File['/opt/lumify'] ],
+  }
+
   file { '/opt/lumify/config/log4j.xml' :
     ensure => file,
     source => 'puppet:///modules/env/cluster/log4j.xml',
