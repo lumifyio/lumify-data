@@ -1,4 +1,4 @@
-class env::cluster::hadoop_slave {
+class env::cluster::hadoop_slave inherits env::cluster {
   include my_fw
   class { 'hadoop::fw::datanode' :
     stage => 'first',

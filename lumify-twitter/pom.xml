@@ -25,6 +25,7 @@
     </profiles>
     
     <properties>
+        <lumify.maven.repo>http://bits.lumify.io/m2/</lumify.maven.repo>
         <!-- Dependency Versions -->
         <lumify.version>1.0-SNAPSHOT</lumify.version>
         <twitter.hbc.version>1.4.0</twitter.hbc.version>
@@ -145,7 +146,7 @@
     <repositories>
         <repository>
             <id>lumify-releases</id>
-            <url>http://bits.lumify.io/m2/</url>
+            <url>${lumify.maven.repo}</url>
         </repository>
         <repository>
             <snapshots>
@@ -153,7 +154,7 @@
                 <updatePolicy>always</updatePolicy>
             </snapshots>
             <id>lumify-snapshots</id>
-            <url>http://bits.lumify.io/m2/</url>
+            <url>${lumify.maven.repo}</url>
         </repository>
     </repositories>
 </project>

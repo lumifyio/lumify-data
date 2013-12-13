@@ -1,4 +1,4 @@
-class env::cluster::node {
+class env::cluster::node inherits env::cluster {
   include hadoop_slave
   include accumulo_node
   include elasticsearch_node

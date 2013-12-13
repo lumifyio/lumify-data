@@ -16,7 +16,6 @@ import java.net.URI;
 import java.util.LinkedList;
 import java.util.Map;
 import java.util.Queue;
-import java.util.concurrent.atomic.AtomicLong;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 import static com.google.common.base.Preconditions.checkState;
@@ -76,8 +75,9 @@ public class HdfsFileSystemSpout extends BaseFileSystemSpout {
             if (filesToProcess.size() == 0) {
                 Utils.sleep(1000);
             }
-        } catch (IOException e) {
-            getCollector().reportError(e);
+        } catch (IOException ex) {
+            LOGGER.error("Could not get nextTuple", ex);
+            getCollector().reportError(ex);
         }
     }
 

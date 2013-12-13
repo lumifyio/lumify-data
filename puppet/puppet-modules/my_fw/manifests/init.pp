@@ -1,6 +1,8 @@
-stage { 'first' :
-  before => Stage['main'],
-}
+# NOTE: declare the following 'first' stage in your site.pp file
+#
+# stage { 'first' :
+#   before => Stage['main'],
+# }
 
 class my_fw {
 }

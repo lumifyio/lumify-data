@@ -1,4 +1,4 @@
-class env::cluster::hadoop_master {
+class env::cluster::hadoop_master inherits env::cluster {
   include my_fw
   class { 'hadoop::fw::namenode' :
     stage => 'first',

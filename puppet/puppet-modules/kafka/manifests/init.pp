@@ -107,7 +107,6 @@ class kafka(
   $java_home = hiera("java_home")
   exec { "sbt update" :
     command => "/bin/sh sbt update",
-    timeout => 600,
     user    => $user,
     group   => $group,
     cwd     => $extractdir,
