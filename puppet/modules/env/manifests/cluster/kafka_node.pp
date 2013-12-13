@@ -1,4 +1,4 @@
-class env::cluster::kafka_node inherits env::cluster {
+class env::cluster::kafka_node inherits env::cluster::base {
   include my_fw
   class { 'kafka::fw::node' :
     stage => 'first',
@@ -22,10 +22,6 @@ class env::cluster::kafka_node inherits env::cluster {
     before  => Exec[ 'sbt update',
                      'sbt package'
                    ],
-  }
-
-  file { '/opt/lumify' :
-    ensure => directory,
   }
 
   file { '/opt/lumify/kafka-clear.sh' :

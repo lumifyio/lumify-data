@@ -1,4 +1,4 @@
-class env::cluster {
+class env::cluster::base {
   include env::common::config
 
   class { '::ntp' :
