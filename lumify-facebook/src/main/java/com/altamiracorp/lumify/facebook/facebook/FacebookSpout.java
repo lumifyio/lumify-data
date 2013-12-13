@@ -99,7 +99,7 @@ public class FacebookSpout extends BaseRichSpout {
         facebook.setOAuthAppId((String) stormConf.get(APP_ID), (String) stormConf.get(APP_SECRET));
         facebook.setOAuthPermissions(locationPermissions + userPermissions);
 //        facebook.setOAuthAccessToken(new AccessToken((String) stormConf.get(ACCESS_TOKEN), null));
-        facebook.setOAuthAccessToken(new AccessToken("CAACEdEose0cBAHlZCNryrhISNEF4T1ZB2Q2Fkve4LRkDD7gHzs6PAN3vCz8wEanWcCWHt8QxeHPoplu7TlOsK9FJ4jCNax8ejfayzhp7tsxp4AaL6ZBckhUgD5hxOmEMAb4ZBW4crg5JTbq5VrhBXpRrDF0OTJEUvqFAhU7baDBJ1rYsFtYOplp09BSToiIZD"));
+        facebook.setOAuthAccessToken(new AccessToken("CAACEdEose0cBAHIKG1vB9tgppUREIvrIPVH9D9ku8tZArPFKi5ttUGqTOmVZCARJkSASO8zZCzGZCxh8nGHPkZBkzsCF4ZAIWSferNqArjHaAXZA8mPyYiNzNP0q0rJjhdrETToTrtyfduU4weVaDiUkgQloyjIe0F7dRQqhyS1kkVnSmYCG7pEpzz72En4OSQZD"));
         LOGGER.info(String.format("Configuring environment for spout: %s-%d", context.getThisComponentId(), context.getThisTaskId()));
         getTuplesFromQuery();
         this.collector = collector;
