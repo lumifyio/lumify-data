@@ -16,19 +16,19 @@
 `$ hadoop fs -mkdir /lumify/config/opennlp`
 
 3. Copy OpenNLP configuration files to HDFS:
-`$ hadoop fs -put /vagrant/conf/opennlp/* /lumify/config/opennlp`
+`$ hadoop fs -put /vagrant/config/opennlp/* /lumify/config/opennlp`
 
 4. Create the configuration directory used to store KnownEntities configuration files:
 `$ hadoop fs -mkdir /lumify/config/knownEntities`
 
 5. Copy KnownEntities configuration files to HDFS:
-`$ hadoop fs -put /vagrant/conf/knownEntities/* /lumify/config/knownEntities`
+`$ hadoop fs -put /vagrant/config/knownEntities/* /lumify/config/knownEntities`
 
 6. Create the configuration directory used to store OpenCV's configuration files:
 `$ hadoop fs -mkdir /lumify/config/opencv`
 
 7. Copy OpenCV configuration files to HDFS:
-`$ hadoop fs -put /vagrant/conf/opencv/* /lumify/config/opencv`
+`$ hadoop fs -put /vagrant/config/opencv/* /lumify/config/opencv`
 
 ### Kafka Queue
 

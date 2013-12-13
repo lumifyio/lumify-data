@@ -21,5 +21,5 @@ java \
 com.altamiracorp.lumify.entityExtraction.DictionaryImporter \
 --configLocation file:///opt/lumify/config/configuration.properties \
 --extension=dict \
---directory=${DIR}/../conf/opennlp/dictionaries \
+--directory=${DIR}/../config/opennlp/dictionaries \
 
