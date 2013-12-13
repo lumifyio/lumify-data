@@ -47,11 +47,11 @@ cp /vagrant/demo-vm/sample-data.tgz /opt/lumify
 /opt/storm/bin/storm list \
   | grep -q 'lumify\s*ACTIVE' && /opt/storm/bin/storm kill lumify
 /opt/storm/bin/storm jar \
- /vagrant/lumify-public/storm-lumify/target/lumify-storm-1.0-SNAPSHOT-jar-with-dependencies.jar \
+ /vagrant/lumify-public/lumify-storm/target/lumify-storm-1.0-SNAPSHOT-jar-with-dependencies.jar \
  com.altamiracorp.lumify.storm.StormRunner
 
 # reindex the restored sample data
 cp /vagrant/bin/rebuild-index.sh /opt/lumify
 mkdir -p /opt/lumify/lib
-cp /vagrant/lumify-public/storm-lumify/target/lumify-storm-*-with-dependencies.jar /opt/lumify/lib
+cp /vagrant/lumify-public/lumify-storm/target/lumify-storm-*-with-dependencies.jar /opt/lumify/lib
 /opt/lumify/rebuild-index.sh
