@@ -32,9 +32,6 @@ import java.net.URI;
 import java.net.URISyntaxException;
 
 public class StormEnterpriseRunner extends CommandLineBase {
-
-    private static final Logger LOGGER = LoggerFactory.getLogger(StormEnterpriseRunner.class);
-
     private static final String ROOT_DATA_DIR = "/lumify/data";
     private static final String UNKNOWN_DATA_DIR = "unknown";
 
@@ -86,6 +83,8 @@ public class StormEnterpriseRunner extends CommandLineBase {
             conf.put(key, getConfiguration().get(key));
         }
         conf.put(BaseFileSystemSpout.DATADIR_CONFIG_NAME, ROOT_DATA_DIR);
+        conf.put(Config.TOPOLOGY_MESSAGE_TIMEOUT_SECS, 10000);
+        conf.put(Config.TOPOLOGY_MAX_SPOUT_PENDING, 1);
         conf.setDebug(false);
         conf.setNumWorkers(2);
 
@@ -154,9 +153,10 @@ public class StormEnterpriseRunner extends CommandLineBase {
     }
 
     private TopologyBuilder createContentTypeSorterTopology(TopologyBuilder builder) {
-        builder.setSpout("fileSorter", new HdfsFileSystemSpout("/unknown"), 1);
-        builder.setBolt("contentTypeSorterBolt", new ContentTypeSorterBolt(), 1)
-                .shuffleGrouping("fileSorter");
+        String queueName = "contentType";
+        builder.setSpout(queueName, new HdfsFileSystemSpout("/unknown"), 1);
+        builder.setBolt(queueName + "-bolt", new ContentTypeSorterBolt(), 1)
+                .shuffleGrouping(queueName);
         return builder;
     }
 

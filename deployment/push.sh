@@ -7,7 +7,6 @@ HOSTS_FILE=$2
 
 DATETIME=$(date +"%Y%m%dT%H%M")
 MAVEN_STATUS=unknown
-DEFAULT_PROFILE='storm-jar,web-war'
 
 function git_archive {
   local prefix=$1
@@ -38,18 +37,11 @@ function git_archive {
 }
 
 function run_maven {
-  local profile=${DEFAULT_PROFILE}
-  set +u
-  if [ "$1" ]; then
-    profile="$1"
-  fi
-  set -u
-
-  if [ "${MAVEN_STATUS}" = 'ok' -a "${profile} = "${DEFAULT_PROFILE}" ]; then
+  if [ "${MAVEN_STATUS}" = 'ok' ]; then
     echo 'maven ok.' >&2
   else
     echo 'running maven...' >&2
-    local mvn_output="$(cd ..; mvn clean install -P ${profile} -DskipTests=true)"
+    local mvn_output="$(cd ..; mvn clean install -P storm-jar,web-war -DskipTests=true)"
     local mvn_exit=$?
     if [ ${mvn_exit} -ne 0 ]; then
       echo "${mvn_output}" >&2
@@ -81,14 +73,14 @@ function bundle_conf {
 }
 
 function bundle_war {
-  run_maven web-war
+  run_maven
   local war_files=$(find .. -name '*.war')
 
   FILE_LIST="${FILE_LIST} lumify.xml ${war_files}"
 }
 
 function bundle_storm {
-  run_maven storm-jar
+  run_maven
   local jar_files=$(find .. -name '*-jar-with-dependencies.jar')
 
   FILE_LIST="${FILE_LIST} ${jar_files}"
@@ -115,7 +107,6 @@ case ${component} in
     bundle_puppet
     bundle_conf
     FILE_LIST="${FILE_LIST} setup_geonames.sh setup_import.sh"
-    run_maven
     bundle_war
     bundle_storm
     ;;

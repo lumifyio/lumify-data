@@ -35,11 +35,14 @@ ec2-modify-instance-attribute <instance id> --group-id <existing group id> --gro
 setup
 =====
 
-1. ssh from the puppet server to one of the Kafka servers and run:
+- ssh from the puppet server to one of the Kafka servers and run:
+
 ```
 /opt/lumify/kafka-clear.sh --zookeeper 10.0.3.101:2181
 ```
-2. ssh from the puppet server to storm nimbus server and run:
+
+- ssh from the puppet server to storm nimbus server and run:
+
 ```
 /opt/storm/bin/storm jar lumify-storm-1.0-SNAPSHOT-jar-with-dependencies.jar com.altamiracorp.lumify.storm.StormRunner
 /opt/storm/bin/storm jar lumify-enterprise-storm-1.0-SNAPSHOT-jar-with-dependencies.jar com.altamiracorp.lumify.storm.StormEnterpriseRunner

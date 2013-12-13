@@ -28,7 +28,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class OwlExport extends CommandLineBase {
-    private static final Logger LOGGER = LoggerFactory.getLogger(OwlExport.class.getName());
     private OntologyRepository ontologyRepository;
     private ModelSession modelSession;
     private String outFileName;

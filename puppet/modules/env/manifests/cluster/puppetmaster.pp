@@ -6,7 +6,17 @@ class puppetmaster::fw {
   }
 }
 
+class ntpd::fw {
+  firewall { '010 allow ntpd' :
+    proto  => udp,
+    port   => 123,
+    action => accept,
+  }
+}
+
 class env::cluster::puppetmaster {
+  include '::ntp'
+
   class { buildtools::epel :
     proxy_url => 'disabled',
   }
@@ -16,6 +26,9 @@ class env::cluster::puppetmaster {
     stage => 'first',
   }
   class { 'puppetmaster::fw' :
+    stage => 'first',
+  }
+  class { 'ntpd::fw' :
     stage => 'first',
   }
 

@@ -14,6 +14,20 @@
 
     <name>Lumify Twitter</name>
 
+    <inceptionYear>2013</inceptionYear>
+    <organization>
+        <name>Altamira Corporation</name>
+        <url>www.altamiracorp.com</url>
+    </organization>
+    <url>https://github.com/altamiracorp/lumify-twitter</url>
+    <licenses>
+        <license>
+            <name>The Apache Software License, Veresion 2.0</name>
+            <url>http://www.apache.org/licenses/LICENSE-2.0.txt</url>
+            <distribution>repo</distribution>
+        </license>
+    </licenses>
+    
     <profiles>
         <!-- Use this profile to build when deploying to a clustered environment. -->
         <profile>
@@ -25,7 +39,6 @@
     </profiles>
     
     <properties>
-        <lumify.maven.repo>http://bits.lumify.io/m2/</lumify.maven.repo>
         <!-- Dependency Versions -->
         <lumify.version>1.0-SNAPSHOT</lumify.version>
         <twitter.hbc.version>1.4.0</twitter.hbc.version>
@@ -106,10 +119,6 @@
                 <artifactId>maven-surefire-plugin</artifactId>
             </plugin>
             <plugin>
-                <groupId>org.codehaus.mojo</groupId>
-                <artifactId>cobertura-maven-plugin</artifactId>
-            </plugin>
-            <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-assembly-plugin</artifactId>
                 <version>${plugin.maven.assembly.version}</version>
@@ -142,11 +151,13 @@
             </plugin>
         </plugins>
     </build>
-    
+
     <repositories>
         <repository>
             <id>lumify-releases</id>
-            <url>${lumify.maven.repo}</url>
+            <!-- The url needs to be hardcoded here because maven processes the parent pom before injecting local properties.
+                 To test clear your local m2 repo of the lumify root pom, then maven compile. -->
+            <url>http://bits.lumify.io/m2/</url>
         </repository>
         <repository>
             <snapshots>
@@ -154,7 +165,9 @@
                 <updatePolicy>always</updatePolicy>
             </snapshots>
             <id>lumify-snapshots</id>
-            <url>${lumify.maven.repo}</url>
+            <!-- The url needs to be hardcoded here because maven processes the parent pom before injecting local properties.
+                 To test clear your local m2 repo of the lumify root pom, then maven compile. -->
+            <url>http://bits.lumify.io/m2/</url>
         </repository>
     </repositories>
 </project>

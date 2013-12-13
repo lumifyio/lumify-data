@@ -1,4 +1,4 @@
-class env::cluster::accumulo_master inherits env::cluster {
+class env::cluster::accumulo_master inherits env::cluster::base {
   package { 'hadoop-zookeeper' :
     ensure => present,
   }
@@ -15,10 +15,6 @@ class env::cluster::accumulo_master inherits env::cluster {
   }
 
   include role::accumulo::head
-
-  file { '/opt/lumify' :
-    ensure => directory,
-  }
 
   file { '/opt/lumify/balance_accumulo.sh' :
     ensure => file,

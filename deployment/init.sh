@@ -50,6 +50,7 @@ EO_PUPPET_CONF
 
   heading 'install PuppetLabs modules'
   puppet module install puppetlabs/firewall
+  puppet module install puppetlabs/ntp
 
   heading 'install our configuration and modules, start the puppetmaster service'
   ./update.sh start
