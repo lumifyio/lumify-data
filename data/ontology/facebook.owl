@@ -69,11 +69,17 @@
         <rdfs:domain rdf:resource="#facebookProfile"/>
         <rdfs:range rdf:resource="http://altamiracorp.com/datatype/geoLocation"/>
     </owl:DatatypeProperty>
-     <owl:DatatypeProperty rdf:about="profileId">
+    <owl:DatatypeProperty rdf:about="profileId">
         <rdfs:label xml:lang="en">profile ID</rdfs:label>
         <rdfs:domain rdf:resource="#facebookProfile"/>
         <rdfs:range rdf:resource="http://altamiracorp.com/datatype/string"/>
     </owl:DatatypeProperty>
+    <owl:DatatypeProperty rdf:about="birthday">
+       <rdfs:label xml:lang="en">birthday</rdfs:label>
+       <rdfs:domain rdf:resource="#facebookProfile"/>
+       <rdfs:range rdf:resource="http://altamiracorp.com/datatype/date"/>
+    </owl:DatatypeProperty>
+
 
 
 <!-- Concept: contact -->
