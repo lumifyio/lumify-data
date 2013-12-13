@@ -156,8 +156,9 @@ public class StormEnterpriseRunner extends CommandLineBase {
     }
 
     private TopologyBuilder createContentTypeSorterTopology(TopologyBuilder builder) {
-        builder.setSpout("fileSorter", new HdfsFileSystemSpout("/unknown"), 1);
-        builder.setBolt("contentTypeSorterBolt", new ContentTypeSorterBolt(), 1)
+        String queueName = "contentType";
+        builder.setSpout(queueName, new HdfsFileSystemSpout("/unknown"), 1);
+        builder.setBolt(queueName + "-bolt", new ContentTypeSorterBolt(), 1)
                 .shuffleGrouping("fileSorter");
         return builder;
     }
