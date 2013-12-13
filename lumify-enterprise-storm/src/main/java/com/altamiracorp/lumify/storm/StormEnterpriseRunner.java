@@ -156,7 +156,7 @@ public class StormEnterpriseRunner extends CommandLineBase {
         String queueName = "contentType";
         builder.setSpout(queueName, new HdfsFileSystemSpout("/unknown"), 1);
         builder.setBolt(queueName + "-bolt", new ContentTypeSorterBolt(), 1)
-                .shuffleGrouping("fileSorter");
+                .shuffleGrouping(queueName);
         return builder;
     }
 
