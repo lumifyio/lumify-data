@@ -20,6 +20,7 @@ import com.altamiracorp.lumify.core.model.artifact.ArtifactRowKey;
 import com.altamiracorp.lumify.core.model.artifact.ArtifactType;
 import com.altamiracorp.lumify.core.model.audit.AuditRepository;
 import com.altamiracorp.lumify.core.model.graph.GraphGeoLocation;
+import com.altamiracorp.lumify.model.TitanGraphSession;
 import com.altamiracorp.lumify.core.model.graph.GraphVertex;
 import com.altamiracorp.lumify.core.model.graph.InMemoryGraphVertex;
 import com.altamiracorp.lumify.core.model.ontology.LabelName;
@@ -119,10 +120,11 @@ public class FacebookBolt extends BaseLumifyBolt {
 
         if (newVertex) {
             //get relationships for vertex and write audit message for each post
-//             List <GraphVertex> postings = userVertex.getRelatedVerticies(userVertex.getId, getUser());
-
-//            auditRepository.audit(posting.getId(), auditRepository.resolvedEntityAuditMessageForArtifact(posting), getUser());
-//            auditRepository.audit(userVertex.getId(), auditRepository.resolvedEntityAuditMessage(posting.getProperty(PropertyName.TITLE.toString())), getUser());
+            List <GraphVertex> postings = graphRepository.getRelatedVertices(userVertex.getId(), getUser());
+            for (GraphVertex posting : postings) {
+                auditRepository.audit(posting.getId(), auditRepository.resolvedEntityAuditMessageForArtifact(posting), getUser());
+                auditRepository.audit(userVertex.getId(), auditRepository.resolvedEntityAuditMessage(posting.getProperty(PropertyName.TITLE.toString())), getUser());
+            }
         }
 
         if (user.has(SEX) && !user.getString(SEX).equals(JSONObject.NULL)) {
