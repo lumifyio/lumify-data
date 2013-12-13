@@ -99,7 +99,7 @@ public class FacebookSpout extends BaseRichSpout {
         facebook.setOAuthAppId((String) stormConf.get(APP_ID), (String) stormConf.get(APP_SECRET));
         facebook.setOAuthPermissions(locationPermissions + userPermissions);
 //        facebook.setOAuthAccessToken(new AccessToken((String) stormConf.get(ACCESS_TOKEN), null));
-        facebook.setOAuthAccessToken(new AccessToken("CAACEdEose0cBAOwgUetxwBfNXRciSlmcgC0XlIvHzXX7O95Y0CMDY7CatPAmU8g6CvCMtzr5rUolem3v4qRIYcM9fuzdU5HyVFC6zjvJOSF7rW2iWCWh2M36p5265t0gF8mthneJp2vI18OPwS7T0VWKiCn5MYAbN4xjPZC6b9ZCWZBtjGaY7XUjqmqH9UZD"));
+        facebook.setOAuthAccessToken(new AccessToken("CAACEdEose0cBAHlZCNryrhISNEF4T1ZB2Q2Fkve4LRkDD7gHzs6PAN3vCz8wEanWcCWHt8QxeHPoplu7TlOsK9FJ4jCNax8ejfayzhp7tsxp4AaL6ZBckhUgD5hxOmEMAb4ZBW4crg5JTbq5VrhBXpRrDF0OTJEUvqFAhU7baDBJ1rYsFtYOplp09BSToiIZD"));
         LOGGER.info(String.format("Configuring environment for spout: %s-%d", context.getThisComponentId(), context.getThisTaskId()));
         getTuplesFromQuery();
         this.collector = collector;
@@ -159,7 +159,7 @@ public class FacebookSpout extends BaseRichSpout {
                 i++;
             } else if (j < facebookUserArray.length()) {
                 String object;
-                if (facebookUserArray.get(j) instanceof JSONObject){
+                if (facebookUserArray.get(j) instanceof JSONArray){
                     object = createJsonObject(facebookUserArray.getJSONArray(j));
                     collector.emit(new Values(object));
                 }

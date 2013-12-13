@@ -68,6 +68,7 @@ public class FacebookBolt extends BaseLumifyBolt {
     private static final String FACEBOOK_PROFILE = "facebookProfile";
     private static final String BIRTHDAY_FORMAT = "MM/dd";
     protected AuditRepository auditRepository;
+//    private static final TitanGraphSession graphSession;
 
 
     @Override
@@ -118,13 +119,13 @@ public class FacebookBolt extends BaseLumifyBolt {
         userVertex.setProperty(PropertyName.SUBTYPE, FACEBOOK_PROFILE);
         graphRepository.save(userVertex, getUser());
 
+        GraphVertex posting;
         if (newVertex) {
             //get relationships for vertex and write audit message for each post
             List <GraphVertex> postings = graphRepository.getRelatedVertices(userVertex.getId(), getUser());
-            for (GraphVertex posting : postings) {
-                auditRepository.audit(posting.getId(), auditRepository.resolvedEntityAuditMessageForArtifact(posting), getUser());
-                auditRepository.audit(userVertex.getId(), auditRepository.resolvedEntityAuditMessage(posting.getProperty(PropertyName.TITLE.toString())), getUser());
-            }
+            posting = postings.get(0);
+//            auditRepository.audit(posting.getId(), auditRepository.resolvedEntityAuditMessageForArtifact(posting), getUser());
+//            auditRepository.audit(userVertex.getId(), auditRepository.resolvedEntityAuditMessage(posting.getProperty(PropertyName.TITLE.toString())), getUser());
         }
 
         if (user.has(SEX) && !user.getString(SEX).equals(JSONObject.NULL)) {
@@ -141,6 +142,7 @@ public class FacebookBolt extends BaseLumifyBolt {
                 userVertex.setProperty(EMAIL, email);
             }
             graphRepository.saveRelationship(userVertex.getId(), emailVertex.getId(), EMAIL_RELATIONSHIP, getUser());
+            graphRepository.commit();
         }
 
         if (user.has(COORDS) && !user.get(COORDS).equals(JSONObject.NULL)) {
@@ -167,6 +169,10 @@ public class FacebookBolt extends BaseLumifyBolt {
         }
         //create and save profile picture
         modifiedProperties.addAll(createProfilePhotoArtifact(user, userVertex));
+        graphRepository.commit();
+//        auditRepository.audit(userVertex.getId(), auditRepository.vertexPropertyAuditMessages(userVertex, modifiedProperties), getUser());
+//        auditRepository.audit(userVertex.getId(), auditRepository.relationshipAuditMessageOnSource(relationshipLabelDisplayName, text, ""), getUser());
+//        auditRepository.audit(posting.getId(), auditRepository.relationshipAuditMessageOnDest(relationshipLabelDisplayName, tweeter, text), getUser());
     }
 
     public List<String> createProfilePhotoArtifact(JSONObject user, GraphVertex userVertex) {
@@ -232,7 +238,9 @@ public class FacebookBolt extends BaseLumifyBolt {
         artifactExtractedInfo.setArtifactType(ArtifactType.DOCUMENT.toString());
         artifactExtractedInfo.setAuthor(author_uid);
         artifactExtractedInfo.setDate(time);
-        if (message.length() > 140) {
+        if (message.length() == 0) {
+            artifactExtractedInfo.setTitle("Facebook Image Post");
+        } else if (message.length() > 140) {
             artifactExtractedInfo.setTitle(message.substring(0, 139));
         } else {
             artifactExtractedInfo.setTitle(message);
@@ -248,21 +256,26 @@ public class FacebookBolt extends BaseLumifyBolt {
         if (authorVertex == null) {
             authorVertex = new InMemoryGraphVertex();
             authorVertex.setProperty(PROFILE_ID, author_uid);
+            authorVertex.setProperty(PropertyName.TYPE.toString(), VertexType.ENTITY.toString());
             graphRepository.save(authorVertex, getUser());
+            graphRepository.commit();
         }
         graphRepository.saveRelationship(authorVertex.getId(), posting.getId(), POSTED_RELATIONSHIP, getUser());
-
-        if (post.get(TAGGEED_UIDS) instanceof facebook4j.internal.org.json.JSONObject) {
+        graphRepository.commit();
+        if (post.get(TAGGEED_UIDS) instanceof JSONObject) {
             Iterator tagged = post.getJSONObject(TAGGEED_UIDS).keys();
             while (tagged.hasNext()) {
                 String next = tagged.next().toString();
                 GraphVertex taggedVertex = graphRepository.findVertexByPropertyAndType(PROFILE_ID, next, VertexType.ENTITY, getUser());
                 if (taggedVertex == null) {
                     taggedVertex = new InMemoryGraphVertex();
-                    authorVertex.setProperty(PROFILE_ID, next);
+                    taggedVertex.setProperty(PROFILE_ID, next);
+                    taggedVertex.setProperty(PropertyName.TYPE.toString(), VertexType.ENTITY.toString());
                     graphRepository.save(taggedVertex, getUser());
+                    graphRepository.commit();
                 }
                 graphRepository.saveRelationship(taggedVertex.getId(), posting.getId(), MENTIONED_RELATIONSHIP, getUser());
+                graphRepository.commit();
             }
         }
 
@@ -274,7 +287,8 @@ public class FacebookBolt extends BaseLumifyBolt {
         }
 
         graphRepository.save(posting, getUser());
-        auditRepository.audit(posting.getId(), auditRepository.vertexPropertyAuditMessages(posting, modifiedProperties), getUser());
+        graphRepository.commit();
+//        auditRepository.audit(posting.getId(), auditRepository.vertexPropertyAuditMessages(posting, modifiedProperties), getUser());
 
         return posting;
     }
