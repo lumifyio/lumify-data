@@ -36,7 +36,6 @@
     </profiles>
     
     <properties>
-        <lumify.maven.repo>http://bits.lumify.io/m2/</lumify.maven.repo>
         <!-- Dependency Versions -->
         <lumify.version>1.0-SNAPSHOT</lumify.version>
         <twitter.hbc.version>1.4.0</twitter.hbc.version>
@@ -149,11 +148,13 @@
             </plugin>
         </plugins>
     </build>
-    
+
     <repositories>
         <repository>
             <id>lumify-releases</id>
-            <url>${lumify.maven.repo}</url>
+            <!-- The url needs to be hardcoded here because maven processes the parent pom before injecting local properties.
+                 To test clear your local m2 repo of the lumify root pom, then maven compile. -->
+            <url>http://bits.lumify.io/m2/</url>
         </repository>
         <repository>
             <snapshots>
@@ -161,7 +162,9 @@
                 <updatePolicy>always</updatePolicy>
             </snapshots>
             <id>lumify-snapshots</id>
-            <url>${lumify.maven.repo}</url>
+            <!-- The url needs to be hardcoded here because maven processes the parent pom before injecting local properties.
+                 To test clear your local m2 repo of the lumify root pom, then maven compile. -->
+            <url>http://bits.lumify.io/m2/</url>
         </repository>
     </repositories>
 </project>
