@@ -86,6 +86,8 @@ public class StormEnterpriseRunner extends CommandLineBase {
             conf.put(key, getConfiguration().get(key));
         }
         conf.put(BaseFileSystemSpout.DATADIR_CONFIG_NAME, ROOT_DATA_DIR);
+        conf.put(Config.TOPOLOGY_MESSAGE_TIMEOUT_SECS, 10000);
+        conf.put(Config.TOPOLOGY_MAX_SPOUT_PENDING, 1);
         conf.setDebug(false);
         conf.setNumWorkers(2);
 
