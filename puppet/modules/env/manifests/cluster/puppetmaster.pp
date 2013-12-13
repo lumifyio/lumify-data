@@ -7,6 +7,8 @@ class puppetmaster::fw {
 }
 
 class env::cluster::puppetmaster {
+  include '::ntp'
+
   class { buildtools::epel :
     proxy_url => 'disabled',
   }

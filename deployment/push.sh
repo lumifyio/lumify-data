@@ -45,7 +45,7 @@ function run_maven {
   fi
   set -u
 
-  if [ "${MAVEN_STATUS}" = 'ok' -a "${profile} = "${DEFAULT_PROFILE}" ]; then
+  if [ "${MAVEN_STATUS}" = 'ok' -a "${profile}" = "${DEFAULT_PROFILE}" ]; then
     echo 'maven ok.' >&2
   else
     echo 'running maven...' >&2
