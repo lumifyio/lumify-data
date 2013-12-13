@@ -22,9 +22,6 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 
 public class DictionaryImporter extends CommandLineBase {
-
-    private static final Logger LOGGER = LoggerFactory.getLogger(DictionaryImporter.class);
-
     private ModelSession modelSession;
     private DictionaryEntryRepository dictionaryEntryRepository;
     private String directory;

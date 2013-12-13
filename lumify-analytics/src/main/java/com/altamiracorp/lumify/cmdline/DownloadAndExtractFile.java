@@ -22,7 +22,6 @@ import java.net.URLConnection;
 //import java.lang.reflect.Proxy;
 
 public class DownloadAndExtractFile extends CommandLineBase {
-    private static final Logger LOGGER = LoggerFactory.getLogger(DownloadAndExtractFile.class.getName());
     private String directory;
     private String zipfile;
     private String storage;

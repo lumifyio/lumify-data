@@ -32,9 +32,6 @@ import java.net.URI;
 import java.net.URISyntaxException;
 
 public class StormEnterpriseRunner extends CommandLineBase {
-
-    private static final Logger LOGGER = LoggerFactory.getLogger(StormEnterpriseRunner.class);
-
     private static final String ROOT_DATA_DIR = "/lumify/data";
     private static final String UNKNOWN_DATA_DIR = "unknown";
 

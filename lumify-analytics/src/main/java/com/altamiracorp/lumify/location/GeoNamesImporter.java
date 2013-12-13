@@ -38,7 +38,6 @@ import com.altamiracorp.lumify.core.user.User;
 import com.google.inject.Inject;
 
 public class GeoNamesImporter extends CommandLineBase {
-    private static final Logger LOGGER = LoggerFactory.getLogger(GeoNamesImporter.class.getName());
     private GeoNameRepository geoNameRepository;
     private GeoNameAdmin1CodeRepository geoNameAdmin1CodeRepository;
     private GeoNameCountryInfoRepository geoNameCountryInfoRepository;
