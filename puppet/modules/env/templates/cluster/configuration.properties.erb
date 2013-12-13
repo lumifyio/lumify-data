@@ -44,3 +44,11 @@ graph.titan.storage.index.search.providerUtilClass=com.altamiracorp.lumify.model
 
 # Elastic search specific
 search.elasticsearch.locations=<%= @elasticsearch_locations.join(',') %>
+
+# Object-detection
+objectdetection.classifierConcepts=face
+objectdetection.classifier.face.path=hdfs:///lumify/config/opencv/haarcascade_frontalface_alt.xml
+
+# Term extraction
+termextraction.opennlp.pathPrefix=/lumify/config/opennlp/
+termextraction.knownEntities.pathPrefix=/lumify/config/knownEntities/
