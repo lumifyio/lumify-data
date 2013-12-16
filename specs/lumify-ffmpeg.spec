@@ -7,7 +7,7 @@ License:        LGPL
 URL:            http://www.ffmpeg.org/
 Source:         $SOURCE
 BuildRoot:      %{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
-BuildRequires:  lumify-videolan-x264, lumify-fdk-aac, lumify-lame, lumify-opus, lumify-ogg, lumify-vorbis, lumify-vpx, lumify-theora
+BuildRequires:  lumify-videolan-x264, lumify-fdk-aac, lumify-lame, lumify-opus, lumify-ogg, lumify-vorbis, lumify-vpx, lumify-theora, zlib-devel
 Requires:       lumify-videolan-x264, lumify-fdk-aac, lumify-lame, lumify-opus, lumify-ogg, lumify-vorbis, lumify-vpx, lumify-theora
 
 %description
