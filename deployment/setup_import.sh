@@ -24,9 +24,9 @@ function download_and_upload {
   rm -rf ${tmp_dir}
 }
 
-hadoop fs -mkdir /import/1-ready /import/2-processing /import/3-imported || true
+hadoop fs -mkdir -p /lumify/data/unknown
 
 for url in $*; do
   echo ${url}
-  download_and_upload ${url} /import/1-ready
+  download_and_upload ${url} /lumify/data/unknown
 done
