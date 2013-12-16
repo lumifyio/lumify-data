@@ -5,7 +5,7 @@ rpm -q epel-release-6-8 > /dev/null \
   || rpm -ivH http://dl.fedoraproject.org/pub/epel/6/x86_64/epel-release-6-8.noarch.rpm
 
 # install required RPMs
-yum -y install yasm libtool fedora-packager cmake
+yum -y install yasm libtool fedora-packager cmake zlib-devel
 
 # install Ant
 if [ ! -h /opt/ant ]; then
