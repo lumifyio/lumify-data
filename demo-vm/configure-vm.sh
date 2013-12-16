@@ -34,8 +34,8 @@ su - vagrant -c 'cd /vagrant && mvn package install -P storm-jar,web-war -DskipT
   | grep '\[INFO\] Building'
 
 # deploy the webapp
-cp /vagrant/deployment/application.xml /opt/jetty/contexts
-cp /vagrant/lumify-public/web/target/application-1.0-SNAPSHOT.war /opt/jetty/webapps/application.war
+cp /vagrant/deployment/lumify.xml /opt/jetty/contexts
+cp /vagrant/lumify-public/lumify-web/target/lumify-web-1.0-SNAPSHOT.war /opt/jetty/webapps/lumify.war
 
 # restore sample data
 cp /vagrant/bin/accumulo-import.sh /opt/lumify

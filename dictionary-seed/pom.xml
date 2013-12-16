@@ -99,7 +99,7 @@
         </plugins>
         <resources>
             <resource>
-                <directory>../conf/opennlp</directory>
+                <directory>../config/opennlp</directory>
                 <includes>
                     <include>*</include>
                 </includes>
