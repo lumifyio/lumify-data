@@ -42,7 +42,7 @@
         <atmosphere.version>2.0.1</atmosphere.version>
         <commons.cli.version>1.2</commons.cli.version>
         <commons.compress.version>1.5</commons.compress.version>
-        <commons.io.version>2.1</commons.io.version>
+        <commons.io.version>2.4</commons.io.version>
         <commons.lang.version>2.5</commons.lang.version>
         <elasticsearch.version>0.90.0</elasticsearch.version>
         <evo.inflector.version>1.0.1</evo.inflector.version>
