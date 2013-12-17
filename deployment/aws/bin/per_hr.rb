@@ -12,6 +12,7 @@ ARGV.each do |filename|
     ebs_rate = 0.0
     instance_counts = {}
     ebs_gbs = 0
+    additional_ebs_gbs = 0
 
     file.each_line do |line|
       if line.match(/^\s*#\s+(.+?)\s+\(.+\)\s+=\s+\$(\d+\.\d+)\/hr\s*$/)
@@ -50,14 +51,16 @@ ARGV.each do |filename|
         else
           raise "unexpected volume size: #{size}"
         end
-        ebs_gbs += size_gb
+        additional_ebs_gbs += size_gb
       end
 
       instance_counts[instance_type] ||= 0
       instance_counts[instance_type] += 1
+      ebs_gbs += 8
     end # line
 
-    w1 = rates.keys.map(&:length).max
+    ebs_titles = ['EBS boot volumes', 'additional EBS volumes']
+    w1 = (rates.keys + ebs_titles).map(&:length).max
     grand_total = 0.0
     rates.sort.each do |instance_type, rate|
       if instance_counts[instance_type]
@@ -69,10 +72,16 @@ ARGV.each do |filename|
     end
 
     ebs_total = (ebs_rate / (30 * 24)) * ebs_gbs
+    additional_ebs_total = (ebs_rate / (30 * 24)) * additional_ebs_gbs
     grand_total += ebs_total
+    grand_total += additional_ebs_total
     ebs_s = '%02.2f' % [ebs_total]
-    puts '%*s %5d @ $%02.2f = $%5s' % [-1 * w1, 'EBS', ebs_gbs, ebs_rate, ebs_s]
+    additional_ebs_s = '%02.2f' % [additional_ebs_total]
+    puts '%*s %5d @ $%02.2f = $%5s' % [-1 * w1, ebs_titles[0], ebs_gbs, ebs_rate, ebs_s]
+    puts '%*s %5d @ $%02.2f = $%5s' % [-1 * w1, ebs_titles[1], additional_ebs_gbs, ebs_rate, additional_ebs_s]
 
-    puts '%*s $%04.2f' % [w1 + 16, ' ', grand_total]
+    grand_total_s = '%02.2f' % [grand_total]
+    puts '%*s %s' % [w1 + 16, ' ', '=' * 6]
+    puts '%*s $%5s' % [w1 + 16, ' ', grand_total_s]
   end # file
 end # filename
