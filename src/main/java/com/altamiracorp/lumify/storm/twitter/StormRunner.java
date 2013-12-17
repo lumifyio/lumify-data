@@ -27,8 +27,8 @@ public class StormRunner extends StormRunnerBase {
     }
 
     private void createTwitterStreamTopology(TopologyBuilder builder) {
-        String spoutName = "twitterStreamSpout";
-        builder.setSpout(spoutName, new TwitterStreamSpout(), 1);
+        String spoutName = "twitterStream";
+        builder.setSpout(spoutName, new TwitterStreamSpout(/*"/tweets"*/), 1);
         builder.setBolt(spoutName + "-bolt", new TwitterStreamingBolt(), 1)
                 .shuffleGrouping(spoutName);
     }
