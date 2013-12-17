@@ -104,6 +104,17 @@ class storm(
     require => Macro::Extract[$downloadpath],
   }
 
+  file { "${extractdir}/lib/commons-io-2.4.jar" :
+    ensure  => file,
+    source  => 'puppet:///modules/storm/commons-io-2.4.jar',
+    require => Macro::Extract[$downloadpath],
+  }
+
+  file { "${extractdir}/lib/commons-io-1.4.jar" :
+    ensure  => absent,
+    require => File["${extractdir}/lib/commons-io-2.4.jar"],
+  }
+
   # Ensure the the local working dir looks ok
   file { $storm_local_dir:
     ensure  => directory,
