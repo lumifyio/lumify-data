@@ -214,5 +214,7 @@
         <module>lumify-enterprise-storm</module>
         <module>lumify-public</module>
         <module>lumify-twitter</module>
+        <module>lumify-facebook</module>
+
     </modules>
 </project>
