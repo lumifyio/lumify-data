@@ -1,8 +1,6 @@
 package com.altamiracorp.lumify.facebook.facebook;
 
 
-import java.io.ByteArrayInputStream;
-import java.io.InputStream;
 import java.util.Iterator;
 import java.util.Map;
 
@@ -12,11 +10,6 @@ import backtype.storm.topology.OutputFieldsDeclarer;
 import backtype.storm.topology.base.BaseRichSpout;
 import backtype.storm.tuple.Fields;
 import backtype.storm.tuple.Values;
-import com.altamiracorp.lumify.core.model.artifact.Artifact;
-import com.altamiracorp.lumify.core.model.artifact.ArtifactRepository;
-import com.altamiracorp.lumify.core.model.graph.GraphVertex;
-import com.altamiracorp.lumify.core.model.ontology.PropertyName;
-import com.altamiracorp.lumify.core.user.SystemUser;
 import com.altamiracorp.lumify.storm.FieldNames;
 import facebook4j.Facebook;
 import facebook4j.FacebookException;
@@ -53,25 +46,10 @@ public class FacebookSpout extends BaseRichSpout {
     private int i;
     private int j;
     private SpoutOutputCollector collector;
-    protected ArtifactRepository artifactRepository;
 
     @Override
     public void declareOutputFields(OutputFieldsDeclarer outputFieldsDeclarer) {
         outputFieldsDeclarer.declare(new Fields(FieldNames.FILE_NAME));
-    }
-
-    protected InputStream getInputStream(GraphVertex graphVertex) throws Exception {
-        checkNotNull(graphVertex, "graphVertex cannot be null");
-
-        InputStream textIn;
-        String artifactRowKey = (String) graphVertex.getProperty(PropertyName.ROW_KEY);
-        Artifact artifact = artifactRepository.findByRowKey(artifactRowKey, new SystemUser().getModelUserContext());
-        String text = artifact.getMetadata().getText();
-        if (text == null) {
-            text = "";
-        }
-        textIn = new ByteArrayInputStream(text.getBytes());
-        return textIn;
     }
 
     @Override
@@ -91,15 +69,15 @@ public class FacebookSpout extends BaseRichSpout {
         userPermissions = (String) stormConf.get(USER_PERMISSION);
         if (userPermissions.contains(";")) {
             userPermissions = userPermissions.replace(";", ",");
-        }
+    }
         latitude = (String) stormConf.get(LATITUDE);
         longitude = (String) stormConf.get(LONGITUDE);
         distance = (String) stormConf.get(DISTANCE);
 
         facebook.setOAuthAppId((String) stormConf.get(APP_ID), (String) stormConf.get(APP_SECRET));
         facebook.setOAuthPermissions(locationPermissions + userPermissions);
-//        facebook.setOAuthAccessToken(new AccessToken((String) stormConf.get(ACCESS_TOKEN), null));
-        facebook.setOAuthAccessToken(new AccessToken("CAACEdEose0cBAHIKG1vB9tgppUREIvrIPVH9D9ku8tZArPFKi5ttUGqTOmVZCARJkSASO8zZCzGZCxh8nGHPkZBkzsCF4ZAIWSferNqArjHaAXZA8mPyYiNzNP0q0rJjhdrETToTrtyfduU4weVaDiUkgQloyjIe0F7dRQqhyS1kkVnSmYCG7pEpzz72En4OSQZD"));
+        facebook.setOAuthAccessToken(new AccessToken((String) stormConf.get(ACCESS_TOKEN), null));
+                
         LOGGER.info(String.format("Configuring environment for spout: %s-%d", context.getThisComponentId(), context.getThisTaskId()));
         getTuplesFromQuery();
         this.collector = collector;
@@ -126,9 +104,9 @@ public class FacebookSpout extends BaseRichSpout {
                 facebookUserArray.put(facebook.executeFQL(authorQuery));
             }
         } catch (FacebookException e) {
-            e.printStackTrace();  //To change body of catch statement use File | Settings | File Templates.
+            e.printStackTrace();
         } catch (JSONException e) {
-            e.printStackTrace();  //To change body of catch statement use File | Settings | File Templates.
+            e.printStackTrace();
         }
     }
 
@@ -138,9 +116,12 @@ public class FacebookSpout extends BaseRichSpout {
 
     public String createJsonObject (JSONArray array) {
         try {
-            return array.get(0).toString();
+            if (array.length() > 0) {
+                return array.get(0).toString();
+            }
         } catch (JSONException e) {
-            e.printStackTrace();  //To change body of catch statement use File | Settings | File Templates.
+            LOGGER.info("Facebook user object is empty");
+            e.printStackTrace();
         }
         return null;
     }
@@ -149,27 +130,28 @@ public class FacebookSpout extends BaseRichSpout {
     public void nextTuple() {
         try {
             if (i < facebookPostArray.length()) {
-//                org.json.JSONObject object;
                 String object;
                 if (facebookPostArray.get(i) instanceof JSONObject){
                     object = createJsonObject(facebookPostArray.getJSONObject(i));
                     collector.emit(new Values(object));
                 }
-                LOGGER.debug("recieved facebook post tuple");
+                LOGGER.debug("Received facebook post tuple");
                 i++;
             } else if (j < facebookUserArray.length()) {
                 String object;
                 if (facebookUserArray.get(j) instanceof JSONArray){
                     object = createJsonObject(facebookUserArray.getJSONArray(j));
-                    collector.emit(new Values(object));
+                    if (object != null) {
+                        collector.emit(new Values(object));
+                    }
                 }
-                LOGGER.debug("recieved facebook user tuple");
+                LOGGER.debug("Received facebook user tuple");
                 j++;
             } else {
-                LOGGER.debug("no more objects to process");
+                LOGGER.debug("No more objects to process");
             }
         } catch (JSONException e) {
-            e.printStackTrace();  //To change body of catch statement use File | Settings | File Templates.
+            e.printStackTrace();
         }
     }
 }
