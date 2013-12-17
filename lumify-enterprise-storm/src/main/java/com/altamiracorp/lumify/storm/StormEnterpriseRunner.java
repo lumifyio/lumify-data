@@ -23,8 +23,6 @@ import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.Path;
 import org.jvnet.inflector.Noun;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.io.File;
 import java.io.IOException;
@@ -85,6 +83,7 @@ public class StormEnterpriseRunner extends CommandLineBase {
         conf.put(BaseFileSystemSpout.DATADIR_CONFIG_NAME, ROOT_DATA_DIR);
         conf.put(Config.TOPOLOGY_MESSAGE_TIMEOUT_SECS, 10000);
         conf.put(Config.TOPOLOGY_MAX_SPOUT_PENDING, 1);
+        conf.put(Config.WORKER_CHILDOPTS, " -Dcom.sun.management.jmxremote -Dcom.sun.management.jmxremote.ssl=false -Dcom.sun.management.jmxremote.authenticate=false -Dcom.sun.management.jmxremote.port=1%ID% ");
         conf.setDebug(false);
         conf.setNumWorkers(2);
 
