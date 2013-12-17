@@ -65,9 +65,8 @@ EO_PUPPET_CONF
 function stage_jobtracker {
   heading 'stage artifacts on the jobtracker'
   local jobtracker_host=$(awk '/jobtracker/ {print $1}' ${HOSTS_FILE})
-  scp ${SSH_OPTS} conf-*.tgz \
-                  setup_conf.sh \
-                  setup_geonames.sh \
+  scp ${SSH_OPTS} config-*.tgz \
+                  setup_config.sh \
                   setup_import.sh \
                   ${jobtracker_host}:
 }
@@ -78,6 +77,13 @@ function stage_www {
   scp ${SSH_OPTS} *.xml \
                   *.war \
                   ${www_host}:
+}
+
+function stage_stormmaster {
+  heading 'stage artifacts on the storm nimbus server'
+  local stormmaster_host=$(awk '/stormmaster/ {print $1}' ${HOSTS_FILE})
+  scp ${SSH_OPTS} *.jar \
+                  ${stormmaster_host}:
 }
 
 function setup_remote {
@@ -137,12 +143,16 @@ case ${mode_or_ip} in
   jt)
     stage_jobtracker
     ;;
+  storm)
+    stage_stormmaster
+    ;;
   www)
     stage_www
     ;;
   everything)
     setup_local
     stage_jobtracker
+    stage_stormmaster
     stage_www
     setup_other
     ;;

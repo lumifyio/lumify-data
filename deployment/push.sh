@@ -8,6 +8,22 @@ HOSTS_FILE=$2
 DATETIME=$(date +"%Y%m%dT%H%M")
 MAVEN_STATUS=unknown
 
+function test_ssh {
+  local user_at_host=$1
+
+  set +e
+  ssh ${SSH_OPTS} -o PasswordAuthentication=false ${user_at_host} hostname > /dev/null
+  ssh_exit=$?
+  set -e
+
+  if [ ${ssh_exit} -ne 0 ]; then
+    echo "passwordless ssh failed, configure with:"
+    echo "  eval \$(ssh-agent)"
+    echo "  ssh-add /path/to/key.pem"
+    exit ${ssh_exit}
+  fi
+}
+
 function git_archive {
   local prefix=$1
   local dir=$2
@@ -87,6 +103,8 @@ function bundle_storm {
 }
 
 
+test_ssh root@${elastic_ip}
+
 FILE_LIST=${HOSTS_FILE}
 
 set +u
@@ -109,7 +127,7 @@ case ${component} in
     bundle_init
     bundle_puppet
     bundle_config
-    FILE_LIST="${FILE_LIST} setup_geonames.sh setup_import.sh"
+    FILE_LIST="${FILE_LIST} setup_import.sh"
     bundle_war
     bundle_storm
     ;;
