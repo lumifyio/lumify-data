@@ -16,3 +16,7 @@ There are 3 [Vagrant](http://www.vagrantup.com/) VMs:
 - rpm
 - dev - **you'll use this one most of the time**
 - demo
+
+To use gremlin shell, download, uncompress, and set TITAN_HOME to the following directory:
+
+- [titan](http://bits.lumify.io.s3.amazonaws.com/tmp/titan-hbase-0.3.2.zip)
