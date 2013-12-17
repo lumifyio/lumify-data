@@ -8,10 +8,7 @@
         <artifactId>lumify-root</artifactId>
         <version>1.0-SNAPSHOT</version>
     </parent>
-    
     <artifactId>lumify-twitter</artifactId>
-    <version>1.0-SNAPSHOT</version>
-
     <name>Lumify Twitter</name>
 
     <inceptionYear>2013</inceptionYear>
@@ -36,6 +33,36 @@
                 <cluster.dependency.scope>provided</cluster.dependency.scope>
             </properties>
         </profile>
+
+        <!-- Builds the Storm Uber-JAR -->
+        <profile>
+            <id>storm-jar</id>
+            <build>
+                <plugins>
+                    <plugin>
+                        <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-assembly-plugin</artifactId>
+                        <configuration>
+                            <descriptor>src/main/assembly/descriptor.xml</descriptor>
+                            <archive>
+                                <manifest>
+                                    <mainClass>com.altamiracorp.lumify.storm.StormRunner</mainClass>
+                                </manifest>
+                            </archive>
+                        </configuration>
+                        <executions>
+                            <execution>
+                                <id>make-assembly</id>
+                                <phase>package</phase>
+                                <goals>
+                                    <goal>single</goal>
+                                </goals>
+                            </execution>
+                        </executions>
+                    </plugin>
+                </plugins>
+            </build>
+        </profile>
     </profiles>
     
     <properties>
@@ -50,49 +77,11 @@
             <artifactId>lumify-storm</artifactId>
             <version>${lumify.version}</version>
         </dependency>
-        <dependency>
-            <groupId>com.google.guava</groupId>
-            <artifactId>guava</artifactId>
-            <version>${storm.guava.version}</version>
-            <scope>${cluster.dependency.scope}</scope>
-        </dependency>
+
         <dependency>
             <groupId>com.twitter</groupId>
             <artifactId>hbc-core</artifactId>
             <version>${twitter.hbc.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>log4j</groupId>
-            <artifactId>log4j</artifactId>
-            <version>${storm.log4j.version}</version>
-            <scope>${cluster.dependency.scope}</scope>
-        </dependency>
-        <dependency>
-            <groupId>org.apache.httpcomponents</groupId>
-            <artifactId>httpclient</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.slf4j</groupId>
-            <artifactId>slf4j-api</artifactId>
-            <version>${storm.slf4j.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>org.slf4j</groupId>
-            <artifactId>slf4j-log4j12</artifactId>
-            <version>${storm.slf4j.version}</version>
-            <scope>${cluster.dependency.scope}</scope>
-        </dependency>
-        <dependency>
-            <groupId>storm</groupId>
-            <artifactId>storm</artifactId>
-            <version>${storm.version}</version>
-            <scope>${cluster.dependency.scope}</scope>
-            <exclusions>
-                <exclusion>
-                    <groupId>commons-io</groupId>
-                    <artifactId>commons-io</artifactId>
-                </exclusion>
-            </exclusions>
         </dependency>
     </dependencies>
 
@@ -117,37 +106,6 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-surefire-plugin</artifactId>
-            </plugin>
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-assembly-plugin</artifactId>
-                <version>${plugin.maven.assembly.version}</version>
-                <configuration>
-                    <descriptor>src/main/assembly/descriptor.xml</descriptor>
-                    <archive>
-                        <manifest>
-                            <mainClass>com.altamiracorp.lumify.storm.twitter.StormRunner</mainClass>
-                        </manifest>
-                        <manifestEntries>
-                            <Specification-Title>Java Advanced Imaging Image I/O Tools</Specification-Title>
-                            <Specification-Version>1.1</Specification-Version>
-                            <Specification-Vendor>Sun Microsystems, Inc.</Specification-Vendor>
-                            <Implementation-Title>com.sun.media.imageio</Implementation-Title>
-                            <Implementation-Version>1.1</Implementation-Version>
-                            <Implementation-Vendor>Sun Microsystems, Inc.</Implementation-Vendor>
-                            <Extension-Name>com.sun.media.imageio</Extension-Name>
-                        </manifestEntries>
-                    </archive>
-                </configuration>
-                <executions>
-                    <execution>
-                        <id>make-assembly</id>
-                        <phase>package</phase>
-                        <goals>
-                            <goal>single</goal>
-                        </goals>
-                    </execution>
-                </executions>
             </plugin>
         </plugins>
     </build>
