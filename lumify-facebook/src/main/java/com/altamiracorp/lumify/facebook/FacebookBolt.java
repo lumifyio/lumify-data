@@ -1,4 +1,4 @@
-package com.altamiracorp.lumify.facebook.facebook;
+package com.altamiracorp.lumify.facebook;
 
 
 import java.io.ByteArrayInputStream;
