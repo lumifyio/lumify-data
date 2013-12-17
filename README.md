@@ -45,44 +45,44 @@ Proceed if you are not using the Pre-built VM provided by [Lumify](https://lumif
 1.Sign In to [Facebook Developers site](https://developers.facebook.com/) using your Facebook credentials.
 <br/>
 <br/>
-![ScreenShot](https://github.com/altamiracorp/lumify-enterprise/blob/develop/lumify-facebook/docs/screenshots/facebook_sign_in.png)
+![ScreenShot](https://github.com/altamiracorp/lumify-enterprise/raw/develop/lumify-facebook/docs/Screenshots/facebook_sign_in.png)
 <br/>
 <br/>
 2. In the top right corner under your Facebook Profile’s picture and name, click the **Register Now** button.
 <br/>
 <br/>
-![ScreenShot](https://github.com/altamiracorp/lumify-enterprise/blob/develop/lumify-facebook/docs/screenshots/facebook_register_now.png)
+![ScreenShot](https://github.com/altamiracorp/lumify-enterprise/raw/develop/lumify-facebook/docs/Screenshots/facebook_register_now.png)
 <br/>
 <br/>
 3. Re-enter your Facebook Profile password and follow the prompts to properly register as a developer.
 <br/>
 <br/>
-![ScreenShot](https://github.com/altamiracorp/lumify-enterprise/blob/develop/lumify-facebook/docs/screenshots/facebook_developer_popup.png)
+![ScreenShot](https://github.com/altamiracorp/lumify-enterprise/raw/develop/lumify-facebook/docs/Screenshots/facebook_developer_popup.png)
 <br/>
 <br/>
 4. Select **Create New App** and fill out the form.
 <br/>
 <br/>
-![ScreenShot](https://github.com/altamiracorp/lumify-enterprise/blob/develop/lumify-facebook/docs/screenshots/facebook_create_new_app.png)
+![ScreenShot](https://github.com/altamiracorp/lumify-enterprise/raw/develop/lumify-facebook/docs/Screenshots/facebook_create_new_app.png)
 <br/>
 <br/>
 5. Once completed, the App ID and App Secret for the App will be shown.
 6. To generate you Access Token, search for **graph api explorer** and select the top result.
 <br/>
 <br/>
-![ScreenShot](https://github.com/altamiracorp/lumify-enterprise/blob/develop/lumify-facebook/docs/screenshots/facebook_search_explorer.png)
+![ScreenShot](https://github.com/altamiracorp/lumify-enterprise/raw/develop/lumify-facebook/docs/Screenshots/facebook_search_explorer.png)
 <br/>
 <br/>
 7. Select **FQL Query**
 <br/>
 <br/>
-![ScreenShot](https://github.com/altamiracorp/lumify-enterprise/blob/develop/lumify-facebook/docs/screenshots/facebook_fql_selection.png)
+![ScreenShot](https://github.com/altamiracorp/lumify-enterprise/raw/develop/lumify-facebook/docs/Screenshots/facebook_fql_selection.png)
 <br/>
 <br/>
 8. Click **Get Access Token** in the top right-hand corner and select the items you want access to then click **Get Access Token**.
 <br/>
 <br/>
-![ScreenShot](https://github.com/altamiracorp/lumify-enterprise/blob/develop/lumify-facebook/docs/screenshots/facebook_access_token.png)
+![ScreenShot](https://github.com/altamiracorp/lumify-enterprise/raw/develop/lumify-facebook/docs/Screenshots/facebook_access_token.png)
 <br/>
 <br/>
 9. The Access Token should appear in the associated text box.
