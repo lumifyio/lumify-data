@@ -27,7 +27,6 @@
     <properties>
         <!-- Dependency Versions -->
         <lumify.version>1.0-SNAPSHOT</lumify.version>
-        <twitter.hbc.version>1.4.0</twitter.hbc.version>
     </properties>
 
     <dependencies>
@@ -41,11 +40,6 @@
             <artifactId>guava</artifactId>
             <version>${storm.guava.version}</version>
             <scope>${cluster.dependency.scope}</scope>
-        </dependency>
-        <dependency>
-            <groupId>com.twitter</groupId>
-            <artifactId>hbc-core</artifactId>
-            <version>${twitter.hbc.version}</version>
         </dependency>
         <dependency>
             <groupId>log4j</groupId>
@@ -111,10 +105,10 @@
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-surefire-plugin</artifactId>
             </plugin>
-            <plugin>
+           <!-- <plugin>
                 <groupId>org.codehaus.mojo</groupId>
                 <artifactId>cobertura-maven-plugin</artifactId>
-            </plugin>
+            </plugin>-->
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-assembly-plugin</artifactId>
@@ -123,7 +117,7 @@
                     <descriptor>src/main/assembly/descriptor.xml</descriptor>
                     <archive>
                         <manifest>
-                            <mainClass>com.altamiracorp.lumify.storm.twitter.StormRunner</mainClass>
+                            <mainClass>com.altamiracorp.lumify.facebook.facebook.StormFacebookRunner</mainClass>
                         </manifest>
                         <manifestEntries>
                             <Specification-Title>Java Advanced Imaging Image I/O Tools</Specification-Title>
