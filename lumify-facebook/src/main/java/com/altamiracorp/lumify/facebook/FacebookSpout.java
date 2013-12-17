@@ -77,10 +77,7 @@ public class FacebookSpout extends BaseRichSpout {
         facebook.setOAuthAppId((String) stormConf.get(APP_ID), (String) stormConf.get(APP_SECRET));
         facebook.setOAuthPermissions(locationPermissions + userPermissions);
         facebook.setOAuthAccessToken(new AccessToken((String) stormConf.get(ACCESS_TOKEN), null));
-        longitude = "-78.5102940";
-        latitude = "38.0335370";
-        facebook.setOAuthAccessToken(new AccessToken("CAACEdEose0cBAJwxFkquKbalEmQxwmMSSUbUrduPhGddFjp5lHf2jic6KrJ6fKXOLSUdQ6hFryYUFWuroqRrQ950O0o6GDjKCzyaFbeC0yVhmZBLHdL9KFS5XjOAGIMQxHpHnYAABHP1d0zcZBQXZCUEkIDyLPV8xZBzhdpTn1BB8YJ5ZBYDZCw52oP1j2Xg0ZD"));
-
+        
         LOGGER.info(String.format("Configuring environment for spout: %s-%d", context.getThisComponentId(), context.getThisTaskId()));
         getTuplesFromQuery();
         this.collector = collector;
