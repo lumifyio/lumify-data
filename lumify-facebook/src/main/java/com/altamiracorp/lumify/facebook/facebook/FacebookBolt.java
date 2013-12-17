@@ -20,6 +20,7 @@ import com.altamiracorp.lumify.core.model.artifact.ArtifactRowKey;
 import com.altamiracorp.lumify.core.model.artifact.ArtifactType;
 import com.altamiracorp.lumify.core.model.audit.AuditRepository;
 import com.altamiracorp.lumify.core.model.graph.GraphGeoLocation;
+import com.altamiracorp.lumify.core.model.ontology.Concept;
 import com.altamiracorp.lumify.model.TitanGraphSession;
 import com.altamiracorp.lumify.core.model.graph.GraphVertex;
 import com.altamiracorp.lumify.core.model.graph.InMemoryGraphVertex;
@@ -42,8 +43,6 @@ import com.google.inject.Inject;
 
 public class FacebookBolt extends BaseLumifyBolt {
     private static final Logger LOGGER = LoggerFactory.getLogger(FacebookBolt.class);
-    private static final Joiner FILEPATH_JOINER = Joiner.on('/');
-    private String dataDir;
     private SearchProvider searchProvider;
     private static final String PROFILE_ID = "profileId";
     private static final String USERNAME = "username";
@@ -67,8 +66,6 @@ public class FacebookBolt extends BaseLumifyBolt {
     private static final String FACEBOOK = "Facebook";
     private static final String FACEBOOK_PROFILE = "facebookProfile";
     private static final String BIRTHDAY_FORMAT = "MM/dd";
-    protected AuditRepository auditRepository;
-//    private static final TitanGraphSession graphSession;
 
 
     @Override
@@ -82,15 +79,14 @@ public class FacebookBolt extends BaseLumifyBolt {
         if (jsonObject.has(AUTHOR_UID)) {
             Long name_uid = jsonObject.getLong(AUTHOR_UID);
             name = name_uid.toString();
-//            InputStream in = openFile(name);
-            LOGGER.info("Facebook tuple is a post. Writing: %s to accumulo", name);
+            LOGGER.info(String.format("Facebook tuple is a post: %s", name));
             GraphVertex post = processPost(jsonObject);
             InputStream in = new ByteArrayInputStream(jsonObject.getString(MESSAGE).getBytes());
             searchProvider.add(post, in);
             workQueueRepository.pushArtifactHighlight(post.getId());
         } else {
             name = jsonObject.getString(USERNAME);
-            LOGGER.info("Facebook tuple is a user. Creating entity for: %s", name);
+            LOGGER.info(String.format("Facebook tuple is a user: %s", name));
             processUser(jsonObject);
         }
         return name;
@@ -102,12 +98,9 @@ public class FacebookBolt extends BaseLumifyBolt {
         Long name_uid = user.getLong(UID);
         String profileId = name_uid.toString();
         String username = user.getString(USERNAME);
-        boolean newVertex = false;
+        Concept profileConcept = ontologyRepository.getConceptByName(FACEBOOK_PROFILE, getUser());
 
         GraphVertex userVertex = graphRepository.findVertexByPropertyAndType(PROFILE_ID, profileId, VertexType.ENTITY, getUser());
-        if (userVertex.getProperty(PropertyName.TITLE) == null) {
-            newVertex = true;
-        }
 
         List<String> modifiedProperties = Lists.newArrayList
                 (PropertyName.TITLE.toString(), PropertyName.TYPE.toString(), PropertyName.SUBTYPE.toString(), PropertyName.DISPLAY_NAME.toString(), PROFILE_ID);
@@ -116,17 +109,12 @@ public class FacebookBolt extends BaseLumifyBolt {
         userVertex.setProperty(PropertyName.DISPLAY_NAME, username);
         userVertex.setProperty(PropertyName.TITLE, name);
         userVertex.setProperty(PropertyName.TYPE, VertexType.ENTITY.toString());
-        userVertex.setProperty(PropertyName.SUBTYPE, FACEBOOK_PROFILE);
+        userVertex.setProperty(PropertyName.SUBTYPE, profileConcept.getId());
         graphRepository.save(userVertex, getUser());
 
-        GraphVertex posting;
-        if (newVertex) {
-            //get relationships for vertex and write audit message for each post
-            List <GraphVertex> postings = graphRepository.getRelatedVertices(userVertex.getId(), getUser());
-            posting = postings.get(0);
-//            auditRepository.audit(posting.getId(), auditRepository.resolvedEntityAuditMessageForArtifact(posting), getUser());
-//            auditRepository.audit(userVertex.getId(), auditRepository.resolvedEntityAuditMessage(posting.getProperty(PropertyName.TITLE.toString())), getUser());
-        }
+        //get relationships for vertex and write audit message for each post
+        List <GraphVertex> postings = graphRepository.getRelatedVertices(userVertex.getId(), getUser());
+        GraphVertex posting = postings.get(0);
 
         if (user.has(SEX) && !user.getString(SEX).equals(JSONObject.NULL)) {
             String gender = user.getString(SEX);
@@ -142,7 +130,6 @@ public class FacebookBolt extends BaseLumifyBolt {
                 userVertex.setProperty(EMAIL, email);
             }
             graphRepository.saveRelationship(userVertex.getId(), emailVertex.getId(), EMAIL_RELATIONSHIP, getUser());
-            graphRepository.commit();
         }
 
         if (user.has(COORDS) && !user.get(COORDS).equals(JSONObject.NULL)) {
@@ -156,26 +143,20 @@ public class FacebookBolt extends BaseLumifyBolt {
             String birthday_date = user.getString(BIRTHDAY_DATE);
             SimpleDateFormat birthdayFormat = new SimpleDateFormat(BIRTHDAY_FORMAT);
             birthdayFormat.setLenient(true);
-            try {
-                if (birthday_date.length() > BIRTHDAY_FORMAT.length()) {
-                    birthdayFormat = new SimpleDateFormat(BIRTHDAY_FORMAT + "/yyyy");
-                }
-                Date birthday = birthdayFormat.parse(birthday_date);
-                userVertex.setProperty(BIRTHDAY, birthday.getTime());
-                modifiedProperties.add(BIRTHDAY);
-            } catch (ParseException e) {
-                new RuntimeException("Cannot parse " + birthday_date);
+            if (birthday_date.length() > BIRTHDAY_FORMAT.length()) {
+                birthdayFormat = new SimpleDateFormat(BIRTHDAY_FORMAT + "/yyyy");
             }
+            Date birthday = birthdayFormat.parse(birthday_date);
+            userVertex.setProperty(BIRTHDAY, birthday.getTime());
+            modifiedProperties.add(BIRTHDAY);
         }
         //create and save profile picture
-        modifiedProperties.addAll(createProfilePhotoArtifact(user, userVertex));
-        graphRepository.commit();
-//        auditRepository.audit(userVertex.getId(), auditRepository.vertexPropertyAuditMessages(userVertex, modifiedProperties), getUser());
-//        auditRepository.audit(userVertex.getId(), auditRepository.relationshipAuditMessageOnSource(relationshipLabelDisplayName, text, ""), getUser());
-//        auditRepository.audit(posting.getId(), auditRepository.relationshipAuditMessageOnDest(relationshipLabelDisplayName, tweeter, text), getUser());
+        modifiedProperties.addAll(createProfilePhotoArtifact(user, userVertex, posting));
+        auditRepository.audit(userVertex.getId(), auditRepository.vertexPropertyAuditMessages(userVertex, modifiedProperties), getUser());
+        graphRepository.save(userVertex, getUser());
     }
 
-    public List<String> createProfilePhotoArtifact(JSONObject user, GraphVertex userVertex) {
+    public List<String> createProfilePhotoArtifact(JSONObject user, GraphVertex userVertex, GraphVertex postingVertex) {
         ByteArrayOutputStream os = new ByteArrayOutputStream();
         List<String> modifiedProperties = new ArrayList<String>();
         try {
@@ -192,7 +173,7 @@ public class FacebookBolt extends BaseLumifyBolt {
             artifactExtractedInfo.setMimeType("image/png");
             artifactExtractedInfo.setRowKey(rowKey);
             artifactExtractedInfo.setArtifactType(ArtifactType.IMAGE.toString());
-            artifactExtractedInfo.setTitle(user.getString(USERNAME) + " Facebook Profile Picture");
+            artifactExtractedInfo.setTitle(user.getString(NAME) + " Facebook Profile Picture");
             artifactExtractedInfo.setSource("Facebook profile picture");
             artifactExtractedInfo.setRaw(raw);
 
@@ -204,15 +185,19 @@ public class FacebookBolt extends BaseLumifyBolt {
             metadata.setMimeType("image/png");
 
             GraphVertex profile = saveArtifact(artifactExtractedInfo);
-            LOGGER.info("Saving Facebook profile picture to accumulo and as graph vertex: " + profile.getId());
+            LOGGER.info(String.format("Saving Facebook profile picture to accumulo and as graph vertex: %s", profile.getId()));
 
             userVertex.setProperty(PropertyName.GLYPH_ICON.toString(), "/artifact/" + rowKey + "/raw");
             modifiedProperties.add(PropertyName.GLYPH_ICON.toString());
+            String labelDisplay = LabelName.HAS_IMAGE.toString();
+            Object sourceTitle = userVertex.getProperty(PropertyName.TITLE.toString());
+            Object destTitle = profile.getProperty(PropertyName.TITLE.toString());
             graphRepository.save(userVertex, getUser());
-
-            graphRepository.findOrAddRelationship(userVertex.getId(), profile.getId(), LabelName.HAS_IMAGE, getUser());
+            graphRepository.findOrAddRelationship(userVertex.getId(), profile.getId(), labelDisplay, getUser());
+            auditRepository.audit(userVertex.getId(), auditRepository.relationshipAuditMessageOnSource(labelDisplay, destTitle, postingVertex.getProperty(PropertyName.TITLE).toString()), getUser());
+            auditRepository.audit(profile.getId(), auditRepository.relationshipAuditMessageOnDest(labelDisplay, sourceTitle, postingVertex.getProperty(PropertyName.TITLE).toString()), getUser());
         } catch (IOException e) {
-            LOGGER.warn("Failed to create image for vertex: " + userVertex.getId());
+            LOGGER.warn(String.format("Failed to create image for vertex: %s", userVertex.getId()));
             new IOException(e);
         }
         return modifiedProperties;
@@ -241,7 +226,8 @@ public class FacebookBolt extends BaseLumifyBolt {
         if (message.length() == 0) {
             artifactExtractedInfo.setTitle("Facebook Image Post");
         } else if (message.length() > 140) {
-            artifactExtractedInfo.setTitle(message.substring(0, 139));
+            String shortTitle = message.substring(0, 137) + "...";
+            artifactExtractedInfo.setTitle(shortTitle);
         } else {
             artifactExtractedInfo.setTitle(message);
         }
@@ -259,9 +245,14 @@ public class FacebookBolt extends BaseLumifyBolt {
             authorVertex.setProperty(PropertyName.TYPE.toString(), VertexType.ENTITY.toString());
             graphRepository.save(authorVertex, getUser());
             graphRepository.commit();
+            auditRepository.audit(posting.getId(), auditRepository.resolvedEntityAuditMessageForArtifact(authorVertex.getId()), getUser());
+            auditRepository.audit(authorVertex.getId(), auditRepository.resolvedEntityAuditMessage(posting.getId()), getUser());
         }
         graphRepository.saveRelationship(authorVertex.getId(), posting.getId(), POSTED_RELATIONSHIP, getUser());
-        graphRepository.commit();
+        String postedRelationshipLabelDisplayName = ontologyRepository.getDisplayNameForLabel(POSTED_RELATIONSHIP, getUser());
+        String text = posting.getProperty(PropertyName.TITLE).toString();
+        auditRepository.audit(authorVertex.getId(), auditRepository.relationshipAuditMessageOnSource(postedRelationshipLabelDisplayName, text, ""), getUser());
+        auditRepository.audit(posting.getId(), auditRepository.relationshipAuditMessageOnDest(postedRelationshipLabelDisplayName, authorVertex, text), getUser());//        auditRepository.audit(posting.getId(), auditRepository.relationshipAuditMessageOnArtifact(POSTED_RELATIONSHIP, ));
         if (post.get(TAGGEED_UIDS) instanceof JSONObject) {
             Iterator tagged = post.getJSONObject(TAGGEED_UIDS).keys();
             while (tagged.hasNext()) {
@@ -273,9 +264,13 @@ public class FacebookBolt extends BaseLumifyBolt {
                     taggedVertex.setProperty(PropertyName.TYPE.toString(), VertexType.ENTITY.toString());
                     graphRepository.save(taggedVertex, getUser());
                     graphRepository.commit();
+                    auditRepository.audit(posting.getId(), auditRepository.resolvedEntityAuditMessageForArtifact(taggedVertex.getId()), getUser());
+                    auditRepository.audit(taggedVertex.getId(), auditRepository.resolvedEntityAuditMessage(posting.getId()), getUser());
                 }
-                graphRepository.saveRelationship(taggedVertex.getId(), posting.getId(), MENTIONED_RELATIONSHIP, getUser());
-                graphRepository.commit();
+                graphRepository.saveRelationship(posting.getId(), taggedVertex.getId(), MENTIONED_RELATIONSHIP, getUser());
+                String mentionedRelationshipLabelDisplayName = ontologyRepository.getDisplayNameForLabel(MENTIONED_RELATIONSHIP, getUser());
+                auditRepository.audit(taggedVertex.getId(), auditRepository.relationshipAuditMessageOnSource(mentionedRelationshipLabelDisplayName, text, ""), getUser());
+                auditRepository.audit(posting.getId(), auditRepository.relationshipAuditMessageOnDest(mentionedRelationshipLabelDisplayName, taggedVertex, text), getUser());
             }
         }
 
@@ -287,8 +282,7 @@ public class FacebookBolt extends BaseLumifyBolt {
         }
 
         graphRepository.save(posting, getUser());
-        graphRepository.commit();
-//        auditRepository.audit(posting.getId(), auditRepository.vertexPropertyAuditMessages(posting, modifiedProperties), getUser());
+        auditRepository.audit(posting.getId(), auditRepository.vertexPropertyAuditMessages(posting, modifiedProperties), getUser());
 
         return posting;
     }

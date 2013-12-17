@@ -49,7 +49,7 @@
     <!-- Concept: facebook profile -->
 
     <owl:Class rdf:about="facebookProfile">
-        <rdfs:label xml:lang="en">Facebook Profile </rdfs:label>
+        <rdfs:label xml:lang="en">Facebook Profile</rdfs:label>
         <atc:property atc:name="_color">rgb(70, 97, 159)</atc:property>
         <atc:property atc:name="glyphIconFileName">glyphicons_390_facebook@2x.png</atc:property>
         <rdfs:subClassOf rdf:resource="http://altamiracorp.com/ontology/person"/>
