@@ -1,4 +1,4 @@
-package com.altamiracorp.lumify.cmdline;
+package com.altamiracorp.lumify.tools;
 
 import com.altamiracorp.bigtable.model.ModelSession;
 import com.altamiracorp.lumify.core.cmdline.CommandLineBase;
@@ -9,8 +9,6 @@ import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.OptionBuilder;
 import org.apache.commons.cli.Options;
 import org.jdom.Namespace;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;

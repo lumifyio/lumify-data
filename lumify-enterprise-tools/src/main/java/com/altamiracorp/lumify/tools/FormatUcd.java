@@ -1,4 +1,4 @@
-package com.altamiracorp.lumify.cmdline;
+package com.altamiracorp.lumify.tools;
 
 import com.altamiracorp.bigtable.model.ModelSession;
 import com.altamiracorp.lumify.core.cmdline.CommandLineBase;
