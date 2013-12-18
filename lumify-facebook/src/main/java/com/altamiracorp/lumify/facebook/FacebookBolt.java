@@ -55,7 +55,7 @@ public class FacebookBolt extends BaseLumifyBolt {
     private static final String BIRTHDAY = "birthday";
     private static final String PIC = "pic";
     private static final String MESSAGE = "message";
-    private static final String TAGGEED_UIDS = "tagged_uids";
+    private static final String TAGGED_UUIDS = "tagged_uids";
     private static final String TIMESTAMP = "timestamp";
     private static final String POSTED_RELATIONSHIP = "postPostedByProfile";
     private static final String MENTIONED_RELATIONSHIP = "postMentionedProfile";
@@ -253,15 +253,15 @@ public class FacebookBolt extends BaseLumifyBolt {
             // TODO: replace "" when we implement commenting on ui
             auditRepository.auditEntityResolution(authorVertex.getId(), posting.getId(), PROCESS, "", getUser());
         }
-        graphRepository.saveRelationship(authorVertex.getId(), posting.getId(), POSTED_RELATIONSHIP, getUser());
+        graphRepository.saveRelationship(posting.getId(), authorVertex.getId(), POSTED_RELATIONSHIP, getUser());
         String postedRelationshipLabelDisplayName = ontologyRepository.getDisplayNameForLabel(POSTED_RELATIONSHIP, getUser());
         String text = posting.getProperty(PropertyName.TITLE).toString();
         auditRepository.audit(authorVertex.getId(), auditRepository.relationshipAuditMessageOnSource(postedRelationshipLabelDisplayName, text, ""), getUser());
         auditRepository.audit(posting.getId(), auditRepository.relationshipAuditMessageOnDest(postedRelationshipLabelDisplayName, authorVertex, text), getUser());
 
         // multiple tagged uids
-        if (post.get(TAGGEED_UIDS) instanceof JSONObject) {
-            Iterator tagged = post.getJSONObject(TAGGEED_UIDS).keys();
+        if (post.get(TAGGED_UUIDS) instanceof JSONObject) {
+            Iterator tagged = post.getJSONObject(TAGGED_UUIDS).keys();
             while (tagged.hasNext()) {
                 String next = tagged.next().toString();
                 GraphVertex taggedVertex = graphRepository.findVertexByPropertyAndType(PROFILE_ID, next, VertexType.ENTITY, getUser());
