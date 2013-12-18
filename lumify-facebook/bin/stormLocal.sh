@@ -19,5 +19,5 @@ java \
 -Dfile.encoding=UTF-8 \
 -Djava.library.path=$LD_LIBRARY_PATH \
 -classpath ${classpath} \
-com.altamiracorp.lumify.facebook.facebook.StormFacebookRunner \
+com.altamiracorp.lumify.facebook.StormRunner \
 --local
