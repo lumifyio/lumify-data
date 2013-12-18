@@ -11,6 +11,12 @@
     <artifactId>lumify-twitter</artifactId>
     <name>Lumify Twitter</name>
 
+    <scm>
+        <url>https://github.com/altamiracorp/lumify-twitter</url>
+        <connection>scm:git:git://github.com:altamiracorp/lumify-twitter.git</connection>
+        <developerConnection>scm:git:ssh://git@github.com:altamiracorp/lumify-twitter.git</developerConnection>
+    </scm>
+
     <inceptionYear>2013</inceptionYear>
     <organization>
         <name>Altamira Corporation</name>

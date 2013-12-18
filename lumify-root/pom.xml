@@ -17,7 +17,13 @@
         <url>http://www.altamiracorp.com</url>
     </organization>
     <url>https://github.com/altamiracorp/lumify-root</url>
-    
+
+    <scm>
+        <url>https://github.com/altamiracorp/lumify-root</url>
+        <connection>scm:git:git://github.com:altamiracorp/lumify-root.git</connection>
+        <developerConnection>scm:git:ssh://git@github.com:altamiracorp/lumify-root.git</developerConnection>
+    </scm>
+
     <distributionManagement>
         <repository>
             <id>bits.lumify.io</id>
@@ -84,6 +90,7 @@
         <powermock.version>1.5.1</powermock.version>
         
         <!-- Maven Plugin Versions -->
+        <plugin.buildnumber.version>1.2</plugin.buildnumber.version>
         <plugin.checkstyle.version>2.11</plugin.checkstyle.version>
         <plugin.cobertura.version>2.6</plugin.cobertura.version>
         <plugin.doxia.markdown.version>1.5</plugin.doxia.markdown.version>
@@ -768,6 +775,19 @@
                         <port>9000</port>
                     </configuration>
                 </plugin>
+                <plugin>
+                    <groupId>org.codehaus.mojo</groupId>
+                    <artifactId>buildnumber-maven-plugin</artifactId>
+                    <version>${plugin.buildnumber.version}</version>
+                    <executions>
+                        <execution>
+                            <phase>validate</phase>
+                            <goals>
+                                <goal>create</goal>
+                            </goals>
+                        </execution>
+                    </executions>
+                </plugin>
             </plugins>
         </pluginManagement>
         <plugins>
@@ -785,6 +805,10 @@
                         </execution>
                     </executions>
                 </configuration>
+            </plugin>
+            <plugin>
+                <artifactId>buildnumber-maven-plugin</artifactId>
+                <groupId>org.codehaus.mojo</groupId>
             </plugin>
         </plugins>
     </build>

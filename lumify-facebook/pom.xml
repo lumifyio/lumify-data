@@ -14,6 +14,12 @@
 
     <name>Lumify Facebook</name>
 
+    <scm>
+        <url>https://github.com/altamiracorp/lumify-facebook</url>
+        <connection>scm:git:git://github.com:altamiracorp/lumify-facebook.git</connection>
+        <developerConnection>scm:git:ssh://git@github.com:altamiracorp/lumify-facebook.git</developerConnection>
+    </scm>
+
     <profiles>
         <!-- Use this profile to build when deploying to a clustered environment. -->
         <profile>
