@@ -83,7 +83,7 @@ public class LocationTermAnalyzer {
                 vertex.setProperty(PropertyName.GEO_LOCATION, Geoshape.point(latitude, longitude));
                 graphRepository.saveVertex(vertex, user);
 
-                auditRepository.auditProperties(AuditAction.UPDATE.toString(), vertex, PropertyName.GEO_LOCATION.toString(), this.getClass().getName(), "", user);
+                auditRepository.auditEntityProperties(AuditAction.UPDATE.toString(), vertex, PropertyName.GEO_LOCATION.toString(), this.getClass().getName(), "", user);
 
                 LOGGER.debug("Updated vertex geolocation");
             } else {

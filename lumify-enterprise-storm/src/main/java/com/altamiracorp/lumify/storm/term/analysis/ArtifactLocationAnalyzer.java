@@ -85,7 +85,7 @@ public class ArtifactLocationAnalyzer {
             LOGGER.debug("Updated artifact vertex");
 
             for (String property : modifiedProperties) {
-                auditRepository.auditProperties(AuditAction.UPDATE.toString(), vertex, property, this.getClass().getName(), "", user);
+                auditRepository.auditEntityProperties(AuditAction.UPDATE.toString(), vertex, property, this.getClass().getName(), "", user);
             }
         }
     }

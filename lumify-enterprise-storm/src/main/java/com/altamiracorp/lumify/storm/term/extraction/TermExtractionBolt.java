@@ -22,7 +22,6 @@ import com.google.inject.Inject;
 import org.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import scala.unchecked;
 
 import java.io.BufferedWriter;
 import java.io.FileWriter;
@@ -154,7 +153,7 @@ public class TermExtractionBolt extends BaseTextProcessingBolt {
 
                 String resolvedEntityGraphVertexId = graphRepository.saveVertex(vertex, getUser());
                 for (String property : modifiedProperties) {
-                    auditRepository.auditProperties(AuditAction.UPDATE.toString(), vertex, property, this.getClass().getName(), "", getUser());
+                    auditRepository.auditEntityProperties(AuditAction.UPDATE.toString(), vertex, property, this.getClass().getName(), "", getUser());
                 }
 
                 graphRepository.saveRelationship(artifactGraphVertexId, resolvedEntityGraphVertexId, LabelName.HAS_ENTITY, getUser());

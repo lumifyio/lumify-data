@@ -7,7 +7,6 @@ import com.altamiracorp.lumify.core.model.artifact.Artifact;
 import com.altamiracorp.lumify.core.model.artifact.ArtifactMetadata;
 import com.altamiracorp.lumify.core.model.artifact.ArtifactRowKey;
 import com.altamiracorp.lumify.core.model.artifact.ArtifactType;
-import com.altamiracorp.lumify.core.model.audit.Audit;
 import com.altamiracorp.lumify.core.model.audit.AuditAction;
 import com.altamiracorp.lumify.core.model.graph.GraphGeoLocation;
 import com.altamiracorp.lumify.core.model.graph.GraphVertex;
@@ -137,7 +136,7 @@ public class TwitterStreamingBolt extends BaseLumifyBolt {
         graphRepository.save(tweet, getUser());
 
         for (String property : modifiedProperties) {
-            auditRepository.auditProperties(AuditAction.UPDATE.toString(), tweet, property, PROCESS, "", getUser());
+            auditRepository.auditEntityProperties(AuditAction.UPDATE.toString(), tweet, property, PROCESS, "", getUser());
         }
 
         createOrUpdateTweeterEntity(handleConcept, (JSONObject) json.get("user"));
@@ -170,7 +169,7 @@ public class TwitterStreamingBolt extends BaseLumifyBolt {
         modifiedProperties.addAll(createProfilePhotoArtifact(user, tweeterVertex));
 
         for (String modifiedProperty : modifiedProperties) {
-            auditRepository.auditProperties(AuditAction.UPDATE.toString(), tweeterVertex, modifiedProperty, PROCESS, "", getUser());
+            auditRepository.auditEntityProperties(AuditAction.UPDATE.toString(), tweeterVertex, modifiedProperty, PROCESS, "", getUser());
         }
 
         graphRepository.saveRelationship(tweeterVertex.getId(), tweet.getId(), TWEETED, getUser());
@@ -222,7 +221,7 @@ public class TwitterStreamingBolt extends BaseLumifyBolt {
             }
 
             for (String modifiedProperty : modifiedProperties) {
-                auditRepository.auditProperties(AuditAction.UPDATE.toString(), vertex, modifiedProperty, PROCESS, "" , getUser());
+                auditRepository.auditEntityProperties(AuditAction.UPDATE.toString(), vertex, modifiedProperty, PROCESS, "", getUser());
             }
 
             mention.getMetadata().setGraphVertexId(vertex.getId());
