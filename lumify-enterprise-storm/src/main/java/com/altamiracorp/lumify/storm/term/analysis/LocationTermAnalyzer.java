@@ -1,5 +1,6 @@
 package com.altamiracorp.lumify.storm.term.analysis;
 
+import com.altamiracorp.lumify.core.model.audit.AuditAction;
 import com.altamiracorp.lumify.core.model.audit.AuditRepository;
 import com.altamiracorp.lumify.core.model.geoNames.GeoNamePostalCodeRepository;
 import com.altamiracorp.lumify.core.model.geoNames.GeoNameRepository;
@@ -82,7 +83,7 @@ public class LocationTermAnalyzer {
                 vertex.setProperty(PropertyName.GEO_LOCATION, Geoshape.point(latitude, longitude));
                 graphRepository.saveVertex(vertex, user);
 
-                auditRepository.auditProperties(vertex, PropertyName.GEO_LOCATION.toString(), this.getClass().getName(), "", user);
+                auditRepository.auditProperties(AuditAction.UPDATE.toString(), vertex, PropertyName.GEO_LOCATION.toString(), this.getClass().getName(), "", user);
 
                 LOGGER.debug("Updated vertex geolocation");
             } else {

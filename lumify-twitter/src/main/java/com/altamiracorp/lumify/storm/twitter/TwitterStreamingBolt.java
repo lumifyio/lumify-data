@@ -136,7 +136,7 @@ public class TwitterStreamingBolt extends BaseLumifyBolt {
         graphRepository.save(tweet, getUser());
 
         for (String property : modifiedProperties) {
-            auditRepository.auditProperties(tweet, property, PROCESS, "", getUser());
+            auditRepository.auditProperties(AuditAction.UPDATE.toString(), tweet, property, PROCESS, "", getUser());
         }
 
         createOrUpdateTweeterEntity(handleConcept, (JSONObject) json.get("user"));
@@ -169,7 +169,7 @@ public class TwitterStreamingBolt extends BaseLumifyBolt {
         modifiedProperties.addAll(createProfilePhotoArtifact(user, tweeterVertex));
 
         for (String modifiedProperty : modifiedProperties) {
-            auditRepository.auditProperties(tweeterVertex, modifiedProperty, PROCESS, "", getUser());
+            auditRepository.auditProperties(AuditAction.UPDATE.toString(), tweeterVertex, modifiedProperty, PROCESS, "", getUser());
         }
 
         graphRepository.saveRelationship(tweeterVertex.getId(), tweet.getId(), TWEETED, getUser());
@@ -222,7 +222,7 @@ public class TwitterStreamingBolt extends BaseLumifyBolt {
             }
 
             for (String modifiedProperty : modifiedProperties) {
-                auditRepository.auditProperties(vertex, modifiedProperty, PROCESS, "" , getUser());
+                auditRepository.auditProperties(AuditAction.UPDATE.toString(), vertex, modifiedProperty, PROCESS, "" , getUser());
             }
 
             mention.getMetadata().setGraphVertexId(vertex.getId());

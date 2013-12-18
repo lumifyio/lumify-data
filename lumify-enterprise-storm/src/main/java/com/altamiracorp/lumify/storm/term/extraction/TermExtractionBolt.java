@@ -6,6 +6,7 @@ import backtype.storm.tuple.Tuple;
 import com.altamiracorp.lumify.core.ingest.term.extraction.TermExtractionAdditionalWorkData;
 import com.altamiracorp.lumify.core.ingest.term.extraction.TermExtractionResult;
 import com.altamiracorp.lumify.core.ingest.term.extraction.TermExtractionWorker;
+import com.altamiracorp.lumify.core.model.audit.AuditAction;
 import com.altamiracorp.lumify.core.model.graph.GraphVertex;
 import com.altamiracorp.lumify.core.model.graph.InMemoryGraphVertex;
 import com.altamiracorp.lumify.core.model.ontology.*;
@@ -153,7 +154,7 @@ public class TermExtractionBolt extends BaseTextProcessingBolt {
 
                 String resolvedEntityGraphVertexId = graphRepository.saveVertex(vertex, getUser());
                 for (String property : modifiedProperties) {
-                    auditRepository.auditProperties(vertex, property, this.getClass().getName(), "", getUser());
+                    auditRepository.auditProperties(AuditAction.UPDATE.toString(), vertex, property, this.getClass().getName(), "", getUser());
                 }
 
                 graphRepository.saveRelationship(artifactGraphVertexId, resolvedEntityGraphVertexId, LabelName.HAS_ENTITY, getUser());

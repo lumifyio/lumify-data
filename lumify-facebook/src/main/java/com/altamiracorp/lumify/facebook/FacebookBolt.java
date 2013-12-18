@@ -127,7 +127,7 @@ public class FacebookBolt extends BaseLumifyBolt {
                 graphRepository.save(emailVertex, getUser());
 
                 auditRepository.auditEntity(AuditAction.CREATE.toString(), emailVertex.getId(), userVertex.getId(), PROCESS, "", getUser());
-                auditRepository.auditProperties(emailVertex, PropertyName.TITLE.toString(), PROCESS, "", getUser());
+                auditRepository.auditProperties(AuditAction.UPDATE.toString(), emailVertex, PropertyName.TITLE.toString(), PROCESS, "", getUser());
             }
             graphRepository.saveRelationship(userVertex.getId(), emailVertex.getId(), EMAIL_RELATIONSHIP, getUser());
         }
@@ -154,7 +154,7 @@ public class FacebookBolt extends BaseLumifyBolt {
         modifiedProperties.addAll(createProfilePhotoArtifact(user, userVertex, posting));
 
         for (String property : modifiedProperties) {
-            auditRepository.auditProperties(userVertex, property, PROCESS, "", getUser());
+            auditRepository.auditProperties(AuditAction.UPDATE.toString(), userVertex, property, PROCESS, "", getUser());
         }
     }
 
@@ -249,7 +249,7 @@ public class FacebookBolt extends BaseLumifyBolt {
             Geoshape geo = Geoshape.point(coordinates.getDouble("latitude"), coordinates.getDouble("longitude"));
             posting.setProperty(PropertyName.GEO_LOCATION, geo);
             graphRepository.save(posting, getUser());
-            auditRepository.auditProperties(posting, PropertyName.GEO_LOCATION.toString(), PROCESS, "", getUser());
+            auditRepository.auditProperties(AuditAction.UPDATE.toString(), posting, PropertyName.GEO_LOCATION.toString(), PROCESS, "", getUser());
         }
 
         //create entities for each of the ids tagged or author and the relationships
@@ -262,8 +262,8 @@ public class FacebookBolt extends BaseLumifyBolt {
             graphRepository.commit();
 
             auditRepository.auditEntity(AuditAction.CREATE.toString(), authorVertex.getId(), posting.getId(), PROCESS, "", getUser());
-            auditRepository.auditProperties(authorVertex, PROFILE_ID, PROCESS, "", getUser());
-            auditRepository.auditProperties(authorVertex, PropertyName.TYPE.toString(), PROCESS, "", getUser());
+            auditRepository.auditProperties(AuditAction.UPDATE.toString(), authorVertex, PROFILE_ID, PROCESS, "", getUser());
+            auditRepository.auditProperties(AuditAction.UPDATE.toString(), authorVertex, PropertyName.TYPE.toString(), PROCESS, "", getUser());
         }
         graphRepository.saveRelationship(posting.getId(), authorVertex.getId(), POSTED_RELATIONSHIP, getUser());
         String postedRelationshipLabelDisplayName = ontologyRepository.getDisplayNameForLabel(POSTED_RELATIONSHIP, getUser());
@@ -285,8 +285,8 @@ public class FacebookBolt extends BaseLumifyBolt {
                     graphRepository.commit();
 
                     auditRepository.auditEntity(AuditAction.CREATE.toString(), taggedVertex.getId(), posting.getId(), PROCESS, "", getUser());
-                    auditRepository.auditProperties(taggedVertex, PROFILE_ID, PROCESS, "", getUser());
-                    auditRepository.auditProperties(taggedVertex, PropertyName.TYPE.toString(), PROCESS, "", getUser());
+                    auditRepository.auditProperties(AuditAction.UPDATE.toString(), taggedVertex, PROFILE_ID, PROCESS, "", getUser());
+                    auditRepository.auditProperties(AuditAction.UPDATE.toString(), taggedVertex, PropertyName.TYPE.toString(), PROCESS, "", getUser());
                 }
                 graphRepository.saveRelationship(posting.getId(), taggedVertex.getId(), MENTIONED_RELATIONSHIP, getUser());
                 String mentionedRelationshipLabelDisplayName = ontologyRepository.getDisplayNameForLabel(MENTIONED_RELATIONSHIP, getUser());

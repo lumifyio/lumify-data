@@ -1,5 +1,6 @@
 package com.altamiracorp.lumify.storm.term.analysis;
 
+import com.altamiracorp.lumify.core.model.audit.AuditAction;
 import com.altamiracorp.lumify.core.model.audit.AuditRepository;
 import com.altamiracorp.lumify.core.model.graph.GraphRepository;
 import com.altamiracorp.lumify.core.model.graph.GraphVertex;
@@ -84,7 +85,7 @@ public class ArtifactLocationAnalyzer {
             LOGGER.debug("Updated artifact vertex");
 
             for (String property : modifiedProperties) {
-                auditRepository.auditProperties(vertex, property, this.getClass().getName(), "", user);
+                auditRepository.auditProperties(AuditAction.UPDATE.toString(), vertex, property, this.getClass().getName(), "", user);
             }
         }
     }
