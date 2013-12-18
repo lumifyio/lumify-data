@@ -99,8 +99,7 @@ public class FacebookBolt extends BaseLumifyBolt {
         GraphVertex userVertex = graphRepository.findVertexByPropertyAndType(PROFILE_ID, profileId, VertexType.ENTITY, getUser());
 
         List<String> modifiedProperties = Lists.newArrayList
-                (PropertyName.TITLE.toString(), PropertyName.TYPE.toString(), PropertyName.SUBTYPE.toString(), PropertyName.DISPLAY_NAME.toString(), PROFILE_ID);
-
+                (PropertyName.TITLE.toString(), PropertyName.TYPE.toString(), PropertyName.SUBTYPE.toString(), PropertyName.DISPLAY_NAME.toString());
 
         userVertex.setProperty(PropertyName.DISPLAY_NAME, username);
         userVertex.setProperty(PropertyName.TITLE, name);
@@ -126,8 +125,8 @@ public class FacebookBolt extends BaseLumifyBolt {
                 emailVertex.setProperty(PropertyName.TITLE, email);
                 graphRepository.save(emailVertex, getUser());
 
-                // TODO: replace "" when we implement commenting on ui
                 auditRepository.auditEntityResolution(emailVertex.getId(), userVertex.getId(), PROCESS, "", getUser());
+                auditRepository.auditProperties(emailVertex, PropertyName.TITLE.toString(), PROCESS, "", getUser());
             }
             graphRepository.saveRelationship(userVertex.getId(), emailVertex.getId(), EMAIL_RELATIONSHIP, getUser());
         }
@@ -152,8 +151,10 @@ public class FacebookBolt extends BaseLumifyBolt {
         }
         //create and save profile picture
         modifiedProperties.addAll(createProfilePhotoArtifact(user, userVertex, posting));
-        auditRepository.audit(userVertex.getId(), auditRepository.vertexPropertyAuditMessages(userVertex, modifiedProperties), getUser());
-        graphRepository.save(userVertex, getUser());
+
+        for (String property : modifiedProperties) {
+            auditRepository.auditProperties(userVertex, property, PROCESS, "", getUser());
+        }
     }
 
     public List<String> createProfilePhotoArtifact(JSONObject user, GraphVertex userVertex, GraphVertex postingVertex) {
@@ -190,6 +191,7 @@ public class FacebookBolt extends BaseLumifyBolt {
 
             userVertex.setProperty(PropertyName.GLYPH_ICON.toString(), "/artifact/" + rowKey + "/raw");
             modifiedProperties.add(PropertyName.GLYPH_ICON.toString());
+
             String labelDisplay = LabelName.HAS_IMAGE.toString();
             Object sourceTitle = userVertex.getProperty(PropertyName.TITLE.toString());
             Object destTitle = profile.getProperty(PropertyName.TITLE.toString());
@@ -239,7 +241,15 @@ public class FacebookBolt extends BaseLumifyBolt {
         //write artifact with extracted info to accumulo and create entity
         GraphVertex posting = saveArtifact(artifactExtractedInfo);
         LOGGER.info("Saving Facebook post to accumulo and as graph vertex: " + posting.getId());
-        List<String> modifiedProperties = new ArrayList<String>();
+
+        // geolocation property
+        if (post.has(COORDS) && !post.getJSONObject(COORDS).equals(JSONObject.NULL)) {
+            JSONObject coordinates = post.getJSONObject(COORDS);
+            Geoshape geo = Geoshape.point(coordinates.getDouble("latitude"), coordinates.getDouble("longitude"));
+            posting.setProperty(PropertyName.GEO_LOCATION, geo);
+            graphRepository.save(posting, getUser());
+            auditRepository.auditProperties(posting, PropertyName.GEO_LOCATION.toString(), PROCESS, "", getUser());
+        }
 
         //create entities for each of the ids tagged or author and the relationships
         GraphVertex authorVertex = graphRepository.findVertexByPropertyAndType(PROFILE_ID, author_uid, VertexType.ENTITY, getUser());
@@ -250,8 +260,9 @@ public class FacebookBolt extends BaseLumifyBolt {
             graphRepository.save(authorVertex, getUser());
             graphRepository.commit();
 
-            // TODO: replace "" when we implement commenting on ui
             auditRepository.auditEntityResolution(authorVertex.getId(), posting.getId(), PROCESS, "", getUser());
+            auditRepository.auditProperties(authorVertex, PROFILE_ID, PROCESS, "", getUser());
+            auditRepository.auditProperties(authorVertex, PropertyName.TYPE.toString(), PROCESS, "", getUser());
         }
         graphRepository.saveRelationship(posting.getId(), authorVertex.getId(), POSTED_RELATIONSHIP, getUser());
         String postedRelationshipLabelDisplayName = ontologyRepository.getDisplayNameForLabel(POSTED_RELATIONSHIP, getUser());
@@ -272,8 +283,9 @@ public class FacebookBolt extends BaseLumifyBolt {
                     graphRepository.save(taggedVertex, getUser());
                     graphRepository.commit();
 
-                    // TODO: replace "" when we implement commenting on ui
                     auditRepository.auditEntityResolution(taggedVertex.getId(), posting.getId(), PROCESS, "", getUser());
+                    auditRepository.auditProperties(taggedVertex, PROFILE_ID, PROCESS, "", getUser());
+                    auditRepository.auditProperties(taggedVertex, PropertyName.TYPE.toString(), PROCESS, "", getUser());
                 }
                 graphRepository.saveRelationship(posting.getId(), taggedVertex.getId(), MENTIONED_RELATIONSHIP, getUser());
                 String mentionedRelationshipLabelDisplayName = ontologyRepository.getDisplayNameForLabel(MENTIONED_RELATIONSHIP, getUser());
@@ -281,17 +293,6 @@ public class FacebookBolt extends BaseLumifyBolt {
                 auditRepository.audit(posting.getId(), auditRepository.relationshipAuditMessageOnDest(mentionedRelationshipLabelDisplayName, taggedVertex, text), getUser());
             }
         }
-
-        // geolocation property
-        if (post.has(COORDS) && !post.getJSONObject(COORDS).equals(JSONObject.NULL)) {
-            JSONObject coordinates = post.getJSONObject(COORDS);
-            Geoshape geo = Geoshape.point(coordinates.getDouble("latitude"), coordinates.getDouble("longitude"));
-            posting.setProperty(PropertyName.GEO_LOCATION, geo);
-            modifiedProperties.add(PropertyName.GEO_LOCATION.toString());
-        }
-
-        graphRepository.save(posting, getUser());
-        auditRepository.audit(posting.getId(), auditRepository.vertexPropertyAuditMessages(posting, modifiedProperties), getUser());
 
         return posting;
     }
