@@ -100,6 +100,7 @@ public class TwitterStreamingBolt extends BaseLumifyBolt {
         artifactExtractedInfo.setTitle(text);
         artifactExtractedInfo.setAuthor(tweeter);
         artifactExtractedInfo.setSource(source);
+        artifactExtractedInfo.setProcess(this.getClass().getName());
 
         Date date = formatCreatedAt(createdAt);
         if (date != null) {
@@ -155,8 +156,8 @@ public class TwitterStreamingBolt extends BaseLumifyBolt {
         graphRepository.save(tweeterVertex, getUser());
 
         if (newVertex) {
-            auditRepository.audit(tweet.getId(), auditRepository.resolvedEntityAuditMessageForArtifact(tweeter), getUser());
-            auditRepository.audit(tweeterVertex.getId(), auditRepository.resolvedEntityAuditMessage(tweet.getProperty(PropertyName.TITLE.toString())), getUser());
+            // TODO: replace "" when we implement commenting on ui
+            auditRepository.auditEntityResolution(tweeterVertex.getId(), tweet.getId(), this.getClass().getName(), "", getUser());
         }
 
         modifiedProperties.addAll(addHandleProperties(user, tweeterVertex));
@@ -210,8 +211,8 @@ public class TwitterStreamingBolt extends BaseLumifyBolt {
             graphRepository.save(vertex, getUser());
 
             if (newVertex) {
-                auditRepository.audit(tweet.getId(), auditRepository.resolvedEntityAuditMessageForArtifact(sign), getUser());
-                auditRepository.audit(vertex.getId(), auditRepository.resolvedEntityAuditMessage(tweet.getProperty(PropertyName.TITLE.toString())), getUser());
+                // TODO: replace "" when we implement commenting on ui
+                auditRepository.auditEntityResolution(vertex.getId(), tweet.getId(), this.getClass().getName(), "", getUser());
             }
             auditRepository.audit(vertex.getId(), auditRepository.vertexPropertyAuditMessages(vertex, modifiedProperties), getUser());
 
@@ -287,6 +288,7 @@ public class TwitterStreamingBolt extends BaseLumifyBolt {
             artifactExtractedInfo.setTitle(user.getString("screen_name") + " Twitter Profile Picture");
             artifactExtractedInfo.setSource("Twitter profile picture");
             artifactExtractedInfo.setRaw(raw);
+            artifactExtractedInfo.setProcess(this.getClass().getName());
 
             ArtifactMetadata metadata = artifact.getMetadata();
             metadata.setCreateDate(new Date());
