@@ -20,4 +20,5 @@ java \
 -Djava.library.path=$LD_LIBRARY_PATH \
 -classpath ${classpath} \
 com.altamiracorp.lumify.storm.twitter.StormRunner \
---local
+--local \
+$*
