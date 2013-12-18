@@ -18,8 +18,8 @@ public abstract class BaseFileSystemSpout extends BaseRichSpout implements Lumif
     public static final String DATADIR_CONFIG_NAME = "datadir";
     private SpoutOutputCollector collector;
     private Map<String, String> workingFiles;
-    private AtomicLong totalProcessed = new AtomicLong();
-    private AtomicLong totalErrorCount = new AtomicLong();
+    private final AtomicLong totalProcessed = new AtomicLong();
+    private final AtomicLong totalErrorCount = new AtomicLong();
 
     @Override
     public void declareOutputFields(OutputFieldsDeclarer outputFieldsDeclarer) {

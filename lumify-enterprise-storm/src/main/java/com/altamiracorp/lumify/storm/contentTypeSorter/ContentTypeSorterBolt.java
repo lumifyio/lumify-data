@@ -28,11 +28,16 @@ import java.util.Map;
 import java.util.ServiceLoader;
 
 import static com.google.common.base.Preconditions.checkNotNull;
+import java.io.BufferedReader;
+import java.io.StringReader;
+import java.nio.charset.Charset;
 
 public class ContentTypeSorterBolt extends BaseLumifyBolt {
     private static final Logger LOGGER = LoggerFactory.getLogger(ContentTypeSorterBolt.class);
 
     private static final Joiner FILEPATH_JOINER = Joiner.on('/');
+    private static final String LUMIFY_QUEUE_FILENAME = ".lumify-queue";
+    private static final Charset LUMIFY_QUEUE_CHARSET = Charset.forName("UTF-8");
 
     private ContentTypeExtractor contentTypeExtractor;
     private String dataDir;
@@ -61,6 +66,9 @@ public class ContentTypeSorterBolt extends BaseLumifyBolt {
         InputStream in = openFile(fileName);
         try {
             String queueName = calculateQueueName(fileName, in);
+            // TODO: Secure this somewhat to prevent injection attacks with invalid queue names.
+            // Maybe restrict queue names to [-_a-zA-Z0-9]*
+            mkdir(FILEPATH_JOINER.join(dataDir, queueName));
 
             moveFile(fileName, FILEPATH_JOINER.join(dataDir, queueName, getFileNameWithDateSuffix(fileName)));
 
@@ -92,15 +100,33 @@ public class ContentTypeSorterBolt extends BaseLumifyBolt {
 
     private String calculateQueueNameFromArchiveContents(String fileName) throws IOException, ArchiveException {
         InputStream hdfsInputStream = new BufferedInputStream(getHdfsFileSystem().open(new Path(fileName)));
+        String queueName = null;
         try {
             ArchiveInputStream is = new ArchiveStreamFactory().createArchiveInputStream(hdfsInputStream);
             try {
                 ArchiveEntry entry;
-                while ((entry = is.getNextEntry()) != null) {
-                    for (ContentTypeSorter contentTypeSorter : contentTypeSorters) {
-                        String queueName = contentTypeSorter.getQueueNameFromArchiveEntry(entry, is);
-                        if (queueName != null) {
-                            return queueName;
+                boolean foundQueueFile = false;
+                while ((entry = is.getNextEntry()) != null && !foundQueueFile) {
+                    // if the queue file is found; read its contents and set them as the
+                    // queue name, skipping all further entries; otherwise, if a queueName
+                    // has not already been identified, process the file through the configured
+                    // ContentTypeSorters.
+                    //
+                    // All archive entries will be processed until/unless the Lumify Queue File
+                    // is discovered.  If it is found, its contents will override any discovered
+                    // queue from the ContentTypeSorters.
+                    if (LUMIFY_QUEUE_FILENAME.equalsIgnoreCase(entry.getName())) {
+                        foundQueueFile = true;
+                        String foundQueue = readQueueFromQueueFile(entry, is);
+                        if (foundQueue != null) {
+                            queueName = foundQueue;
+                        }
+                    } else if (queueName == null) {
+                        for (ContentTypeSorter contentTypeSorter : contentTypeSorters) {
+                            queueName = contentTypeSorter.getQueueNameFromArchiveEntry(entry, is);
+                            if (queueName != null) {
+                                break;
+                            }
                         }
                     }
                 }
@@ -110,7 +136,7 @@ public class ContentTypeSorterBolt extends BaseLumifyBolt {
         } finally {
             hdfsInputStream.close();
         }
-        return null;
+        return queueName;
     }
 
     @Inject
@@ -131,5 +157,39 @@ public class ContentTypeSorterBolt extends BaseLumifyBolt {
         }
 
         return null;
+    }
+    
+    /**
+     * Reads the first line of the UTF-8 formatted Lumify Queue File and, if
+     * it is not empty, returns that line as the queue name; otherwise it
+     * returns null.
+     * @param queueFileEntry the archive entry for the queue file
+     * @param archiveIn the archive input stream
+     * @return the identified queue name or null if it could not be resolved
+     * @throws IOException if an error occurs while reading the queue file
+     */
+    private String readQueueFromQueueFile(final ArchiveEntry queueFileEntry, final InputStream archiveIn) throws IOException {
+        String queue = null;
+        long entrySize = queueFileEntry.getSize();
+        if (entrySize > Integer.MAX_VALUE) {
+            LOGGER.error(String.format("Lumify Queue File (%s) is too large [%d bytes] to process and will be ignored.",
+                    LUMIFY_QUEUE_FILENAME, entrySize));
+        } else {
+            byte[] contents = new byte[(int) entrySize];
+            int readCount = archiveIn.read(contents);
+            if (readCount <= 0) {
+                LOGGER.warn("0 bytes read from Lumify Queue File. Skipping.");
+            } else {
+                BufferedReader queueReader = new BufferedReader(new StringReader(new String(contents, LUMIFY_QUEUE_CHARSET)));
+                queue = queueReader.readLine().trim();
+                if (queue.isEmpty()) {
+                    LOGGER.warn("First line of Lumify Queue File is empty. Skipping.");
+                    queue = null;
+                } else {
+                    return queue;
+                }
+            }
+        }
+        return queue;
     }
 }
