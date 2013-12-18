@@ -1,6 +1,29 @@
 package com.altamiracorp.lumify.facebook;
 
 
+import backtype.storm.tuple.Tuple;
+import com.altamiracorp.lumify.core.ingest.ArtifactExtractedInfo;
+import com.altamiracorp.lumify.core.model.artifact.Artifact;
+import com.altamiracorp.lumify.core.model.artifact.ArtifactMetadata;
+import com.altamiracorp.lumify.core.model.artifact.ArtifactRowKey;
+import com.altamiracorp.lumify.core.model.artifact.ArtifactType;
+import com.altamiracorp.lumify.core.model.graph.GraphVertex;
+import com.altamiracorp.lumify.core.model.graph.InMemoryGraphVertex;
+import com.altamiracorp.lumify.core.model.ontology.Concept;
+import com.altamiracorp.lumify.core.model.ontology.LabelName;
+import com.altamiracorp.lumify.core.model.ontology.PropertyName;
+import com.altamiracorp.lumify.core.model.ontology.VertexType;
+import com.altamiracorp.lumify.core.model.search.SearchProvider;
+import com.altamiracorp.lumify.storm.BaseLumifyBolt;
+import com.beust.jcommander.internal.Lists;
+import com.google.inject.Inject;
+import com.thinkaurelius.titan.core.attribute.Geoshape;
+import org.apache.commons.io.FilenameUtils;
+import org.apache.commons.io.IOUtils;
+import org.json.JSONObject;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -13,36 +36,9 @@ import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
 
-import com.altamiracorp.lumify.core.ingest.ArtifactExtractedInfo;
-import com.altamiracorp.lumify.core.model.artifact.Artifact;
-import com.altamiracorp.lumify.core.model.artifact.ArtifactMetadata;
-import com.altamiracorp.lumify.core.model.artifact.ArtifactRowKey;
-import com.altamiracorp.lumify.core.model.artifact.ArtifactType;
-import com.altamiracorp.lumify.core.model.audit.AuditRepository;
-import com.altamiracorp.lumify.core.model.graph.GraphGeoLocation;
-import com.altamiracorp.lumify.core.model.ontology.Concept;
-import com.altamiracorp.lumify.model.TitanGraphSession;
-import com.altamiracorp.lumify.core.model.graph.GraphVertex;
-import com.altamiracorp.lumify.core.model.graph.InMemoryGraphVertex;
-import com.altamiracorp.lumify.core.model.ontology.LabelName;
-import com.altamiracorp.lumify.core.model.ontology.PropertyName;
-import com.altamiracorp.lumify.core.model.ontology.VertexType;
-import com.altamiracorp.lumify.core.model.search.SearchProvider;
-import com.beust.jcommander.internal.Lists;
-import com.thinkaurelius.titan.core.attribute.Geoshape;
-import org.apache.commons.io.FilenameUtils;
-import org.apache.commons.io.IOUtils;
-import org.json.JSONArray;
-import org.json.JSONObject;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import backtype.storm.tuple.Tuple;
-import com.altamiracorp.lumify.storm.BaseLumifyBolt;
-import com.google.common.base.Joiner;
-import com.google.inject.Inject;
-
 public class FacebookBolt extends BaseLumifyBolt {
     private static final Logger LOGGER = LoggerFactory.getLogger(FacebookBolt.class);
+    private static final String PROCESS = FacebookBolt.class.getName();
     private SearchProvider searchProvider;
     private static final String PROFILE_ID = "profileId";
     private static final String USERNAME = "username";
@@ -113,7 +109,7 @@ public class FacebookBolt extends BaseLumifyBolt {
         graphRepository.save(userVertex, getUser());
 
         //get relationships for vertex and write audit message for each post
-        List <GraphVertex> postings = graphRepository.getRelatedVertices(userVertex.getId(), getUser());
+        List<GraphVertex> postings = graphRepository.getRelatedVertices(userVertex.getId(), getUser());
         GraphVertex posting = postings.get(0);
 
         if (user.has(SEX) && !user.getString(SEX).equals(JSONObject.NULL)) {
@@ -127,7 +123,11 @@ public class FacebookBolt extends BaseLumifyBolt {
             GraphVertex emailVertex = graphRepository.findVertexByPropertyAndType(EMAIL_ADDRESS, email, VertexType.ENTITY, getUser());
             if (emailVertex == null) {
                 emailVertex = new InMemoryGraphVertex();
-                userVertex.setProperty(EMAIL, email);
+                emailVertex.setProperty(PropertyName.TITLE, email);
+                graphRepository.save(emailVertex, getUser());
+
+                // TODO: replace "" when we implement commenting on ui
+                auditRepository.auditEntityResolution(emailVertex.getId(), userVertex.getId(), PROCESS, "", getUser());
             }
             graphRepository.saveRelationship(userVertex.getId(), emailVertex.getId(), EMAIL_RELATIONSHIP, getUser());
         }
@@ -139,7 +139,7 @@ public class FacebookBolt extends BaseLumifyBolt {
             modifiedProperties.add(PropertyName.GEO_LOCATION.toString());
         }
 
-        if (user.has(BIRTHDAY_DATE) && (user.get(BIRTHDAY_DATE) instanceof String) ) {
+        if (user.has(BIRTHDAY_DATE) && (user.get(BIRTHDAY_DATE) instanceof String)) {
             String birthday_date = user.getString(BIRTHDAY_DATE);
             SimpleDateFormat birthdayFormat = new SimpleDateFormat(BIRTHDAY_FORMAT);
             birthdayFormat.setLenient(true);
@@ -176,6 +176,7 @@ public class FacebookBolt extends BaseLumifyBolt {
             artifactExtractedInfo.setTitle(user.getString(NAME) + " Facebook Profile Picture");
             artifactExtractedInfo.setSource("Facebook profile picture");
             artifactExtractedInfo.setRaw(raw);
+            artifactExtractedInfo.setProcess(PROCESS);
 
             ArtifactMetadata metadata = artifact.getMetadata();
             metadata.setCreateDate(new Date());
@@ -203,7 +204,9 @@ public class FacebookBolt extends BaseLumifyBolt {
         return modifiedProperties;
     }
 
-
+    /**
+     * ****
+     */
     private GraphVertex processPost(JSONObject post) {
         //extract knowledge from post
         String message = post.getString(MESSAGE);
@@ -231,6 +234,7 @@ public class FacebookBolt extends BaseLumifyBolt {
         } else {
             artifactExtractedInfo.setTitle(message);
         }
+        artifactExtractedInfo.setProcess(PROCESS);
 
         //write artifact with extracted info to accumulo and create entity
         GraphVertex posting = saveArtifact(artifactExtractedInfo);
@@ -245,14 +249,17 @@ public class FacebookBolt extends BaseLumifyBolt {
             authorVertex.setProperty(PropertyName.TYPE.toString(), VertexType.ENTITY.toString());
             graphRepository.save(authorVertex, getUser());
             graphRepository.commit();
-            auditRepository.audit(posting.getId(), auditRepository.resolvedEntityAuditMessageForArtifact(authorVertex.getId()), getUser());
-            auditRepository.audit(authorVertex.getId(), auditRepository.resolvedEntityAuditMessage(posting.getId()), getUser());
+
+            // TODO: replace "" when we implement commenting on ui
+            auditRepository.auditEntityResolution(authorVertex.getId(), posting.getId(), PROCESS, "", getUser());
         }
         graphRepository.saveRelationship(authorVertex.getId(), posting.getId(), POSTED_RELATIONSHIP, getUser());
         String postedRelationshipLabelDisplayName = ontologyRepository.getDisplayNameForLabel(POSTED_RELATIONSHIP, getUser());
         String text = posting.getProperty(PropertyName.TITLE).toString();
         auditRepository.audit(authorVertex.getId(), auditRepository.relationshipAuditMessageOnSource(postedRelationshipLabelDisplayName, text, ""), getUser());
-        auditRepository.audit(posting.getId(), auditRepository.relationshipAuditMessageOnDest(postedRelationshipLabelDisplayName, authorVertex, text), getUser());//        auditRepository.audit(posting.getId(), auditRepository.relationshipAuditMessageOnArtifact(POSTED_RELATIONSHIP, ));
+        auditRepository.audit(posting.getId(), auditRepository.relationshipAuditMessageOnDest(postedRelationshipLabelDisplayName, authorVertex, text), getUser());
+
+        // multiple tagged uids
         if (post.get(TAGGEED_UIDS) instanceof JSONObject) {
             Iterator tagged = post.getJSONObject(TAGGEED_UIDS).keys();
             while (tagged.hasNext()) {
@@ -264,8 +271,9 @@ public class FacebookBolt extends BaseLumifyBolt {
                     taggedVertex.setProperty(PropertyName.TYPE.toString(), VertexType.ENTITY.toString());
                     graphRepository.save(taggedVertex, getUser());
                     graphRepository.commit();
-                    auditRepository.audit(posting.getId(), auditRepository.resolvedEntityAuditMessageForArtifact(taggedVertex.getId()), getUser());
-                    auditRepository.audit(taggedVertex.getId(), auditRepository.resolvedEntityAuditMessage(posting.getId()), getUser());
+
+                    // TODO: replace "" when we implement commenting on ui
+                    auditRepository.auditEntityResolution(taggedVertex.getId(), posting.getId(), PROCESS, "", getUser());
                 }
                 graphRepository.saveRelationship(posting.getId(), taggedVertex.getId(), MENTIONED_RELATIONSHIP, getUser());
                 String mentionedRelationshipLabelDisplayName = ontologyRepository.getDisplayNameForLabel(MENTIONED_RELATIONSHIP, getUser());
@@ -274,6 +282,7 @@ public class FacebookBolt extends BaseLumifyBolt {
             }
         }
 
+        // geolocation property
         if (post.has(COORDS) && !post.getJSONObject(COORDS).equals(JSONObject.NULL)) {
             JSONObject coordinates = post.getJSONObject(COORDS);
             Geoshape geo = Geoshape.point(coordinates.getDouble("latitude"), coordinates.getDouble("longitude"));
