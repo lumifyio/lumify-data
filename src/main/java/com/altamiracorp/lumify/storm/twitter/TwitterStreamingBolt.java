@@ -320,7 +320,6 @@ public class TwitterStreamingBolt extends BaseLumifyBolt {
             Object destTitle = profile.getProperty(PropertyName.TITLE.toString());
             auditRepository.audit(userVertex.getId(), auditRepository.relationshipAuditMessageOnSource(labelDisplay, destTitle, text), getUser());
             auditRepository.audit(profile.getId(), auditRepository.relationshipAuditMessageOnDest(labelDisplay, sourceTitle, text), getUser());
-            auditRepository.audit(tweet.getId(), auditRepository.relationshipAuditMessageOnArtifact(sourceTitle, destTitle, labelDisplay), getUser());
         } catch (IOException e) {
             LOGGER.warn("Failed to create image for vertex: " + userVertex.getId());
             new IOException(e);
