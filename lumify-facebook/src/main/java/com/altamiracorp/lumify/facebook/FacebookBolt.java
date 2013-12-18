@@ -192,14 +192,11 @@ public class FacebookBolt extends BaseLumifyBolt {
 
             userVertex.setProperty(PropertyName.GLYPH_ICON.toString(), "/artifact/" + rowKey + "/raw");
             modifiedProperties.add(PropertyName.GLYPH_ICON.toString());
-
-            String labelDisplay = LabelName.HAS_IMAGE.toString();
-            Object sourceTitle = userVertex.getProperty(PropertyName.TITLE.toString());
-            Object destTitle = profile.getProperty(PropertyName.TITLE.toString());
             graphRepository.save(userVertex, getUser());
+
+            String labelDisplay = ontologyRepository.getDisplayNameForLabel(LabelName.HAS_IMAGE.toString(), getUser());
             graphRepository.findOrAddRelationship(userVertex.getId(), profile.getId(), labelDisplay, getUser());
-            auditRepository.audit(userVertex.getId(), auditRepository.relationshipAuditMessageOnSource(labelDisplay, destTitle, postingVertex.getProperty(PropertyName.TITLE).toString()), getUser());
-            auditRepository.audit(profile.getId(), auditRepository.relationshipAuditMessageOnDest(labelDisplay, sourceTitle, postingVertex.getProperty(PropertyName.TITLE).toString()), getUser());
+            auditRepository.auditRelationships(AuditAction.CREATE.toString(), userVertex, profile, labelDisplay, PROCESS, "", getUser());
         } catch (IOException e) {
             LOGGER.warn(String.format("Failed to create image for vertex: %s", userVertex.getId()));
             new IOException(e);
@@ -267,9 +264,8 @@ public class FacebookBolt extends BaseLumifyBolt {
         }
         graphRepository.saveRelationship(posting.getId(), authorVertex.getId(), POSTED_RELATIONSHIP, getUser());
         String postedRelationshipLabelDisplayName = ontologyRepository.getDisplayNameForLabel(POSTED_RELATIONSHIP, getUser());
-        String text = posting.getProperty(PropertyName.TITLE).toString();
-        auditRepository.audit(authorVertex.getId(), auditRepository.relationshipAuditMessageOnSource(postedRelationshipLabelDisplayName, text, ""), getUser());
-        auditRepository.audit(posting.getId(), auditRepository.relationshipAuditMessageOnDest(postedRelationshipLabelDisplayName, authorVertex, text), getUser());
+
+        auditRepository.auditRelationships(AuditAction.CREATE.toString(), posting, authorVertex, postedRelationshipLabelDisplayName, PROCESS, "", getUser());
 
         // multiple tagged uids
         if (post.get(TAGGED_UUIDS) instanceof JSONObject) {
@@ -290,8 +286,7 @@ public class FacebookBolt extends BaseLumifyBolt {
                 }
                 graphRepository.saveRelationship(posting.getId(), taggedVertex.getId(), MENTIONED_RELATIONSHIP, getUser());
                 String mentionedRelationshipLabelDisplayName = ontologyRepository.getDisplayNameForLabel(MENTIONED_RELATIONSHIP, getUser());
-                auditRepository.audit(taggedVertex.getId(), auditRepository.relationshipAuditMessageOnSource(mentionedRelationshipLabelDisplayName, text, ""), getUser());
-                auditRepository.audit(posting.getId(), auditRepository.relationshipAuditMessageOnDest(mentionedRelationshipLabelDisplayName, taggedVertex, text), getUser());
+                auditRepository.auditRelationships(AuditAction.CREATE.toString(), posting, taggedVertex, mentionedRelationshipLabelDisplayName, PROCESS, "", getUser());
             }
         }
 
