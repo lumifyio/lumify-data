@@ -21,6 +21,7 @@ import com.google.inject.Inject;
 import org.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import scala.unchecked;
 
 import java.io.BufferedWriter;
 import java.io.FileWriter;
@@ -114,6 +115,7 @@ public class TermExtractionBolt extends BaseTextProcessingBolt {
         List<TermMentionWithGraphVertex> results = new ArrayList<TermMentionWithGraphVertex>();
         Object artifactTitle = graphRepository.findVertex(artifactGraphVertexId, getUser()).getProperty(PropertyName.TITLE.toString());
         for (TermExtractionResult.TermMention termMention : termMentions) {
+            List<String> modifiedProperties = new ArrayList<String>();
             LOGGER.info(String.format("Saving term mention '%s':%s (%d:%d)", termMention.getSign(), termMention.getOntologyClassUri(), termMention.getStart(), termMention.getEnd()));
             GraphVertex vertex = null;
             TermMention termMentionModel = new TermMention(new TermMentionRowKey(artifactGraphVertexId, termMention.getStart(), termMention.getEnd()));
@@ -132,20 +134,27 @@ public class TermExtractionBolt extends BaseTextProcessingBolt {
                 if (!termMention.getUseExisting() || vertex == null) {
                     vertex = new InMemoryGraphVertex();
                     vertex.setProperty(PropertyName.TITLE, termMention.getSign());
+                    modifiedProperties.add(PropertyName.TITLE.toString());
                     if (concept != null) {
                         vertex.setProperty(PropertyName.SUBTYPE.toString(), concept.getId());
+                        modifiedProperties.add(PropertyName.SUBTYPE.toString());
                     }
                     vertex.setType(VertexType.ENTITY);
+                    modifiedProperties.add(PropertyName.TYPE.toString());
                 }
 
                 if (termMention.getPropertyValue() != null) {
                     Map<String, Object> properties = termMention.getPropertyValue();
                     for (String key : properties.keySet()) {
                         vertex.setProperty(key, properties.get(key));
+                        modifiedProperties.add(key);
                     }
                 }
 
                 String resolvedEntityGraphVertexId = graphRepository.saveVertex(vertex, getUser());
+                for (String property : modifiedProperties) {
+                    auditRepository.auditProperties(vertex, property, this.getClass().getName(), "", getUser());
+                }
 
                 graphRepository.saveRelationship(artifactGraphVertexId, resolvedEntityGraphVertexId, LabelName.HAS_ENTITY, getUser());
 

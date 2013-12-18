@@ -1,5 +1,6 @@
 package com.altamiracorp.lumify.storm.term.analysis;
 
+import com.altamiracorp.lumify.core.model.audit.AuditRepository;
 import com.altamiracorp.lumify.core.model.graph.GraphRepository;
 import com.altamiracorp.lumify.core.model.graph.GraphVertex;
 import com.altamiracorp.lumify.core.model.ontology.PropertyName;
@@ -12,6 +13,7 @@ import com.thinkaurelius.titan.core.attribute.Geoshape;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import static com.google.common.base.Preconditions.checkNotNull;
@@ -21,10 +23,12 @@ public class ArtifactLocationAnalyzer {
     private static final Logger LOGGER = LoggerFactory.getLogger(ArtifactLocationAnalyzer.class);
 
     private final GraphRepository graphRepository;
+    private final AuditRepository auditRepository;
 
     @Inject
-    public ArtifactLocationAnalyzer(final GraphRepository graphRepo) {
+    public ArtifactLocationAnalyzer(final GraphRepository graphRepo, final AuditRepository auditRepo) {
         graphRepository = graphRepo;
+        auditRepository = auditRepo;
     }
 
     public void analyzeLocation(final GraphVertex vertex, final List<TermMention> termMentions, final User user) {
@@ -57,10 +61,12 @@ public class ArtifactLocationAnalyzer {
         final String geolocationTitle = termMetadata.getGeoLocationTitle();
         final Double latitude = termMetadata.getLatitude();
         final Double longitude = termMetadata.getLongitude();
+        List<String> modifiedProperties = new ArrayList<String>();
 
         if (geolocationTitle != null) {
             vertex.setProperty(PropertyName.GEO_LOCATION_DESCRIPTION, geolocationTitle);
             vertexUpdated = true;
+            modifiedProperties.add(PropertyName.GEO_LOCATION_DESCRIPTION.toString());
         } else {
             LOGGER.warn("Could not set geolocation title on vertex");
         }
@@ -68,6 +74,7 @@ public class ArtifactLocationAnalyzer {
         if (latitude != null && longitude != null) {
             vertex.setProperty(PropertyName.GEO_LOCATION, Geoshape.point(latitude, longitude));
             vertexUpdated = true;
+            modifiedProperties.add(PropertyName.GEO_LOCATION.toString());
         } else {
             LOGGER.warn("Could not operate on invalid geolocation coordinate");
         }
@@ -75,6 +82,10 @@ public class ArtifactLocationAnalyzer {
         if (vertexUpdated) {
             graphRepository.saveVertex(vertex, user);
             LOGGER.debug("Updated artifact vertex");
+
+            for (String property : modifiedProperties) {
+                auditRepository.auditProperties(vertex, property, this.getClass().getName(), "", user);
+            }
         }
     }
 }
