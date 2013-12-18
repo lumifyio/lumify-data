@@ -8,7 +8,7 @@ while [ -h "$SOURCE" ]; do
 done
 DIR="$(cd -P "$(dirname "$SOURCE")" && pwd)"
 
-classpath=$(${DIR}/classpath.sh lumify-public/lumify-core)
+classpath=$(${DIR}/classpath.sh lumify-enterprise-tools)
 if [ $? -ne 0 ]; then
   echo "${classpath}"
   exit
@@ -31,7 +31,7 @@ fi
 java \
 -Dfile.encoding=UTF-8 \
 -classpath ${classpath} \
-com.altamiracorp.lumify.cmdline.DownloadAndExtractFile \
+com.altamiracorp.lumify.tools.DownloadAndExtractFile \
 --directory=${dir} \
 --zipfile=$1 \
 --zookeeperInstanceName=lumify \
