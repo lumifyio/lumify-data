@@ -40,6 +40,7 @@ import java.util.List;
 
 public class TwitterStreamingBolt extends BaseLumifyBolt {
     private static final Logger LOGGER = LoggerFactory.getLogger(TwitterStreamingBolt.class);
+    private static final String PROCESS = TwitterStreamingBolt.class.getName();
     private static final String TWITTER_HANDLE = "twitterHandle";
     private static final String TWEETED = "twitterHandleTweetedTweet";
     private static final String TWEET_MENTION = "tweetMentionedHandle";
@@ -132,7 +133,10 @@ public class TwitterStreamingBolt extends BaseLumifyBolt {
         }
 
         graphRepository.save(tweet, getUser());
-        auditRepository.audit(tweetId, auditRepository.vertexPropertyAuditMessages(tweet, modifiedProperties), getUser());
+
+        for (String property : modifiedProperties) {
+            auditRepository.auditProperties(tweet, property, PROCESS, "", getUser());
+        }
 
         createOrUpdateTweeterEntity(handleConcept, (JSONObject) json.get("user"));
     }
@@ -157,13 +161,15 @@ public class TwitterStreamingBolt extends BaseLumifyBolt {
 
         if (newVertex) {
             // TODO: replace "" when we implement commenting on ui
-            auditRepository.auditEntityResolution(tweeterVertex.getId(), tweet.getId(), this.getClass().getName(), "", getUser());
+            auditRepository.auditEntityResolution(tweeterVertex.getId(), tweet.getId(), PROCESS, "", getUser());
         }
 
         modifiedProperties.addAll(addHandleProperties(user, tweeterVertex));
         modifiedProperties.addAll(createProfilePhotoArtifact(user, tweeterVertex));
 
-        auditRepository.audit(tweeterVertex.getId(), auditRepository.vertexPropertyAuditMessages(tweeterVertex, modifiedProperties), getUser());
+        for (String modifiedProperty : modifiedProperties) {
+            auditRepository.auditProperties(tweeterVertex, modifiedProperty, PROCESS, "", getUser());
+        }
 
         graphRepository.saveRelationship(tweeterVertex.getId(), tweet.getId(), TWEETED, getUser());
         String relationshipLabelDisplayName = ontologyRepository.getDisplayNameForLabel(TWEETED, getUser());
@@ -211,10 +217,12 @@ public class TwitterStreamingBolt extends BaseLumifyBolt {
             graphRepository.save(vertex, getUser());
 
             if (newVertex) {
-                // TODO: replace "" when we implement commenting on ui
-                auditRepository.auditEntityResolution(vertex.getId(), tweet.getId(), this.getClass().getName(), "", getUser());
+                auditRepository.auditEntityResolution(vertex.getId(), tweet.getId(), PROCESS, "", getUser());
             }
-            auditRepository.audit(vertex.getId(), auditRepository.vertexPropertyAuditMessages(vertex, modifiedProperties), getUser());
+
+            for (String modifiedProperty : modifiedProperties) {
+                auditRepository.auditProperties(vertex, modifiedProperty, PROCESS, "" , getUser());
+            }
 
             mention.getMetadata().setGraphVertexId(vertex.getId());
             termMentionRepository.save(mention, getUser().getModelUserContext());
