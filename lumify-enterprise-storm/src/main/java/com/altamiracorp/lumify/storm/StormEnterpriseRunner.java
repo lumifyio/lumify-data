@@ -10,8 +10,6 @@ import com.altamiracorp.lumify.storm.document.DocumentBolt;
 import com.altamiracorp.lumify.storm.image.ImageBolt;
 import com.altamiracorp.lumify.storm.structuredData.StructuredDataTextExtractorBolt;
 import com.altamiracorp.lumify.storm.term.extraction.TermExtractionBolt;
-import com.altamiracorp.lumify.storm.twitter.TwitterFileProcessingBolt;
-import com.altamiracorp.lumify.storm.twitter.TwitterStreamingBolt;
 import com.altamiracorp.lumify.storm.video.VideoBolt;
 import com.altamiracorp.lumify.storm.video.VideoPreviewBolt;
 import org.apache.commons.cli.CommandLine;
@@ -114,7 +112,6 @@ public class StormEnterpriseRunner extends StormRunnerBase {
         createTextTopology(builder);
         createProcessedVideoTopology(builder);
         createStructuredDataTextTopology(builder);
-        createRawTwitterTopology(builder);
 
         return builder.createTopology();
     }
@@ -172,15 +169,5 @@ public class StormEnterpriseRunner extends StormRunnerBase {
                 .setMaxTaskParallelism(1);
         builder.setBolt("processedVideoBolt", new VideoPreviewBolt(), 1)
                 .shuffleGrouping("processedVideoSpout");
-    }
-    
-    private void createRawTwitterTopology(TopologyBuilder builder) {
-        String queueName = "rawTweetSpout";
-        String fileBolt = "rawTweetFileBolt";
-        builder.setSpout(queueName, new HdfsFileSystemSpout("/rawTweet"), 1);
-        builder.setBolt(fileBolt, new TwitterFileProcessingBolt(), 1).
-                shuffleGrouping(queueName);
-        builder.setBolt("rawTweetProcessingBolt", new TwitterStreamingBolt(), 3).
-                shuffleGrouping(fileBolt);
     }
 }

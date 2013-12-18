@@ -118,10 +118,6 @@
             <groupId>com.altamiracorp.lumify</groupId>
             <artifactId>lumify-storm</artifactId>
         </dependency>
-        <dependency>
-            <groupId>com.altamiracorp.lumify</groupId>
-            <artifactId>lumify-twitter</artifactId>
-        </dependency>
     </dependencies>
 
     <build>

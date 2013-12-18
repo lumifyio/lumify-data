@@ -66,6 +66,9 @@ public class ContentTypeSorterBolt extends BaseLumifyBolt {
         InputStream in = openFile(fileName);
         try {
             String queueName = calculateQueueName(fileName, in);
+            // TODO: Secure this somewhat to prevent injection attacks with invalid queue names.
+            // Maybe restrict queue names to [-_a-zA-Z0-9]*
+            mkdir(FILEPATH_JOINER.join(dataDir, queueName));
 
             moveFile(fileName, FILEPATH_JOINER.join(dataDir, queueName, getFileNameWithDateSuffix(fileName)));
 

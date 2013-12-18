@@ -23,8 +23,10 @@ import com.altamiracorp.lumify.storm.BaseFileProcessingBolt;
 import com.altamiracorp.lumify.storm.file.FileMetadata;
 import java.io.BufferedReader;
 import java.io.File;
+import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.util.regex.Pattern;
+import java.util.zip.GZIPInputStream;
 import org.codehaus.plexus.util.FileUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -41,6 +43,11 @@ public class TwitterFileProcessingBolt extends BaseFileProcessingBolt {
     private static final Logger LOG = LoggerFactory.getLogger(TwitterFileProcessingBolt.class);
     
     /**
+     * GZIP extension.
+     */
+    private static final String GZIP_EXTENSION = ".gz";
+    
+    /**
      * Simple JSON object regex.  This only validates that a particular String
      * starts and ends with curly braces: ^\s*{.*}\s*$
      */
@@ -51,8 +58,7 @@ public class TwitterFileProcessingBolt extends BaseFileProcessingBolt {
         FileMetadata fileMetadata = getFileMetadata(input);
         LOG.info(String.format("Processing file: %s (mimeType: %s)",
                 fileMetadata.getFileName(), fileMetadata.getMimeType()));
-        String filename = getFileNameWithoutDateSuffix(fileMetadata.getFileName());
-        processFile(input, filename);
+        processFile(input, fileMetadata.getFileName());
     }
     
     /**
@@ -68,11 +74,17 @@ public class TwitterFileProcessingBolt extends BaseFileProcessingBolt {
     protected void processFile(final Tuple rootTuple, final String filename) throws Exception {
         LOG.info(String.format("Processing file: %s", filename));
         FileMetadata fileMd = new FileMetadata(filename, getMimeType(filename));
-        if (isArchive(filename)) {
+        String filenameNoDate = getFileNameWithoutDateSuffix(filename).toLowerCase();
+        if (isArchive(filenameNoDate)) {
             processArchive(rootTuple, fileMd);
         } else {
             OutputCollector collector = getCollector();
-            BufferedReader reader = new BufferedReader(new InputStreamReader(getInputStream(filename, null)));
+            InputStream is = getInputStream(filename, null);
+            // if the file is a gzip compressed file, uncompress before reading
+            if (filenameNoDate.endsWith(GZIP_EXTENSION)) {
+                is = new GZIPInputStream(is);
+            }
+            BufferedReader reader = new BufferedReader(new InputStreamReader(is));
             try {
                 String tweetJson = reader.readLine();
                 // only process this file if the first line appears to be a JSON string
