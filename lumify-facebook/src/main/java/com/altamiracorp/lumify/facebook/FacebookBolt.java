@@ -7,6 +7,7 @@ import com.altamiracorp.lumify.core.model.artifact.Artifact;
 import com.altamiracorp.lumify.core.model.artifact.ArtifactMetadata;
 import com.altamiracorp.lumify.core.model.artifact.ArtifactRowKey;
 import com.altamiracorp.lumify.core.model.artifact.ArtifactType;
+import com.altamiracorp.lumify.core.model.audit.AuditAction;
 import com.altamiracorp.lumify.core.model.graph.GraphVertex;
 import com.altamiracorp.lumify.core.model.graph.InMemoryGraphVertex;
 import com.altamiracorp.lumify.core.model.ontology.Concept;
@@ -125,7 +126,7 @@ public class FacebookBolt extends BaseLumifyBolt {
                 emailVertex.setProperty(PropertyName.TITLE, email);
                 graphRepository.save(emailVertex, getUser());
 
-                auditRepository.auditEntityResolution(emailVertex.getId(), userVertex.getId(), PROCESS, "", getUser());
+                auditRepository.auditEntity(AuditAction.CREATE.toString(), emailVertex.getId(), userVertex.getId(), PROCESS, "", getUser());
                 auditRepository.auditProperties(emailVertex, PropertyName.TITLE.toString(), PROCESS, "", getUser());
             }
             graphRepository.saveRelationship(userVertex.getId(), emailVertex.getId(), EMAIL_RELATIONSHIP, getUser());
@@ -260,7 +261,7 @@ public class FacebookBolt extends BaseLumifyBolt {
             graphRepository.save(authorVertex, getUser());
             graphRepository.commit();
 
-            auditRepository.auditEntityResolution(authorVertex.getId(), posting.getId(), PROCESS, "", getUser());
+            auditRepository.auditEntity(AuditAction.CREATE.toString(), authorVertex.getId(), posting.getId(), PROCESS, "", getUser());
             auditRepository.auditProperties(authorVertex, PROFILE_ID, PROCESS, "", getUser());
             auditRepository.auditProperties(authorVertex, PropertyName.TYPE.toString(), PROCESS, "", getUser());
         }
@@ -283,7 +284,7 @@ public class FacebookBolt extends BaseLumifyBolt {
                     graphRepository.save(taggedVertex, getUser());
                     graphRepository.commit();
 
-                    auditRepository.auditEntityResolution(taggedVertex.getId(), posting.getId(), PROCESS, "", getUser());
+                    auditRepository.auditEntity(AuditAction.CREATE.toString(), taggedVertex.getId(), posting.getId(), PROCESS, "", getUser());
                     auditRepository.auditProperties(taggedVertex, PROFILE_ID, PROCESS, "", getUser());
                     auditRepository.auditProperties(taggedVertex, PropertyName.TYPE.toString(), PROCESS, "", getUser());
                 }

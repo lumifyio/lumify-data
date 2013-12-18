@@ -7,6 +7,7 @@ import com.altamiracorp.lumify.core.model.artifact.Artifact;
 import com.altamiracorp.lumify.core.model.artifact.ArtifactMetadata;
 import com.altamiracorp.lumify.core.model.artifact.ArtifactRowKey;
 import com.altamiracorp.lumify.core.model.artifact.ArtifactType;
+import com.altamiracorp.lumify.core.model.audit.AuditAction;
 import com.altamiracorp.lumify.core.model.graph.GraphGeoLocation;
 import com.altamiracorp.lumify.core.model.graph.GraphVertex;
 import com.altamiracorp.lumify.core.model.graph.InMemoryGraphVertex;
@@ -161,7 +162,7 @@ public class TwitterStreamingBolt extends BaseLumifyBolt {
 
         if (newVertex) {
             // TODO: replace "" when we implement commenting on ui
-            auditRepository.auditEntityResolution(tweeterVertex.getId(), tweet.getId(), PROCESS, "", getUser());
+            auditRepository.auditEntity(AuditAction.CREATE.toString(), tweeterVertex.getId(), tweet.getId(), PROCESS, "", getUser());
         }
 
         modifiedProperties.addAll(addHandleProperties(user, tweeterVertex));
@@ -217,7 +218,7 @@ public class TwitterStreamingBolt extends BaseLumifyBolt {
             graphRepository.save(vertex, getUser());
 
             if (newVertex) {
-                auditRepository.auditEntityResolution(vertex.getId(), tweet.getId(), PROCESS, "", getUser());
+                auditRepository.auditEntity(AuditAction.CREATE.toString(), vertex.getId(), tweet.getId(), PROCESS, "", getUser());
             }
 
             for (String modifiedProperty : modifiedProperties) {

@@ -1,5 +1,6 @@
 package com.altamiracorp.lumify.storm.term.analysis;
 
+import com.altamiracorp.lumify.core.model.audit.AuditRepository;
 import com.altamiracorp.lumify.core.model.graph.GraphRepository;
 import com.altamiracorp.lumify.core.model.graph.GraphVertex;
 import com.altamiracorp.lumify.core.model.ontology.PropertyName;
@@ -26,7 +27,9 @@ import static org.mockito.Mockito.*;
 public class ArtifactLocationAnalyzerTest {
     private ArtifactLocationAnalyzer analyzer;
     @Mock
-    GraphRepository repository;
+    GraphRepository graphRepository;
+    @Mock
+    AuditRepository auditRepository;
     @Mock
     User user;
     @Mock
@@ -41,7 +44,7 @@ public class ArtifactLocationAnalyzerTest {
     @Before
     public void setup() {
         mentions = new ArrayList<TermMention>();
-        analyzer = new ArtifactLocationAnalyzer(repository);
+        analyzer = new ArtifactLocationAnalyzer(graphRepository, auditRepository);
     }
 
     @Test
@@ -75,7 +78,7 @@ public class ArtifactLocationAnalyzerTest {
 
         ArgumentCaptor<Geoshape> arg = ArgumentCaptor.forClass(Geoshape.class);
         analyzer.analyzeLocation(graphVertex, mentions, user);
-        verify(repository, times(1)).saveVertex(graphVertex, user);
+        verify(graphRepository, times(1)).saveVertex(graphVertex, user);
         verify(graphVertex, times(2)).setProperty(any(PropertyName.class), arg.capture());
         assertEquals(33, arg.getValue().getPoint().getLatitude(), 0);
         assertEquals(77, arg.getValue().getPoint().getLongitude(), 0);
@@ -89,7 +92,7 @@ public class ArtifactLocationAnalyzerTest {
         mentions.add(mention);
         analyzer.analyzeLocation(graphVertex, mentions, user);
         verify(graphVertex, times(0)).setProperty(any(PropertyName.class), anyString());
-        verify(repository, times(0)).saveVertex(graphVertex, user);
+        verify(graphRepository, times(0)).saveVertex(graphVertex, user);
     }
 
     @Test
@@ -101,7 +104,7 @@ public class ArtifactLocationAnalyzerTest {
 
         mentions.add(mention);
         analyzer.analyzeLocation(graphVertex, mentions, user);
-        verify(repository, times(1)).saveVertex(graphVertex, user);
+        verify(graphRepository, times(1)).saveVertex(graphVertex, user);
         verify(graphVertex, times(1)).setProperty(any(PropertyName.class), anyString());
     }
 
@@ -114,7 +117,7 @@ public class ArtifactLocationAnalyzerTest {
 
         mentions.add(mention);
         analyzer.analyzeLocation(graphVertex, mentions, user);
-        verify(repository, times(0)).saveVertex(graphVertex, user);
+        verify(graphRepository, times(0)).saveVertex(graphVertex, user);
         verify(graphVertex, times(0)).setProperty(any(PropertyName.class), anyString());
     }
 
@@ -127,7 +130,7 @@ public class ArtifactLocationAnalyzerTest {
 
         mentions.add(mention);
         analyzer.analyzeLocation(graphVertex, mentions, user);
-        verify(repository, times(0)).saveVertex(graphVertex, user);
+        verify(graphRepository, times(0)).saveVertex(graphVertex, user);
         verify(graphVertex, times(0)).setProperty(any(PropertyName.class), anyString());
     }
 
@@ -136,7 +139,7 @@ public class ArtifactLocationAnalyzerTest {
         when(mention.getMetadata()).thenReturn(null);
         mentions.add(mention);
         analyzer.analyzeLocation(graphVertex, mentions, user);
-        verify(repository, times(0)).saveVertex(graphVertex, user);
+        verify(graphRepository, times(0)).saveVertex(graphVertex, user);
         verify(graphVertex, times(0)).setProperty(any(PropertyName.class), anyString());
     }
 
