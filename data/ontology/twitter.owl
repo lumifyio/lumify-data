@@ -9,7 +9,7 @@
 <!-- Concept: tweet -->
 
     <owl:Class rdf:about="document">
-        <rdfs:label xml:lang="en">Person</rdfs:label>
+        <rdfs:label xml:lang="en">Tweet</rdfs:label>
         <atc:property atc:name="glyphIconFileName">artifact.png</atc:property>
         <rdfs:subClassOf rdf:resource="http://altamiracorp.com/ontology/artifact"/>
     </owl:Class>
