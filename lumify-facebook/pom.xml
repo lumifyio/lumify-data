@@ -139,7 +139,7 @@
                     <descriptor>src/main/assembly/descriptor.xml</descriptor>
                     <archive>
                         <manifest>
-                            <mainClass>com.altamiracorp.lumify.facebook.facebook.StormFacebookRunner</mainClass>
+                            <mainClass>com.altamiracorp.lumify.facebook.StormFacebookRunner</mainClass>
                         </manifest>
                         <manifestEntries>
                             <Specification-Title>Java Advanced Imaging Image I/O Tools</Specification-Title>

@@ -457,6 +457,9 @@
                     <groupId>org.apache.maven.plugins</groupId>
                     <artifactId>maven-dependency-plugin</artifactId>
                     <version>${plugin.maven.dependency.version}</version>
+                    <configuration>
+                        <outputFile>${classpath.filename}</outputFile>
+                    </configuration>
                     <executions>
                         <execution>
                             <id>build-classpath</id>
@@ -464,9 +467,6 @@
                             <goals>
                                 <goal>build-classpath</goal>
                             </goals>
-                            <configuration>
-                                <outputFile>${classpath.filename}</outputFile>
-                            </configuration>
                         </execution>
                     </executions>
                 </plugin>

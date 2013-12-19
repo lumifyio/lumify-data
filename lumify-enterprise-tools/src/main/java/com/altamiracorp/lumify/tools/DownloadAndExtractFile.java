@@ -1,4 +1,4 @@
-package com.altamiracorp.lumify.cmdline;
+package com.altamiracorp.lumify.tools;
 
 
 import com.altamiracorp.lumify.core.cmdline.CommandLineBase;
@@ -7,8 +7,6 @@ import net.lingala.zip4j.exception.ZipException;
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.OptionBuilder;
 import org.apache.commons.cli.Options;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.io.File;
 import java.io.FileOutputStream;
@@ -18,8 +16,6 @@ import java.net.InetSocketAddress;
 import java.net.Proxy;
 import java.net.URL;
 import java.net.URLConnection;
-
-//import java.lang.reflect.Proxy;
 
 public class DownloadAndExtractFile extends CommandLineBase {
     private String directory;
