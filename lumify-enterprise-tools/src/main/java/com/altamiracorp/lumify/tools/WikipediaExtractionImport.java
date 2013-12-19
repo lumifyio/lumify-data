@@ -19,18 +19,28 @@ public class WikipediaExtractionImport {
     public static class Map extends MapReduceBase implements Mapper<LongWritable, Text, NullWritable, NullWritable> {
 
         public void map(LongWritable key, Text value, OutputCollector outputCollector, Reporter reporter) throws IOException {
-            String[] tabSeparatedValues = value.toString().split("\t");
-            String title = tabSeparatedValues[1];
-            String body = tabSeparatedValues[4];
-
-            reporter.setStatus(title + " (" + body.length() + ")");
-
             Configuration conf = new Configuration();
             FileSystem fs = FileSystem.get(conf);
-            Path path = new Path(OUTPUT_PATH + "/" + title.replaceAll("[^A-Za-z0-9]", "_"));
-            OutputStream os = fs.create(path);
-            os.write(body.replaceAll("\\\\n", "\n").getBytes());
-            os.close();
+
+            String[] tabSeparatedValues = value.toString().split("\t");
+            if (tabSeparatedValues.length >= 5) {
+                String title = tabSeparatedValues[1];
+                String body = tabSeparatedValues[4];
+
+                reporter.setStatus(title + " (" + body.length() + ")");
+
+                String filename = title.replaceAll("[^A-Za-z0-9]", "_");
+                Path tempPath = new Path("./" + filename);
+                Path ingestPath = new Path(OUTPUT_PATH + "/" + filename);
+
+                OutputStream os = fs.create(tempPath);
+                os.write(body.replaceAll("\\\\n", "\n").getBytes());
+                os.close();
+
+                fs.rename(tempPath, ingestPath);
+            } else {
+                reporter.setStatus("key " + key.toString() + " has < 5 fields");
+            }
         }
     }
 
