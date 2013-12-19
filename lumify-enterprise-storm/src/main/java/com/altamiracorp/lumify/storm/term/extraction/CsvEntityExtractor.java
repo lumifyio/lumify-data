@@ -128,7 +128,9 @@ public class CsvEntityExtractor {
                     }
                 }
 
-                termMentions.add(new TermExtractionResult.TermMention(offset, offset + sign.length(), sign, ontologyClassUri, true, properties, null, useExisting));
+                TermExtractionResult.TermMention termMention = new TermExtractionResult.TermMention(offset, offset + sign.length(), sign, ontologyClassUri, true, properties, null, useExisting);
+                termMention.setProcess(this.getClass().getName());
+                termMentions.add(termMention);
             } else {
                 termMentions.add(null);
             }
