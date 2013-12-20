@@ -26,3 +26,6 @@ java.library.path: "/usr/lib:/usr/local/lib:/usr/local/share/OpenCV/java"
 # drpc.servers:
 #     - "server1"
 #     - "server2"
+
+# enable jmx on workers
+worker.childopts: " -Dcom.sun.management.jmxremote -Dcom.sun.management.jmxremote.ssl=false -Dcom.sun.management.jmxremote.authenticate=false -Dcom.sun.management.jmxremote.port=1%ID% "
