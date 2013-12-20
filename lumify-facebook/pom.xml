@@ -20,16 +20,6 @@
         <developerConnection>scm:git:ssh://git@github.com:altamiracorp/lumify-facebook.git</developerConnection>
     </scm>
 
-    <profiles>
-        <!-- Use this profile to build when deploying to a clustered environment. -->
-        <profile>
-            <id>cluster</id>
-            <properties>
-                <cluster.dependency.scope>provided</cluster.dependency.scope>
-            </properties>
-        </profile>
-    </profiles>
-
     <properties>
         <!-- Dependency Versions -->
         <lumify.version>1.0-SNAPSHOT</lumify.version>
@@ -131,39 +121,48 @@
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-surefire-plugin</artifactId>
             </plugin>
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-assembly-plugin</artifactId>
-                <version>${plugin.maven.assembly.version}</version>
-                <configuration>
-                    <descriptor>src/main/assembly/descriptor.xml</descriptor>
-                    <archive>
-                        <manifest>
-                            <mainClass>com.altamiracorp.lumify.facebook.StormFacebookRunner</mainClass>
-                        </manifest>
-                        <manifestEntries>
-                            <Specification-Title>Java Advanced Imaging Image I/O Tools</Specification-Title>
-                            <Specification-Version>1.1</Specification-Version>
-                            <Specification-Vendor>Sun Microsystems, Inc.</Specification-Vendor>
-                            <Implementation-Title>com.sun.media.imageio</Implementation-Title>
-                            <Implementation-Version>1.1</Implementation-Version>
-                            <Implementation-Vendor>Sun Microsystems, Inc.</Implementation-Vendor>
-                            <Extension-Name>com.sun.media.imageio</Extension-Name>
-                        </manifestEntries>
-                    </archive>
-                </configuration>
-                <executions>
-                    <execution>
-                        <id>make-assembly</id>
-                        <phase>package</phase>
-                        <goals>
-                            <goal>single</goal>
-                        </goals>
-                    </execution>
-                </executions>
-            </plugin>
         </plugins>
     </build>
+
+    <profiles>
+        <!-- Use this profile to build when deploying to a clustered environment. -->
+        <profile>
+            <id>cluster</id>
+            <properties>
+                <cluster.dependency.scope>provided</cluster.dependency.scope>
+            </properties>
+        </profile>
+
+        <!-- Builds the Storm Uber-JAR -->
+        <profile>
+            <id>storm-jar</id>
+            <build>
+                <plugins>
+                    <plugin>
+                        <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-assembly-plugin</artifactId>
+                        <configuration>
+                            <descriptor>src/main/assembly/descriptor.xml</descriptor>
+                            <archive>
+                                <manifest>
+                                    <mainClass>com.altamiracorp.lumify.facebook.StormFacebookRunner</mainClass>
+                                </manifest>
+                            </archive>
+                        </configuration>
+                        <executions>
+                            <execution>
+                                <id>make-assembly</id>
+                                <phase>package</phase>
+                                <goals>
+                                    <goal>single</goal>
+                                </goals>
+                            </execution>
+                        </executions>
+                    </plugin>
+                </plugins>
+            </build>
+        </profile>
+    </profiles>
 
     <repositories>
         <repository>

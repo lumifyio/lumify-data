@@ -67,10 +67,10 @@ Proceed if you are not using the Pre-built VM provided by [Lumify](https://lumif
 <br/>
 <br/>
 5. Once completed, the App ID and App Secret for the App will be shown.
-6. To generate you Access Token, search for **graph api explorer** and select the top result.
+6. To generate you Access Token, click **Tools** and select **Graph Explorer**.
 <br/>
 <br/>
-![ScreenShot](https://github.com/altamiracorp/lumify-enterprise/raw/develop/lumify-facebook/docs/Screenshots/facebook_search_explorer.png)
+![ScreenShot](https://github.com/altamiracorp/lumify-enterprise/raw/develop/lumify-facebook/docs/Screenshots/facebook_tools.png)
 <br/>
 <br/>
 7. Select **FQL Query**
