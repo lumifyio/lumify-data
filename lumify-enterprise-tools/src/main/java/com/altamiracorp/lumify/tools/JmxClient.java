@@ -9,9 +9,16 @@ import javax.management.*;
 import javax.management.remote.JMXConnector;
 import javax.management.remote.JMXConnectorFactory;
 import javax.management.remote.JMXServiceURL;
+import java.io.IOException;
 import java.util.ArrayList;
+import java.util.concurrent.Callable;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
 
 public class JmxClient extends CommandLineBase {
+    private final Object sysoutLock = new Object();
+
     public static void main(String[] args) throws Exception {
         int res = new JmxClient().run(args);
         if (res != 0) {
@@ -40,10 +47,32 @@ public class JmxClient extends CommandLineBase {
         String ipsString = cmd.getOptionValue("ips");
         String[] ips = ipsString.split(",");
 
+        ExecutorService executor = Executors.newSingleThreadExecutor();
         for (String ip : ips) {
+            connectAsync(executor, ip);
+        }
+
+        return 0;
+    }
+
+    private Future<JMXConnector> connectAsync(ExecutorService executor, final String ip) {
+        return executor.submit(new Callable<JMXConnector>() {
+            public JMXConnector call() {
+                try {
+                    return connect(ip);
+                } catch (Exception ex) {
+                    System.out.println("Failed on ip " + ip + ": " + ex.getMessage());
+                    return null;
+                }
+            }
+        });
+    }
+
+    private JMXConnector connect(String ip) throws IOException, InstanceNotFoundException, IntrospectionException, ReflectionException {
+        JMXServiceURL url = new JMXServiceURL("service:jmx:rmi:///jndi/rmi://" + ip + "/jmxrmi");
+        JMXConnector jmxc = JMXConnectorFactory.connect(url, null);
+        synchronized (sysoutLock) {
             System.out.println(ip);
-            JMXServiceURL url = new JMXServiceURL("service:jmx:rmi:///jndi/rmi://" + ip + "/jmxrmi");
-            JMXConnector jmxc = JMXConnectorFactory.connect(url, null);
             MBeanServerConnection mbeanServerConnection = jmxc.getMBeanServerConnection();
             for (ObjectName mbeanName : mbeanServerConnection.queryNames(null, null)) {
                 if (mbeanName.getCanonicalName().startsWith("com.altamiracorp.lumify")) {
@@ -60,7 +89,6 @@ public class JmxClient extends CommandLineBase {
                 }
             }
         }
-
-        return 0;
+        return jmxc;
     }
 }
