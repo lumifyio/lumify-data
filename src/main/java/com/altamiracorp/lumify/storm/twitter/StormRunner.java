@@ -16,27 +16,27 @@ public class StormRunner extends StormRunnerBase {
      * The tweet processing topology name.
      */
     private static final String TOPOLOGY_NAME = "lumify-twitter";
-    
+
     /**
      * The Twitter query spout name.
      */
     private static final String QUERY_SPOUT_NAME = "twitterStreamSpout";
-    
+
     /**
      * The Twitter file spout name.
      */
     private static final String FILE_SPOUT_NAME = "twitterFileSpout";
-    
+
     /**
      * The Twitter file processing bolt name.
      */
     private static final String FILE_PROC_BOLT_NAME = "twitterFileProcBolt";
-    
+
     /**
      * The Tweet processing bolt name.
      */
     private static final String TWEET_PROC_BOLT_NAME = "tweetProcBolt";
-    
+
     /**
      * The default HDFS root data directory: "/lumify/data"
      */
@@ -45,33 +45,33 @@ public class StormRunner extends StormRunnerBase {
      * The default subdirectory in HDFS where raw tweets are found: "rawTweet";
      */
     private static final String DEFAULT_HDFS_TWEET_SUBDIR = "rawTweet";
-    
+
     /**
      * Command line option disabling the streaming query spout.
      * <code>--no-query</code>
      */
     private static final String CMD_OPT_NO_QUERY = "no-query";
-    
+
     /**
      * Command line option disabling the HDFS file spout.
      * <code>--no-file</code>
      */
     private static final String CMD_OPT_NO_FILE = "no-file";
-    
+
     /**
      * The HDFS root data directory path property.  If not found
      * in the configuration properties, this will default to
      * DEFAULT_HDFS_DATA_ROOT.
      */
     private static final String HDFS_ROOT_PATH_PROPERTY = "twitter.hdfs.dataRoot";
-    
+
     /**
      * The property key for the HDFS subdirectory containing the raw tweet files
      * to process.  If not found in the configuration properties, this will default
      * to DEFAULT_HDFS_TWEET_SUBDIR.
      */
     private static final String HDFS_TWEET_SUBDIR_PROPERTY = "twitter.hdfs.tweetPath";
-    
+
     public static void main(String[] args) throws Exception {
         int res = new StormRunner().run(args);
         if (res != 0) {
@@ -83,22 +83,22 @@ public class StormRunner extends StormRunnerBase {
      * The HDFS root data path.
      */
     private String hdfsDataRoot;
-    
+
     /**
      * The HDFS tweet subdirectory.
      */
     private String hdfsTweetSubdir;
-    
+
     /**
      * If true, the streaming query topology will be created.
      */
     private boolean startQuerySpout = true;
-    
+
     /**
      * If true, the HDFS file topology will be created.
      */
     private boolean startFileSpout = true;
-    
+
     @Override
     protected Options getOptions() {
         Options opts = super.getOptions();
@@ -119,7 +119,7 @@ public class StormRunner extends StormRunnerBase {
 
         return opts;
     }
-    
+
     @Override
     protected String getTopologyName() {
         return TOPOLOGY_NAME;
@@ -147,7 +147,7 @@ public class StormRunner extends StormRunnerBase {
             conf.put(BaseFileSystemSpout.DATADIR_CONFIG_NAME, hdfsDataRoot);
         }
     }
-    
+
     @Override
     public StormTopology createTopology() {
         TopologyBuilder builder = new TopologyBuilder();

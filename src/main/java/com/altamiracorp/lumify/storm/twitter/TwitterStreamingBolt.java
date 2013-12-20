@@ -167,10 +167,10 @@ public class TwitterStreamingBolt extends BaseLumifyBolt {
 
         auditRepository.audit(tweeterVertex.getId(), auditRepository.vertexPropertyAuditMessages(tweeterVertex, modifiedProperties), systemUser);
 
-        graphRepository.saveRelationship(tweeterVertex.getId(), tweet.getId(), TWEETED, systemUser);
-        String relationshipLabelDisplayName = ontologyRepository.getDisplayNameForLabel(TWEETED, systemUser);
-        auditRepository.audit(tweeterVertex.getId(), auditRepository.relationshipAuditMessageOnSource(relationshipLabelDisplayName, text, ""), systemUser);
-        auditRepository.audit(tweet.getId(), auditRepository.relationshipAuditMessageOnDest(relationshipLabelDisplayName, tweeter, text), systemUser);
+        graphRepository.saveRelationship(tweeterVertex.getId(), tweet.getId(), TWEETED, getUser());
+        String relationshipLabelDisplayName = ontologyRepository.getDisplayNameForLabel(TWEETED, getUser());
+        auditRepository.audit(tweeterVertex.getId(), auditRepository.relationshipAuditMessageOnSource(relationshipLabelDisplayName, text, ""), getUser());
+        auditRepository.audit(tweet.getId(), auditRepository.relationshipAuditMessageOnDest(relationshipLabelDisplayName, tweeter, text), getUser());
     }
 
     private void createMentionEntities(Concept handleConcept) {
@@ -221,10 +221,10 @@ public class TwitterStreamingBolt extends BaseLumifyBolt {
             mention.getMetadata().setGraphVertexId(vertex.getId());
             termMentionRepository.save(mention, systemUser.getModelUserContext());
 
-            graphRepository.saveRelationship(tweet.getId(), vertex.getId(), relationshipLabel, systemUser);
-            String relationshipDisplayName = ontologyRepository.getDisplayNameForLabel(relationshipLabel, systemUser);
-            auditRepository.audit(tweet.getId(), auditRepository.relationshipAuditMessageOnSource(relationshipDisplayName, sign, ""), systemUser);
-            auditRepository.audit(vertex.getId(), auditRepository.relationshipAuditMessageOnDest(relationshipDisplayName, text, ""), systemUser);
+            graphRepository.saveRelationship(tweet.getId(), vertex.getId(), relationshipLabel, getUser());
+            String relationshipDisplayName = ontologyRepository.getDisplayNameForLabel(relationshipLabel, getUser());
+            auditRepository.audit(tweet.getId(), auditRepository.relationshipAuditMessageOnSource(relationshipDisplayName, sign, ""), getUser());
+            auditRepository.audit(vertex.getId(), auditRepository.relationshipAuditMessageOnDest(relationshipDisplayName, text, ""), getUser());
         }
 
     }
@@ -310,9 +310,9 @@ public class TwitterStreamingBolt extends BaseLumifyBolt {
             String labelDisplay = ontologyRepository.getDisplayNameForLabel(LabelName.HAS_IMAGE.toString(), systemUser);
             Object sourceTitle = userVertex.getProperty(PropertyName.TITLE.toString());
             Object destTitle = profile.getProperty(PropertyName.TITLE.toString());
-            auditRepository.audit(userVertex.getId(), auditRepository.relationshipAuditMessageOnSource(labelDisplay, destTitle, text), systemUser);
-            auditRepository.audit(profile.getId(), auditRepository.relationshipAuditMessageOnDest(labelDisplay, sourceTitle, text), systemUser);
-            auditRepository.audit(tweet.getId(), auditRepository.relationshipAuditMessageOnArtifact(sourceTitle, destTitle, labelDisplay), systemUser);
+            auditRepository.audit(userVertex.getId(), auditRepository.relationshipAuditMessageOnSource(labelDisplay, destTitle, text), getUser());
+            auditRepository.audit(profile.getId(), auditRepository.relationshipAuditMessageOnDest(labelDisplay, sourceTitle, text), getUser());
+            auditRepository.audit(tweet.getId(), auditRepository.relationshipAuditMessageOnArtifact(sourceTitle, destTitle, labelDisplay), getUser());
         } catch (IOException e) {
             LOGGER.warn("Failed to create image for vertex: " + userVertex.getId());
             new IOException(e);
