@@ -16,6 +16,8 @@ import com.altamiracorp.lumify.core.model.ontology.PropertyName;
 import com.altamiracorp.lumify.core.model.ontology.VertexType;
 import com.altamiracorp.lumify.core.model.search.SearchProvider;
 import com.altamiracorp.lumify.core.model.termMention.TermMention;
+import com.altamiracorp.lumify.core.user.SystemUser;
+import com.altamiracorp.lumify.core.user.User;
 import com.altamiracorp.lumify.storm.BaseLumifyBolt;
 import com.beust.jcommander.internal.Lists;
 import com.google.inject.Inject;
@@ -54,7 +56,8 @@ public class TwitterStreamingBolt extends BaseLumifyBolt {
     private static final String FOLLOWING_COUNT = "followingCount";
     private static final String CREATION_DATE = "creationDate";
     private static final String DESCRIPTION = "description";
-    Concept handleConcept;
+    private User systemUser;
+    private Concept handleConcept;
     private SearchProvider searchProvider;
     private GraphVertex tweet;
     private String text;
@@ -65,7 +68,7 @@ public class TwitterStreamingBolt extends BaseLumifyBolt {
 
         //if an actual tweet, process it
         if (json.has("text")) {
-            handleConcept = ontologyRepository.getConceptByName(TWITTER_HANDLE, getUser());
+            handleConcept = ontologyRepository.getConceptByName(TWITTER_HANDLE, systemUser);
             saveToDatabase(json, handleConcept);
 
             // Indexing
@@ -130,8 +133,8 @@ public class TwitterStreamingBolt extends BaseLumifyBolt {
             modifiedProperties.add(RETWEET_COUNT);
         }
 
-        graphRepository.save(tweet, getUser());
-        auditRepository.audit(tweetId, auditRepository.vertexPropertyAuditMessages(tweet, modifiedProperties), getUser());
+        graphRepository.save(tweet, systemUser);
+        auditRepository.audit(tweetId, auditRepository.vertexPropertyAuditMessages(tweet, modifiedProperties), systemUser);
 
         createOrUpdateTweeterEntity(handleConcept, (JSONObject) json.get("user"));
     }
@@ -139,7 +142,7 @@ public class TwitterStreamingBolt extends BaseLumifyBolt {
     private void createOrUpdateTweeterEntity(Concept handleConcept, JSONObject user) {
         String tweeter = user.getString("screen_name").toLowerCase();
         boolean newVertex = false;
-        GraphVertex tweeterVertex = graphRepository.findVertexByTitleAndType(tweeter, VertexType.ENTITY, getUser());
+        GraphVertex tweeterVertex = graphRepository.findVertexByTitleAndType(tweeter, VertexType.ENTITY, systemUser);
         if (tweeterVertex == null) {
             newVertex = true;
             tweeterVertex = new InMemoryGraphVertex();
@@ -152,22 +155,22 @@ public class TwitterStreamingBolt extends BaseLumifyBolt {
         tweeterVertex.setProperty(PropertyName.TYPE, VertexType.ENTITY.toString());
         tweeterVertex.setProperty(PropertyName.SUBTYPE, handleConcept.getId());
         tweeterVertex.setProperty(PropertyName.DISPLAY_NAME, user.getString("name"));
-        graphRepository.save(tweeterVertex, getUser());
+        graphRepository.save(tweeterVertex, systemUser);
 
         if (newVertex) {
-            auditRepository.audit(tweet.getId(), auditRepository.resolvedEntityAuditMessageForArtifact(tweeter), getUser());
-            auditRepository.audit(tweeterVertex.getId(), auditRepository.resolvedEntityAuditMessage(tweet.getProperty(PropertyName.TITLE.toString())), getUser());
+            auditRepository.audit(tweet.getId(), auditRepository.resolvedEntityAuditMessageForArtifact(tweeter), systemUser);
+            auditRepository.audit(tweeterVertex.getId(), auditRepository.resolvedEntityAuditMessage(tweet.getProperty(PropertyName.TITLE.toString())), systemUser);
         }
 
         modifiedProperties.addAll(addHandleProperties(user, tweeterVertex));
         modifiedProperties.addAll(createProfilePhotoArtifact(user, tweeterVertex));
 
-        auditRepository.audit(tweeterVertex.getId(), auditRepository.vertexPropertyAuditMessages(tweeterVertex, modifiedProperties), getUser());
+        auditRepository.audit(tweeterVertex.getId(), auditRepository.vertexPropertyAuditMessages(tweeterVertex, modifiedProperties), systemUser);
 
-        graphRepository.saveRelationship(tweeterVertex.getId(), tweet.getId(), TWEETED, getUser());
-        String relationshipLabelDisplayName = ontologyRepository.getDisplayNameForLabel(TWEETED, getUser());
-        auditRepository.audit(tweeterVertex.getId(), auditRepository.relationshipAuditMessageOnSource(relationshipLabelDisplayName, text, ""), getUser());
-        auditRepository.audit(tweet.getId(), auditRepository.relationshipAuditMessageOnDest(relationshipLabelDisplayName, tweeter, text), getUser());
+        graphRepository.saveRelationship(tweeterVertex.getId(), tweet.getId(), TWEETED, systemUser);
+        String relationshipLabelDisplayName = ontologyRepository.getDisplayNameForLabel(TWEETED, systemUser);
+        auditRepository.audit(tweeterVertex.getId(), auditRepository.relationshipAuditMessageOnSource(relationshipLabelDisplayName, text, ""), systemUser);
+        auditRepository.audit(tweet.getId(), auditRepository.relationshipAuditMessageOnDest(relationshipLabelDisplayName, tweeter, text), systemUser);
     }
 
     private void createMentionEntities(Concept handleConcept) {
@@ -175,17 +178,17 @@ public class TwitterStreamingBolt extends BaseLumifyBolt {
     }
 
     private void createHashTagEntities() {
-        Concept hashtagConcept = ontologyRepository.getConceptByName(HASHTAG_CONCEPT, getUser());
+        Concept hashtagConcept = ontologyRepository.getConceptByName(HASHTAG_CONCEPT, systemUser);
         createEntities(hashtagConcept, "(#(\\w+))", TWEET_HASHTAG);
     }
 
     private void createURLEntities() {
-        Concept urlConcept = ontologyRepository.getConceptByName(URL_CONCEPT, getUser());
+        Concept urlConcept = ontologyRepository.getConceptByName(URL_CONCEPT, systemUser);
         createEntities(urlConcept, "((http://[^\\s]+))", TWEET_URL);
     }
 
     private void createEntities(Concept concept, String regex, String relationshipLabel) {
-        GraphVertex conceptVertex = graphRepository.findVertex(concept.getId(), getUser());
+        GraphVertex conceptVertex = graphRepository.findVertex(concept.getId(), systemUser);
         List<TermMention> termMentionList = TermRegexFinder.find(tweet.getId(), conceptVertex, text, regex);
         List<String> modifiedProperties = Lists.newArrayList
                 (PropertyName.TITLE.toString(), PropertyName.ROW_KEY.toString(), PropertyName.TYPE.toString(), PropertyName.SUBTYPE.toString());
@@ -195,7 +198,7 @@ public class TwitterStreamingBolt extends BaseLumifyBolt {
             String rowKey = mention.getRowKey().toString();
             String conceptId = concept.getId();
 
-            GraphVertex vertex = graphRepository.findVertexByTitleAndType(sign, VertexType.ENTITY, getUser());
+            GraphVertex vertex = graphRepository.findVertexByTitleAndType(sign, VertexType.ENTITY, systemUser);
 
             boolean newVertex = false;
             if (vertex == null) {
@@ -207,21 +210,21 @@ public class TwitterStreamingBolt extends BaseLumifyBolt {
             vertex.setProperty(PropertyName.ROW_KEY, rowKey);
             vertex.setProperty(PropertyName.TYPE, VertexType.ENTITY.toString());
             vertex.setProperty(PropertyName.SUBTYPE, conceptId);
-            graphRepository.save(vertex, getUser());
+            graphRepository.save(vertex, systemUser);
 
             if (newVertex) {
-                auditRepository.audit(tweet.getId(), auditRepository.resolvedEntityAuditMessageForArtifact(sign), getUser());
-                auditRepository.audit(vertex.getId(), auditRepository.resolvedEntityAuditMessage(tweet.getProperty(PropertyName.TITLE.toString())), getUser());
+                auditRepository.audit(tweet.getId(), auditRepository.resolvedEntityAuditMessageForArtifact(sign), systemUser);
+                auditRepository.audit(vertex.getId(), auditRepository.resolvedEntityAuditMessage(tweet.getProperty(PropertyName.TITLE.toString())), systemUser);
             }
-            auditRepository.audit(vertex.getId(), auditRepository.vertexPropertyAuditMessages(vertex, modifiedProperties), getUser());
+            auditRepository.audit(vertex.getId(), auditRepository.vertexPropertyAuditMessages(vertex, modifiedProperties), systemUser);
 
             mention.getMetadata().setGraphVertexId(vertex.getId());
-            termMentionRepository.save(mention, getUser().getModelUserContext());
+            termMentionRepository.save(mention, systemUser.getModelUserContext());
 
-            graphRepository.saveRelationship(tweet.getId(), vertex.getId(), relationshipLabel, getUser());
-            String relationshipDisplayName = ontologyRepository.getDisplayNameForLabel(relationshipLabel, getUser());
-            auditRepository.audit(tweet.getId(), auditRepository.relationshipAuditMessageOnSource(relationshipDisplayName, sign, ""), getUser());
-            auditRepository.audit(vertex.getId(), auditRepository.relationshipAuditMessageOnDest(relationshipDisplayName, text, ""), getUser());
+            graphRepository.saveRelationship(tweet.getId(), vertex.getId(), relationshipLabel, systemUser);
+            String relationshipDisplayName = ontologyRepository.getDisplayNameForLabel(relationshipLabel, systemUser);
+            auditRepository.audit(tweet.getId(), auditRepository.relationshipAuditMessageOnSource(relationshipDisplayName, sign, ""), systemUser);
+            auditRepository.audit(vertex.getId(), auditRepository.relationshipAuditMessageOnDest(relationshipDisplayName, text, ""), systemUser);
         }
 
     }
@@ -263,7 +266,7 @@ public class TwitterStreamingBolt extends BaseLumifyBolt {
             handleVertex.setProperty(DESCRIPTION, user.getString("description"));
             modifiedProperties.add(DESCRIPTION);
         }
-        graphRepository.save(handleVertex, getUser());
+        graphRepository.save(handleVertex, systemUser);
         return modifiedProperties;
     }
 
@@ -300,16 +303,16 @@ public class TwitterStreamingBolt extends BaseLumifyBolt {
 
             userVertex.setProperty(PropertyName.GLYPH_ICON.toString(), "/artifact/" + rowKey + "/raw");
             modifiedProperties.add(PropertyName.GLYPH_ICON.toString());
-            graphRepository.save(userVertex, getUser());
+            graphRepository.save(userVertex, systemUser);
 
-            graphRepository.findOrAddRelationship(userVertex.getId(), profile.getId(), LabelName.HAS_IMAGE, getUser());
+            graphRepository.findOrAddRelationship(userVertex.getId(), profile.getId(), LabelName.HAS_IMAGE, systemUser);
 
-            String labelDisplay = ontologyRepository.getDisplayNameForLabel(LabelName.HAS_IMAGE.toString(), getUser());
+            String labelDisplay = ontologyRepository.getDisplayNameForLabel(LabelName.HAS_IMAGE.toString(), systemUser);
             Object sourceTitle = userVertex.getProperty(PropertyName.TITLE.toString());
             Object destTitle = profile.getProperty(PropertyName.TITLE.toString());
-            auditRepository.audit(userVertex.getId(), auditRepository.relationshipAuditMessageOnSource(labelDisplay, destTitle, text), getUser());
-            auditRepository.audit(profile.getId(), auditRepository.relationshipAuditMessageOnDest(labelDisplay, sourceTitle, text), getUser());
-            auditRepository.audit(tweet.getId(), auditRepository.relationshipAuditMessageOnArtifact(sourceTitle, destTitle, labelDisplay), getUser());
+            auditRepository.audit(userVertex.getId(), auditRepository.relationshipAuditMessageOnSource(labelDisplay, destTitle, text), systemUser);
+            auditRepository.audit(profile.getId(), auditRepository.relationshipAuditMessageOnDest(labelDisplay, sourceTitle, text), systemUser);
+            auditRepository.audit(tweet.getId(), auditRepository.relationshipAuditMessageOnArtifact(sourceTitle, destTitle, labelDisplay), systemUser);
         } catch (IOException e) {
             LOGGER.warn("Failed to create image for vertex: " + userVertex.getId());
             new IOException(e);
@@ -337,5 +340,10 @@ public class TwitterStreamingBolt extends BaseLumifyBolt {
     @Inject
     public void setSearchProvider(SearchProvider searchProvider) {
         this.searchProvider = searchProvider;
+    }
+
+    @Inject
+    public void setUser(SystemUser user) {
+        this.systemUser = user;
     }
 }
