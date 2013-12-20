@@ -30,7 +30,7 @@
             <distribution>repo</distribution>
         </license>
     </licenses>
-    
+
     <profiles>
         <!-- Use this profile to build when deploying to a clustered environment. -->
         <profile>
@@ -69,14 +69,26 @@
                 </plugins>
             </build>
         </profile>
+
+        <profile>
+            <id>codeQuality</id>
+            <build>
+                <plugins>
+                    <plugin>
+                        <groupId>org.codehaus.mojo</groupId>
+                        <artifactId>cobertura-maven-plugin</artifactId>
+                    </plugin>
+                </plugins>
+            </build>
+        </profile>
     </profiles>
-    
+
     <properties>
         <!-- Dependency Versions -->
         <lumify.version>1.0-SNAPSHOT</lumify.version>
         <twitter.hbc.version>1.4.0</twitter.hbc.version>
     </properties>
-    
+
     <dependencies>
         <dependency>
             <groupId>com.altamiracorp.lumify</groupId>
