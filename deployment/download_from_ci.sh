@@ -13,6 +13,7 @@ function _download {
 }
 
 
+_downlaod lumify-enterprise-tools "*with-dependencies.jar" lumify-enterprise-tools-1.0-SNAPSHOT-jar-with-dependencies.jar
 _download lumify-storm            "*with-dependencies.jar" lumify-storm-1.0-SNAPSHOT-jar-with-dependencies.jar
 _download lumify-enterprise-storm "*with-dependencies.jar" lumify-enterprise-storm-1.0-SNAPSHOT-jar-with-dependencies.jar
 _download lumify-twitter          "*with-dependencies.jar" lumify-twitter-1.0-SNAPSHOT-jar-with-dependencies.jar
