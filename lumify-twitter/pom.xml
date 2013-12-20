@@ -11,6 +11,12 @@
     <artifactId>lumify-twitter</artifactId>
     <name>Lumify Twitter</name>
 
+    <scm>
+        <url>https://github.com/altamiracorp/lumify-twitter</url>
+        <connection>scm:git:git://github.com:altamiracorp/lumify-twitter.git</connection>
+        <developerConnection>scm:git:ssh://git@github.com:altamiracorp/lumify-twitter.git</developerConnection>
+    </scm>
+
     <inceptionYear>2013</inceptionYear>
     <organization>
         <name>Altamira Corporation</name>
@@ -86,6 +92,22 @@
     </dependencies>
 
     <build>
+        <resources>
+            <resource>
+                <directory>src/main/resources</directory>
+                <filtering>true</filtering>
+                <includes>
+                    <include>**/lumify-build.properties</include>
+                </includes>
+            </resource>
+            <resource>
+                <directory>src/main/resources</directory>
+                <filtering>false</filtering>
+                <excludes>
+                    <exclude>**/lumify-build.properties</exclude>
+                </excludes>
+            </resource>
+        </resources>
         <plugins>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
@@ -102,6 +124,10 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-dependency-plugin</artifactId>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-resources-plugin</artifactId>
             </plugin>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>

@@ -16,6 +16,12 @@
 
     <name>Lumify Enterprise</name>
 
+    <scm>
+        <url>https://github.com/altamiracorp/lumify-enterprise</url>
+        <connection>scm:git:git://github.com:altamiracorp/lumify-enterprise.git</connection>
+        <developerConnection>scm:git:ssh://git@github.com:altamiracorp/lumify-enterprise.git</developerConnection>
+    </scm>
+
     <properties>
         <!-- Dependency Versions -->
         <ahocorasick.version>1.4</ahocorasick.version>

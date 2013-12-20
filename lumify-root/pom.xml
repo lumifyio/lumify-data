@@ -17,7 +17,13 @@
         <url>http://www.altamiracorp.com</url>
     </organization>
     <url>https://github.com/altamiracorp/lumify-root</url>
-    
+
+    <scm>
+        <url>https://github.com/altamiracorp/lumify-root</url>
+        <connection>scm:git:git://github.com:altamiracorp/lumify-root.git</connection>
+        <developerConnection>scm:git:ssh://git@github.com:altamiracorp/lumify-root.git</developerConnection>
+    </scm>
+
     <distributionManagement>
         <repository>
             <id>bits.lumify.io</id>
@@ -84,6 +90,7 @@
         <powermock.version>1.5.1</powermock.version>
         
         <!-- Maven Plugin Versions -->
+        <plugin.buildnumber.version>1.2</plugin.buildnumber.version>
         <plugin.checkstyle.version>2.11</plugin.checkstyle.version>
         <plugin.cobertura.version>2.6</plugin.cobertura.version>
         <plugin.doxia.markdown.version>1.5</plugin.doxia.markdown.version>
@@ -471,7 +478,13 @@
                         <archive>
                             <manifest>
                                 <addClasspath>true</addClasspath>
+                                <addDefaultImplementationEntries>true</addDefaultImplementationEntries>
                             </manifest>
+                            <manifestEntries>
+                                <Built-On>${build.timestamp.formatted}</Built-On>
+                                <Built-On-Unix>${timestamp}</Built-On-Unix>
+                                <Git-Revision>${buildNumber}</Git-Revision>
+                            </manifestEntries>
                         </archive>
                     </configuration>
                 </plugin>
@@ -518,6 +531,31 @@
                     <groupId>org.apache.maven.plugins</groupId>
                     <artifactId>maven-surefire-plugin</artifactId>
                     <version>${plugin.maven.surefire.version}</version>
+                </plugin>
+                <plugin>
+                    <groupId>org.codehaus.mojo</groupId>
+                    <artifactId>buildnumber-maven-plugin</artifactId>
+                    <version>${plugin.buildnumber.version}</version>
+                    <executions>
+                        <execution>
+                            <id>create-build-number</id>
+                            <phase>validate</phase>
+                            <goals>
+                                <goal>create</goal>
+                            </goals>
+                        </execution>
+                        <execution>
+                            <id>create-formatted-timestamp</id>
+                            <phase>validate</phase>
+                            <goals>
+                                <goal>create-timestamp</goal>
+                            </goals>
+                            <configuration>
+                                <timestampFormat>EEEE, MMMM dd, yyyy HH:mm:ss.sss zzz</timestampFormat>
+                                <timestampPropertyName>build.timestamp.formatted</timestampPropertyName>
+                            </configuration>
+                        </execution>
+                    </executions>
                 </plugin>
                 <!-- Cobertura: Code Coverage Check -->
                 <plugin>
@@ -785,6 +823,10 @@
                         </execution>
                     </executions>
                 </configuration>
+            </plugin>
+            <plugin>
+                <artifactId>buildnumber-maven-plugin</artifactId>
+                <groupId>org.codehaus.mojo</groupId>
             </plugin>
         </plugins>
     </build>
