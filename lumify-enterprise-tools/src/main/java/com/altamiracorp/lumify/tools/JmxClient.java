@@ -1,6 +1,7 @@
 package com.altamiracorp.lumify.tools;
 
 import com.altamiracorp.lumify.core.cmdline.CommandLineBase;
+import com.altamiracorp.lumify.core.version.VersionService;
 import com.altamiracorp.lumify.tools.asciitable.ASCIITable;
 import com.altamiracorp.lumify.tools.asciitable.ASCIITableHeader;
 import org.apache.commons.cli.CommandLine;
@@ -13,20 +14,18 @@ import javax.management.remote.JMXConnector;
 import javax.management.remote.JMXConnectorFactory;
 import javax.management.remote.JMXServiceURL;
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.concurrent.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 public class JmxClient extends CommandLineBase {
-    private final Object sysoutLock = new Object();
     private Pattern metricRegex = Pattern.compile("metrics:name=(.*)\\.([^.]+)\\.([^.]+)");
 
     // group, metric name, MetricData
     private final Map<String, Map<String, List<MetricData>>> data = new HashMap<String, Map<String, List<MetricData>>>();
+
+    private final Map<String, VersionInfo> versionInfo = new HashMap<String, VersionInfo>();
 
     public static void main(String[] args) throws Exception {
         int res = new JmxClient().run(args);
@@ -68,14 +67,30 @@ public class JmxClient extends CommandLineBase {
             try {
                 connection.get(10, TimeUnit.SECONDS);
             } catch (Exception ex) {
-                System.out.println("failed to get info: " + ex.getMessage());
+                System.out.println("failed to get info");
+                ex.printStackTrace();
             }
         }
 
+        System.out.println();
+        System.out.println();
+        System.out.println();
         printData();
+        printVersions();
 
         System.out.println("DONE");
         return 0;
+    }
+
+    private void printVersions() {
+        System.out.println("Version Info");
+        ASCIITableHeader[] tableHeaders = VersionInfo.getTableHeaders();
+        ArrayList<String[]> tableRows = new ArrayList<String[]>();
+        for (Map.Entry<String, VersionInfo> versionInfo : this.versionInfo.entrySet()) {
+            tableRows.add(versionInfo.getValue().getTableRow(versionInfo.getKey()));
+        }
+        ASCIITable.printTable(tableHeaders, tableRows);
+        System.out.println();
     }
 
     private void printData() {
@@ -116,11 +131,18 @@ public class JmxClient extends CommandLineBase {
     private JMXConnector connect(String ip) throws IOException, InstanceNotFoundException, IntrospectionException, ReflectionException {
         JMXServiceURL url = new JMXServiceURL("service:jmx:rmi:///jndi/rmi://" + ip + "/jmxrmi");
         JMXConnector jmxc = JMXConnectorFactory.connect(url, null);
-        synchronized (sysoutLock) {
-            System.out.println(ip);
-            MBeanServerConnection mbeanServerConnection = jmxc.getMBeanServerConnection();
-            for (ObjectName mbeanName : mbeanServerConnection.queryNames(null, null)) {
-                //System.out.println("  found mbean: " + mbeanName.getCanonicalName());
+        System.out.println(ip);
+        MBeanServerConnection mbeanServerConnection = jmxc.getMBeanServerConnection();
+        for (ObjectName mbeanName : mbeanServerConnection.queryNames(null, null)) {
+            if (mbeanName.getCanonicalName().equals(VersionService.JMX_NAME)) {
+                try {
+                    Attributes attributes = new Attributes(mbeanServerConnection, mbeanName);
+
+                    versionInfo.put(ip, new VersionInfo(attributes));
+                } catch (Exception ex) {
+                    System.out.println("Could not get version info: " + ex.getMessage());
+                }
+            } else {
                 Matcher m = metricRegex.matcher(mbeanName.getCanonicalName());
                 if (m.matches()) {
                     String group = m.group(1);
@@ -148,18 +170,12 @@ public class JmxClient extends CommandLineBase {
                         }
                     }
 
-                    MBeanInfo info = mbeanServerConnection.getMBeanInfo(mbeanName);
-                    ArrayList<String> attributeNames = new ArrayList<String>();
-                    for (MBeanAttributeInfo attr : info.getAttributes()) {
-                        attributeNames.add(attr.getName());
-                    }
-                    AttributeList attributes = mbeanServerConnection.getAttributes(mbeanName, attributeNames.toArray(new String[0]));
+                    Attributes attributes = new Attributes(mbeanServerConnection, mbeanName);
+                    ArrayList<String> attributeNames = attributes.getAttributeNames();
 
                     if (attributeNames.size() == 1 && attributeNames.get(0).equals("Count")) {
-                        //System.out.println("  found counter: " + mbeanName.getCanonicalName());
                         metricDatas.add(new CounterMetricData(ip, group, metricName, uniqueId, attributes));
                     } else if (attributeNames.contains("Min") && attributeNames.contains("Max") && attributeNames.contains("MeanRate")) {
-                        //System.out.println("  found timer: " + mbeanName.getCanonicalName());
                         metricDatas.add(new TimerMetricData(ip, group, metricName, uniqueId, attributes));
                     } else {
                         System.out.println("Unknown metric data: " + group + ", " + metricName);
@@ -168,6 +184,46 @@ public class JmxClient extends CommandLineBase {
             }
         }
         return jmxc;
+    }
+
+    private static class VersionInfo {
+        private Date unixBuildTime;
+        private String scmBuildNumber;
+        private String version;
+        private static ASCIITableHeader[] tableHeaders;
+
+        public VersionInfo(Attributes attributes) {
+            for (Object attributeObject : attributes.getAttributes()) {
+                Attribute attribute = (Attribute) attributeObject;
+                if ("Version".equals(attribute.getName())) {
+                    this.version = (String) attribute.getValue();
+                } else if ("UnixBuildTime".equals(attribute.getName())) {
+                    this.unixBuildTime = new Date((Long) attribute.getValue());
+                } else if ("ScmBuildNumber".equals(attribute.getName())) {
+                    this.scmBuildNumber = (String) attribute.getValue();
+                } else {
+                    System.out.println("Unknown attribute: " + attribute.getName());
+                }
+            }
+        }
+
+        public static ASCIITableHeader[] getTableHeaders() {
+            return new ASCIITableHeader[]{
+                    new ASCIITableHeader("IP"),
+                    new ASCIITableHeader("Unix Build Time"),
+                    new ASCIITableHeader("Version"),
+                    new ASCIITableHeader("SCM Build Number")
+            };
+        }
+
+        public String[] getTableRow(String ip) {
+            return new String[]{
+                    ip,
+                    unixBuildTime.toString(),
+                    version,
+                    scmBuildNumber
+            };
+        }
     }
 
     private abstract static class MetricData {
@@ -193,9 +249,9 @@ public class JmxClient extends CommandLineBase {
     private static class CounterMetricData extends MetricData {
         private final long count;
 
-        public CounterMetricData(String ip, String group, String metricName, String uniqueId, AttributeList attributes) {
+        public CounterMetricData(String ip, String group, String metricName, String uniqueId, Attributes attributes) {
             super(ip, group, metricName, uniqueId);
-            Attribute attribute = (Attribute) attributes.get(0);
+            Attribute attribute = (Attribute) attributes.getAttributes().get(0);
             this.count = (Long) attribute.getValue();
         }
 
@@ -257,9 +313,9 @@ public class JmxClient extends CommandLineBase {
         private double percentile99th;
         private double percentile999th;
 
-        public TimerMetricData(String ip, String group, String metricName, String uniqueId, AttributeList attributes) {
+        public TimerMetricData(String ip, String group, String metricName, String uniqueId, Attributes attributes) {
             super(ip, group, metricName, uniqueId);
-            for (Object attributeObj : attributes) {
+            for (Object attributeObj : attributes.getAttributes()) {
                 Attribute attribute = (Attribute) attributeObj;
                 if ("Max".equalsIgnoreCase(attribute.getName())) {
                     max = (Double) attribute.getValue();
@@ -384,6 +440,28 @@ public class JmxClient extends CommandLineBase {
                     String.format("%.3f%s", fiveMinuteRateTotal, rateUnit),
                     String.format("%.3f%s", fifteenMinuteRateTotal, rateUnit)
             };
+        }
+    }
+
+    private class Attributes {
+        private ArrayList<String> attributeNames;
+        private AttributeList attributes;
+
+        public Attributes(MBeanServerConnection mbeanServerConnection, ObjectName mbeanName) throws IntrospectionException, ReflectionException, InstanceNotFoundException, IOException {
+            MBeanInfo info = mbeanServerConnection.getMBeanInfo(mbeanName);
+            attributeNames = new ArrayList<String>();
+            for (MBeanAttributeInfo attr : info.getAttributes()) {
+                attributeNames.add(attr.getName());
+            }
+            attributes = mbeanServerConnection.getAttributes(mbeanName, attributeNames.toArray(new String[0]));
+        }
+
+        public ArrayList<String> getAttributeNames() {
+            return attributeNames;
+        }
+
+        public AttributeList getAttributes() {
+            return attributes;
         }
     }
 }
