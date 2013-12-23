@@ -81,7 +81,7 @@ public class JmxClient extends CommandLineBase {
     private void printData() {
         for (Map.Entry<String, Map<String, List<MetricData>>> groups : data.entrySet()) {
             System.out.println(groups.getKey());
-            System.out.println(StringUtils.repeat("-", groups.getKey().length()));
+            System.out.println(StringUtils.repeat("=", groups.getKey().length()));
 
             for (Map.Entry<String, List<MetricData>> metric : groups.getValue().entrySet()) {
                 if (metric.getValue().size() > 0) {
