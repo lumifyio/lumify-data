@@ -3,8 +3,6 @@ package com.altamiracorp.lumify.storm.twitter;
 import backtype.storm.tuple.Tuple;
 import com.altamiracorp.lumify.core.ingest.ArtifactExtractedInfo;
 import com.altamiracorp.lumify.core.ingest.term.extraction.TermRegexFinder;
-import com.altamiracorp.lumify.core.model.artifact.Artifact;
-import com.altamiracorp.lumify.core.model.artifact.ArtifactMetadata;
 import com.altamiracorp.lumify.core.model.artifact.ArtifactRowKey;
 import com.altamiracorp.lumify.core.model.artifact.ArtifactType;
 import com.altamiracorp.lumify.core.model.graph.GraphGeoLocation;
@@ -20,7 +18,6 @@ import com.altamiracorp.lumify.storm.BaseLumifyBolt;
 import com.beust.jcommander.internal.Lists;
 import com.google.inject.Inject;
 import com.thinkaurelius.titan.core.attribute.Geoshape;
-import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.io.IOUtils;
 import org.json.JSONArray;
 import org.json.JSONObject;
@@ -278,8 +275,6 @@ public class TwitterStreamingBolt extends BaseLumifyBolt {
             byte[] raw = os.toByteArray();
             ArtifactRowKey build = ArtifactRowKey.build(raw);
             String rowKey = build.toString();
-            String fileName = user.getString("screen_name") + "ProfilePicture";
-            Artifact artifact = new Artifact(rowKey);
 
             ArtifactExtractedInfo artifactExtractedInfo = new ArtifactExtractedInfo();
             artifactExtractedInfo.setMimeType("image/png");
@@ -288,13 +283,6 @@ public class TwitterStreamingBolt extends BaseLumifyBolt {
             artifactExtractedInfo.setTitle(user.getString("screen_name") + " Twitter Profile Picture");
             artifactExtractedInfo.setSource("Twitter profile picture");
             artifactExtractedInfo.setRaw(raw);
-
-            ArtifactMetadata metadata = artifact.getMetadata();
-            metadata.setCreateDate(new Date());
-            metadata.setRaw(raw);
-            metadata.setFileName(fileName);
-            metadata.setFileExtension(FilenameUtils.getExtension(fileName));
-            metadata.setMimeType("image/png");
 
             GraphVertex profile = saveArtifact(artifactExtractedInfo);
             LOGGER.info("Saving tweeter profile picture to accumulo and as graph vertex: " + profile.getId());
