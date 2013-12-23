@@ -65,7 +65,11 @@ public class JmxClient extends CommandLineBase {
         }
 
         for (Future<JMXConnector> connection : connections) {
-            connection.get(10, TimeUnit.SECONDS);
+            try {
+                connection.get(10, TimeUnit.SECONDS);
+            } catch (Exception ex) {
+                System.out.println("failed to get info: " + ex.getMessage());
+            }
         }
 
         printData();
@@ -116,6 +120,7 @@ public class JmxClient extends CommandLineBase {
             System.out.println(ip);
             MBeanServerConnection mbeanServerConnection = jmxc.getMBeanServerConnection();
             for (ObjectName mbeanName : mbeanServerConnection.queryNames(null, null)) {
+                System.out.println("  found mbean: " + mbeanName.getCanonicalName());
                 Matcher m = metricRegex.matcher(mbeanName.getCanonicalName());
                 if (m.matches()) {
                     String group = m.group(1);
@@ -151,8 +156,10 @@ public class JmxClient extends CommandLineBase {
                     AttributeList attributes = mbeanServerConnection.getAttributes(mbeanName, attributeNames.toArray(new String[0]));
 
                     if (attributeNames.size() == 1 && attributeNames.get(0).equals("Count")) {
+                        System.out.println("  found counter: " + mbeanName.getCanonicalName());
                         metricDatas.add(new CounterMetricData(ip, group, metricName, uniqueId, attributes));
                     } else if (attributeNames.contains("Min") && attributeNames.contains("Max") && attributeNames.contains("MeanRate")) {
+                        System.out.println("  found timer: " + mbeanName.getCanonicalName());
                         metricDatas.add(new TimerMetricData(ip, group, metricName, uniqueId, attributes));
                     } else {
                         System.out.println("Unknown metric data: " + group + ", " + metricName);
