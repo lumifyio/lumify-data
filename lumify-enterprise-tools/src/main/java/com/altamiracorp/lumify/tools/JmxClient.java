@@ -120,7 +120,7 @@ public class JmxClient extends CommandLineBase {
             System.out.println(ip);
             MBeanServerConnection mbeanServerConnection = jmxc.getMBeanServerConnection();
             for (ObjectName mbeanName : mbeanServerConnection.queryNames(null, null)) {
-                System.out.println("  found mbean: " + mbeanName.getCanonicalName());
+                //System.out.println("  found mbean: " + mbeanName.getCanonicalName());
                 Matcher m = metricRegex.matcher(mbeanName.getCanonicalName());
                 if (m.matches()) {
                     String group = m.group(1);
@@ -156,10 +156,10 @@ public class JmxClient extends CommandLineBase {
                     AttributeList attributes = mbeanServerConnection.getAttributes(mbeanName, attributeNames.toArray(new String[0]));
 
                     if (attributeNames.size() == 1 && attributeNames.get(0).equals("Count")) {
-                        System.out.println("  found counter: " + mbeanName.getCanonicalName());
+                        //System.out.println("  found counter: " + mbeanName.getCanonicalName());
                         metricDatas.add(new CounterMetricData(ip, group, metricName, uniqueId, attributes));
                     } else if (attributeNames.contains("Min") && attributeNames.contains("Max") && attributeNames.contains("MeanRate")) {
-                        System.out.println("  found timer: " + mbeanName.getCanonicalName());
+                        //System.out.println("  found timer: " + mbeanName.getCanonicalName());
                         metricDatas.add(new TimerMetricData(ip, group, metricName, uniqueId, attributes));
                     } else {
                         System.out.println("Unknown metric data: " + group + ", " + metricName);
@@ -371,10 +371,6 @@ public class JmxClient extends CommandLineBase {
                 fifteenMinuteRateTotal += metricData.fifteenMinuteRate;
             }
             double mean = meanTotal / metricDatas.size();
-            double meanRate = meanRateTotal / metricDatas.size();
-            double oneMinuteRate = oneMinuteRateTotal / metricDatas.size();
-            double fiveMinuteRate = fiveMinuteRateTotal / metricDatas.size();
-            double fifteenMinuteRate = fifteenMinuteRateTotal / metricDatas.size();
 
             return new String[]{
                     "Total",
@@ -383,10 +379,10 @@ public class JmxClient extends CommandLineBase {
                     String.format("%.1f%s", max, durationUnit),
                     String.format("%.1f%s", min, durationUnit),
                     String.format("%.1f%s", mean, durationUnit),
-                    String.format("%.3f%s", meanRate, rateUnit),
-                    String.format("%.3f%s", oneMinuteRate, rateUnit),
-                    String.format("%.3f%s", fiveMinuteRate, rateUnit),
-                    String.format("%.3f%s", fifteenMinuteRate, rateUnit)
+                    String.format("%.3f%s", meanRateTotal, rateUnit),
+                    String.format("%.3f%s", oneMinuteRateTotal, rateUnit),
+                    String.format("%.3f%s", fiveMinuteRateTotal, rateUnit),
+                    String.format("%.3f%s", fifteenMinuteRateTotal, rateUnit)
             };
         }
     }
