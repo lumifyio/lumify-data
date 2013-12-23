@@ -21,11 +21,15 @@ import java.util.regex.Pattern;
 
 public class JmxClient extends CommandLineBase {
     private Pattern metricRegex = Pattern.compile("metrics:name=(.*)\\.([^.]+)\\.([^.]+)");
+    private Pattern kafkaLogRegex = Pattern.compile("kafka:type=kafka.logs.(.*)");
 
     // group, metric name, MetricData
     private final Map<String, Map<String, List<MetricData>>> data = new HashMap<String, Map<String, List<MetricData>>>();
 
     private final Map<String, VersionInfo> versionInfo = new HashMap<String, VersionInfo>();
+
+    // ip, log name, info
+    private final Map<String, Map<String, KafkaLogInfo>> kafkaLogInfo = new HashMap<String, Map<String, KafkaLogInfo>>();
 
     public static void main(String[] args) throws Exception {
         int res = new JmxClient().run(args);
@@ -58,17 +62,18 @@ public class JmxClient extends CommandLineBase {
         String[] ips = ipsString.split(",");
 
         ArrayList<Future<JMXConnector>> connections = new ArrayList<Future<JMXConnector>>();
-        ExecutorService executor = Executors.newFixedThreadPool(10);
+        ExecutorService executor = Executors.newFixedThreadPool(50);
         for (String ip : ips) {
             connections.add(connectAsync(executor, ip));
         }
 
+        long endTime = System.currentTimeMillis() + 10000;
         for (Future<JMXConnector> connection : connections) {
             try {
-                connection.get(10, TimeUnit.SECONDS);
+                connection.get(Math.max(1, endTime - System.currentTimeMillis()), TimeUnit.MILLISECONDS);
             } catch (Exception ex) {
-                System.out.println("failed to get info");
-                ex.printStackTrace();
+                System.err.println("failed to get info");
+                ex.printStackTrace(System.err);
             }
         }
 
@@ -77,9 +82,23 @@ public class JmxClient extends CommandLineBase {
         System.out.println();
         printData();
         printVersions();
+        printKafkaInfo();
 
         System.out.println("DONE");
         return 0;
+    }
+
+    private void printKafkaInfo() {
+        System.out.println("Kafka Info");
+        ASCIITableHeader[] tableHeaders = KafkaLogInfo.getTableHeaders();
+        ArrayList<String[]> tableRows = new ArrayList<String[]>();
+        for (Map.Entry<String, Map<String, KafkaLogInfo>> kafkaInfoPerIp : this.kafkaLogInfo.entrySet()) {
+            for (Map.Entry<String, KafkaLogInfo> kafkaInfo : kafkaInfoPerIp.getValue().entrySet()) {
+                tableRows.add(kafkaInfo.getValue().getTableRow());
+            }
+        }
+        ASCIITable.printTable(tableHeaders, tableRows);
+        System.out.println();
     }
 
     private void printVersions() {
@@ -121,7 +140,7 @@ public class JmxClient extends CommandLineBase {
                 try {
                     return connect(ip);
                 } catch (Exception ex) {
-                    System.out.println("Failed on ip " + ip + ": " + ex.getMessage());
+                    System.err.println("Failed on ip " + ip + ": " + ex.getMessage());
                     return null;
                 }
             }
@@ -131,56 +150,69 @@ public class JmxClient extends CommandLineBase {
     private JMXConnector connect(String ip) throws IOException, InstanceNotFoundException, IntrospectionException, ReflectionException {
         JMXServiceURL url = new JMXServiceURL("service:jmx:rmi:///jndi/rmi://" + ip + "/jmxrmi");
         JMXConnector jmxc = JMXConnectorFactory.connect(url, null);
-        System.out.println(ip);
+        Matcher m;
+        System.err.println("trying: " + ip);
         MBeanServerConnection mbeanServerConnection = jmxc.getMBeanServerConnection();
         for (ObjectName mbeanName : mbeanServerConnection.queryNames(null, null)) {
-            if (mbeanName.getCanonicalName().equals(VersionService.JMX_NAME)) {
+            if ((m = kafkaLogRegex.matcher(mbeanName.getCanonicalName())).matches()) {
+                String logName = m.group(1);
+
+                synchronized (kafkaLogInfo) {
+                    Map<String, KafkaLogInfo> ipKafkaLogInfo = kafkaLogInfo.get(ip);
+                    if (ipKafkaLogInfo == null) {
+                        ipKafkaLogInfo = new HashMap<String, KafkaLogInfo>();
+                        kafkaLogInfo.put(ip, ipKafkaLogInfo);
+                    }
+
+                    Attributes attributes = new Attributes(mbeanServerConnection, mbeanName);
+                    ipKafkaLogInfo.put(logName, new KafkaLogInfo(ip, logName, attributes));
+                }
+            } else if (mbeanName.getCanonicalName().equals(VersionService.JMX_NAME)) {
                 try {
                     Attributes attributes = new Attributes(mbeanServerConnection, mbeanName);
 
                     versionInfo.put(ip, new VersionInfo(attributes));
                 } catch (Exception ex) {
-                    System.out.println("Could not get version info: " + ex.getMessage());
+                    System.err.println("Could not get version info: " + ex.getMessage());
+                }
+            } else if ((m = metricRegex.matcher(mbeanName.getCanonicalName())).matches()) {
+                String group = m.group(1);
+                String uniqueId = m.group(2);
+                String metricName = m.group(3);
+
+                if (uniqueId.contains("-")) {
+                    String[] uniqueIdParts = uniqueId.split("-");
+                    group = group + "-" + uniqueIdParts[0];
+                    uniqueId = uniqueIdParts[1];
+                }
+
+                List<MetricData> metricDatas;
+                synchronized (data) {
+                    Map<String, List<MetricData>> groupData = data.get(group);
+                    if (groupData == null) {
+                        groupData = new HashMap<String, List<MetricData>>();
+                        data.put(group, groupData);
+                    }
+
+                    metricDatas = groupData.get(metricName);
+                    if (metricDatas == null) {
+                        metricDatas = new ArrayList<MetricData>();
+                        groupData.put(metricName, metricDatas);
+                    }
+                }
+
+                Attributes attributes = new Attributes(mbeanServerConnection, mbeanName);
+                ArrayList<String> attributeNames = attributes.getAttributeNames();
+
+                if (attributeNames.size() == 1 && attributeNames.get(0).equals("Count")) {
+                    metricDatas.add(new CounterMetricData(ip, group, metricName, uniqueId, attributes));
+                } else if (attributeNames.contains("Min") && attributeNames.contains("Max") && attributeNames.contains("MeanRate")) {
+                    metricDatas.add(new TimerMetricData(ip, group, metricName, uniqueId, attributes));
+                } else {
+                    System.err.println("Unknown metric data: " + group + ", " + metricName);
                 }
             } else {
-                Matcher m = metricRegex.matcher(mbeanName.getCanonicalName());
-                if (m.matches()) {
-                    String group = m.group(1);
-                    String uniqueId = m.group(2);
-                    String metricName = m.group(3);
-
-                    if (uniqueId.contains("-")) {
-                        String[] uniqueIdParts = uniqueId.split("-");
-                        group = group + "-" + uniqueIdParts[0];
-                        uniqueId = uniqueIdParts[1];
-                    }
-
-                    List<MetricData> metricDatas;
-                    synchronized (data) {
-                        Map<String, List<MetricData>> groupData = data.get(group);
-                        if (groupData == null) {
-                            groupData = new HashMap<String, List<MetricData>>();
-                            data.put(group, groupData);
-                        }
-
-                        metricDatas = groupData.get(metricName);
-                        if (metricDatas == null) {
-                            metricDatas = new ArrayList<MetricData>();
-                            groupData.put(metricName, metricDatas);
-                        }
-                    }
-
-                    Attributes attributes = new Attributes(mbeanServerConnection, mbeanName);
-                    ArrayList<String> attributeNames = attributes.getAttributeNames();
-
-                    if (attributeNames.size() == 1 && attributeNames.get(0).equals("Count")) {
-                        metricDatas.add(new CounterMetricData(ip, group, metricName, uniqueId, attributes));
-                    } else if (attributeNames.contains("Min") && attributeNames.contains("Max") && attributeNames.contains("MeanRate")) {
-                        metricDatas.add(new TimerMetricData(ip, group, metricName, uniqueId, attributes));
-                    } else {
-                        System.out.println("Unknown metric data: " + group + ", " + metricName);
-                    }
-                }
+                //System.err.println("Unknown mbean: " + mbeanName);
             }
         }
         return jmxc;
@@ -190,7 +222,6 @@ public class JmxClient extends CommandLineBase {
         private Date unixBuildTime;
         private String scmBuildNumber;
         private String version;
-        private static ASCIITableHeader[] tableHeaders;
 
         public VersionInfo(Attributes attributes) {
             for (Object attributeObject : attributes.getAttributes()) {
@@ -202,7 +233,7 @@ public class JmxClient extends CommandLineBase {
                 } else if ("ScmBuildNumber".equals(attribute.getName())) {
                     this.scmBuildNumber = (String) attribute.getValue();
                 } else {
-                    System.out.println("Unknown attribute: " + attribute.getName());
+                    System.err.println("Unknown attribute for VersionInfo: " + attribute.getName());
                 }
             }
         }
@@ -352,7 +383,7 @@ public class JmxClient extends CommandLineBase {
                 } else if ("999thpercentile".equalsIgnoreCase(attribute.getName())) {
                     percentile999th = (Double) attribute.getValue();
                 } else {
-                    System.out.println("Unknown attribute for timer: " + attribute.getName());
+                    System.err.println("Unknown attribute for timer: " + attribute.getName());
                 }
             }
         }
@@ -462,6 +493,52 @@ public class JmxClient extends CommandLineBase {
 
         public AttributeList getAttributes() {
             return attributes;
+        }
+    }
+
+    private static class KafkaLogInfo {
+        private final String ip;
+        private final String logName;
+        private Long currentOffset;
+        private Long size;
+
+        public KafkaLogInfo(String ip, String logName, Attributes attributes) {
+            this.ip = ip;
+            this.logName = logName;
+            for (Object attributeObject : attributes.getAttributes()) {
+                Attribute attribute = (Attribute) attributeObject;
+                if ("CurrentOffset".equals(attribute.getName())) {
+                    this.currentOffset = (Long) attribute.getValue();
+                } else if ("Size".equals(attribute.getName())) {
+                    this.size = (Long) attribute.getValue();
+                } else if ("Name".equals(attribute.getName())) {
+                } else if ("NumberOfSegments".equals(attribute.getName())) {
+                } else if ("NumAppendedMessages".equals(attribute.getName())) {
+                } else {
+                    System.err.println("Unknown attribute for kafka log: " + attribute.getName());
+                }
+            }
+        }
+
+        public static ASCIITableHeader[] getTableHeaders() {
+            return new ASCIITableHeader[]{
+                    new ASCIITableHeader("IP"),
+                    new ASCIITableHeader("Log Name", ASCIITable.ALIGN_LEFT),
+                    new ASCIITableHeader("Current Offset"),
+                    new ASCIITableHeader("Size"),
+                    new ASCIITableHeader("Delta"),
+            };
+        }
+
+        public String[] getTableRow() {
+            double percentComplete = (double) currentOffset / (double) size;
+            return new String[]{
+                    ip,
+                    logName,
+                    Long.toString(currentOffset),
+                    Long.toString(size),
+                    String.format("%d (%.2f%%)", size - currentOffset, percentComplete * 100.0)
+            };
         }
     }
 }
