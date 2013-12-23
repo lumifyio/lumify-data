@@ -3,6 +3,7 @@ package com.altamiracorp.lumify.facebook;
 
 import backtype.storm.tuple.Tuple;
 import com.altamiracorp.lumify.core.ingest.ArtifactExtractedInfo;
+import com.altamiracorp.lumify.core.model.artifact.Artifact;
 import com.altamiracorp.lumify.core.model.artifact.ArtifactRowKey;
 import com.altamiracorp.lumify.core.model.artifact.ArtifactType;
 import com.altamiracorp.lumify.core.model.audit.AuditAction;
@@ -18,6 +19,8 @@ import com.beust.jcommander.internal.Lists;
 import com.google.inject.Inject;
 import com.thinkaurelius.titan.core.attribute.Geoshape;
 import org.apache.commons.io.IOUtils;
+import org.apache.hadoop.fs.FSDataOutputStream;
+import org.apache.hadoop.fs.Path;
 import org.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -172,8 +175,18 @@ public class FacebookBolt extends BaseLumifyBolt {
             artifactExtractedInfo.setArtifactType(ArtifactType.IMAGE.toString());
             artifactExtractedInfo.setTitle(user.getString(NAME) + " Facebook Profile Picture");
             artifactExtractedInfo.setSource("Facebook profile picture");
-            artifactExtractedInfo.setRaw(raw);
             artifactExtractedInfo.setProcess(PROCESS);
+
+            if (raw.length > Artifact.MAX_SIZE_OF_INLINE_FILE) {
+                FSDataOutputStream rawFile = getHdfsFileSystem().create(new Path("/lumify/artifacts/raw/" + rowKey));
+                try {
+                    rawFile.write(raw);
+                } finally {
+                    rawFile.close();
+                }
+            } else {
+                artifactExtractedInfo.setRaw(raw);
+            }
 
             GraphVertex profile = saveArtifact(artifactExtractedInfo);
             LOGGER.info(String.format("Saving Facebook profile picture to accumulo and as graph vertex: %s", profile.getId()));
