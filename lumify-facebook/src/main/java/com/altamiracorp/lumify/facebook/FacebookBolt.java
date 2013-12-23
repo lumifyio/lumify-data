@@ -18,6 +18,7 @@ import com.beust.jcommander.internal.Lists;
 import com.google.inject.Inject;
 import com.thinkaurelius.titan.core.attribute.Geoshape;
 import org.apache.commons.io.IOUtils;
+import org.apache.hadoop.fs.FSDataOutputStream;
 import org.apache.hadoop.fs.Path;
 import org.json.JSONObject;
 import org.slf4j.Logger;
@@ -168,7 +169,12 @@ public class FacebookBolt extends BaseLumifyBolt {
             artifactExtractedInfo.setTitle(user.getString(NAME) + " Facebook Profile Picture");
             artifactExtractedInfo.setSource("Facebook profile picture");
             if (raw.length > Artifact.MAX_SIZE_OF_INLINE_FILE) {
-                getHdfsFileSystem().create(new Path("/lumify/artifacts/raw/" + rowKey));
+                FSDataOutputStream rawFile = getHdfsFileSystem().create(new Path("/lumify/artifacts/raw/" + rowKey));
+                try {
+                    rawFile.write(raw);
+                } finally {
+                    rawFile.close();
+                }
             } else {
                 artifactExtractedInfo.setRaw(raw);
             }
