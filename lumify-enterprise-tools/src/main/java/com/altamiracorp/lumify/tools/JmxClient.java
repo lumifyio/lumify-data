@@ -15,7 +15,8 @@ import javax.management.remote.JMXConnectorFactory;
 import javax.management.remote.JMXServiceURL;
 import java.io.IOException;
 import java.util.*;
-import java.util.concurrent.*;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -61,20 +62,15 @@ public class JmxClient extends CommandLineBase {
         String ipsString = cmd.getOptionValue("ips");
         String[] ips = ipsString.split(",");
 
-        ArrayList<Future<JMXConnector>> connections = new ArrayList<Future<JMXConnector>>();
         ExecutorService executor = Executors.newFixedThreadPool(50);
         for (String ip : ips) {
-            connections.add(connectAsync(executor, ip));
+            connectAsync(executor, ip);
         }
+        executor.shutdown();
 
-        long endTime = System.currentTimeMillis() + 10000;
-        for (Future<JMXConnector> connection : connections) {
-            try {
-                connection.get(Math.max(1, endTime - System.currentTimeMillis()), TimeUnit.MILLISECONDS);
-            } catch (Exception ex) {
-                System.err.println("failed to get info");
-                ex.printStackTrace(System.err);
-            }
+        long deadLine = System.currentTimeMillis() + 30000;
+        while (!executor.isTerminated() && System.currentTimeMillis() < deadLine) {
+
         }
 
         System.out.println();
@@ -134,14 +130,14 @@ public class JmxClient extends CommandLineBase {
         }
     }
 
-    private Future<JMXConnector> connectAsync(ExecutorService executor, final String ip) {
-        return executor.submit(new Callable<JMXConnector>() {
-            public JMXConnector call() {
+    private void connectAsync(ExecutorService executor, final String ip) {
+        executor.execute(new Runnable() {
+            @Override
+            public void run() {
                 try {
-                    return connect(ip);
+                    connect(ip);
                 } catch (Exception ex) {
                     System.err.println("Failed on ip " + ip + ": " + ex.getMessage());
-                    return null;
                 }
             }
         });
