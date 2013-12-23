@@ -1,6 +1,26 @@
 package com.altamiracorp.lumify.facebook;
 
 
+import backtype.storm.tuple.Tuple;
+import com.altamiracorp.lumify.core.ingest.ArtifactExtractedInfo;
+import com.altamiracorp.lumify.core.model.artifact.ArtifactRowKey;
+import com.altamiracorp.lumify.core.model.artifact.ArtifactType;
+import com.altamiracorp.lumify.core.model.graph.GraphVertex;
+import com.altamiracorp.lumify.core.model.graph.InMemoryGraphVertex;
+import com.altamiracorp.lumify.core.model.ontology.Concept;
+import com.altamiracorp.lumify.core.model.ontology.LabelName;
+import com.altamiracorp.lumify.core.model.ontology.PropertyName;
+import com.altamiracorp.lumify.core.model.ontology.VertexType;
+import com.altamiracorp.lumify.core.model.search.SearchProvider;
+import com.altamiracorp.lumify.storm.BaseLumifyBolt;
+import com.beust.jcommander.internal.Lists;
+import com.google.inject.Inject;
+import com.thinkaurelius.titan.core.attribute.Geoshape;
+import org.apache.commons.io.IOUtils;
+import org.json.JSONObject;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -12,34 +32,6 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
-
-import com.altamiracorp.lumify.core.ingest.ArtifactExtractedInfo;
-import com.altamiracorp.lumify.core.model.artifact.Artifact;
-import com.altamiracorp.lumify.core.model.artifact.ArtifactMetadata;
-import com.altamiracorp.lumify.core.model.artifact.ArtifactRowKey;
-import com.altamiracorp.lumify.core.model.artifact.ArtifactType;
-import com.altamiracorp.lumify.core.model.audit.AuditRepository;
-import com.altamiracorp.lumify.core.model.graph.GraphGeoLocation;
-import com.altamiracorp.lumify.core.model.ontology.Concept;
-import com.altamiracorp.lumify.model.TitanGraphSession;
-import com.altamiracorp.lumify.core.model.graph.GraphVertex;
-import com.altamiracorp.lumify.core.model.graph.InMemoryGraphVertex;
-import com.altamiracorp.lumify.core.model.ontology.LabelName;
-import com.altamiracorp.lumify.core.model.ontology.PropertyName;
-import com.altamiracorp.lumify.core.model.ontology.VertexType;
-import com.altamiracorp.lumify.core.model.search.SearchProvider;
-import com.beust.jcommander.internal.Lists;
-import com.thinkaurelius.titan.core.attribute.Geoshape;
-import org.apache.commons.io.FilenameUtils;
-import org.apache.commons.io.IOUtils;
-import org.json.JSONArray;
-import org.json.JSONObject;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import backtype.storm.tuple.Tuple;
-import com.altamiracorp.lumify.storm.BaseLumifyBolt;
-import com.google.common.base.Joiner;
-import com.google.inject.Inject;
 
 public class FacebookBolt extends BaseLumifyBolt {
     private static final Logger LOGGER = LoggerFactory.getLogger(FacebookBolt.class);
@@ -166,8 +158,6 @@ public class FacebookBolt extends BaseLumifyBolt {
             byte[] raw = os.toByteArray();
             ArtifactRowKey build = ArtifactRowKey.build(raw);
             String rowKey = build.toString();
-            String fileName = user.getString(USERNAME) + "ProfilePicture";
-            Artifact artifact = new Artifact(rowKey);
 
             ArtifactExtractedInfo artifactExtractedInfo = new ArtifactExtractedInfo();
             artifactExtractedInfo.setMimeType("image/png");
@@ -176,13 +166,6 @@ public class FacebookBolt extends BaseLumifyBolt {
             artifactExtractedInfo.setTitle(user.getString(NAME) + " Facebook Profile Picture");
             artifactExtractedInfo.setSource("Facebook profile picture");
             artifactExtractedInfo.setRaw(raw);
-
-            ArtifactMetadata metadata = artifact.getMetadata();
-            metadata.setCreateDate(new Date());
-            metadata.setRaw(raw);
-            metadata.setFileName(fileName);
-            metadata.setFileExtension(FilenameUtils.getExtension(fileName));
-            metadata.setMimeType("image/png");
 
             GraphVertex profile = saveArtifact(artifactExtractedInfo);
             LOGGER.info(String.format("Saving Facebook profile picture to accumulo and as graph vertex: %s", profile.getId()));
