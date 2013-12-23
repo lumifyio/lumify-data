@@ -118,6 +118,10 @@
             <groupId>com.altamiracorp.lumify</groupId>
             <artifactId>lumify-storm</artifactId>
         </dependency>
+        <dependency>
+            <groupId>com.codahale.metrics</groupId>
+            <artifactId>metrics-core</artifactId>
+        </dependency>
     </dependencies>
 
     <build>

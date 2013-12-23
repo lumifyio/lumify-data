@@ -45,7 +45,7 @@
         <maven.build.timestamp.format>EEE MMM dd HH:mm z yyyy</maven.build.timestamp.format>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
-        
+
         <!-- Dependency Versions -->
         <accumulo.version>1.5.0</accumulo.version>
         <altamira.bigtable.model.version>1.0-SNAPSHOT</altamira.bigtable.model.version>
@@ -71,6 +71,7 @@
         <kryo.version>2.17</kryo.version>
         <lesscss.version>1.3.3</lesscss.version>
         <log4j.version>1.2.17</log4j.version>
+        <metrics.version>3.0.1</metrics.version>
         <slf4j.version>1.7.5</slf4j.version>
         <storm.version>0.8.2</storm.version>
         <tinkerpop.blueprints.version>2.4.0</tinkerpop.blueprints.version>
@@ -78,17 +79,17 @@
         <titan.version>0.3.2.atc-SNAPSHOT</titan.version>
         <zip4j.version>1.3.1</zip4j.version>
         <zookeeper.version>3.4.5</zookeeper.version>
-        
+
         <!-- Storm Compatibility Dependency Version Overrides -->
         <storm.guava.version>13.0</storm.guava.version>
         <storm.log4j.version>1.2.16</storm.log4j.version>
         <storm.slf4j.version>1.5.8</storm.slf4j.version>
-        
+
         <!-- Test Dependency Versions -->
         <junit.version>4.11</junit.version>
         <mockito.version>1.9.5</mockito.version>
         <powermock.version>1.5.1</powermock.version>
-        
+
         <!-- Maven Plugin Versions -->
         <plugin.buildnumber.version>1.2</plugin.buildnumber.version>
         <plugin.checkstyle.version>2.11</plugin.checkstyle.version>
@@ -116,7 +117,7 @@
     <modules>
         <module>lumify-build-tools</module>
     </modules>
-    
+
     <repositories>
         <repository>
             <id>lumify-releases</id>
@@ -176,6 +177,11 @@
                 <groupId>com.altamiracorp.titan.accumulo</groupId>
                 <artifactId>titan-accumulo</artifactId>
                 <version>${altamira.titan.accumulo.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.codahale.metrics</groupId>
+                <artifactId>metrics-core</artifactId>
+                <version>${metrics.version}</version>
             </dependency>
             <dependency>
                 <groupId>com.esotericsoftware.kryo</groupId>
@@ -369,7 +375,7 @@
                 <version>${slf4j.version}</version>
                 <scope>runtime</scope>
             </dependency>
-            
+
             <!-- Test Dependencies -->
             <dependency>
                 <groupId>junit</groupId>
@@ -410,7 +416,7 @@
             <groupId>org.slf4j</groupId>
             <artifactId>slf4j-api</artifactId>
         </dependency>
-        
+
         <!-- Common Test Dependencies -->
         <dependency>
             <groupId>junit</groupId>
@@ -429,7 +435,7 @@
             <artifactId>powermock-module-junit4</artifactId>
         </dependency>
     </dependencies>
-    
+
     <build>
         <pluginManagement>
             <plugins>
@@ -457,9 +463,6 @@
                     <groupId>org.apache.maven.plugins</groupId>
                     <artifactId>maven-dependency-plugin</artifactId>
                     <version>${plugin.maven.dependency.version}</version>
-                    <configuration>
-                        <outputFile>${classpath.filename}</outputFile>
-                    </configuration>
                     <executions>
                         <execution>
                             <id>build-classpath</id>
@@ -467,6 +470,9 @@
                             <goals>
                                 <goal>build-classpath</goal>
                             </goals>
+                            <configuration>
+                                <outputFile>${classpath.filename}</outputFile>
+                            </configuration>
                         </execution>
                     </executions>
                 </plugin>
@@ -658,7 +664,7 @@
                     <artifactId>sonar-maven3-plugin</artifactId>
                     <version>${plugin.sonar.version}</version>
                 </plugin>
-                
+
                 <!-- Site Generation -->
                 <plugin>
                     <groupId>org.apache.maven.plugins</groupId>

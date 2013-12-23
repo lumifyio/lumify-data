@@ -8,13 +8,13 @@ import com.altamiracorp.lumify.core.util.ModelUtil;
 import com.google.inject.Inject;
 import org.apache.commons.cli.CommandLine;
 
-public class FormatUcd extends CommandLineBase {
+public class FormatLumify extends CommandLineBase {
     private ModelSession modelSession;
     private SearchProvider searchProvider;
     private GraphSession graphSession;
 
     public static void main(String[] args) throws Exception {
-        int res = new FormatUcd().run(args);
+        int res = new FormatLumify().run(args);
         if (res != 0) {
             System.exit(res);
         }

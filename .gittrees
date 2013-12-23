@@ -22,3 +22,7 @@
 	url = git@github.com:altamiracorp/lumify-root.git
 	path = lumify-root
 	branch = master
+[subtree "lumify-facebook"]
+	url = git@github.com:altamiracorp/lumify-facebook.git
+	path = lumify-facebook
+	branch = master

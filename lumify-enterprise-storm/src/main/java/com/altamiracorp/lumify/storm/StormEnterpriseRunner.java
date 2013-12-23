@@ -143,9 +143,12 @@ public class StormEnterpriseRunner extends StormRunnerBase {
 
     private void createDocumentTopology(TopologyBuilder builder) {
         String queueName = "document";
-        builder.setSpout(queueName, new HdfsFileSystemSpout("/document"), 1)
+        builder.setSpout(queueName, new LumifyKafkaSpout(getConfiguration(), WorkQueueRepository.DOCUMENT_QUEUE_NAME), 1)
+                .setMaxTaskParallelism(1);
+        builder.setSpout(queueName + "-hdfs", new HdfsFileSystemSpout("/document"), 1)
                 .setMaxTaskParallelism(1);
         builder.setBolt(queueName + "-bolt", new DocumentBolt(), 1)
+                .shuffleGrouping(queueName + "-hdfs")
                 .shuffleGrouping(queueName);
     }
 

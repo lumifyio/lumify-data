@@ -45,7 +45,10 @@ end
 hiera['kafka_host_ipaddresses'] = kafka_nodes
 hiera['storm_nimbus_host'] = get(cluster, /stormmaster/, :ip)
 hiera['storm_nimbus_thrift_port'] = 6627
-hiera['storm_supervisor_slots_ports'] = [6700, 6701, 6702, 6703]
+storm_slots_per_supervisor = 4
+storn_base_supervisor_slot_port = 6700
+hiera['storm_supervisor_slots_ports'] = storm_slots_per_supervisor.times.reduce([]){|m,i| m.push(storn_base_supervisor_slot_port+i)}
+hiera['storm_supervisor_jmx_ports'] = storm_slots_per_supervisor.times.reduce([]){|m,i| m.push(('1'+(storn_base_supervisor_slot_port+i).to_s).to_i)}
 hiera['storm_ui_port'] = 8081
 hiera['jetty_confidential_port'] = 443
 hiera['jetty_key_store_path'] = '/opt/lumify/config/jetty.jks'
