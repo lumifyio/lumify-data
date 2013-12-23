@@ -71,6 +71,7 @@
         <kryo.version>2.17</kryo.version>
         <lesscss.version>1.3.3</lesscss.version>
         <log4j.version>1.2.17</log4j.version>
+        <metrics.version>3.0.1</metrics.version>
         <slf4j.version>1.7.5</slf4j.version>
         <storm.version>0.8.2</storm.version>
         <tinkerpop.blueprints.version>2.4.0</tinkerpop.blueprints.version>
@@ -176,6 +177,11 @@
                 <groupId>com.altamiracorp.titan.accumulo</groupId>
                 <artifactId>titan-accumulo</artifactId>
                 <version>${altamira.titan.accumulo.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.codahale.metrics</groupId>
+                <artifactId>metrics-core</artifactId>
+                <version>${metrics.version}</version>
             </dependency>
             <dependency>
                 <groupId>com.esotericsoftware.kryo</groupId>
