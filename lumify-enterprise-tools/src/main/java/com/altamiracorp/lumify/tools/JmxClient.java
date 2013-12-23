@@ -144,10 +144,10 @@ public class JmxClient extends CommandLineBase {
     }
 
     private JMXConnector connect(String ip) throws IOException, InstanceNotFoundException, IntrospectionException, ReflectionException {
+        System.err.println("trying: " + ip);
         JMXServiceURL url = new JMXServiceURL("service:jmx:rmi:///jndi/rmi://" + ip + "/jmxrmi");
         JMXConnector jmxc = JMXConnectorFactory.connect(url, null);
         Matcher m;
-        System.err.println("trying: " + ip);
         MBeanServerConnection mbeanServerConnection = jmxc.getMBeanServerConnection();
         for (ObjectName mbeanName : mbeanServerConnection.queryNames(null, null)) {
             if ((m = kafkaLogRegex.matcher(mbeanName.getCanonicalName())).matches()) {
