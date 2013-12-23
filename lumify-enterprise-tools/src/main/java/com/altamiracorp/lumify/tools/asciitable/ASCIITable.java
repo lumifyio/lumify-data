@@ -28,10 +28,6 @@ public class ASCIITable {
 
     public static String getTable(ASCIITableHeader[] headerObjs, List<String[]> data) {
 
-        if (data == null || data.size() == 0) {
-            throw new IllegalArgumentException("Please provide valid data : " + data);
-        }
-
         /**
          * Table String buffer
          */
