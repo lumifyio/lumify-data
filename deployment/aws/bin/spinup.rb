@@ -282,6 +282,10 @@ ARGV.each do |filename|
                                  :user_data => user_data,
                                  :placement_group => placement_group
                                 )
+
+      # TODO: poll for ready?
+      sleep(5)
+
       tag(instance_id, {:Project => prefix})
       tag(instance_id, {:aliases => aliases.join(',')}) if aliases
 
@@ -289,7 +293,7 @@ ARGV.each do |filename|
       tag(volume_id, {:Name => "#{name}_vol0", :Project => prefix})
 
       # TODO: poll for ready?
-      sleep(10)
+      sleep(5)
 
       device_prefix = '/dev/sd'
       device_letters = EBS_VOLUME_DEVICE_LETTERS.clone
