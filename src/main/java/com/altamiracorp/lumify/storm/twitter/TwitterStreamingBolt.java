@@ -3,6 +3,7 @@ package com.altamiracorp.lumify.storm.twitter;
 import backtype.storm.tuple.Tuple;
 import com.altamiracorp.lumify.core.ingest.ArtifactExtractedInfo;
 import com.altamiracorp.lumify.core.ingest.term.extraction.TermRegexFinder;
+import com.altamiracorp.lumify.core.model.artifact.Artifact;
 import com.altamiracorp.lumify.core.model.artifact.ArtifactRowKey;
 import com.altamiracorp.lumify.core.model.artifact.ArtifactType;
 import com.altamiracorp.lumify.core.model.graph.GraphGeoLocation;
@@ -19,6 +20,7 @@ import com.beust.jcommander.internal.Lists;
 import com.google.inject.Inject;
 import com.thinkaurelius.titan.core.attribute.Geoshape;
 import org.apache.commons.io.IOUtils;
+import org.apache.hadoop.fs.Path;
 import org.json.JSONArray;
 import org.json.JSONObject;
 import org.slf4j.Logger;
@@ -282,7 +284,11 @@ public class TwitterStreamingBolt extends BaseLumifyBolt {
             artifactExtractedInfo.setArtifactType(ArtifactType.IMAGE.toString());
             artifactExtractedInfo.setTitle(user.getString("screen_name") + " Twitter Profile Picture");
             artifactExtractedInfo.setSource("Twitter profile picture");
-            artifactExtractedInfo.setRaw(raw);
+            if (raw.length > Artifact.MAX_SIZE_OF_INLINE_FILE) {
+                getHdfsFileSystem().create(new Path("/lumify/artifacts/raw/" + rowKey));
+            } else {
+                artifactExtractedInfo.setRaw(raw);
+            }
 
             GraphVertex profile = saveArtifact(artifactExtractedInfo);
             LOGGER.info("Saving tweeter profile picture to accumulo and as graph vertex: " + profile.getId());
