@@ -3,6 +3,7 @@ package com.altamiracorp.lumify.facebook;
 
 import backtype.storm.tuple.Tuple;
 import com.altamiracorp.lumify.core.ingest.ArtifactExtractedInfo;
+import com.altamiracorp.lumify.core.model.artifact.Artifact;
 import com.altamiracorp.lumify.core.model.artifact.ArtifactRowKey;
 import com.altamiracorp.lumify.core.model.artifact.ArtifactType;
 import com.altamiracorp.lumify.core.model.graph.GraphVertex;
@@ -17,6 +18,7 @@ import com.beust.jcommander.internal.Lists;
 import com.google.inject.Inject;
 import com.thinkaurelius.titan.core.attribute.Geoshape;
 import org.apache.commons.io.IOUtils;
+import org.apache.hadoop.fs.Path;
 import org.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -105,7 +107,7 @@ public class FacebookBolt extends BaseLumifyBolt {
         graphRepository.save(userVertex, getUser());
 
         //get relationships for vertex and write audit message for each post
-        List <GraphVertex> postings = graphRepository.getRelatedVertices(userVertex.getId(), getUser());
+        List<GraphVertex> postings = graphRepository.getRelatedVertices(userVertex.getId(), getUser());
         GraphVertex posting = postings.get(0);
 
         if (user.has(SEX) && !user.getString(SEX).equals(JSONObject.NULL)) {
@@ -131,7 +133,7 @@ public class FacebookBolt extends BaseLumifyBolt {
             modifiedProperties.add(PropertyName.GEO_LOCATION.toString());
         }
 
-        if (user.has(BIRTHDAY_DATE) && (user.get(BIRTHDAY_DATE) instanceof String) ) {
+        if (user.has(BIRTHDAY_DATE) && (user.get(BIRTHDAY_DATE) instanceof String)) {
             String birthday_date = user.getString(BIRTHDAY_DATE);
             SimpleDateFormat birthdayFormat = new SimpleDateFormat(BIRTHDAY_FORMAT);
             birthdayFormat.setLenient(true);
@@ -165,7 +167,11 @@ public class FacebookBolt extends BaseLumifyBolt {
             artifactExtractedInfo.setArtifactType(ArtifactType.IMAGE.toString());
             artifactExtractedInfo.setTitle(user.getString(NAME) + " Facebook Profile Picture");
             artifactExtractedInfo.setSource("Facebook profile picture");
-            artifactExtractedInfo.setRaw(raw);
+            if (raw.length > Artifact.MAX_SIZE_OF_INLINE_FILE) {
+                getHdfsFileSystem().create(new Path("/lumify/artifacts/raw/" + rowKey));
+            } else {
+                artifactExtractedInfo.setRaw(raw);
+            }
 
             GraphVertex profile = saveArtifact(artifactExtractedInfo);
             LOGGER.info(String.format("Saving Facebook profile picture to accumulo and as graph vertex: %s", profile.getId()));
