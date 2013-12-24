@@ -32,6 +32,7 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URL;
+import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -55,6 +56,22 @@ public class TwitterStreamingBolt extends BaseLumifyBolt {
     private static final String FOLLOWING_COUNT = "followingCount";
     private static final String CREATION_DATE = "creationDate";
     private static final String DESCRIPTION = "description";
+    private static final String TWITTER_DATE_FORMAT_STR = "EEE MMM dd HH:mm:ss ZZZZZ yyyy";
+    /**
+     * ThreadLocal DateFormat for Twitter dates.  This minimizes creation of
+     * non-thread-safe SimpleDateFormat objects and eliminates the need for
+     * synchronization of a single DateFormat by creating one format for each
+     * Thread.
+     */
+    private static final ThreadLocal<DateFormat> TWITTER_DATE_FORMAT = new ThreadLocal<DateFormat>() {
+        @Override
+        protected DateFormat initialValue() {
+            SimpleDateFormat sdf = new SimpleDateFormat(TWITTER_DATE_FORMAT_STR);
+            sdf.setLenient(true);
+            return sdf;
+        }
+    };
+
     private Concept handleConcept;
     private SearchProvider searchProvider;
     private GraphVertex tweet;
@@ -236,19 +253,19 @@ public class TwitterStreamingBolt extends BaseLumifyBolt {
         }
 
         if (user.has("statuses_count") && ((Integer) user.get("statuses_count") > 0)) {
-            String tweetCount = user.get("statuses_count").toString();
+            Integer tweetCount = (Integer) user.get("statuses_count");
             handleVertex.setProperty(STATUS_COUNT, tweetCount);
             modifiedProperties.add(STATUS_COUNT);
         }
 
         if (user.has("followers_count") && ((Integer) user.get("followers_count") > 0)) {
-            String followersCount = user.get("followers_count").toString();
+            Integer followersCount = (Integer) user.get("followers_count");
             handleVertex.setProperty(FOLLOWER_COUNT, followersCount);
             modifiedProperties.add(FOLLOWER_COUNT);
         }
 
         if (user.has("friends_count") && ((Integer) user.get("friends_count") > 0)) {
-            String friendsCount = user.get("friends_count").toString();
+            Integer friendsCount = (Integer) user.get("friends_count");
             handleVertex.setProperty(FOLLOWING_COUNT, friendsCount);
             modifiedProperties.add(FOLLOWING_COUNT);
         }
@@ -320,15 +337,11 @@ public class TwitterStreamingBolt extends BaseLumifyBolt {
 
     public Date formatCreatedAt(String createdAt) {
         if (createdAt != null) {
-            final String TWITTER = "EEE MMM dd HH:mm:ss ZZZZZ yyyy";
-            SimpleDateFormat sf = new SimpleDateFormat(TWITTER);
-            sf.setLenient(true);
-
             Date date = null;
             try {
-                date = sf.parse(createdAt);
+                date = TWITTER_DATE_FORMAT.get().parse(createdAt);
             } catch (ParseException e) {
-                new RuntimeException("Cannot parse " + createdAt);
+                throw new RuntimeException(String.format("Unable to parse date string: %s", createdAt), e);
             }
             return date;
         }
