@@ -2,6 +2,8 @@ package com.altamiracorp.lumify.storm.video;
 
 import com.altamiracorp.lumify.core.ingest.AdditionalArtifactWorkData;
 import com.altamiracorp.lumify.core.ingest.ArtifactExtractedInfo;
+import com.altamiracorp.lumify.core.model.artifact.Artifact;
+import com.altamiracorp.lumify.core.util.HdfsLimitOutputStream;
 import com.altamiracorp.lumify.textExtraction.ImageOcrTextExtractor;
 import com.altamiracorp.lumify.textExtraction.VideoFrameExtractedInfo;
 import com.google.inject.Inject;
@@ -20,6 +22,7 @@ public class VideoFrameTextExtractor {
     public ArtifactExtractedInfo extract(List<ArtifactExtractedInfo.VideoFrame> videoFrames, AdditionalArtifactWorkData data) throws Exception {
         LOGGER.debug("Extracting Frame Text [VideoFrameTextExtractor]: " + data.getFileName());
         ArtifactExtractedInfo info = new ArtifactExtractedInfo();
+        HdfsLimitOutputStream textOut = new HdfsLimitOutputStream(data.getHdfsFileSystem(), Artifact.MAX_SIZE_OF_INLINE_FILE);
         StringBuilder builder = new StringBuilder();
         FileSystem fs = data.getHdfsFileSystem();
         for (ArtifactExtractedInfo.VideoFrame frame : videoFrames) {
@@ -31,7 +34,19 @@ public class VideoFrameTextExtractor {
             builder.append(frameInfo.getText());
             builder.append("\n");
         }
-        info.setText(builder.toString());
+
+        try {
+            if (builder.toString() != null) {
+                textOut.write(builder.toString().getBytes());
+            }
+        } finally {
+            textOut.close();
+        }
+        if (textOut.hasExceededSizeLimit()) {
+            info.setTextHdfsPath(textOut.getHdfsPath().toString());
+        } else {
+            info.setText(new String(textOut.getSmall()));
+        }
         LOGGER.debug("Finished [VideoFrameTextExtractor]: " + data.getFileName());
         return info;
     }

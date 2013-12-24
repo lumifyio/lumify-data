@@ -14,6 +14,7 @@ import com.altamiracorp.lumify.core.model.ontology.LabelName;
 import com.altamiracorp.lumify.core.model.ontology.PropertyName;
 import com.altamiracorp.lumify.core.model.ontology.VertexType;
 import com.altamiracorp.lumify.core.model.search.SearchProvider;
+import com.altamiracorp.lumify.core.util.HdfsLimitOutputStream;
 import com.altamiracorp.lumify.storm.BaseLumifyBolt;
 import com.beust.jcommander.internal.Lists;
 import com.google.inject.Inject;
@@ -205,10 +206,7 @@ public class FacebookBolt extends BaseLumifyBolt {
         return modifiedProperties;
     }
 
-    /**
-     * ****
-     */
-    private GraphVertex processPost(JSONObject post) {
+    private GraphVertex processPost(JSONObject post) throws Exception {
         //extract knowledge from post
         String message = post.getString(MESSAGE);
         Long name_uid = post.getLong(AUTHOR_UID);
@@ -218,8 +216,21 @@ public class FacebookBolt extends BaseLumifyBolt {
         ArtifactRowKey build = ArtifactRowKey.build(post.toString().getBytes());
         String rowKey = build.toString();
 
+        HdfsLimitOutputStream textOut = new HdfsLimitOutputStream(getHdfsFileSystem(), Artifact.MAX_SIZE_OF_INLINE_FILE);
+        try {
+            if (message != null) {
+                textOut.write(message.getBytes());
+            }
+        } finally {
+            textOut.close();
+        }
+
         ArtifactExtractedInfo artifactExtractedInfo = new ArtifactExtractedInfo();
-        artifactExtractedInfo.setText(message);
+        if (textOut.hasExceededSizeLimit()) {
+            artifactExtractedInfo.setTextHdfsPath(textOut.getHdfsPath().toString());
+        } else {
+            artifactExtractedInfo.setText(new String (textOut.getSmall()));
+        }
         artifactExtractedInfo.setSource(FACEBOOK);
         artifactExtractedInfo.setRaw(post.toString().getBytes());
         artifactExtractedInfo.setMimeType("text/plain");

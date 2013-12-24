@@ -3,6 +3,7 @@ package com.altamiracorp.lumify.storm.term.extraction;
 import backtype.storm.task.OutputCollector;
 import backtype.storm.task.TopologyContext;
 import backtype.storm.tuple.Tuple;
+import com.altamiracorp.lumify.core.InjectHelper;
 import com.altamiracorp.lumify.core.ingest.term.extraction.TermExtractionAdditionalWorkData;
 import com.altamiracorp.lumify.core.ingest.term.extraction.TermExtractionResult;
 import com.altamiracorp.lumify.core.ingest.term.extraction.TermExtractionWorker;
@@ -60,7 +61,7 @@ public class TermExtractionBolt extends BaseTextProcessingBolt {
         ServiceLoader<TermExtractionWorker> services = ServiceLoader.load(TermExtractionWorker.class);
         for (TermExtractionWorker service : services) {
             LOGGER.info(String.format("Adding service %s to %s", service.getClass().getName(), getClass().getName()));
-            inject(service);
+            InjectHelper.inject(service);
             service.prepare(stormConf, getUser());
             workers.add(service);
         }

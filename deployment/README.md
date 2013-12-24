@@ -44,22 +44,16 @@ setup
 - ssh from the puppet server to storm nimbus server and run:
 
 ```
-paralleism=4
+n=5
 
 /opt/storm/bin/storm jar lumify-storm-1.0-SNAPSHOT-jar-with-dependencies.jar \
-  com.altamiracorp.lumify.storm.StormRunner --tasksperbolt=${paralleism}
+  com.altamiracorp.lumify.storm.StormRunner -tpb $((${n} * 8)) -w $((${n} * 2)) -ph $((${n} * 4))
 
-/opt/storm/bin/storm rebalance lumify -w 1 -e artifactHighlightBolt=${paralleism}
-  
 /opt/storm/bin/storm jar lumify-enterprise-storm-1.0-SNAPSHOT-jar-with-dependencies.jar \
-  com.altamiracorp.lumify.storm.StormEnterpriseRunner --tasksperbolt=${paralleism}
-
-for bolt in contentType-bolt document-bolt image-bolt processedVideoBolt structuredData-bolt textTermExtractionBolt video-bolt; do
-  /opt/storm/bin/storm rebalance lumify-enterprise -w 1 -e ${bolt}=${paralleism}
-done
+  com.altamiracorp.lumify.storm.StormEnterpriseRunner -tpb $((${n} * 8)) -w $((${n} * 2)) -ph $((${n} * 4))
 
 /opt/storm/bin/storm jar lumify-twitter-1.0-SNAPSHOT-jar-with-dependencies.jar \
-  com.altamiracorp.lumify.storm.twitter.StormRunner --tasksperbolt=${paralleism}
+  com.altamiracorp.lumify.storm.twitter.StormRunner -tpb $((${n} * 8)) -w $((${n} * 2)) -ph $((${n} * 4))
 ```
 
 turning it off

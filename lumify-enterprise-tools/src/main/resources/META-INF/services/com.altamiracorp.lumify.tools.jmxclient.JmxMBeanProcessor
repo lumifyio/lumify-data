@@ -1,0 +1,4 @@
+com.altamiracorp.lumify.tools.jmxclient.LumifyMetricsJmxMBeanProcessor
+com.altamiracorp.lumify.tools.jmxclient.KafkaLogJmxMBeanProcessor
+com.altamiracorp.lumify.tools.jmxclient.VersionInfoJmxMBeanProcessor
+com.altamiracorp.lumify.tools.jmxclient.JvmJmxMBeanProcessor

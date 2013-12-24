@@ -4,6 +4,8 @@ import com.altamiracorp.lumify.core.ingest.AdditionalArtifactWorkData;
 import com.altamiracorp.lumify.core.ingest.ArtifactExtractedInfo;
 import com.altamiracorp.lumify.core.ingest.TextExtractionWorkerPrepareData;
 import com.altamiracorp.lumify.core.ingest.video.VideoTextExtractionWorker;
+import com.altamiracorp.lumify.core.model.artifact.Artifact;
+import com.altamiracorp.lumify.core.util.HdfsLimitOutputStream;
 import com.altamiracorp.lumify.core.util.ProcessRunner;
 import com.altamiracorp.lumify.core.util.ThreadedTeeInputStreamWorker;
 import com.google.inject.Inject;
@@ -36,6 +38,7 @@ public class VideoExtractFramesWorker extends ThreadedTeeInputStreamWorker<Artif
         LOGGER.debug("Extracting Frames [VideoExtractFramesWorker]: " + additionalArtifactWorkData.getFileName());
         Pattern fileNamePattern = Pattern.compile("image-([0-9]+)\\.png");
         File tempDir = createTempDir("video-frames");
+        HdfsLimitOutputStream textOut = new HdfsLimitOutputStream(additionalArtifactWorkData.getHdfsFileSystem(), Artifact.MAX_SIZE_OF_INLINE_FILE);
 
         int framesPerSecondToExtract = 1;
 
@@ -73,7 +76,22 @@ public class VideoExtractFramesWorker extends ThreadedTeeInputStreamWorker<Artif
         ArtifactExtractedInfo info = new ArtifactExtractedInfo();
         info.setVideoDuration(videoDuration);
         info.setVideoFrames(videoFrames);
-        info.setText(videoFrameTextExtractor.extract(videoFrames, additionalArtifactWorkData).getText());
+
+        String text = videoFrameTextExtractor.extract(videoFrames, additionalArtifactWorkData).getText();
+        try {
+            if (text != null) {
+                textOut.write(text.getBytes());
+            }
+        } finally {
+            textOut.close();
+        }
+
+        if (textOut.hasExceededSizeLimit()) {
+            info.setTextHdfsPath(textOut.getHdfsPath().toString());
+        } else {
+            info.setText(new String(textOut.getSmall()));
+        }
+
         LOGGER.debug("Finished [VideoExtractFramesWorker]: " + additionalArtifactWorkData.getFileName());
         return info;
     }

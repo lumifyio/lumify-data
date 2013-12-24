@@ -103,74 +103,74 @@ public class StormEnterpriseRunner extends StormRunnerBase {
         LOGGER.debug(String.format("Copied %d %s from %s to HDFS: %s", fileCount, Noun.pluralOf("file", fileCount), dataDirFile, unknownDataDir));
     }
 
-    public StormTopology createTopology() {
+    public StormTopology createTopology(int parallelismHint) {
         TopologyBuilder builder = new TopologyBuilder();
-        createContentTypeSorterTopology(builder);
-        createVideoTopology(builder);
-        createImageTopology(builder);
-        createDocumentTopology(builder);
-        createTextTopology(builder);
-        createProcessedVideoTopology(builder);
-        createStructuredDataTextTopology(builder);
+        createContentTypeSorterTopology(builder, parallelismHint);
+        createVideoTopology(builder, parallelismHint);
+        createImageTopology(builder, parallelismHint);
+        createDocumentTopology(builder, parallelismHint);
+        createTextTopology(builder, parallelismHint);
+        createProcessedVideoTopology(builder, parallelismHint);
+        createStructuredDataTextTopology(builder, parallelismHint);
 
         return builder.createTopology();
     }
 
-    private TopologyBuilder createContentTypeSorterTopology(TopologyBuilder builder) {
+    private TopologyBuilder createContentTypeSorterTopology(TopologyBuilder builder, int parallelismHint) {
         String queueName = "contentType";
         builder.setSpout(queueName, new HdfsFileSystemSpout("/unknown"), 1)
                 .setMaxTaskParallelism(1);
-        builder.setBolt(queueName + "-bolt", new ContentTypeSorterBolt(), 1)
+        builder.setBolt(queueName + "-bolt", new ContentTypeSorterBolt(), parallelismHint)
                 .shuffleGrouping(queueName);
         return builder;
     }
 
-    private void createImageTopology(TopologyBuilder builder) {
+    private void createImageTopology(TopologyBuilder builder, int parallelismHint) {
         String queueName = "image";
         builder.setSpout(queueName, new HdfsFileSystemSpout("/image"), 1)
                 .setMaxTaskParallelism(1);
-        builder.setBolt(queueName + "-bolt", new ImageBolt(), 1)
+        builder.setBolt(queueName + "-bolt", new ImageBolt(), parallelismHint)
                 .shuffleGrouping(queueName);
     }
 
-    private void createVideoTopology(TopologyBuilder builder) {
+    private void createVideoTopology(TopologyBuilder builder, int parallelismHint) {
         String queueName = "video";
         builder.setSpout(queueName, new HdfsFileSystemSpout("/video"), 1)
                 .setMaxTaskParallelism(1);
-        builder.setBolt(queueName + "-bolt", new VideoBolt(), 1)
+        builder.setBolt(queueName + "-bolt", new VideoBolt(), parallelismHint)
                 .shuffleGrouping(queueName);
     }
 
-    private void createDocumentTopology(TopologyBuilder builder) {
+    private void createDocumentTopology(TopologyBuilder builder, int parallelismHint) {
         String queueName = "document";
         builder.setSpout(queueName, new LumifyKafkaSpout(getConfiguration(), WorkQueueRepository.DOCUMENT_QUEUE_NAME), 1)
                 .setMaxTaskParallelism(1);
         builder.setSpout(queueName + "-hdfs", new HdfsFileSystemSpout("/document"), 1)
                 .setMaxTaskParallelism(1);
-        builder.setBolt(queueName + "-bolt", new DocumentBolt(), 1)
+        builder.setBolt(queueName + "-bolt", new DocumentBolt(), parallelismHint)
                 .shuffleGrouping(queueName + "-hdfs")
                 .shuffleGrouping(queueName);
     }
 
-    private void createStructuredDataTextTopology(TopologyBuilder builder) {
+    private void createStructuredDataTextTopology(TopologyBuilder builder, int parallelismHint) {
         String queueName = "structuredData";
         builder.setSpout(queueName, new HdfsFileSystemSpout("/structuredData"), 1)
                 .setMaxTaskParallelism(1);
-        builder.setBolt(queueName + "-bolt", new StructuredDataTextExtractorBolt(), 1)
+        builder.setBolt(queueName + "-bolt", new StructuredDataTextExtractorBolt(), parallelismHint)
                 .shuffleGrouping(queueName);
     }
 
-    private void createTextTopology(TopologyBuilder builder) {
+    private void createTextTopology(TopologyBuilder builder, int parallelismHint) {
         builder.setSpout("text", new LumifyKafkaSpout(getConfiguration(), WorkQueueRepository.TEXT_QUEUE_NAME), 1)
                 .setMaxTaskParallelism(1);
-        builder.setBolt("textTermExtractionBolt", new TermExtractionBolt(), 1)
+        builder.setBolt("textTermExtractionBolt", new TermExtractionBolt(), parallelismHint)
                 .shuffleGrouping("text");
     }
 
-    private void createProcessedVideoTopology(TopologyBuilder builder) {
+    private void createProcessedVideoTopology(TopologyBuilder builder, int parallelismHint) {
         builder.setSpout("processedVideoSpout", new LumifyKafkaSpout(getConfiguration(), WorkQueueRepository.PROCESSED_VIDEO_QUEUE_NAME), 1)
                 .setMaxTaskParallelism(1);
-        builder.setBolt("processedVideoBolt", new VideoPreviewBolt(), 1)
+        builder.setBolt("processedVideoBolt", new VideoPreviewBolt(), parallelismHint)
                 .shuffleGrouping("processedVideoSpout");
     }
 }

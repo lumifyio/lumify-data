@@ -1,9 +1,9 @@
 package com.altamiracorp.lumify.tools;
 
 import com.altamiracorp.lumify.core.cmdline.CommandLineBase;
-import com.altamiracorp.lumify.core.version.VersionService;
 import com.altamiracorp.lumify.tools.asciitable.ASCIITable;
 import com.altamiracorp.lumify.tools.asciitable.ASCIITableHeader;
+import com.altamiracorp.lumify.tools.jmxclient.JmxMBeanProcessor;
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.OptionBuilder;
 import org.apache.commons.cli.Options;
@@ -15,21 +15,14 @@ import javax.management.remote.JMXConnectorFactory;
 import javax.management.remote.JMXServiceURL;
 import java.io.IOException;
 import java.util.*;
-import java.util.concurrent.*;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 public class JmxClient extends CommandLineBase {
-    private Pattern metricRegex = Pattern.compile("metrics:name=(.*)\\.([^.]+)\\.([^.]+)");
-    private Pattern kafkaLogRegex = Pattern.compile("kafka:type=kafka.logs.(.*)");
+    private List<JmxMBeanProcessor> jmxMBeanProcessors = new ArrayList<JmxMBeanProcessor>();
 
-    // group, metric name, MetricData
-    private final Map<String, Map<String, List<MetricData>>> data = new HashMap<String, Map<String, List<MetricData>>>();
-
-    private final Map<String, VersionInfo> versionInfo = new HashMap<String, VersionInfo>();
-
-    // ip, log name, info
-    private final Map<String, Map<String, KafkaLogInfo>> kafkaLogInfo = new HashMap<String, Map<String, KafkaLogInfo>>();
+    // group, metric name, results
+    private final Map<String, Map<String, List<JmxMBeanProcessor.ProcessResult>>> results = new HashMap<String, Map<String, List<JmxMBeanProcessor.ProcessResult>>>();
 
     public static void main(String[] args) throws Exception {
         int res = new JmxClient().run(args);
@@ -61,484 +54,157 @@ public class JmxClient extends CommandLineBase {
         String ipsString = cmd.getOptionValue("ips");
         String[] ips = ipsString.split(",");
 
-        ArrayList<Future<JMXConnector>> connections = new ArrayList<Future<JMXConnector>>();
+        for (JmxMBeanProcessor s : ServiceLoader.load(JmxMBeanProcessor.class)) {
+            jmxMBeanProcessors.add(s);
+        }
+
         ExecutorService executor = Executors.newFixedThreadPool(50);
         for (String ip : ips) {
-            connections.add(connectAsync(executor, ip));
+            connectAsync(executor, ip);
         }
+        executor.shutdown();
 
-        long endTime = System.currentTimeMillis() + 10000;
-        for (Future<JMXConnector> connection : connections) {
-            try {
-                connection.get(Math.max(1, endTime - System.currentTimeMillis()), TimeUnit.MILLISECONDS);
-            } catch (Exception ex) {
-                System.err.println("failed to get info");
-                ex.printStackTrace(System.err);
-            }
+        long deadline = System.currentTimeMillis() + 30000;
+        while (!executor.isTerminated() && System.currentTimeMillis() < deadline) {
+            Thread.sleep(100);
         }
 
         System.out.println();
         System.out.println();
         System.out.println();
-        printData();
-        printVersions();
-        printKafkaInfo();
+        printResults();
 
         System.out.println("DONE");
         return 0;
     }
 
-    private void printKafkaInfo() {
-        System.out.println("Kafka Info");
-        ASCIITableHeader[] tableHeaders = KafkaLogInfo.getTableHeaders();
-        ArrayList<String[]> tableRows = new ArrayList<String[]>();
-        for (Map.Entry<String, Map<String, KafkaLogInfo>> kafkaInfoPerIp : this.kafkaLogInfo.entrySet()) {
-            for (Map.Entry<String, KafkaLogInfo> kafkaInfo : kafkaInfoPerIp.getValue().entrySet()) {
-                tableRows.add(kafkaInfo.getValue().getTableRow());
+    private void printResults() {
+        for (Map.Entry<String, Map<String, List<JmxMBeanProcessor.ProcessResult>>> groupResults : results.entrySet()) {
+            printGroupResults(groupResults.getKey(), groupResults.getValue());
+        }
+    }
+
+    private void printGroupResults(String groupName, Map<String, List<JmxMBeanProcessor.ProcessResult>> groupResults) {
+        System.out.println(groupName);
+        System.out.println(StringUtils.repeat("=", groupName.length()));
+        for (Map.Entry<String, List<JmxMBeanProcessor.ProcessResult>> metricResults : groupResults.entrySet()) {
+            printMetricResults(metricResults.getKey(), metricResults.getValue());
+        }
+    }
+
+    private void printMetricResults(String metricName, List<JmxMBeanProcessor.ProcessResult> metricResults) {
+        System.out.println(metricName);
+        try {
+            if (metricResults.size() == 0) {
+                System.out.println("   NONE");
+                return;
+            }
+
+            ASCIITableHeader[] tableHeaders = columnsToASCIITableHeaders(metricResults.get(0).getColumns());
+            ArrayList<String[]> tableRows = new ArrayList<String[]>();
+            for (JmxMBeanProcessor.ProcessResult result : metricResults) {
+                tableRows.add(resultToTableRow(result));
+            }
+            if (metricResults.get(0).isHasTotalLine()) {
+                tableRows.add(resultsToTotalRow(metricResults));
+            }
+            ASCIITable.printTable(tableHeaders, tableRows);
+        } catch (Exception ex) {
+            System.out.println("  Could not print table:");
+            ex.printStackTrace(System.out);
+        }
+    }
+
+    private String[] resultToTableRow(JmxMBeanProcessor.ProcessResult result) {
+        String[] columns = new String[result.getColumns().size() + 1];
+        for (int i = 0; i < columns.length; i++) {
+            if (i == 0) {
+                columns[i] = result.getSource();
+            } else {
+                columns[i] = result.getColumns().get(i - 1).toString();
             }
         }
-        ASCIITable.printTable(tableHeaders, tableRows);
-        System.out.println();
+        return columns;
     }
 
-    private void printVersions() {
-        System.out.println("Version Info");
-        ASCIITableHeader[] tableHeaders = VersionInfo.getTableHeaders();
-        ArrayList<String[]> tableRows = new ArrayList<String[]>();
-        for (Map.Entry<String, VersionInfo> versionInfo : this.versionInfo.entrySet()) {
-            tableRows.add(versionInfo.getValue().getTableRow(versionInfo.getKey()));
-        }
-        ASCIITable.printTable(tableHeaders, tableRows);
-        System.out.println();
-    }
-
-    private void printData() {
-        for (Map.Entry<String, Map<String, List<MetricData>>> groups : data.entrySet()) {
-            System.out.println(groups.getKey());
-            System.out.println(StringUtils.repeat("=", groups.getKey().length()));
-
-            for (Map.Entry<String, List<MetricData>> metric : groups.getValue().entrySet()) {
-                if (metric.getValue().size() > 0) {
-                    System.out.println(metric.getKey());
-
-                    ASCIITableHeader[] tableHeaders = metric.getValue().get(0).getTableHeaders();
-                    ArrayList<String[]> tableRows = new ArrayList<String[]>();
-                    for (MetricData metricData : metric.getValue()) {
-                        tableRows.add(metricData.getTableRow());
-                    }
-                    tableRows.add(metric.getValue().get(0).getTotalRow(metric.getValue()));
-                    ASCIITable.printTable(tableHeaders, tableRows);
-                    System.out.println();
-                }
+    private String[] resultsToTotalRow(List<JmxMBeanProcessor.ProcessResult> metricResults) {
+        String[] columns = new String[metricResults.get(0).getColumns().size() + 1];
+        for (int i = 0; i < columns.length; i++) {
+            if (i == 0) {
+                columns[i] = "Total (" + metricResults.size() + ")";
+            } else {
+                JmxMBeanProcessor.ProcessResultColumnTotal total = metricResults.get(0).getColumns().get(i - 1).getTotal();
+                columns[i] = total.getTotal(getColumnData(metricResults, i - 1));
             }
         }
+        return columns;
     }
 
-    private Future<JMXConnector> connectAsync(ExecutorService executor, final String ip) {
-        return executor.submit(new Callable<JMXConnector>() {
-            public JMXConnector call() {
+    private List<Object> getColumnData(List<JmxMBeanProcessor.ProcessResult> metricResults, int columnNumber) {
+        List<Object> data = new ArrayList<Object>();
+        for (JmxMBeanProcessor.ProcessResult r : metricResults) {
+            data.add(r.getColumns().get(columnNumber).getValue());
+        }
+        return data;
+    }
+
+    private ASCIITableHeader[] columnsToASCIITableHeaders(List<JmxMBeanProcessor.ProcessResultColumn> columns) {
+        List<ASCIITableHeader> headers = new ArrayList<ASCIITableHeader>();
+        headers.add(new ASCIITableHeader("Source"));
+        for (JmxMBeanProcessor.ProcessResultColumn column : columns) {
+            headers.add(columnsToASCIITableHeader(column));
+        }
+        return headers.toArray(new ASCIITableHeader[0]);
+    }
+
+    private ASCIITableHeader columnsToASCIITableHeader(JmxMBeanProcessor.ProcessResultColumn column) {
+        return new ASCIITableHeader(column.getName(), column.getAlignment());
+    }
+
+    private void connectAsync(ExecutorService executor, final String ip) {
+        executor.execute(new Runnable() {
+            @Override
+            public void run() {
                 try {
-                    return connect(ip);
+                    connect(ip);
                 } catch (Exception ex) {
-                    System.err.println("Failed on ip " + ip + ": " + ex.getMessage());
-                    return null;
+                    System.err.println("Failed on ip " + ip + ":");
+                    ex.printStackTrace(System.err);
                 }
             }
         });
     }
 
     private JMXConnector connect(String ip) throws IOException, InstanceNotFoundException, IntrospectionException, ReflectionException {
+        System.err.println("trying: " + ip);
         JMXServiceURL url = new JMXServiceURL("service:jmx:rmi:///jndi/rmi://" + ip + "/jmxrmi");
         JMXConnector jmxc = JMXConnectorFactory.connect(url, null);
-        Matcher m;
-        System.err.println("trying: " + ip);
         MBeanServerConnection mbeanServerConnection = jmxc.getMBeanServerConnection();
         for (ObjectName mbeanName : mbeanServerConnection.queryNames(null, null)) {
-            if ((m = kafkaLogRegex.matcher(mbeanName.getCanonicalName())).matches()) {
-                String logName = m.group(1);
-
-                synchronized (kafkaLogInfo) {
-                    Map<String, KafkaLogInfo> ipKafkaLogInfo = kafkaLogInfo.get(ip);
-                    if (ipKafkaLogInfo == null) {
-                        ipKafkaLogInfo = new HashMap<String, KafkaLogInfo>();
-                        kafkaLogInfo.put(ip, ipKafkaLogInfo);
-                    }
-
-                    Attributes attributes = new Attributes(mbeanServerConnection, mbeanName);
-                    ipKafkaLogInfo.put(logName, new KafkaLogInfo(ip, logName, attributes));
-                }
-            } else if (mbeanName.getCanonicalName().equals(VersionService.JMX_NAME)) {
+            for (JmxMBeanProcessor jmxMBeanProcessor : jmxMBeanProcessors) {
                 try {
-                    Attributes attributes = new Attributes(mbeanServerConnection, mbeanName);
-
-                    versionInfo.put(ip, new VersionInfo(attributes));
+                    JmxMBeanProcessor.ProcessResult result = jmxMBeanProcessor.process(mbeanServerConnection, ip, mbeanName);
+                    if (result != null) {
+                        synchronized (results) {
+                            Map<String, List<JmxMBeanProcessor.ProcessResult>> groupResults = results.get(result.getGroup());
+                            if (groupResults == null) {
+                                groupResults = new HashMap<String, List<JmxMBeanProcessor.ProcessResult>>();
+                                results.put(result.getGroup(), groupResults);
+                            }
+                            List<JmxMBeanProcessor.ProcessResult> namedResults = groupResults.get(result.getName());
+                            if (namedResults == null) {
+                                namedResults = new ArrayList<JmxMBeanProcessor.ProcessResult>();
+                                groupResults.put(result.getName(), namedResults);
+                            }
+                            namedResults.add(result);
+                        }
+                    }
                 } catch (Exception ex) {
-                    System.err.println("Could not get version info: " + ex.getMessage());
+                    System.err.println("Could not process mbean: " + mbeanName);
+                    ex.printStackTrace(System.err);
                 }
-            } else if ((m = metricRegex.matcher(mbeanName.getCanonicalName())).matches()) {
-                String group = m.group(1);
-                String uniqueId = m.group(2);
-                String metricName = m.group(3);
-
-                if (uniqueId.contains("-")) {
-                    String[] uniqueIdParts = uniqueId.split("-");
-                    group = group + "-" + uniqueIdParts[0];
-                    uniqueId = uniqueIdParts[1];
-                }
-
-                List<MetricData> metricDatas;
-                synchronized (data) {
-                    Map<String, List<MetricData>> groupData = data.get(group);
-                    if (groupData == null) {
-                        groupData = new HashMap<String, List<MetricData>>();
-                        data.put(group, groupData);
-                    }
-
-                    metricDatas = groupData.get(metricName);
-                    if (metricDatas == null) {
-                        metricDatas = new ArrayList<MetricData>();
-                        groupData.put(metricName, metricDatas);
-                    }
-                }
-
-                Attributes attributes = new Attributes(mbeanServerConnection, mbeanName);
-                ArrayList<String> attributeNames = attributes.getAttributeNames();
-
-                if (attributeNames.size() == 1 && attributeNames.get(0).equals("Count")) {
-                    metricDatas.add(new CounterMetricData(ip, group, metricName, uniqueId, attributes));
-                } else if (attributeNames.contains("Min") && attributeNames.contains("Max") && attributeNames.contains("MeanRate")) {
-                    metricDatas.add(new TimerMetricData(ip, group, metricName, uniqueId, attributes));
-                } else {
-                    System.err.println("Unknown metric data: " + group + ", " + metricName);
-                }
-            } else {
-                //System.err.println("Unknown mbean: " + mbeanName);
             }
         }
         return jmxc;
-    }
-
-    private static class VersionInfo {
-        private Date unixBuildTime;
-        private String scmBuildNumber;
-        private String version;
-
-        public VersionInfo(Attributes attributes) {
-            for (Object attributeObject : attributes.getAttributes()) {
-                Attribute attribute = (Attribute) attributeObject;
-                if ("Version".equals(attribute.getName())) {
-                    this.version = (String) attribute.getValue();
-                } else if ("UnixBuildTime".equals(attribute.getName())) {
-                    this.unixBuildTime = new Date((Long) attribute.getValue());
-                } else if ("ScmBuildNumber".equals(attribute.getName())) {
-                    this.scmBuildNumber = (String) attribute.getValue();
-                } else {
-                    System.err.println("Unknown attribute for VersionInfo: " + attribute.getName());
-                }
-            }
-        }
-
-        public static ASCIITableHeader[] getTableHeaders() {
-            return new ASCIITableHeader[]{
-                    new ASCIITableHeader("IP"),
-                    new ASCIITableHeader("Unix Build Time"),
-                    new ASCIITableHeader("Version"),
-                    new ASCIITableHeader("SCM Build Number")
-            };
-        }
-
-        public String[] getTableRow(String ip) {
-            return new String[]{
-                    ip,
-                    unixBuildTime.toString(),
-                    version,
-                    scmBuildNumber
-            };
-        }
-    }
-
-    private abstract static class MetricData {
-        protected final String ip;
-        protected final String group;
-        protected final String metricName;
-        protected final String uniqueId;
-
-        public MetricData(String ip, String group, String metricName, String uniqueId) {
-            this.ip = ip;
-            this.group = group;
-            this.metricName = metricName;
-            this.uniqueId = uniqueId;
-        }
-
-        public abstract ASCIITableHeader[] getTableHeaders();
-
-        public abstract String[] getTableRow();
-
-        public abstract String[] getTotalRow(List<MetricData> metricDatas);
-    }
-
-    private static class CounterMetricData extends MetricData {
-        private final long count;
-
-        public CounterMetricData(String ip, String group, String metricName, String uniqueId, Attributes attributes) {
-            super(ip, group, metricName, uniqueId);
-            Attribute attribute = (Attribute) attributes.getAttributes().get(0);
-            this.count = (Long) attribute.getValue();
-        }
-
-        @Override
-        public String toString() {
-            return this.ip + "(" + uniqueId + "): Counter: " + this.count;
-        }
-
-        @Override
-        public ASCIITableHeader[] getTableHeaders() {
-            return new ASCIITableHeader[]{
-                    new ASCIITableHeader("IP"),
-                    new ASCIITableHeader("ID"),
-                    new ASCIITableHeader("Count")
-            };
-        }
-
-        @Override
-        public String[] getTableRow() {
-            return new String[]{
-                    ip,
-                    uniqueId,
-                    Long.toString(count)
-            };
-        }
-
-        @Override
-        public String[] getTotalRow(List<MetricData> metricDatas) {
-            long totalCount = 0;
-            for (MetricData genericMetricData : metricDatas) {
-                CounterMetricData metricData = (CounterMetricData) genericMetricData;
-                totalCount += metricData.count;
-            }
-
-            return new String[]{
-                    "Total",
-                    "",
-                    Long.toString(totalCount)
-            };
-        }
-    }
-
-    private static class TimerMetricData extends MetricData {
-        private double max;
-        private double min;
-        private double mean;
-        private double stdDev;
-        private String durationUnit;
-        private long count;
-        private double oneMinuteRate;
-        private double fiveMinuteRate;
-        private double fifteenMinuteRate;
-        private double meanRate;
-        private String rateUnit;
-        private double percentile50th;
-        private double percentile75th;
-        private double percentile95th;
-        private double percentile98th;
-        private double percentile99th;
-        private double percentile999th;
-
-        public TimerMetricData(String ip, String group, String metricName, String uniqueId, Attributes attributes) {
-            super(ip, group, metricName, uniqueId);
-            for (Object attributeObj : attributes.getAttributes()) {
-                Attribute attribute = (Attribute) attributeObj;
-                if ("Max".equalsIgnoreCase(attribute.getName())) {
-                    max = (Double) attribute.getValue();
-                } else if ("Min".equalsIgnoreCase(attribute.getName())) {
-                    min = (Double) attribute.getValue();
-                } else if ("Mean".equalsIgnoreCase(attribute.getName())) {
-                    mean = (Double) attribute.getValue();
-                } else if ("StdDev".equalsIgnoreCase(attribute.getName())) {
-                    stdDev = (Double) attribute.getValue();
-                } else if ("durationUnit".equalsIgnoreCase(attribute.getName())) {
-                    durationUnit = toTimeUnit((String) attribute.getValue());
-                } else if ("count".equalsIgnoreCase(attribute.getName())) {
-                    count = (Long) attribute.getValue();
-                } else if ("fifteenMinuteRate".equalsIgnoreCase(attribute.getName())) {
-                    fifteenMinuteRate = (Double) attribute.getValue();
-                } else if ("fiveMinuteRate".equalsIgnoreCase(attribute.getName())) {
-                    fiveMinuteRate = (Double) attribute.getValue();
-                } else if ("meanRate".equalsIgnoreCase(attribute.getName())) {
-                    meanRate = (Double) attribute.getValue();
-                } else if ("oneMinuteRate".equalsIgnoreCase(attribute.getName())) {
-                    oneMinuteRate = (Double) attribute.getValue();
-                } else if ("rateUnit".equalsIgnoreCase(attribute.getName())) {
-                    rateUnit = toTimeUnit((String) attribute.getValue());
-                } else if ("50thpercentile".equalsIgnoreCase(attribute.getName())) {
-                    percentile50th = (Double) attribute.getValue();
-                } else if ("75thpercentile".equalsIgnoreCase(attribute.getName())) {
-                    percentile75th = (Double) attribute.getValue();
-                } else if ("95thpercentile".equalsIgnoreCase(attribute.getName())) {
-                    percentile95th = (Double) attribute.getValue();
-                } else if ("98thpercentile".equalsIgnoreCase(attribute.getName())) {
-                    percentile98th = (Double) attribute.getValue();
-                } else if ("99thpercentile".equalsIgnoreCase(attribute.getName())) {
-                    percentile99th = (Double) attribute.getValue();
-                } else if ("999thpercentile".equalsIgnoreCase(attribute.getName())) {
-                    percentile999th = (Double) attribute.getValue();
-                } else {
-                    System.err.println("Unknown attribute for timer: " + attribute.getName());
-                }
-            }
-        }
-
-        private String toTimeUnit(String units) {
-            if ("milliseconds".equals(units)) {
-                return "ms";
-            }
-            if ("events/second".equals(units)) {
-                return "/s";
-            }
-            return " " + units;
-        }
-
-        @Override
-        public String toString() {
-            return this.ip + "(" + uniqueId + "): Timer: " + this.meanRate;
-        }
-
-        @Override
-        public ASCIITableHeader[] getTableHeaders() {
-            return new ASCIITableHeader[]{
-                    new ASCIITableHeader("IP"),
-                    new ASCIITableHeader("ID"),
-                    new ASCIITableHeader("Count"),
-                    new ASCIITableHeader("Max"),
-                    new ASCIITableHeader("Min"),
-                    new ASCIITableHeader("Mean"),
-                    new ASCIITableHeader("Mean Rate"),
-                    new ASCIITableHeader("1min Rate"),
-                    new ASCIITableHeader("5min Rate"),
-                    new ASCIITableHeader("15min Rate"),
-            };
-        }
-
-        @Override
-        public String[] getTableRow() {
-            return new String[]{
-                    ip,
-                    uniqueId,
-                    Long.toString(count),
-                    String.format("%.1f%s", max, durationUnit),
-                    String.format("%.1f%s", min, durationUnit),
-                    String.format("%.1f%s", mean, durationUnit),
-                    String.format("%.3f%s", meanRate, rateUnit),
-                    String.format("%.3f%s", oneMinuteRate, rateUnit),
-                    String.format("%.3f%s", fiveMinuteRate, rateUnit),
-                    String.format("%.3f%s", fifteenMinuteRate, rateUnit)
-            };
-        }
-
-        @Override
-        public String[] getTotalRow(List<MetricData> metricDatas) {
-            long totalCount = 0;
-            double max = 0;
-            double min = Double.MAX_VALUE;
-            double meanTotal = 0;
-            double meanRateTotal = 0;
-            double oneMinuteRateTotal = 0;
-            double fiveMinuteRateTotal = 0;
-            double fifteenMinuteRateTotal = 0;
-
-            for (MetricData genericMetricData : metricDatas) {
-                TimerMetricData metricData = (TimerMetricData) genericMetricData;
-                totalCount += metricData.count;
-                max = Math.max(max, metricData.max);
-                min = Math.min(min, metricData.min);
-                meanTotal += metricData.mean;
-                meanRateTotal += metricData.meanRate;
-                oneMinuteRateTotal += metricData.oneMinuteRate;
-                fiveMinuteRateTotal += metricData.fiveMinuteRate;
-                fifteenMinuteRateTotal += metricData.fifteenMinuteRate;
-            }
-            double mean = meanTotal / metricDatas.size();
-
-            return new String[]{
-                    "Total",
-                    "",
-                    Long.toString(totalCount),
-                    String.format("%.1f%s", max, durationUnit),
-                    String.format("%.1f%s", min, durationUnit),
-                    String.format("%.1f%s", mean, durationUnit),
-                    String.format("%.3f%s", meanRateTotal, rateUnit),
-                    String.format("%.3f%s", oneMinuteRateTotal, rateUnit),
-                    String.format("%.3f%s", fiveMinuteRateTotal, rateUnit),
-                    String.format("%.3f%s", fifteenMinuteRateTotal, rateUnit)
-            };
-        }
-    }
-
-    private class Attributes {
-        private ArrayList<String> attributeNames;
-        private AttributeList attributes;
-
-        public Attributes(MBeanServerConnection mbeanServerConnection, ObjectName mbeanName) throws IntrospectionException, ReflectionException, InstanceNotFoundException, IOException {
-            MBeanInfo info = mbeanServerConnection.getMBeanInfo(mbeanName);
-            attributeNames = new ArrayList<String>();
-            for (MBeanAttributeInfo attr : info.getAttributes()) {
-                attributeNames.add(attr.getName());
-            }
-            attributes = mbeanServerConnection.getAttributes(mbeanName, attributeNames.toArray(new String[0]));
-        }
-
-        public ArrayList<String> getAttributeNames() {
-            return attributeNames;
-        }
-
-        public AttributeList getAttributes() {
-            return attributes;
-        }
-    }
-
-    private static class KafkaLogInfo {
-        private final String ip;
-        private final String logName;
-        private Long currentOffset;
-        private Long size;
-
-        public KafkaLogInfo(String ip, String logName, Attributes attributes) {
-            this.ip = ip;
-            this.logName = logName;
-            for (Object attributeObject : attributes.getAttributes()) {
-                Attribute attribute = (Attribute) attributeObject;
-                if ("CurrentOffset".equals(attribute.getName())) {
-                    this.currentOffset = (Long) attribute.getValue();
-                } else if ("Size".equals(attribute.getName())) {
-                    this.size = (Long) attribute.getValue();
-                } else if ("Name".equals(attribute.getName())) {
-                } else if ("NumberOfSegments".equals(attribute.getName())) {
-                } else if ("NumAppendedMessages".equals(attribute.getName())) {
-                } else {
-                    System.err.println("Unknown attribute for kafka log: " + attribute.getName());
-                }
-            }
-        }
-
-        public static ASCIITableHeader[] getTableHeaders() {
-            return new ASCIITableHeader[]{
-                    new ASCIITableHeader("IP"),
-                    new ASCIITableHeader("Log Name", ASCIITable.ALIGN_LEFT),
-                    new ASCIITableHeader("Current Offset"),
-                    new ASCIITableHeader("Size"),
-                    new ASCIITableHeader("Delta"),
-            };
-        }
-
-        public String[] getTableRow() {
-            double percentComplete = (double) currentOffset / (double) size;
-            return new String[]{
-                    ip,
-                    logName,
-                    Long.toString(currentOffset),
-                    Long.toString(size),
-                    String.format("%d (%.2f%%)", size - currentOffset, percentComplete * 100.0)
-            };
-        }
     }
 }

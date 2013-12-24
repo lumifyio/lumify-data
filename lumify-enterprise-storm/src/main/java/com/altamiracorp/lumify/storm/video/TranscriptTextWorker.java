@@ -28,9 +28,9 @@ public class TranscriptTextWorker
         VideoTranscript videoTranscript = new VideoTranscript();
         if (data.getArchiveTempDir() != null) {
             videoTranscript = readingTranscript(data);
+            info.setTitle(FilenameUtils.getName(data.getFileName()).split(".lumify")[0]);
         }
         info.setVideoTranscript(videoTranscript);
-        info.setTitle(FilenameUtils.getName(data.getFileName()).split(".lumify")[0]);
         LOGGER.debug("Finished [TranscriptTextWorker]: " + data.getFileName());
         return info;
     }
