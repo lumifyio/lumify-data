@@ -64,18 +64,15 @@ public class JmxClient extends CommandLineBase {
         }
         executor.shutdown();
 
-        long deadLine = System.currentTimeMillis() + 30000;
-        while (!executor.isTerminated() && System.currentTimeMillis() < deadLine) {
-
+        long deadline = System.currentTimeMillis() + 30000;
+        while (!executor.isTerminated() && System.currentTimeMillis() < deadline) {
+            Thread.sleep(100);
         }
 
         System.out.println();
         System.out.println();
         System.out.println();
         printResults();
-//        printData();
-//        printVersions();
-//        printKafkaInfo();
 
         System.out.println("DONE");
         return 0;

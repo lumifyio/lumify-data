@@ -1,5 +1,7 @@
 package com.altamiracorp.lumify.tools.jmxclient;
 
+import com.altamiracorp.lumify.tools.util.TimePeriod;
+
 import javax.management.MBeanServerConnection;
 import javax.management.ObjectName;
 import java.util.ArrayList;
@@ -24,9 +26,7 @@ public class JvmJmxMBeanProcessor extends JmxMBeanProcessor {
 
     private List<ProcessResultColumn> runtimeToColumns(Map<String, Object> attributes) {
         List<ProcessResultColumn> columns = new ArrayList<ProcessResultColumn>();
-        Long uptime = (Long) attributes.get("Uptime");
-        double uptimeSec = uptime.doubleValue() / 1000.0 / 60;
-        columns.add(new ProcessResultColumn("Uptime (min)", uptimeSec, ProcessResultColumnTotal.None));
+        columns.add(new ProcessResultColumn("Uptime (min)", new TimePeriod((Long) attributes.get("Uptime")), ProcessResultColumnTotal.None));
         columns.add(new ProcessResultColumn("Start Time", new Date((Long) attributes.get("StartTime")), ProcessResultColumnTotal.None));
         return columns;
     }
