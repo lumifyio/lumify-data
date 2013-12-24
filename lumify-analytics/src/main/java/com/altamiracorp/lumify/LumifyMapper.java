@@ -1,22 +1,22 @@
 package com.altamiracorp.lumify;
 
-import static com.google.common.base.Preconditions.checkNotNull;
-
-import java.io.IOException;
-
 import com.altamiracorp.bigtable.model.ModelSession;
 import com.altamiracorp.lumify.core.FrameworkUtils;
+import com.altamiracorp.lumify.core.InjectHelper;
+import com.altamiracorp.lumify.core.model.GraphSession;
+import com.altamiracorp.lumify.core.model.search.SearchProvider;
+import com.altamiracorp.lumify.core.user.SystemUser;
+import com.altamiracorp.lumify.core.user.User;
+import com.google.inject.Inject;
+import com.google.inject.Injector;
+import com.google.inject.Module;
 import org.apache.hadoop.mapreduce.Mapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.altamiracorp.lumify.core.user.SystemUser;
-import com.altamiracorp.lumify.core.user.User;
-import com.altamiracorp.lumify.core.model.GraphSession;
-import com.altamiracorp.lumify.core.model.search.SearchProvider;
-import com.google.inject.Guice;
-import com.google.inject.Inject;
-import com.google.inject.Injector;
+import java.io.IOException;
+
+import static com.google.common.base.Preconditions.checkNotNull;
 
 public abstract class LumifyMapper<KEYIN, VALUEIN, KEYOUT, VALUEOUT> extends Mapper<KEYIN, VALUEIN, KEYOUT, VALUEOUT> {
     private static final Logger LOGGER = LoggerFactory.getLogger(LumifyMapper.class);
@@ -28,18 +28,22 @@ public abstract class LumifyMapper<KEYIN, VALUEIN, KEYOUT, VALUEOUT> extends Map
     private SearchProvider searchProvider;
 
     @Override
-    protected final void setup(Context context) throws IOException, InterruptedException {
+    protected final void setup(final Context context) throws IOException, InterruptedException {
         super.setup(context);
         user = new SystemUser();
         failOnFirstError = context.getConfiguration().getBoolean(ConfigurableMapJobBase.FAIL_FIRST_ERROR, false);
 
-        final Injector injector = Guice.createInjector(MapperBootstrap.create(context));
-        injector.injectMembers(this);
+        InjectHelper.inject(this, new InjectHelper.ModuleMaker() {
+            @Override
+            public Module createModule() {
+                return MapperBootstrap.create(context);
+            }
+        });
 
-        FrameworkUtils.initializeFramework(injector, user);
+        FrameworkUtils.initializeFramework(InjectHelper.getInjector(), user);
 
         try {
-            setup(context, injector);
+            setup(context, InjectHelper.getInjector());
         } catch (Exception ex) {
             throw new IOException("Could not setup", ex);
         }
