@@ -114,6 +114,7 @@ public abstract class JmxMBeanProcessor {
 
     public static abstract class ProcessResultColumnTotal {
         public static final ProcessResultColumnTotalNone None = new ProcessResultColumnTotalNone();
+        public static final ProcessResultColumnTotalFirst First = new ProcessResultColumnTotalFirst();
         public static final ProcessResultColumnTotalSum Sum = new ProcessResultColumnTotalSum();
         public static final ProcessResultColumnTotalMax Max = new ProcessResultColumnTotalMax();
         public static final ProcessResultColumnTotalMin Min = new ProcessResultColumnTotalMin();
@@ -126,6 +127,13 @@ public abstract class JmxMBeanProcessor {
         @Override
         public String getTotal(List<Object> columnData) {
             return "";
+        }
+    }
+
+    public static class ProcessResultColumnTotalFirst extends ProcessResultColumnTotal {
+        @Override
+        public String getTotal(List<Object> columnData) {
+            return String.valueOf(columnData.get(0));
         }
     }
 
