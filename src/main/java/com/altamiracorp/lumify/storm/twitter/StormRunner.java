@@ -149,16 +149,16 @@ public class StormRunner extends StormRunnerBase {
     }
 
     @Override
-    public StormTopology createTopology() {
+    public StormTopology createTopology(int parallelismHint) {
         TopologyBuilder builder = new TopologyBuilder();
-        BoltDeclarer tweetBolt = builder.setBolt(TWEET_PROC_BOLT_NAME, new TwitterStreamingBolt(), 3);
+        BoltDeclarer tweetBolt = builder.setBolt(TWEET_PROC_BOLT_NAME, new TwitterStreamingBolt(), parallelismHint);
         if (startQuerySpout) {
             builder.setSpout(QUERY_SPOUT_NAME, new TwitterStreamSpout(), 1);
             tweetBolt.shuffleGrouping(QUERY_SPOUT_NAME);
         }
         if (startFileSpout) {
             builder.setSpout(FILE_SPOUT_NAME, new HdfsFileSystemSpout(hdfsTweetSubdir), 1);
-            builder.setBolt(FILE_PROC_BOLT_NAME, new TwitterFileProcessingBolt(), 1)
+            builder.setBolt(FILE_PROC_BOLT_NAME, new TwitterFileProcessingBolt(), parallelismHint)
                     .shuffleGrouping(FILE_SPOUT_NAME);
             tweetBolt.shuffleGrouping(FILE_PROC_BOLT_NAME);
         }
