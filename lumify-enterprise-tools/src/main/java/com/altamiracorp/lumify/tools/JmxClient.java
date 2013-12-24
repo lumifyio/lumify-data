@@ -131,7 +131,7 @@ public class JmxClient extends CommandLineBase {
         String[] columns = new String[metricResults.get(0).getColumns().size() + 1];
         for (int i = 0; i < columns.length; i++) {
             if (i == 0) {
-                columns[i] = "Total";
+                columns[i] = "Total (" + metricResults.size() + ")";
             } else {
                 JmxMBeanProcessor.ProcessResultColumnTotal total = metricResults.get(0).getColumns().get(i - 1).getTotal();
                 columns[i] = total.getTotal(getColumnData(metricResults, i - 1));
