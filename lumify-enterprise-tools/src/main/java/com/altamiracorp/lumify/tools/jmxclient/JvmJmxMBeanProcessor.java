@@ -26,7 +26,7 @@ public class JvmJmxMBeanProcessor extends JmxMBeanProcessor {
 
     private List<ProcessResultColumn> runtimeToColumns(Map<String, Object> attributes) {
         List<ProcessResultColumn> columns = new ArrayList<ProcessResultColumn>();
-        columns.add(new ProcessResultColumn("Uptime (min)", new TimePeriod((Long) attributes.get("Uptime")), ProcessResultColumnTotal.None));
+        columns.add(new ProcessResultColumn("Uptime", new TimePeriod((Long) attributes.get("Uptime")), ProcessResultColumnTotal.None));
         columns.add(new ProcessResultColumn("Start Time", new Date((Long) attributes.get("StartTime")), ProcessResultColumnTotal.None));
         return columns;
     }
