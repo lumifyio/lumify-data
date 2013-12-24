@@ -1,5 +1,7 @@
 package com.altamiracorp.lumify.tools.jmxclient;
 
+import org.apache.commons.lang.StringUtils;
+
 import javax.management.*;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -35,7 +37,7 @@ public class LumifyMetricsJmxMBeanProcessor extends JmxMBeanProcessor {
         } else if (attributes.containsKey("Min") && attributes.containsKey("Max") && attributes.containsKey("MeanRate")) {
             return new ProcessResult(group, metricName, source, getColumnsForTimer(uniqueId, attributes), true);
         } else {
-            throw new RuntimeException("Unknown metric data: " + group + ", " + metricName);
+            throw new RuntimeException("Unknown metric data: [group: " + group + ", metricName: " + metricName + "]: " + StringUtils.join(attributes.keySet(), ","));
         }
     }
 
