@@ -56,10 +56,12 @@ public class LumifyMetricsJmxMBeanProcessor extends JmxMBeanProcessor {
         columns.add(new ProcessResultColumn("Max", attributes.get("Max"), ProcessResultColumnTotal.Max));
         columns.add(new ProcessResultColumn("Min", attributes.get("Min"), ProcessResultColumnTotal.Min));
         columns.add(new ProcessResultColumn("Mean", attributes.get("Mean"), ProcessResultColumnTotal.Average));
+        columns.add(new ProcessResultColumn("Duration Units", attributes.get("DurationUnit"), ProcessResultColumnTotal.None));
         columns.add(new ProcessResultColumn("Mean Rate", attributes.get("MeanRate"), ProcessResultColumnTotal.Sum));
         columns.add(new ProcessResultColumn("1min Rate", attributes.get("OneMinuteRate"), ProcessResultColumnTotal.Sum));
         columns.add(new ProcessResultColumn("5min Rate", attributes.get("FiveMinuteRate"), ProcessResultColumnTotal.Sum));
         columns.add(new ProcessResultColumn("15min Rate", attributes.get("FifteenMinuteRate"), ProcessResultColumnTotal.Sum));
+        columns.add(new ProcessResultColumn("Rate Units", attributes.get("RateUnit"), ProcessResultColumnTotal.None));
         return columns;
     }
 }
