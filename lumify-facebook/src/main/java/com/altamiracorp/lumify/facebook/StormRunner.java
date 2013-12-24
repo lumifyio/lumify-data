@@ -20,16 +20,16 @@ public class StormRunner extends StormRunnerBase {
         return TOPOLOGY_NAME;
     }
 
-    public StormTopology createTopology() {
+    public StormTopology createTopology(int parallelismHint) {
         TopologyBuilder builder = new TopologyBuilder();
-        createFacebookTopology(builder);
+        createFacebookTopology(builder, parallelismHint);
         return builder.createTopology();
     }
 
-    private void createFacebookTopology(TopologyBuilder builder) {
+    private void createFacebookTopology(TopologyBuilder builder, int parallelismHint) {
         String spoutName = "facebookSpout";
         builder.setSpout(spoutName, new FacebookSpout(), 1);
-        builder.setBolt(spoutName + "-bolt", new FacebookBolt(), 1)
+        builder.setBolt(spoutName + "-bolt", new FacebookBolt(), parallelismHint)
                 .shuffleGrouping(spoutName);
     }
 }
