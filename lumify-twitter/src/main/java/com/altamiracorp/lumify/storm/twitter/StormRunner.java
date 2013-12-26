@@ -37,6 +37,11 @@ public class StormRunner extends StormRunnerBase {
      */
     private static final String TWEET_PROC_BOLT_NAME = "tweetProcBolt";
 
+    private static final String MENTION_BOLT_NAME = "tweetMentionBolt";
+    private static final String HASHTAG_BOLT_NAME = "tweetHashtagBolt";
+    private static final String URL_BOLT_NAME = "tweetUrlBolt";
+    private static final String PROFILE_PHOTO_BOLT_NAME = "tweetProfilePhotoBolt";
+    
     /**
      * The default HDFS root data directory: "/lumify/data"
      */
@@ -152,6 +157,15 @@ public class StormRunner extends StormRunnerBase {
     public StormTopology createTopology(int parallelismHint) {
         TopologyBuilder builder = new TopologyBuilder();
         BoltDeclarer tweetBolt = builder.setBolt(TWEET_PROC_BOLT_NAME, new TwitterStreamingBolt(), parallelismHint);
+        builder.setBolt(MENTION_BOLT_NAME, new TwitterMentionEntityCreationBolt(), parallelismHint)
+                .shuffleGrouping(TWEET_PROC_BOLT_NAME);
+        builder.setBolt(HASHTAG_BOLT_NAME, new TwitterHashtagEntityCreationBolt(), parallelismHint)
+                .shuffleGrouping(TWEET_PROC_BOLT_NAME);
+        builder.setBolt(URL_BOLT_NAME, new TwitterUrlEntityCreationBolt(), parallelismHint)
+                .shuffleGrouping(TWEET_PROC_BOLT_NAME);
+        builder.setBolt(PROFILE_PHOTO_BOLT_NAME, new TwitterProfilePhotoBolt(), parallelismHint)
+                .shuffleGrouping(PROFILE_PHOTO_BOLT_NAME);
+        
         if (startQuerySpout) {
             builder.setSpout(QUERY_SPOUT_NAME, new TwitterStreamSpout(), 1);
             tweetBolt.shuffleGrouping(QUERY_SPOUT_NAME);
