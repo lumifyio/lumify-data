@@ -20,6 +20,9 @@
             <useProjectArtifact>true</useProjectArtifact>
             <unpack>true</unpack>
             <scope>runtime</scope>
+            <excludes>
+                <exclude>com.altamiracorp.jmxui:jmx-ui</exclude>
+            </excludes>
         </dependencySet>
     </dependencySets>
 </assembly>
