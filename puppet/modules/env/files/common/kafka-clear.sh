@@ -64,7 +64,7 @@ function create_topics {
 function delete_topics {
   echo "
 rmr /kafka/brokers/topics
-rmr /kafka/brokers/consumers
+rmr /kafka/consumers
   " | sudo -u zookeeper /usr/lib/zookeeper/bin/zkCli.sh -server ${ZOOKEEPER} &> /tmp/delete_topic.log
 }
 
