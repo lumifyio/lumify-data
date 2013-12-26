@@ -55,6 +55,7 @@ function create_topics {
   create_topic text
   create_topic term
   create_topic artifactHighlight
+  create_topic userArtifactHighlight
   create_topic searchIndex
   create_topic processedVideo
   create_topic structuredData
@@ -64,7 +65,7 @@ function create_topics {
 function delete_topics {
   echo "
 rmr /kafka/brokers/topics
-rmr /kafka/brokers/consumers
+rmr /kafka/consumers
   " | sudo -u zookeeper /usr/lib/zookeeper/bin/zkCli.sh -server ${ZOOKEEPER} &> /tmp/delete_topic.log
 }
 
