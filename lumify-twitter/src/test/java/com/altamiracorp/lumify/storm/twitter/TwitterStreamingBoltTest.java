@@ -147,5 +147,8 @@ public class TwitterStreamingBoltTest {
         verify(artifactRepository, times(2)).save(any(Artifact.class), any(ModelUserContext.class));
         verify(graphRepository, times(6)).save(any(GraphVertex.class), any(User.class));
         verify(graphRepository, times(3)).saveRelationship(anyString(), anyString(), anyString(), any(User.class));
+        verify(auditRepository, times(1)).auditEntity(anyString(), anyString(), anyString(), anyString(), anyString(), any(User.class));
+        verify(auditRepository, times(4)).auditRelationships(anyString(), any(GraphVertex.class), any(GraphVertex.class), anyString(), anyString(), anyString(), any(User.class));
+        verify(auditRepository, times(17)).auditEntityProperties(anyString(), any(GraphVertex.class), anyString(), anyString(), anyString(), any(User.class));
     }
 }
