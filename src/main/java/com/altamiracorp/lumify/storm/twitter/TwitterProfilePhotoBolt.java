@@ -1,0 +1,149 @@
+/*
+ * Copyright 2013 Altamira Corporation.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+package com.altamiracorp.lumify.storm.twitter;
+
+import static com.altamiracorp.lumify.core.model.ontology.PropertyName.*;
+import static com.altamiracorp.lumify.storm.twitter.TwitterConstants.*;
+
+import backtype.storm.tuple.Tuple;
+import com.altamiracorp.lumify.core.ingest.ArtifactExtractedInfo;
+import com.altamiracorp.lumify.core.model.artifact.Artifact;
+import com.altamiracorp.lumify.core.model.artifact.ArtifactRowKey;
+import com.altamiracorp.lumify.core.model.artifact.ArtifactType;
+import com.altamiracorp.lumify.core.model.graph.GraphVertex;
+import com.altamiracorp.lumify.core.model.ontology.LabelName;
+import com.altamiracorp.lumify.core.user.User;
+import com.altamiracorp.lumify.storm.BaseLumifyBolt;
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.net.URL;
+import java.util.Arrays;
+import java.util.List;
+import org.apache.commons.io.IOUtils;
+import org.apache.hadoop.fs.FSDataOutputStream;
+import org.apache.hadoop.fs.Path;
+import org.json.JSONObject;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+/**
+ * This bolt attempts to retrieve a processed Twitter user's profile
+ * photo.
+ */
+public class TwitterProfilePhotoBolt extends BaseLumifyBolt {
+    /**
+     * The class logger.
+     */
+    private static final Logger LOGGER = LoggerFactory.getLogger(TwitterProfilePhotoBolt.class);
+    
+    /**
+     * The twitter user profile image URL property.
+     */
+    private static final String PROFILE_IMAGE_URL_PROPERTY = "profile_image_url";
+    
+    /**
+     * The profile image MIME type.
+     */
+    private static final String PROFILE_IMAGE_MIME_TYPE = "image/png";
+    
+    /**
+     * The image artifact title format string.
+     */
+    private static final String IMAGE_ARTIFACT_TITLE_FMT = "%s Twitter Profile Picture";
+    
+    /**
+     * The image artifact source.
+     */
+    private static final String IMAGE_ARTIFACT_SOURCE = "Twitter profile picture";
+    
+    /**
+     * The format string for the HDFS path for the raw artifact.
+     */
+    private static final String HDFS_PATH_FMT = "/lumify/artifacts/raw/%s";
+    
+    /**
+     * The glyph icon property value format.
+     */
+    private static final String GLYPH_ICON_FMT = "/artifact/%s/raw";
+    
+    @Override
+    protected void safeExecute(Tuple input) throws Exception {
+        String tweeterId = input.getStringByField(TWITTER_USER_VERTEX_ID_FIELD);
+        try {
+            JSONObject tweeter = (JSONObject) input.getValueByField(TWITTER_USER_JSON_FIELD);
+            // only execute if we have a PROFILE_IMAGE_URL
+            if (tweeter.has(PROFILE_IMAGE_URL_PROPERTY)) {
+                User user = getUser();
+                String tweetId = input.getStringByField(TWEET_VERTEX_ID_FIELD);
+                String tweetText = input.getStringByField(TWEET_TEXT_FIELD);
+                GraphVertex tweeterVertex = graphRepository.findVertex(tweeterId, user);
+                
+                URL url = new URL(tweeter.get(PROFILE_IMAGE_URL_PROPERTY).toString());
+                InputStream imgIn = url.openStream();
+                ByteArrayOutputStream imgOut = new ByteArrayOutputStream();
+                IOUtils.copy(imgIn, imgOut);
+                
+                byte[] rawImg = imgOut.toByteArray();
+                String rowKey = ArtifactRowKey.build(rawImg).toString();
+                
+                ArtifactExtractedInfo artifactInfo = new ArtifactExtractedInfo();
+                artifactInfo.setMimeType(PROFILE_IMAGE_MIME_TYPE);
+                artifactInfo.setRowKey(rowKey);
+                artifactInfo.setArtifactType(ArtifactType.IMAGE.toString());
+                artifactInfo.setTitle(String.format(IMAGE_ARTIFACT_TITLE_FMT, tweeter.getString(SCREEN_NAME_PROPERTY)));
+                artifactInfo.setSource(IMAGE_ARTIFACT_SOURCE);
+                if (rawImg.length > Artifact.MAX_SIZE_OF_INLINE_FILE) {
+                    FSDataOutputStream hdfsOut = getHdfsFileSystem().create(new Path(String.format(HDFS_PATH_FMT, rowKey)));
+                    try {
+                        hdfsOut.write(rawImg);
+                    } finally {
+                        hdfsOut.close();
+                    }
+                } else {
+                    artifactInfo.setRaw(rawImg);
+                }
+                
+                GraphVertex imageVertex = saveArtifact(artifactInfo);
+                String imageId = imageVertex.getId();
+                LOGGER.debug(String.format("Saving tweeter profile picture to accumulo and as graph vertex: %s", imageId));
+                
+                tweeterVertex.setProperty(GLYPH_ICON.toString(), String.format(GLYPH_ICON_FMT, rowKey));
+                graphRepository.save(tweeterVertex, user);
+                List<String> modifiedProps = Arrays.asList(GLYPH_ICON.toString());
+                auditRepository.audit(tweeterId, auditRepository.vertexPropertyAuditMessages(tweeterVertex, modifiedProps), user);
+                
+                String labelDisplay = ontologyRepository.getDisplayNameForLabel(LabelName.HAS_IMAGE.toString(), user);
+                graphRepository.findOrAddRelationship(tweeterId, imageId, LabelName.HAS_IMAGE, user);
+                Object srcTitle = tweeterVertex.getProperty(TITLE.toString());
+                Object destTitle = imageVertex.getProperty(TITLE.toString());
+                auditRepository.audit(tweeterId, auditRepository.relationshipAuditMessageOnSource(labelDisplay, destTitle, tweetText),
+                        user);
+                auditRepository.audit(imageId, auditRepository.relationshipAuditMessageOnDest(labelDisplay, srcTitle, tweetText), user);
+                auditRepository.audit(tweetId, auditRepository.relationshipAuditMessageOnArtifact(srcTitle, destTitle, labelDisplay),
+                        user);
+            }
+        } catch (IOException ioe) {
+            String msg = String.format("Unable to create image for vertex: %s", tweeterId);
+            if (LOGGER.isDebugEnabled()) {
+                LOGGER.debug(msg, ioe);
+            } else {
+                LOGGER.warn(msg);
+            }
+        }
+    }
+}
