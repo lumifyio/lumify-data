@@ -7,12 +7,15 @@ import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.OptionBuilder;
 import org.apache.commons.cli.Options;
 import org.json.JSONObject;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.BufferedReader;
 import java.io.FileInputStream;
 import java.io.InputStreamReader;
 
 public class WikipediaExtractionImportStorm extends CommandLineBase {
+    private static final Logger LOGGER = LoggerFactory.getLogger(WikipediaExtractionImportStorm.class);
     private WorkQueueRepository workQueueRepository;
 
     public WikipediaExtractionImportStorm() {
@@ -77,13 +80,17 @@ public class WikipediaExtractionImportStorm extends CommandLineBase {
                 if ((lineNumber % 1000) == 0) {
                     printProgress(lineNumber);
                 }
-                LineData lineData = processLine(line);
-                JSONObject json = new JSONObject();
-                json.put("fileName", lineData.filename);
-                json.put("title", lineData.title);
-                json.put("source", "Wikipedia");
-                json.put("raw", lineData.body);
-                workQueueRepository.pushOnQueue(outQueue, json);
+                try {
+                    LineData lineData = processLine(line);
+                    JSONObject json = new JSONObject();
+                    json.put("fileName", lineData.filename);
+                    json.put("title", lineData.title);
+                    json.put("source", "Wikipedia");
+                    json.put("raw", lineData.body);
+                    workQueueRepository.pushOnQueue(outQueue, json);
+                } catch (Exception ex) {
+                    LOGGER.error("Could not process line: " + line, ex);
+                }
             }
             printProgress(lineNumber);
         } finally {

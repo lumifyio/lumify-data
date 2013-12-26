@@ -1,5 +1,7 @@
 package com.altamiracorp.lumify.tools.jmxclient;
 
+import com.altamiracorp.jmxui.JmxMBeanProcessor;
+
 import javax.management.MBeanServerConnection;
 import javax.management.ObjectName;
 import java.util.ArrayList;

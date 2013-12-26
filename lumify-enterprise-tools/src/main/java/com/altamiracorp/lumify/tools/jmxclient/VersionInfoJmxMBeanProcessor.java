@@ -1,5 +1,6 @@
 package com.altamiracorp.lumify.tools.jmxclient;
 
+import com.altamiracorp.jmxui.JmxMBeanProcessor;
 import com.altamiracorp.lumify.core.version.VersionService;
 
 import javax.management.MBeanServerConnection;
