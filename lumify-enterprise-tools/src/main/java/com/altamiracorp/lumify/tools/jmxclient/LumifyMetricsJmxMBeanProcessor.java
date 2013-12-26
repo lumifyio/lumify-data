@@ -1,5 +1,6 @@
 package com.altamiracorp.lumify.tools.jmxclient;
 
+import com.altamiracorp.jmxui.JmxMBeanProcessor;
 import org.apache.commons.lang.StringUtils;
 
 import javax.management.*;

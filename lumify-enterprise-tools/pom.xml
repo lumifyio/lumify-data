@@ -77,6 +77,12 @@
             <artifactId>lumify-analytics</artifactId>
             <version>${project.version}</version>
         </dependency>
+
+        <dependency>
+            <groupId>com.altamiracorp.jmxui</groupId>
+            <artifactId>jmx-ui</artifactId>
+            <version>1.0-SNAPSHOT</version>
+        </dependency>
     </dependencies>
 
     <build>
