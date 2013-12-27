@@ -32,10 +32,10 @@ import org.slf4j.LoggerFactory;
 
 import static com.altamiracorp.lumify.core.model.ontology.PropertyName.*;
 import static com.altamiracorp.lumify.storm.twitter.TwitterConstants.*;
+import com.beust.jcommander.internal.Lists;
 
 public class TwitterStreamingBolt extends BaseLumifyBolt {
     private static final Logger LOGGER = LoggerFactory.getLogger(TwitterStreamingBolt.class);
-    private static final String PROCESS = TwitterStreamingBolt.class.getName();
     
     private static final String TWITTER_TEXT_PROPERTY = "text";
     private static final String TWITTER_CREATED_AT_PROPERTY = "created_at";
@@ -91,7 +91,7 @@ public class TwitterStreamingBolt extends BaseLumifyBolt {
     
     @Override
     public void safeExecute(Tuple tuple) throws Exception {
-        final JSONObject json = getJsonFromTuple(tuple);
+        final JSONObject json = tryGetJsonFromTuple(tuple);
         //if an actual tweet, process it
         if (isProcessableTweet(json)) {
             TweetTuple outputTuple = new TweetTuple();
@@ -103,7 +103,6 @@ public class TwitterStreamingBolt extends BaseLumifyBolt {
             InputStream in = new ByteArrayInputStream(outputTuple.getTweetText().getBytes(TWITTER_CHARSET));
             searchProvider.add(outputTuple.getTweetVertex(), in);
 
-            workQueueRepository.pushArtifactHighlight(outputTuple.getTweetId());
             outputTuple.emit(tuple);
         } else {
             if (json == null) {
@@ -113,7 +112,7 @@ public class TwitterStreamingBolt extends BaseLumifyBolt {
             }
         }
     }
-    
+
     private void parseTweet(final TweetTuple outputTuple) {
         User user = getUser();
         
@@ -156,13 +155,13 @@ public class TwitterStreamingBolt extends BaseLumifyBolt {
         }
 
         Integer favoriteCount = getOptInt(tweetJson, TWITTER_FAVORITE_COUNT_PROPERTY);
-        if (favoriteCount > 0) {
+        if (favoriteCount != null && favoriteCount > 0) {
             tweetVertex.setProperty(FAVORITE_COUNT, favoriteCount);
             modifiedProperties.add(FAVORITE_COUNT);
         }
 
         Integer retweetCount = getOptInt(tweetJson, TWITTER_RETWEET_COUNT_PROPERTY);
-        if (retweetCount > 0) {
+        if (retweetCount != null && retweetCount > 0) {
             tweetVertex.setProperty(RETWEET_COUNT, retweetCount);
             modifiedProperties.add(RETWEET_COUNT);
         }
@@ -184,7 +183,7 @@ public class TwitterStreamingBolt extends BaseLumifyBolt {
             tweeterVertex = new InMemoryGraphVertex();
         }
 
-        List<String> modifiedProperties = Arrays.asList(
+        List<String> modifiedProperties = Lists.newArrayList(
                 TITLE.toString(),
                 TYPE.toString(),
                 SUBTYPE.toString()
@@ -306,7 +305,7 @@ public class TwitterStreamingBolt extends BaseLumifyBolt {
     public void setSearchProvider(SearchProvider searchProvider) {
         this.searchProvider = searchProvider;
     }
-    
+        
     private class TweetTuple {
         private JSONObject tweet;
         private GraphVertex tweetVertex;

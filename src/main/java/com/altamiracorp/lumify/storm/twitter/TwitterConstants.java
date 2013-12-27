@@ -51,6 +51,11 @@ public interface TwitterConstants {
     static final String TWITTER_USER_JSON_FIELD = "tweeter-json";
     
     /**
+     * The name of the Tuple field containing the bolt ID.
+     */
+    static final String TWITTER_BOLT_ID_FIELD = "bolt-id";
+    
+    /**
      * The Twitter Date format string.
      */
     static final String TWITTER_DATE_FORMAT_STR = "EEE MMM dd HH:mm:ss ZZZZZ yyyy";
