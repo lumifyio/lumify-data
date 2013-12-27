@@ -145,7 +145,7 @@
                             <descriptor>src/main/assembly/descriptor.xml</descriptor>
                             <archive>
                                 <manifest>
-                                    <mainClass>com.altamiracorp.lumify.facebook.StormFacebookRunner</mainClass>
+                                    <mainClass>com.altamiracorp.lumify.facebook.StormRunner</mainClass>
                                 </manifest>
                             </archive>
                         </configuration>
