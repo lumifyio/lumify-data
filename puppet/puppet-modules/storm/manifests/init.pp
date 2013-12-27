@@ -104,6 +104,12 @@ class storm(
     require => Macro::Extract[$downloadpath],
   }
 
+  file { "${extractdir}/log4j/storm.log.properties":
+    ensure  => file,
+    source  => 'puppet:///modules/storm/storm.log.properties',
+    require => Macro::Extract[$downloadpath],
+  }
+
   file { "${extractdir}/lib/commons-io-2.4.jar" :
     ensure  => file,
     source  => 'puppet:///modules/storm/commons-io-2.4.jar',
