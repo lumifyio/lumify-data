@@ -35,7 +35,7 @@ public class KafkaLogJmxMBeanProcessor extends JmxMBeanProcessor {
         columns.add(new ProcessResultColumn("Current Offset (B)", currentOffset, ProcessResultColumnTotal.None));
         columns.add(new ProcessResultColumn("Size (B)", size, ProcessResultColumnTotal.None));
         columns.add(new ProcessResultColumn("Lag (B)", size - currentOffset, ProcessResultColumnTotal.None));
-        columns.add(new ProcessResultColumn("Percent Complete", String.format(".2f%", percentComplete), ProcessResultColumnTotal.None));
+        columns.add(new ProcessResultColumn("Percent Complete", String.format("%.2f", percentComplete), ProcessResultColumnTotal.None));
         return columns;
     }
 }

@@ -37,9 +37,18 @@ public class LumifyMetricsJmxMBeanProcessor extends JmxMBeanProcessor {
             return new ProcessResult(group, metricName, source, getColumnsForCounter(uniqueId, attributes), true);
         } else if (attributes.containsKey("Min") && attributes.containsKey("Max") && attributes.containsKey("MeanRate")) {
             return new ProcessResult(group, metricName, source, getColumnsForTimer(uniqueId, attributes), true);
+        } else if (attributes.size() == 1 && attributes.containsKey("Value")) {
+            return new ProcessResult(group, metricName, source, getColumnsForGauge(uniqueId, attributes), true);
         } else {
             throw new RuntimeException("Unknown metric data: [group: " + group + ", metricName: " + metricName + "]: " + StringUtils.join(attributes.keySet(), ","));
         }
+    }
+
+    private List<ProcessResultColumn> getColumnsForGauge(String uniqueId, Map<String, Object> attributes) {
+        List<ProcessResultColumn> columns = new ArrayList<ProcessResultColumn>();
+        columns.add(new ProcessResultColumn("ID", uniqueId, ProcessResultColumnTotal.None));
+        columns.add(new ProcessResultColumn("Value", attributes.get("Value"), ProcessResultColumnTotal.Sum));
+        return columns;
     }
 
     private List<ProcessResultColumn> getColumnsForCounter(String uniqueId, Map<String, Object> attributes) {
