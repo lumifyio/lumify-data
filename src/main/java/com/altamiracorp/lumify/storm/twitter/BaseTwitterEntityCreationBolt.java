@@ -18,6 +18,7 @@ package com.altamiracorp.lumify.storm.twitter;
 
 import backtype.storm.tuple.Tuple;
 import com.altamiracorp.lumify.core.ingest.term.extraction.TermRegexFinder;
+import com.altamiracorp.lumify.core.model.audit.AuditAction;
 import com.altamiracorp.lumify.core.model.graph.GraphVertex;
 import com.altamiracorp.lumify.core.model.graph.InMemoryGraphVertex;
 import com.altamiracorp.lumify.core.model.ontology.Concept;
@@ -25,9 +26,10 @@ import com.altamiracorp.lumify.core.model.ontology.VertexType;
 import com.altamiracorp.lumify.core.model.termMention.TermMention;
 import com.altamiracorp.lumify.core.user.User;
 import com.google.common.collect.Lists;
-import java.util.List;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import java.util.List;
 
 import static com.altamiracorp.lumify.core.model.ontology.PropertyName.*;
 import static com.altamiracorp.lumify.storm.twitter.TwitterConstants.*;
@@ -41,15 +43,17 @@ public abstract class BaseTwitterEntityCreationBolt extends BaseTwitterForkBolt 
      * The logger.
      */
     private static final Logger LOGGER = LoggerFactory.getLogger(BaseTwitterEntityCreationBolt.class);
+    private static final String PROCESS = BaseTwitterEntityCreationBolt.class.getName();
 
     /**
      * Create a new BaseTwitterEntityCreationBolt.
+     *
      * @param boltId the bolt ID
      */
     protected BaseTwitterEntityCreationBolt(final String boltId) {
         super(boltId);
     }
-    
+
     @Override
     protected final void executeFork(final Tuple input) throws Exception {
         LOGGER.info(String.format("[%s]: Executing on Tuple [%s]", getClass().getName(), input.getMessageId()));
@@ -59,7 +63,7 @@ public abstract class BaseTwitterEntityCreationBolt extends BaseTwitterForkBolt 
         String tweetText = input.getStringByField(TWEET_TEXT_FIELD);
         String tweetVertexId = input.getStringByField(TWEET_VERTEX_ID_FIELD);
         String tweetVertexTitle = input.getStringByField(TWEET_VERTEX_TITLE_FIELD);
-        
+
         // only process if tweetText is present
         if (tweetText != null && !tweetText.trim().isEmpty()) {
             User user = getUser();
@@ -70,6 +74,7 @@ public abstract class BaseTwitterEntityCreationBolt extends BaseTwitterForkBolt 
             String relationshipDisplayName = ontologyRepository.getDisplayNameForLabel(relationshipLabel, user);
 
             GraphVertex conceptVertex = graphRepository.findVertex(conceptId, user);
+            GraphVertex tweetVertex = graphRepository.findVertex(tweetVertexId, user);
             List<TermMention> termMentions = TermRegexFinder.find(tweetVertexId, conceptVertex, tweetText, termRegex);
             List<String> modifiedProps = Lists.newArrayList(TITLE.toString(), ROW_KEY.toString(), TYPE.toString(), SUBTYPE.toString());
 
@@ -92,36 +97,39 @@ public abstract class BaseTwitterEntityCreationBolt extends BaseTwitterForkBolt 
                 String termId = termVertex.getId();
 
                 if (newVertex) {
-                    auditRepository.audit(tweetVertexId, auditRepository.resolvedEntityAuditMessageForArtifact(sign), user);
-                    auditRepository.audit(termId, auditRepository.resolvedEntityAuditMessage(tweetVertexTitle), user);
+                    auditRepository.auditEntity(AuditAction.CREATE.toString(), termVertex.getId(), tweetVertexId, PROCESS, "", getUser());
                 }
-                auditRepository.audit(termId, auditRepository.vertexPropertyAuditMessages(termVertex, modifiedProps), user);
+                for (String modifiedProperty : modifiedProps) {
+                    auditRepository.auditEntityProperties(AuditAction.UPDATE.toString(), termVertex, modifiedProperty, PROCESS, "", getUser());
+                }
 
                 mention.getMetadata().setGraphVertexId(termId);
                 termMentionRepository.save(mention, user.getModelUserContext());
 
                 graphRepository.saveRelationship(tweetVertexId, termId, relationshipLabel, user);
-                auditRepository.audit(tweetVertexId, auditRepository.relationshipAuditMessageOnSource(relationshipDisplayName, sign, ""), user);
-                auditRepository.audit(termId, auditRepository.relationshipAuditMessageOnDest(relationshipDisplayName, tweetText, ""), user);
+                auditRepository.auditRelationships(AuditAction.CREATE.toString(), tweetVertex, termVertex, relationshipDisplayName, PROCESS, "", getUser());
             }
         }
     }
 
     /**
      * Get the name of the Concept representing the entities created by this bolt.
+     *
      * @return the name of the Concept of the entities created by this bolt.
      */
     protected abstract String getConceptName();
-    
+
     /**
      * Get the regular expression used to match the terms that will be
      * converted to entities.
+     *
      * @return the term regex
      */
     protected abstract String getTermRegex();
-    
+
     /**
      * Get the label for the relationships created by this bolt.
+     *
      * @return the relationship label
      */
     protected abstract String getRelationshipLabel();

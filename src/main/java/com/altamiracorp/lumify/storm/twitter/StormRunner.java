@@ -46,7 +46,7 @@ public class StormRunner extends StormRunnerBase {
     private static final String URL_BOLT_NAME = "tweetUrlBolt";
     private static final String PROFILE_PHOTO_BOLT_NAME = "tweetProfilePhotoBolt";
     private static final String TWEET_HIGHLIGHT_BOLT_NAME = "tweetHighlightSubmissionBolt";
-    
+
     /**
      * The default HDFS root data directory: "/lumify/data"
      */
@@ -181,7 +181,7 @@ public class StormRunner extends StormRunnerBase {
                 .fieldsGrouping(HASHTAG_BOLT_NAME, new Fields(TwitterConstants.TWEET_VERTEX_ID_FIELD))
                 .fieldsGrouping(URL_BOLT_NAME, new Fields(TwitterConstants.TWEET_VERTEX_ID_FIELD))
                 .fieldsGrouping(PROFILE_PHOTO_BOLT_NAME, new Fields(TwitterConstants.TWEET_VERTEX_ID_FIELD));
-        
+
         if (startQuerySpout) {
             builder.setSpout(QUERY_SPOUT_NAME, new TwitterStreamSpout(), 1);
             tweetBolt.shuffleGrouping(QUERY_SPOUT_NAME);

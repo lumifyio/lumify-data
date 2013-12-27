@@ -25,6 +25,7 @@ import java.util.Collection;
 public class TwitterTweetHighlightSubmitBolt extends BaseTwitterJoinBolt {
     /**
      * Create a new TwitterTweetHighlightSubmitBolt.
+     *
      * @param joinIds the IDs of the bolts to join on
      */
     public TwitterTweetHighlightSubmitBolt(final Collection<String> joinIds) {
