@@ -1,24 +1,5 @@
 package com.altamiracorp.lumify.storm.term.extraction;
 
-import static com.google.common.base.Preconditions.checkNotNull;
-
-import java.io.IOException;
-import java.io.StringReader;
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-
-import org.json.JSONArray;
-import org.json.JSONObject;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.supercsv.io.CsvListReader;
-import org.supercsv.prefs.CsvPreference;
-
 import com.altamiracorp.lumify.core.ingest.term.extraction.TermExtractionResult;
 import com.altamiracorp.lumify.core.model.artifact.Artifact;
 import com.altamiracorp.lumify.core.model.artifact.ArtifactRepository;
@@ -29,6 +10,20 @@ import com.altamiracorp.lumify.storm.structuredData.MappingProperties;
 import com.altamiracorp.lumify.util.LineReader;
 import com.google.inject.Inject;
 import com.thinkaurelius.titan.core.attribute.Geoshape;
+import org.json.JSONArray;
+import org.json.JSONObject;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.supercsv.io.CsvListReader;
+import org.supercsv.prefs.CsvPreference;
+
+import java.io.IOException;
+import java.io.StringReader;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.*;
+
+import static com.google.common.base.Preconditions.checkNotNull;
 
 public class CsvEntityExtractor {
     private static final Logger LOGGER = LoggerFactory.getLogger(CsvEntityExtractor.class);
@@ -40,7 +35,9 @@ public class CsvEntityExtractor {
         checkNotNull(user);
         TermExtractionResult termExtractionResult = new TermExtractionResult();
         String artifactRowKey = (String) graphVertex.getProperty(PropertyName.ROW_KEY);
-        LOGGER.info(String.format("Processing graph vertex [%s] for artifact: %s", graphVertex.getId(), artifactRowKey));
+        if (LOGGER.isDebugEnabled()) {
+            LOGGER.debug(String.format("Processing graph vertex [%s] for artifact: %s", graphVertex.getId(), artifactRowKey));
+        }
 
         Artifact artifact = artifactRepository.findByRowKey(artifactRowKey, user.getModelUserContext());
         if (artifact.getMetadata().getMappingJson() != null) {
