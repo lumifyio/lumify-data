@@ -6,7 +6,7 @@ class kafka::fw::node {
     action => accept,
   } ->
   firewall { '112 allow kafka JMX' :
-    port   => 9092,
+    port   => 10000,
     proto  => tcp,
     action => accept,
   }
