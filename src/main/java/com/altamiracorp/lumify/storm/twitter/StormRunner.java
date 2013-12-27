@@ -4,12 +4,16 @@ import backtype.storm.Config;
 import backtype.storm.generated.StormTopology;
 import backtype.storm.topology.BoltDeclarer;
 import backtype.storm.topology.TopologyBuilder;
+import backtype.storm.tuple.Fields;
 import com.altamiracorp.lumify.storm.BaseFileSystemSpout;
 import com.altamiracorp.lumify.storm.HdfsFileSystemSpout;
 import com.altamiracorp.lumify.storm.StormRunnerBase;
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.OptionBuilder;
 import org.apache.commons.cli.Options;
+
+import java.util.Arrays;
+import java.util.List;
 
 public class StormRunner extends StormRunnerBase {
     /**
@@ -37,6 +41,12 @@ public class StormRunner extends StormRunnerBase {
      */
     private static final String TWEET_PROC_BOLT_NAME = "tweetProcBolt";
 
+    private static final String MENTION_BOLT_NAME = "tweetMentionBolt";
+    private static final String HASHTAG_BOLT_NAME = "tweetHashtagBolt";
+    private static final String URL_BOLT_NAME = "tweetUrlBolt";
+    private static final String PROFILE_PHOTO_BOLT_NAME = "tweetProfilePhotoBolt";
+    private static final String TWEET_HIGHLIGHT_BOLT_NAME = "tweetHighlightSubmissionBolt";
+    
     /**
      * The default HDFS root data directory: "/lumify/data"
      */
@@ -152,6 +162,26 @@ public class StormRunner extends StormRunnerBase {
     public StormTopology createTopology(int parallelismHint) {
         TopologyBuilder builder = new TopologyBuilder();
         BoltDeclarer tweetBolt = builder.setBolt(TWEET_PROC_BOLT_NAME, new TwitterStreamingBolt(), parallelismHint);
+        builder.setBolt(MENTION_BOLT_NAME, new TwitterMentionEntityCreationBolt(MENTION_BOLT_NAME), parallelismHint)
+                .shuffleGrouping(TWEET_PROC_BOLT_NAME);
+        builder.setBolt(HASHTAG_BOLT_NAME, new TwitterHashtagEntityCreationBolt(HASHTAG_BOLT_NAME), parallelismHint)
+                .shuffleGrouping(TWEET_PROC_BOLT_NAME);
+        builder.setBolt(URL_BOLT_NAME, new TwitterUrlEntityCreationBolt(URL_BOLT_NAME), parallelismHint)
+                .shuffleGrouping(TWEET_PROC_BOLT_NAME);
+        builder.setBolt(PROFILE_PHOTO_BOLT_NAME, new TwitterProfilePhotoBolt(PROFILE_PHOTO_BOLT_NAME), parallelismHint)
+                .shuffleGrouping(PROFILE_PHOTO_BOLT_NAME);
+        List<String> joinBoltIds = Arrays.asList(
+                MENTION_BOLT_NAME,
+                HASHTAG_BOLT_NAME,
+                URL_BOLT_NAME,
+                PROFILE_PHOTO_BOLT_NAME
+        );
+        builder.setBolt(TWEET_HIGHLIGHT_BOLT_NAME, new TwitterTweetHighlightSubmitBolt(joinBoltIds), parallelismHint)
+                .fieldsGrouping(MENTION_BOLT_NAME, new Fields(TwitterConstants.TWEET_VERTEX_ID_FIELD))
+                .fieldsGrouping(HASHTAG_BOLT_NAME, new Fields(TwitterConstants.TWEET_VERTEX_ID_FIELD))
+                .fieldsGrouping(URL_BOLT_NAME, new Fields(TwitterConstants.TWEET_VERTEX_ID_FIELD))
+                .fieldsGrouping(PROFILE_PHOTO_BOLT_NAME, new Fields(TwitterConstants.TWEET_VERTEX_ID_FIELD));
+        
         if (startQuerySpout) {
             builder.setSpout(QUERY_SPOUT_NAME, new TwitterStreamSpout(), 1);
             tweetBolt.shuffleGrouping(QUERY_SPOUT_NAME);
