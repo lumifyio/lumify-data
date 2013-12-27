@@ -16,7 +16,8 @@
 
 package com.altamiracorp.lumify.storm.twitter;
 
-import static com.altamiracorp.lumify.storm.twitter.TwitterConstants.*;
+import static com.altamiracorp.lumify.storm.twitter.TwitterConstants.TWEET_MENTION_RELATIONSHIP;
+import static com.altamiracorp.lumify.storm.twitter.TwitterConstants.TWITTER_MENTION_CONCEPT;
 
 /**
  * This bolt creates entities from user mentions found in a tweet.
@@ -30,7 +31,7 @@ public class TwitterMentionEntityCreationBolt extends BaseTwitterEntityCreationB
     public TwitterMentionEntityCreationBolt(final String id) {
         super(id);
     }
-    
+
     @Override
     protected String getConceptName() {
         return TWITTER_MENTION_CONCEPT;

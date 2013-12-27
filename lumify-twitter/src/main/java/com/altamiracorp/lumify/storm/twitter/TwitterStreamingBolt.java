@@ -6,6 +6,7 @@ import backtype.storm.tuple.Tuple;
 import com.altamiracorp.lumify.core.ingest.ArtifactExtractedInfo;
 import com.altamiracorp.lumify.core.model.artifact.ArtifactRowKey;
 import com.altamiracorp.lumify.core.model.artifact.ArtifactType;
+import com.altamiracorp.lumify.core.model.audit.AuditAction;
 import com.altamiracorp.lumify.core.model.graph.GraphGeoLocation;
 import com.altamiracorp.lumify.core.model.graph.GraphVertex;
 import com.altamiracorp.lumify.core.model.graph.InMemoryGraphVertex;
@@ -14,8 +15,14 @@ import com.altamiracorp.lumify.core.model.ontology.VertexType;
 import com.altamiracorp.lumify.core.model.search.SearchProvider;
 import com.altamiracorp.lumify.core.user.User;
 import com.altamiracorp.lumify.storm.BaseLumifyBolt;
+import com.beust.jcommander.internal.Lists;
 import com.google.inject.Inject;
 import com.thinkaurelius.titan.core.attribute.Geoshape;
+import org.json.JSONArray;
+import org.json.JSONObject;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import java.io.ByteArrayInputStream;
 import java.io.InputStream;
 import java.text.DateFormat;
@@ -25,17 +32,13 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
-import org.json.JSONArray;
-import org.json.JSONObject;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import static com.altamiracorp.lumify.core.model.ontology.PropertyName.*;
 import static com.altamiracorp.lumify.storm.twitter.TwitterConstants.*;
-import com.beust.jcommander.internal.Lists;
 
 public class TwitterStreamingBolt extends BaseLumifyBolt {
     private static final Logger LOGGER = LoggerFactory.getLogger(TwitterStreamingBolt.class);
+    private static final String PROCESS = TwitterStreamingBolt.class.getName();
 
     private static final String TWITTER_TEXT_PROPERTY = "text";
     private static final String TWITTER_CREATED_AT_PROPERTY = "created_at";
@@ -133,6 +136,7 @@ public class TwitterStreamingBolt extends BaseLumifyBolt {
         artifactExtractedInfo.setTitle(tweetText);
         artifactExtractedInfo.setAuthor(tweeter);
         artifactExtractedInfo.setSource(TWITTER_SOURCE);
+        artifactExtractedInfo.setProcess(PROCESS);
 
         Date date = parseTwitterDate(createdAtStr);
         if (date != null) {
@@ -167,6 +171,9 @@ public class TwitterStreamingBolt extends BaseLumifyBolt {
         }
 
         graphRepository.save(tweetVertex, user);
+        for (String property : modifiedProperties) {
+            auditRepository.auditEntityProperties(AuditAction.UPDATE.toString(), tweetVertex, property, PROCESS, "", getUser());
+        }
     }
 
     private void parseTweeter(final TweetTuple outputTuple) {
@@ -241,14 +248,19 @@ public class TwitterStreamingBolt extends BaseLumifyBolt {
         String tweetId = outputTuple.getTweetId();
         String tweeterId = outputTuple.getUserId();
 
+        for (String modifiedProperty : modifiedProperties) {
+            auditRepository.auditEntityProperties(AuditAction.UPDATE.toString(), tweeterVertex, modifiedProperty, PROCESS, "", getUser());
+        }
+
         graphRepository.saveRelationship(tweeterId, tweetId, TWEETED_RELATIONSHIP, user);
-        String tweetText = outputTuple.getTweetText();
-        String relationshipLabelDisplayName = ontologyRepository.getDisplayNameForLabel(TWEETED_RELATIONSHIP, user);
+        String relationshipLabelDisplayName = ontologyRepository.getDisplayNameForLabel(TWEETED_RELATIONSHIP, getUser());
+        auditRepository.auditRelationships(AuditAction.CREATE.toString(), tweeterVertex, outputTuple.getTweetVertex(), relationshipLabelDisplayName, PROCESS, "", getUser());
     }
 
     /**
      * Checks the provided object to determine if it contains the minimum
      * required fields to be processed by this bolt.
+     *
      * @param json the JSON object
      * @return true if the object can be processed as a tweet
      */
@@ -280,7 +292,8 @@ public class TwitterStreamingBolt extends BaseLumifyBolt {
     /**
      * Get an optional integer field from the JSONObject as an Integer, returning
      * <code>null</code> if the field is not populated.
-     * @param obj the JSON Object
+     *
+     * @param obj      the JSON Object
      * @param property the integer property
      * @return the Integer value of the property or <code>null</code> if not specified
      */
