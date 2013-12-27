@@ -56,7 +56,6 @@ function create_topics {
   create_topic term
   create_topic artifactHighlight
   create_topic userArtifactHighlight
-  create_topic searchIndex
   create_topic processedVideo
   create_topic structuredData
   create_topic twitterStream

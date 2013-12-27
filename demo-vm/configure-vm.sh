@@ -49,9 +49,3 @@ cp /vagrant/demo-vm/sample-data.tgz /opt/lumify
 /opt/storm/bin/storm jar \
  /vagrant/lumify-public/lumify-storm/target/lumify-storm-1.0-SNAPSHOT-jar-with-dependencies.jar \
  com.altamiracorp.lumify.storm.StormRunner
-
-# reindex the restored sample data
-cp /vagrant/bin/rebuild-index.sh /opt/lumify
-mkdir -p /opt/lumify/lib
-cp /vagrant/lumify-public/lumify-storm/target/lumify-storm-*-with-dependencies.jar /opt/lumify/lib
-/opt/lumify/rebuild-index.sh
