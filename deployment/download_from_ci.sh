@@ -1,7 +1,7 @@
 #!/bin/bash
 
 HOST=ci.lumify.io
-BASE_DIR=/var/www/maven/com/altamiracorp/lumify
+BASE_DIR=/var/www/maven/com/altamiracorp
 
 function _download {
   local subdir=$1
@@ -13,8 +13,10 @@ function _download {
 }
 
 
-_download lumify-enterprise-tools "*with-dependencies.jar" lumify-enterprise-tools-1.0-SNAPSHOT-jar-with-dependencies.jar
-_download lumify-storm            "*with-dependencies.jar" lumify-storm-1.0-SNAPSHOT-jar-with-dependencies.jar
-_download lumify-enterprise-storm "*with-dependencies.jar" lumify-enterprise-storm-1.0-SNAPSHOT-jar-with-dependencies.jar
-_download lumify-twitter          "*with-dependencies.jar" lumify-twitter-1.0-SNAPSHOT-jar-with-dependencies.jar
-_download lumify-web              "*.war"                  lumify-web-1.0-SNAPSHOT.war
+_download lumify/lumify-enterprise-tools "*with-dependencies.jar" lumify-enterprise-tools-1.0-SNAPSHOT-jar-with-dependencies.jar
+_download lumify/lumify-storm            "*with-dependencies.jar" lumify-storm-1.0-SNAPSHOT-jar-with-dependencies.jar
+_download lumify/lumify-enterprise-storm "*with-dependencies.jar" lumify-enterprise-storm-1.0-SNAPSHOT-jar-with-dependencies.jar
+_download lumify/lumify-twitter          "*with-dependencies.jar" lumify-twitter-1.0-SNAPSHOT-jar-with-dependencies.jar
+_download lumify/lumify-web              "*.war"                  lumify-web-1.0-SNAPSHOT.war
+_download bigtable/bigtable-ui           "*.war"                  bigtable-ui-1.0-SNAPSHOT.war
+_download jmxui/jmx-ui                   "*.war"                  jmx-ui-1.0-SNAPSHOT.war
