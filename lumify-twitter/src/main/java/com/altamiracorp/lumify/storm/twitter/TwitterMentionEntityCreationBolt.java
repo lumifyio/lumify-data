@@ -26,6 +26,10 @@ public class TwitterMentionEntityCreationBolt extends BaseTwitterEntityCreationB
      * The regular expression.
      */
     private static final String REGEX = "(@(\\w+))";
+
+    public TwitterMentionEntityCreationBolt(final String id) {
+        super(id);
+    }
     
     @Override
     protected String getConceptName() {

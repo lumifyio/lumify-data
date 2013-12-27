@@ -45,7 +45,7 @@ import org.slf4j.LoggerFactory;
  * This bolt attempts to retrieve a processed Twitter user's profile
  * photo.
  */
-public class TwitterProfilePhotoBolt extends BaseLumifyBolt {
+public class TwitterProfilePhotoBolt extends BaseTwitterForkBolt {
     /**
      * The class logger.
      */
@@ -80,9 +80,17 @@ public class TwitterProfilePhotoBolt extends BaseLumifyBolt {
      * The glyph icon property value format.
      */
     private static final String GLYPH_ICON_FMT = "/artifact/%s/raw";
+
+    /**
+     * Create a new TwitterProfilePhotoBolt.
+     * @param boltId the bolt ID
+     */
+    public TwitterProfilePhotoBolt(final String boltId) {
+        super(boltId);
+    }
     
     @Override
-    protected void safeExecute(Tuple input) throws Exception {
+    protected void executeFork(final Tuple input) throws Exception {
         String tweeterId = input.getStringByField(TWITTER_USER_VERTEX_ID_FIELD);
         try {
             JSONObject tweeter = (JSONObject) input.getValueByField(TWITTER_USER_JSON_FIELD);

@@ -16,9 +16,6 @@
 
 package com.altamiracorp.lumify.storm.twitter;
 
-import static com.altamiracorp.lumify.core.model.ontology.PropertyName.*;
-import static com.altamiracorp.lumify.storm.twitter.TwitterConstants.*;
-
 import backtype.storm.tuple.Tuple;
 import com.altamiracorp.lumify.core.ingest.term.extraction.TermRegexFinder;
 import com.altamiracorp.lumify.core.model.graph.GraphVertex;
@@ -27,24 +24,35 @@ import com.altamiracorp.lumify.core.model.ontology.Concept;
 import com.altamiracorp.lumify.core.model.ontology.VertexType;
 import com.altamiracorp.lumify.core.model.termMention.TermMention;
 import com.altamiracorp.lumify.core.user.User;
-import com.altamiracorp.lumify.storm.BaseLumifyBolt;
 import com.google.common.collect.Lists;
 import java.util.List;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import static com.altamiracorp.lumify.core.model.ontology.PropertyName.*;
+import static com.altamiracorp.lumify.storm.twitter.TwitterConstants.*;
+
 /**
  * Base class for bolts that identify and create entities and
  * relationships from a Twitter record.
  */
-public abstract class BaseTwitterEntityCreationBolt extends BaseLumifyBolt {
+public abstract class BaseTwitterEntityCreationBolt extends BaseTwitterForkBolt {
     /**
      * The logger.
      */
     private static final Logger LOGGER = LoggerFactory.getLogger(BaseTwitterEntityCreationBolt.class);
+
+    /**
+     * Create a new BaseTwitterEntityCreationBolt.
+     * @param boltId the bolt ID
+     */
+    protected BaseTwitterEntityCreationBolt(final String boltId) {
+        super(boltId);
+    }
     
     @Override
-    protected final void safeExecute(Tuple input) throws Exception {
+    protected final void executeFork(final Tuple input) throws Exception {
+        LOGGER.info(String.format("[%s]: Executing on Tuple [%s]", getClass().getName(), input.getMessageId()));
         // creates entities and relationships from the tweet found in
         // the input tuple, establishing those relationships with
         // the Vertex representing the extracted Tweet
@@ -98,7 +106,7 @@ public abstract class BaseTwitterEntityCreationBolt extends BaseLumifyBolt {
             }
         }
     }
-    
+
     /**
      * Get the name of the Concept representing the entities created by this bolt.
      * @return the name of the Concept of the entities created by this bolt.

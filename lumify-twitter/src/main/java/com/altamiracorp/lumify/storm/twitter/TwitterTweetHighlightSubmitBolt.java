@@ -16,33 +16,23 @@
 
 package com.altamiracorp.lumify.storm.twitter;
 
-import static com.altamiracorp.lumify.storm.twitter.TwitterConstants.*;
+import java.util.Collection;
 
 /**
- * This bolt creates entities from URLs found in a tweet.
+ * This bolt submits Tweet artifacts for highlighting once
+ * all processing on the Tweet is complete.
  */
-public class TwitterUrlEntityCreationBolt extends BaseTwitterEntityCreationBolt {
+public class TwitterTweetHighlightSubmitBolt extends BaseTwitterJoinBolt {
     /**
-     * The regular expression.
+     * Create a new TwitterTweetHighlightSubmitBolt.
+     * @param joinIds the IDs of the bolts to join on
      */
-    private static final String REGEX = "((https?://[^\\s]+))";
-
-    public TwitterUrlEntityCreationBolt(final String id) {
-        super(id);
-    }
-    
-    @Override
-    protected String getConceptName() {
-        return TWITTER_URL_CONCEPT;
+    public TwitterTweetHighlightSubmitBolt(final Collection<String> joinIds) {
+        super(joinIds);
     }
 
     @Override
-    protected String getTermRegex() {
-        return REGEX;
-    }
-
-    @Override
-    protected String getRelationshipLabel() {
-        return TWEET_URL_RELATIONSHIP;
+    protected void executeJoin(final String tweetVertexId) throws Exception {
+        workQueueRepository.pushArtifactHighlight(tweetVertexId);
     }
 }

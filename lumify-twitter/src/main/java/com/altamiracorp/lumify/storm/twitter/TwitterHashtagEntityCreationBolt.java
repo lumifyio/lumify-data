@@ -26,6 +26,10 @@ public class TwitterHashtagEntityCreationBolt extends BaseTwitterEntityCreationB
      * The regular expression.
      */
     private static final String REGEX = "(#(\\w+))";
+
+    public TwitterHashtagEntityCreationBolt(final String id) {
+        super(id);
+    }
     
     @Override
     protected String getConceptName() {
