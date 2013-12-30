@@ -19,11 +19,11 @@ package com.altamiracorp.lumify.storm.twitter;
 import backtype.storm.task.OutputCollector;
 import backtype.storm.tuple.Tuple;
 import backtype.storm.tuple.Values;
+import com.altamiracorp.lumify.core.util.LumifyLogger;
+import com.altamiracorp.lumify.core.util.LumifyLoggerFactory;
 import com.altamiracorp.lumify.storm.BaseFileProcessingBolt;
 import com.altamiracorp.lumify.storm.file.FileMetadata;
 import org.codehaus.plexus.util.FileUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.io.BufferedReader;
 import java.io.File;
@@ -38,10 +38,7 @@ import java.util.zip.GZIPInputStream;
  * field.
  */
 public class TwitterFileProcessingBolt extends BaseFileProcessingBolt {
-    /**
-     * The class logger.
-     */
-    private static final Logger LOG = LoggerFactory.getLogger(TwitterFileProcessingBolt.class);
+    private static final LumifyLogger LOGGER = LumifyLoggerFactory.getLogger(TwitterFileProcessingBolt.class);
 
     /**
      * GZIP extension.
@@ -57,8 +54,8 @@ public class TwitterFileProcessingBolt extends BaseFileProcessingBolt {
     @Override
     protected void safeExecute(final Tuple input) throws Exception {
         FileMetadata fileMetadata = getFileMetadata(input);
-        LOG.info(String.format("Processing file: %s (mimeType: %s)",
-                fileMetadata.getFileName(), fileMetadata.getMimeType()));
+        LOGGER.info("Processing file: %s (mimeType: %s)",
+                fileMetadata.getFileName(), fileMetadata.getMimeType());
         processFile(input, fileMetadata.getFileName());
     }
 
@@ -74,7 +71,7 @@ public class TwitterFileProcessingBolt extends BaseFileProcessingBolt {
      * @throws Exception if errors occur while processing the file
      */
     protected void processFile(final Tuple rootTuple, final String filename) throws Exception {
-        LOG.info(String.format("Processing file: %s", filename));
+        LOGGER.info("Processing file: %s", filename);
         FileMetadata fileMd = new FileMetadata()
                 .setFileName(filename)
                 .setMimeType(getMimeType(filename));
@@ -117,8 +114,8 @@ public class TwitterFileProcessingBolt extends BaseFileProcessingBolt {
         File archiveDir = null;
         try {
             archiveDir = extractArchive(archiveMd);
-            LOG.info(String.format("Extracted archive [%s] to temporary directory: %s",
-                    archiveMd.getFileName(), archiveDir.getAbsolutePath()));
+            LOGGER.info("Extracted archive [%s] to temporary directory: %s",
+                    archiveMd.getFileName(), archiveDir.getAbsolutePath());
             processDirectory(rootTuple, archiveDir);
         } finally {
             if (archiveDir != null) {
@@ -135,7 +132,7 @@ public class TwitterFileProcessingBolt extends BaseFileProcessingBolt {
      * @throws Exception if an error occurs while processing the directory
      */
     protected void processDirectory(final Tuple rootTuple, final File directory) throws Exception {
-        LOG.info(String.format("Processing files in directory: %s", directory.getAbsolutePath()));
+        LOGGER.info("Processing files in directory: %s", directory.getAbsolutePath());
         for (File entry : directory.listFiles()) {
             if (entry.isDirectory()) {
                 processDirectory(rootTuple, entry);

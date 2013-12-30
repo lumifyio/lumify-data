@@ -24,10 +24,11 @@ import com.altamiracorp.lumify.core.model.ontology.Concept;
 import com.altamiracorp.lumify.core.model.ontology.VertexType;
 import com.altamiracorp.lumify.core.model.termMention.TermMention;
 import com.altamiracorp.lumify.core.user.User;
+import com.altamiracorp.lumify.core.util.LumifyLogger;
+import com.altamiracorp.lumify.core.util.LumifyLoggerFactory;
 import com.google.common.collect.Lists;
+
 import java.util.List;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import static com.altamiracorp.lumify.core.model.ontology.PropertyName.*;
 import static com.altamiracorp.lumify.storm.twitter.TwitterConstants.*;
@@ -37,29 +38,27 @@ import static com.altamiracorp.lumify.storm.twitter.TwitterConstants.*;
  * relationships from a Twitter record.
  */
 public abstract class BaseTwitterEntityCreationBolt extends BaseTwitterForkBolt {
-    /**
-     * The logger.
-     */
-    private static final Logger LOGGER = LoggerFactory.getLogger(BaseTwitterEntityCreationBolt.class);
+    private static final LumifyLogger LOGGER = LumifyLoggerFactory.getLogger(BaseTwitterEntityCreationBolt.class);
 
     /**
      * Create a new BaseTwitterEntityCreationBolt.
+     *
      * @param boltId the bolt ID
      */
     protected BaseTwitterEntityCreationBolt(final String boltId) {
         super(boltId);
     }
-    
+
     @Override
     protected final void executeFork(final Tuple input) throws Exception {
-        LOGGER.info(String.format("[%s]: Executing on Tuple [%s]", getClass().getName(), input.getMessageId()));
+        LOGGER.info("[%s]: Executing on Tuple [%s]", getClass().getName(), input.getMessageId());
         // creates entities and relationships from the tweet found in
         // the input tuple, establishing those relationships with
         // the Vertex representing the extracted Tweet
         String tweetText = input.getStringByField(TWEET_TEXT_FIELD);
         String tweetVertexId = input.getStringByField(TWEET_VERTEX_ID_FIELD);
         String tweetVertexTitle = input.getStringByField(TWEET_VERTEX_TITLE_FIELD);
-        
+
         // only process if tweetText is present
         if (tweetText != null && !tweetText.trim().isEmpty()) {
             User user = getUser();
@@ -109,19 +108,22 @@ public abstract class BaseTwitterEntityCreationBolt extends BaseTwitterForkBolt 
 
     /**
      * Get the name of the Concept representing the entities created by this bolt.
+     *
      * @return the name of the Concept of the entities created by this bolt.
      */
     protected abstract String getConceptName();
-    
+
     /**
      * Get the regular expression used to match the terms that will be
      * converted to entities.
+     *
      * @return the term regex
      */
     protected abstract String getTermRegex();
-    
+
     /**
      * Get the label for the relationships created by this bolt.
+     *
      * @return the relationship label
      */
     protected abstract String getRelationshipLabel();
