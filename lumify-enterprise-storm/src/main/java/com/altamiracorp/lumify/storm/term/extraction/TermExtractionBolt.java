@@ -118,7 +118,9 @@ public class TermExtractionBolt extends BaseTextProcessingBolt {
         GraphVertex artifactVertex = graphRepository.findVertex(artifactGraphVertexId, getUser());
         for (TermExtractionResult.TermMention termMention : termMentions) {
             List<String> modifiedProperties = new ArrayList<String>();
-            LOGGER.info(String.format("Saving term mention '%s':%s (%d:%d)", termMention.getSign(), termMention.getOntologyClassUri(), termMention.getStart(), termMention.getEnd()));
+            if (LOGGER.isDebugEnabled()) {
+                LOGGER.debug(String.format("Saving term mention '%s':%s (%d:%d)", termMention.getSign(), termMention.getOntologyClassUri(), termMention.getStart(), termMention.getEnd()));
+            }
             GraphVertex vertex = null;
             boolean newVertex = false;
             TermMention termMentionModel = new TermMention(new TermMentionRowKey(artifactGraphVertexId, termMention.getStart(), termMention.getEnd()));

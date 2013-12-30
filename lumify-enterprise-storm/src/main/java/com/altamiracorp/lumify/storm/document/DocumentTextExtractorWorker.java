@@ -20,7 +20,9 @@ public class DocumentTextExtractorWorker extends ThreadedTeeInputStreamWorker<Ar
 
     @Override
     protected ArtifactExtractedInfo doWork(InputStream work, AdditionalArtifactWorkData data) throws Exception {
-        LOGGER.debug("Extracting document text [DocumentTextExtractorWorker]: " + data.getFileName());
+        if (LOGGER.isDebugEnabled()) {
+            LOGGER.debug("Extracting document text [DocumentTextExtractorWorker]: " + data.getFileName());
+        }
         HdfsLimitOutputStream textOut = new HdfsLimitOutputStream(data.getHdfsFileSystem(), Artifact.MAX_SIZE_OF_INLINE_FILE);
         ArtifactExtractedInfo info;
         try {
@@ -32,10 +34,14 @@ public class DocumentTextExtractorWorker extends ThreadedTeeInputStreamWorker<Ar
         if (textOut.hasExceededSizeLimit()) {
             info.setTextHdfsPath(textOut.getHdfsPath().toString());
         } else {
-            LOGGER.info("extract text size: " + textOut.getSmall().length);
+            if (LOGGER.isDebugEnabled()) {
+                LOGGER.debug("extract text size: " + textOut.getSmall().length);
+            }
             info.setText(new String(textOut.getSmall()));
         }
-        LOGGER.debug("Finished [DocumentTextExtractorWorker]: " + data.getFileName());
+        if (LOGGER.isDebugEnabled()) {
+            LOGGER.debug("Finished [DocumentTextExtractorWorker]: " + data.getFileName());
+        }
         return info;
     }
 
