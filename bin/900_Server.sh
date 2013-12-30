@@ -11,20 +11,19 @@ DIR="$(cd -P "$(dirname "$SOURCE")" && pwd)"
 classpath=$(${DIR}/classpath.sh lumify-public/lumify-web)
 if [ $? -ne 0 ]; then
     echo "${classpath}"
-exit
-
+  exit
 fi
-  cd ${DIR}/../lumify-public
+  
+cd ${DIR}/../lumify-public
 
-  java \
-    -Dfile.encoding=UTF-8 \
-    -Djava.awt.headless=true \
-    -Djava.security.krb5.realm= \
-    -Djava.security.krb5.kdc= \
-    -classpath ${classpath} \
-    -Xmx1024M \
-    com.altamiracorp.lumify.web.Server \
-    --port=8080 \
-    --keyStorePath=${DIR}/../config/ssl/lumify.jks \
-    --keyStorePassword=password
-fi
+java \
+-Dfile.encoding=UTF-8 \
+-Djava.awt.headless=true \
+-Djava.security.krb5.realm= \
+-Djava.security.krb5.kdc= \
+-classpath ${classpath} \
+-Xmx1024M \
+com.altamiracorp.lumify.web.Server \
+--port=8080 \
+--keyStorePath=${DIR}/../config/ssl/lumify.jks \
+--keyStorePassword=password
