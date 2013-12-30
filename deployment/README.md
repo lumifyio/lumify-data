@@ -35,7 +35,7 @@ ec2-modify-instance-attribute <instance id> --group-id <existing group id> --gro
 setup
 =====
 
-- ssh from the puppet server to namenode and run:
+- ssh from the puppet server to the namenode and run:
 
 ```
 /root/setup_config.sh
