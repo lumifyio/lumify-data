@@ -72,17 +72,8 @@ public class TermExtractionBolt extends BaseTextProcessingBolt {
     protected void safeExecute(Tuple input) throws Exception {
         JSONObject json = getJsonFromTuple(input);
         String graphVertexId = json.getString("graphVertexId");
-
-        PrintWriter out = new PrintWriter(new BufferedWriter(new FileWriter("/tmp/termExtraction", true)));
-        out.println("+" + graphVertexId);
-        out.close();
-
         GraphVertex artifactGraphVertex = graphRepository.findVertex(graphVertexId, getUser());
         runTextExtractions(artifactGraphVertex);
-
-        out = new PrintWriter(new BufferedWriter(new FileWriter("/tmp/termExtraction", true)));
-        out.println("-" + graphVertexId);
-        out.close();
     }
 
     private void runTextExtractions(GraphVertex artifactGraphVertex) throws Exception {
