@@ -293,7 +293,7 @@ ARGV.each do |filename|
       tag(volume_id, {:Name => "#{name}_vol0", :Project => prefix})
 
       # TODO: poll for ready?
-      sleep(5)
+      sleep(10)
 
       device_prefix = '/dev/sd'
       device_letters = EBS_VOLUME_DEVICE_LETTERS.clone
