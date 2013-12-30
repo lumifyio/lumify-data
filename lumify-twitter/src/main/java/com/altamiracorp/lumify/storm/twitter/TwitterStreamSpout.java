@@ -6,6 +6,8 @@ import backtype.storm.topology.OutputFieldsDeclarer;
 import backtype.storm.topology.base.BaseRichSpout;
 import backtype.storm.tuple.Fields;
 import backtype.storm.tuple.Values;
+import com.altamiracorp.lumify.core.util.LumifyLogger;
+import com.altamiracorp.lumify.core.util.LumifyLoggerFactory;
 import com.altamiracorp.lumify.storm.FieldNames;
 import com.google.common.collect.Lists;
 import com.twitter.hbc.ClientBuilder;
@@ -17,10 +19,7 @@ import com.twitter.hbc.core.endpoint.StatusesFilterEndpoint;
 import com.twitter.hbc.core.processor.StringDelimitedProcessor;
 import com.twitter.hbc.httpclient.auth.Authentication;
 import com.twitter.hbc.httpclient.auth.OAuth1;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
-import java.lang.String;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.BlockingQueue;
@@ -29,7 +28,7 @@ import java.util.concurrent.LinkedBlockingQueue;
 import static com.google.common.base.Preconditions.checkNotNull;
 
 public class TwitterStreamSpout extends BaseRichSpout {
-    private static final Logger LOGGER = LoggerFactory.getLogger(TwitterStreamSpout.class);
+    private static final LumifyLogger LOGGER = LumifyLoggerFactory.getLogger(TwitterStreamSpout.class);
     private SpoutOutputCollector collector;
     private Client hbc;
     private BlockingQueue<String> tweetsToProcess = new LinkedBlockingQueue<String>();
@@ -54,7 +53,7 @@ public class TwitterStreamSpout extends BaseRichSpout {
         checkNotNull(stormConf.get(TOKEN_SECRET), "'tokenSecret' config not set");
         checkNotNull(stormConf.get(QUERY), "'query' not set");
 
-        LOGGER.info(String.format("Configuring environment for spout: %s-%d", context.getThisComponentId(), context.getThisTaskId()));
+        LOGGER.info("Configuring environment for spout: %s-%d", context.getThisComponentId(), context.getThisTaskId());
         this.collector = collector;
 
         Hosts hosebirdHosts = new HttpHosts(Constants.STREAM_HOST);
@@ -85,7 +84,7 @@ public class TwitterStreamSpout extends BaseRichSpout {
     public void nextTuple() {
         try {
             String tweet = tweetsToProcess.take();
-            LOGGER.debug("received tweet to process: " + tweet);
+            LOGGER.debug("received tweet to process: %s", tweet);
             collector.emit(new Values(tweet));
         } catch (InterruptedException e) {
             collector.reportError(e);

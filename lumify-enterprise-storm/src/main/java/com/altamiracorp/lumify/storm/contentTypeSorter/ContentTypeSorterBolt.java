@@ -5,6 +5,8 @@ import backtype.storm.task.TopologyContext;
 import backtype.storm.tuple.Tuple;
 import com.altamiracorp.lumify.core.contentTypeExtraction.ContentTypeExtractor;
 import com.altamiracorp.lumify.core.ingest.ContentTypeSorter;
+import com.altamiracorp.lumify.core.util.LumifyLogger;
+import com.altamiracorp.lumify.core.util.LumifyLoggerFactory;
 import com.altamiracorp.lumify.storm.BaseFileSystemSpout;
 import com.altamiracorp.lumify.storm.BaseLumifyBolt;
 import com.altamiracorp.lumify.storm.FieldNames;
@@ -17,23 +19,17 @@ import org.apache.commons.compress.archivers.ArchiveInputStream;
 import org.apache.commons.compress.archivers.ArchiveStreamFactory;
 import org.apache.commons.io.FilenameUtils;
 import org.apache.hadoop.fs.Path;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
-import java.io.BufferedInputStream;
-import java.io.IOException;
-import java.io.InputStream;
+import java.io.*;
+import java.nio.charset.Charset;
 import java.util.List;
 import java.util.Map;
 import java.util.ServiceLoader;
 
 import static com.google.common.base.Preconditions.checkNotNull;
-import java.io.BufferedReader;
-import java.io.StringReader;
-import java.nio.charset.Charset;
 
 public class ContentTypeSorterBolt extends BaseLumifyBolt {
-    private static final Logger LOGGER = LoggerFactory.getLogger(ContentTypeSorterBolt.class);
+    private static final LumifyLogger LOGGER = LumifyLoggerFactory.getLogger(ContentTypeSorterBolt.class);
 
     private static final Joiner FILEPATH_JOINER = Joiner.on('/');
     private static final String LUMIFY_QUEUE_FILENAME = ".lumify-queue";
@@ -52,7 +48,7 @@ public class ContentTypeSorterBolt extends BaseLumifyBolt {
 
         contentTypeSorters = Lists.newArrayList();
         for (ContentTypeSorter sorter : ServiceLoader.load(ContentTypeSorter.class)) {
-            LOGGER.info(String.format("Adding content type sorter: %s", sorter.getClass().getName()));
+            LOGGER.info("Adding content type sorter: %s", sorter.getClass().getName());
             contentTypeSorters.add(sorter);
         }
     }
@@ -62,7 +58,7 @@ public class ContentTypeSorterBolt extends BaseLumifyBolt {
         String fileName = input.getStringByField(FieldNames.FILE_NAME);
         checkNotNull(fileName, "this bolt requires a field with name " + FieldNames.FILE_NAME);
 
-        LOGGER.debug("Processing tuple value: " + fileName);
+        LOGGER.debug("Processing tuple value: %s", fileName);
         InputStream in = openFile(fileName);
         try {
             String queueName = calculateQueueName(fileName, in);
@@ -72,12 +68,12 @@ public class ContentTypeSorterBolt extends BaseLumifyBolt {
 
             moveFile(fileName, FILEPATH_JOINER.join(dataDir, queueName, getFileNameWithDateSuffix(fileName)));
 
-            LOGGER.debug("Content sorted to: " + queueName);
+            LOGGER.debug("Content sorted to: %s", queueName);
         } finally {
             if (in != null) {
                 in.close();
             }
-            LOGGER.debug("[ContentTypeSorterBolt]: finished with " + fileName);
+            LOGGER.debug("[ContentTypeSorterBolt]: finished with %s", fileName);
         }
     }
 
@@ -158,13 +154,14 @@ public class ContentTypeSorterBolt extends BaseLumifyBolt {
 
         return null;
     }
-    
+
     /**
      * Reads the first line of the UTF-8 formatted Lumify Queue File and, if
      * it is not empty, returns that line as the queue name; otherwise it
      * returns null.
+     *
      * @param queueFileEntry the archive entry for the queue file
-     * @param archiveIn the archive input stream
+     * @param archiveIn      the archive input stream
      * @return the identified queue name or null if it could not be resolved
      * @throws IOException if an error occurs while reading the queue file
      */
@@ -172,8 +169,7 @@ public class ContentTypeSorterBolt extends BaseLumifyBolt {
         String queue = null;
         long entrySize = queueFileEntry.getSize();
         if (entrySize > Integer.MAX_VALUE) {
-            LOGGER.error(String.format("Lumify Queue File (%s) is too large [%d bytes] to process and will be ignored.",
-                    LUMIFY_QUEUE_FILENAME, entrySize));
+            LOGGER.error("Lumify Queue File (%s) is too large [%d bytes] to process and will be ignored.", LUMIFY_QUEUE_FILENAME, entrySize);
         } else {
             byte[] contents = new byte[(int) entrySize];
             int readCount = archiveIn.read(contents);

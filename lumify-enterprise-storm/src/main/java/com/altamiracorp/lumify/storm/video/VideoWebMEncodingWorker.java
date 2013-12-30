@@ -5,19 +5,15 @@ import com.altamiracorp.lumify.core.ingest.ArtifactExtractedInfo;
 import com.altamiracorp.lumify.core.ingest.TextExtractionWorkerPrepareData;
 import com.altamiracorp.lumify.core.ingest.video.VideoTextExtractionWorker;
 import com.altamiracorp.lumify.core.model.artifact.ArtifactType;
-import com.altamiracorp.lumify.core.util.HdfsLimitOutputStream;
-import com.altamiracorp.lumify.core.util.ProcessRunner;
-import com.altamiracorp.lumify.core.util.ThreadedTeeInputStreamWorker;
+import com.altamiracorp.lumify.core.util.*;
 import com.google.inject.Inject;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.io.InputStream;
 
 import static org.mockito.internal.util.Checks.checkNotNull;
 
 public class VideoWebMEncodingWorker extends ThreadedTeeInputStreamWorker<ArtifactExtractedInfo, AdditionalArtifactWorkData> implements VideoTextExtractionWorker {
-    private static final Logger LOGGER = LoggerFactory.getLogger(VideoWebMEncodingWorker.class);
+    private static final LumifyLogger LOGGER = LumifyLoggerFactory.getLogger(VideoWebMEncodingWorker.class);
     private ProcessRunner processRunner;
 
     @Override
@@ -26,7 +22,7 @@ public class VideoWebMEncodingWorker extends ThreadedTeeInputStreamWorker<Artifa
 
     @Override
     protected ArtifactExtractedInfo doWork(InputStream work, AdditionalArtifactWorkData data) throws Exception {
-        LOGGER.info("Encoding (webm) [VideoWebMEncodingWorker] " + data.getFileName());
+        LOGGER.info("Encoding (webm) [VideoWebMEncodingWorker] %s", data.getFileName());
         HdfsLimitOutputStream out = new HdfsLimitOutputStream(data.getHdfsFileSystem(), 0);
         try {
             processRunner.execute(
@@ -59,7 +55,7 @@ public class VideoWebMEncodingWorker extends ThreadedTeeInputStreamWorker<Artifa
         checkNotNull(out.getHdfsPath(), "hdfs path of output stream not correct");
         info.setWebMHdfsFilePath(out.getHdfsPath().toString());
         info.setArtifactType(ArtifactType.VIDEO.toString());
-        LOGGER.debug("Finished [VideoWebMEncodingWorker]: " + data.getFileName());
+        LOGGER.debug("Finished [VideoWebMEncodingWorker]: %s", data.getFileName());
         return info;
     }
 

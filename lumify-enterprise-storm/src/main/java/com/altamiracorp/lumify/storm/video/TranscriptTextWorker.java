@@ -5,10 +5,10 @@ import com.altamiracorp.lumify.core.ingest.ArtifactExtractedInfo;
 import com.altamiracorp.lumify.core.ingest.TextExtractionWorkerPrepareData;
 import com.altamiracorp.lumify.core.ingest.video.VideoTextExtractionWorker;
 import com.altamiracorp.lumify.core.ingest.video.VideoTranscript;
+import com.altamiracorp.lumify.core.util.LumifyLogger;
+import com.altamiracorp.lumify.core.util.LumifyLoggerFactory;
 import com.altamiracorp.lumify.core.util.ThreadedTeeInputStreamWorker;
 import org.apache.commons.io.FilenameUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.io.File;
 import java.io.InputStream;
@@ -19,11 +19,11 @@ import static com.google.common.base.Preconditions.checkState;
 public class TranscriptTextWorker
         extends ThreadedTeeInputStreamWorker<ArtifactExtractedInfo, AdditionalArtifactWorkData>
         implements VideoTextExtractionWorker {
-    private static final Logger LOGGER = LoggerFactory.getLogger(CCExtractorWorker.class);
+    private static final LumifyLogger LOGGER = LumifyLoggerFactory.getLogger(TranscriptTextWorker.class);
 
     @Override
     protected ArtifactExtractedInfo doWork(InputStream work, AdditionalArtifactWorkData data) throws Exception {
-        LOGGER.debug("Extracting transcripts [TranscriptTextWorker]: " + data.getFileName());
+        LOGGER.debug("Extracting transcripts [TranscriptTextWorker]: %s", data.getFileName());
         ArtifactExtractedInfo info = new ArtifactExtractedInfo();
         VideoTranscript videoTranscript = new VideoTranscript();
         if (data.getArchiveTempDir() != null) {
@@ -31,7 +31,7 @@ public class TranscriptTextWorker
             info.setTitle(FilenameUtils.getName(data.getFileName()).split(".lumify")[0]);
         }
         info.setVideoTranscript(videoTranscript);
-        LOGGER.debug("Finished [TranscriptTextWorker]: " + data.getFileName());
+        LOGGER.debug("Finished [TranscriptTextWorker]: %s", data.getFileName());
         return info;
     }
 

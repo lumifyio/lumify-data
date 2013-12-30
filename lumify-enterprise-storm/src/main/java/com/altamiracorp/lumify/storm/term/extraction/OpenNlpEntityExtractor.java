@@ -2,6 +2,8 @@ package com.altamiracorp.lumify.storm.term.extraction;
 
 import com.altamiracorp.lumify.core.ingest.term.extraction.TermExtractionResult;
 import com.altamiracorp.lumify.core.user.User;
+import com.altamiracorp.lumify.core.util.LumifyLogger;
+import com.altamiracorp.lumify.core.util.LumifyLoggerFactory;
 import opennlp.tools.namefind.TokenNameFinder;
 import opennlp.tools.tokenize.Tokenizer;
 import opennlp.tools.tokenize.TokenizerME;
@@ -12,8 +14,6 @@ import opennlp.tools.util.Span;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.Path;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -26,7 +26,7 @@ import java.util.List;
 import static com.google.common.base.Preconditions.checkNotNull;
 
 public abstract class OpenNlpEntityExtractor {
-    private static final Logger LOGGER = LoggerFactory.getLogger(OpenNlpEntityExtractor.class);
+    private static final LumifyLogger LOGGER = LumifyLoggerFactory.getLogger(OpenNlpEntityExtractor.class);
     public static final String PATH_PREFIX_CONFIG = "termextraction.opennlp.pathPrefix";
     private static final String DEFAULT_PATH_PREFIX = "hdfs://";
     private static final int NEW_LINE_CHARACTER_LENGTH = 1;

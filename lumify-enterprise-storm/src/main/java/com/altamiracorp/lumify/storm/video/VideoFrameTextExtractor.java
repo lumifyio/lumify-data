@@ -4,23 +4,23 @@ import com.altamiracorp.lumify.core.ingest.AdditionalArtifactWorkData;
 import com.altamiracorp.lumify.core.ingest.ArtifactExtractedInfo;
 import com.altamiracorp.lumify.core.model.artifact.Artifact;
 import com.altamiracorp.lumify.core.util.HdfsLimitOutputStream;
+import com.altamiracorp.lumify.core.util.LumifyLogger;
+import com.altamiracorp.lumify.core.util.LumifyLoggerFactory;
 import com.altamiracorp.lumify.textExtraction.ImageOcrTextExtractor;
 import com.altamiracorp.lumify.textExtraction.VideoFrameExtractedInfo;
 import com.google.inject.Inject;
 import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.Path;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import javax.imageio.ImageIO;
 import java.util.List;
 
 public class VideoFrameTextExtractor {
     private ImageOcrTextExtractor imageOcrTextExtractor;
-    private static final Logger LOGGER = LoggerFactory.getLogger(CCExtractorWorker.class);
+    private static final LumifyLogger LOGGER = LumifyLoggerFactory.getLogger(VideoFrameTextExtractor.class);
 
     public ArtifactExtractedInfo extract(List<ArtifactExtractedInfo.VideoFrame> videoFrames, AdditionalArtifactWorkData data) throws Exception {
-        LOGGER.debug("Extracting Frame Text [VideoFrameTextExtractor]: " + data.getFileName());
+        LOGGER.debug("Extracting Frame Text [VideoFrameTextExtractor]: %s", data.getFileName());
         ArtifactExtractedInfo info = new ArtifactExtractedInfo();
         HdfsLimitOutputStream textOut = new HdfsLimitOutputStream(data.getHdfsFileSystem(), Artifact.MAX_SIZE_OF_INLINE_FILE);
         StringBuilder builder = new StringBuilder();
@@ -47,7 +47,7 @@ public class VideoFrameTextExtractor {
         } else {
             info.setText(new String(textOut.getSmall()));
         }
-        LOGGER.debug("Finished [VideoFrameTextExtractor]: " + data.getFileName());
+        LOGGER.debug("Finished [VideoFrameTextExtractor]: %s", data.getFileName());
         return info;
     }
 

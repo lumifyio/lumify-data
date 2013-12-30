@@ -6,23 +6,21 @@ import com.altamiracorp.lumify.core.ingest.TextExtractionWorkerPrepareData;
 import com.altamiracorp.lumify.core.ingest.document.DocumentTextExtractionWorker;
 import com.altamiracorp.lumify.core.model.artifact.Artifact;
 import com.altamiracorp.lumify.core.util.HdfsLimitOutputStream;
+import com.altamiracorp.lumify.core.util.LumifyLogger;
+import com.altamiracorp.lumify.core.util.LumifyLoggerFactory;
 import com.altamiracorp.lumify.core.util.ThreadedTeeInputStreamWorker;
 import com.altamiracorp.lumify.textExtraction.TikaTextExtractor;
 import com.google.inject.Inject;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.io.InputStream;
 
 public class DocumentTextExtractorWorker extends ThreadedTeeInputStreamWorker<ArtifactExtractedInfo, AdditionalArtifactWorkData> implements DocumentTextExtractionWorker {
-    private static final Logger LOGGER = LoggerFactory.getLogger(DocumentTextExtractorWorker.class.getName());
+    private static final LumifyLogger LOGGER = LumifyLoggerFactory.getLogger(DocumentTextExtractorWorker.class);
     private TikaTextExtractor tikaTextExtractor;
 
     @Override
     protected ArtifactExtractedInfo doWork(InputStream work, AdditionalArtifactWorkData data) throws Exception {
-        if (LOGGER.isDebugEnabled()) {
-            LOGGER.debug("Extracting document text [DocumentTextExtractorWorker]: " + data.getFileName());
-        }
+        LOGGER.debug("Extracting document text [DocumentTextExtractorWorker]: %s", data.getFileName());
         HdfsLimitOutputStream textOut = new HdfsLimitOutputStream(data.getHdfsFileSystem(), Artifact.MAX_SIZE_OF_INLINE_FILE);
         ArtifactExtractedInfo info;
         try {
@@ -34,14 +32,10 @@ public class DocumentTextExtractorWorker extends ThreadedTeeInputStreamWorker<Ar
         if (textOut.hasExceededSizeLimit()) {
             info.setTextHdfsPath(textOut.getHdfsPath().toString());
         } else {
-            if (LOGGER.isDebugEnabled()) {
-                LOGGER.debug("extract text size: " + textOut.getSmall().length);
-            }
+            LOGGER.debug("extract text size: %d", textOut.getSmall().length);
             info.setText(new String(textOut.getSmall()));
         }
-        if (LOGGER.isDebugEnabled()) {
-            LOGGER.debug("Finished [DocumentTextExtractorWorker]: " + data.getFileName());
-        }
+        LOGGER.debug("Finished [DocumentTextExtractorWorker]: %s", data.getFileName());
         return info;
     }
 

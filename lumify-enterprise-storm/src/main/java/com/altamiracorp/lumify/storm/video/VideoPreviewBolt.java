@@ -3,17 +3,17 @@ package com.altamiracorp.lumify.storm.video;
 import backtype.storm.task.OutputCollector;
 import backtype.storm.task.TopologyContext;
 import backtype.storm.tuple.Tuple;
-import com.altamiracorp.lumify.core.user.User;
+import com.altamiracorp.lumify.core.model.artifact.ArtifactRepository;
 import com.altamiracorp.lumify.core.model.videoFrames.VideoFrame;
 import com.altamiracorp.lumify.core.model.videoFrames.VideoFrameRepository;
+import com.altamiracorp.lumify.core.user.User;
+import com.altamiracorp.lumify.core.util.LumifyLogger;
+import com.altamiracorp.lumify.core.util.LumifyLoggerFactory;
 import com.altamiracorp.lumify.storm.BaseLumifyBolt;
-import com.altamiracorp.lumify.core.model.artifact.ArtifactRepository;
 import com.google.inject.Inject;
 import org.apache.hadoop.fs.FSDataOutputStream;
 import org.apache.hadoop.fs.Path;
 import org.json.JSONObject;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import javax.imageio.ImageIO;
 import java.awt.*;
@@ -25,7 +25,7 @@ import java.util.List;
 import java.util.Map;
 
 public class VideoPreviewBolt extends BaseLumifyBolt {
-    private static final Logger LOGGER = LoggerFactory.getLogger(VideoPreviewBolt.class.getName());
+    private static final LumifyLogger LOGGER = LumifyLoggerFactory.getLogger(VideoPreviewBolt.class);
     private VideoFrameRepository videoFrameRepository;
 
     @Override
@@ -42,7 +42,7 @@ public class VideoPreviewBolt extends BaseLumifyBolt {
     protected void safeExecute(Tuple input) throws Exception {
         JSONObject json = getJsonFromTuple(input);
         String artifactRowKey = json.getString("artifactRowKey");
-        LOGGER.info("[VideoPreviewBolt] Generating video preview for " + artifactRowKey);
+        LOGGER.info("[VideoPreviewBolt] Generating video preview for %s", artifactRowKey);
 
         try {
             List<VideoFrame> videoFrames = videoFrameRepository.findAllByArtifactRowKey(artifactRowKey, getUser());
@@ -55,7 +55,7 @@ public class VideoPreviewBolt extends BaseLumifyBolt {
         } catch (IOException e) {
             throw new RuntimeException("Could not create preview image for artifact: " + artifactRowKey, e);
         }
-        LOGGER.debug("Finished [VideoPreviewBolt]: " + artifactRowKey);
+        LOGGER.debug("Finished [VideoPreviewBolt]: %s", artifactRowKey);
     }
 
     private Path saveImage(String artifactRowKey, BufferedImage previewImage, User user) throws IOException {

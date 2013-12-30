@@ -4,19 +4,19 @@ import com.altamiracorp.lumify.core.ingest.AdditionalArtifactWorkData;
 import com.altamiracorp.lumify.core.ingest.ArtifactExtractedInfo;
 import com.altamiracorp.lumify.core.ingest.TextExtractionWorkerPrepareData;
 import com.altamiracorp.lumify.core.ingest.video.VideoTextExtractionWorker;
+import com.altamiracorp.lumify.core.util.LumifyLogger;
+import com.altamiracorp.lumify.core.util.LumifyLoggerFactory;
 import com.altamiracorp.lumify.core.util.ProcessRunner;
 import com.altamiracorp.lumify.core.util.ThreadedTeeInputStreamWorker;
 import com.google.inject.Inject;
 import org.apache.hadoop.fs.Path;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.io.File;
 import java.io.InputStream;
 import java.util.Random;
 
 public class VideoMp4EncodingWorker extends ThreadedTeeInputStreamWorker<ArtifactExtractedInfo, AdditionalArtifactWorkData> implements VideoTextExtractionWorker {
-    private static final Logger LOGGER = LoggerFactory.getLogger(VideoMp4EncodingWorker.class);
+    private static final LumifyLogger LOGGER = LumifyLoggerFactory.getLogger(VideoMp4EncodingWorker.class);
     private static final Random random = new Random();
     private ProcessRunner processRunner;
 
@@ -26,7 +26,7 @@ public class VideoMp4EncodingWorker extends ThreadedTeeInputStreamWorker<Artifac
 
     @Override
     protected ArtifactExtractedInfo doWork(InputStream work, AdditionalArtifactWorkData data) throws Exception {
-        LOGGER.info("Encoding (mp4) [VideoMp4EncodingWorker] " + data.getFileName());
+        LOGGER.info("Encoding (mp4) [VideoMp4EncodingWorker] %s", data.getFileName());
         File mp4File = File.createTempFile("encode_mp4_", ".mp4");
         File mp4ReloactedFile = File.createTempFile("relocated_mp4_", ".mp4");
         try {
@@ -68,7 +68,7 @@ public class VideoMp4EncodingWorker extends ThreadedTeeInputStreamWorker<Artifac
 
             ArtifactExtractedInfo info = new ArtifactExtractedInfo();
             info.setMp4HdfsFilePath(copyDestPath.toString());
-            LOGGER.debug("Finished [VideoMp4EncodingWorker]: " + data.getFileName());
+            LOGGER.debug("Finished [VideoMp4EncodingWorker]: %s", data.getFileName());
             return info;
         } finally {
             mp4File.delete();

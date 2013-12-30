@@ -2,14 +2,14 @@ package com.altamiracorp.lumify.storm.term.extraction;
 
 import com.altamiracorp.lumify.core.ingest.term.extraction.TermExtractionResult;
 import com.altamiracorp.lumify.core.user.User;
+import com.altamiracorp.lumify.core.util.LumifyLogger;
+import com.altamiracorp.lumify.core.util.LumifyLoggerFactory;
 import com.google.common.base.Charsets;
 import com.google.common.collect.Iterables;
 import com.google.common.io.CharStreams;
 import com.google.i18n.phonenumbers.PhoneNumberMatch;
 import com.google.i18n.phonenumbers.PhoneNumberUtil;
 import org.apache.hadoop.conf.Configuration;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -18,7 +18,7 @@ import java.io.InputStreamReader;
 import static com.google.common.base.Preconditions.checkNotNull;
 
 public class PhoneNumberExtractor {
-    private static final Logger LOGGER = LoggerFactory.getLogger(PhoneNumberExtractor.class);
+    private static final LumifyLogger LOGGER = LumifyLoggerFactory.getLogger(PhoneNumberExtractor.class);
 
     private static final String ENTITY_TYPE = "phoneNumber";
     static final String DEFAULT_REGION_CODE = "defaultRegionCode";
@@ -48,7 +48,7 @@ public class PhoneNumberExtractor {
         }
 
         if (LOGGER.isDebugEnabled()) {
-            LOGGER.debug("Number of phone numbers extracted: " + Iterables.size(phoneNumbers));
+            LOGGER.debug("Number of phone numbers extracted: %d", Iterables.size(phoneNumbers));
         }
 
         return termExtractionResult;

@@ -223,7 +223,7 @@ public class FacebookBolt extends BaseLumifyBolt {
         if (textOut.hasExceededSizeLimit()) {
             artifactExtractedInfo.setTextHdfsPath(textOut.getHdfsPath().toString());
         } else {
-            artifactExtractedInfo.setText(new String (textOut.getSmall()));
+            artifactExtractedInfo.setText(new String(textOut.getSmall()));
         }
         artifactExtractedInfo.setSource(FACEBOOK);
         artifactExtractedInfo.setRaw(post.toString().getBytes());

@@ -1,5 +1,17 @@
 package com.altamiracorp.lumify.location;
 
+import com.altamiracorp.bigtable.model.ModelSession;
+import com.altamiracorp.lumify.core.cmdline.CommandLineBase;
+import com.altamiracorp.lumify.core.model.geoNames.*;
+import com.altamiracorp.lumify.core.user.User;
+import com.google.inject.Inject;
+import org.apache.commons.cli.CommandLine;
+import org.apache.commons.cli.OptionBuilder;
+import org.apache.commons.cli.Options;
+import org.apache.commons.lang.StringUtils;
+import org.apache.hadoop.fs.FileSystem;
+import org.apache.hadoop.fs.Path;
+
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
@@ -7,35 +19,6 @@ import java.io.InputStreamReader;
 import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.List;
-
-import org.apache.accumulo.core.util.CachedConfiguration;
-import org.apache.commons.cli.CommandLine;
-import org.apache.commons.cli.OptionBuilder;
-import org.apache.commons.cli.Options;
-import org.apache.commons.lang.StringUtils;
-import org.apache.hadoop.fs.FileSystem;
-import org.apache.hadoop.fs.Path;
-import org.apache.hadoop.util.ToolRunner;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import com.altamiracorp.bigtable.model.ModelSession;
-import com.altamiracorp.lumify.core.cmdline.CommandLineBase;
-import com.altamiracorp.lumify.core.model.geoNames.GeoName;
-import com.altamiracorp.lumify.core.model.geoNames.GeoNameAdmin1Code;
-import com.altamiracorp.lumify.core.model.geoNames.GeoNameAdmin1CodeRepository;
-import com.altamiracorp.lumify.core.model.geoNames.GeoNameAdmin1CodeRowKey;
-import com.altamiracorp.lumify.core.model.geoNames.GeoNameCountryInfo;
-import com.altamiracorp.lumify.core.model.geoNames.GeoNameCountryInfoRepository;
-import com.altamiracorp.lumify.core.model.geoNames.GeoNameCountryInfoRowKey;
-import com.altamiracorp.lumify.core.model.geoNames.GeoNameMetadata;
-import com.altamiracorp.lumify.core.model.geoNames.GeoNamePostalCode;
-import com.altamiracorp.lumify.core.model.geoNames.GeoNamePostalCodeRepository;
-import com.altamiracorp.lumify.core.model.geoNames.GeoNamePostalCodeRowKey;
-import com.altamiracorp.lumify.core.model.geoNames.GeoNameRepository;
-import com.altamiracorp.lumify.core.model.geoNames.GeoNameRowKey;
-import com.altamiracorp.lumify.core.user.User;
-import com.google.inject.Inject;
 
 public class GeoNamesImporter extends CommandLineBase {
     private GeoNameRepository geoNameRepository;

@@ -6,11 +6,11 @@ import com.altamiracorp.lumify.core.model.ontology.PropertyName;
 import com.altamiracorp.lumify.core.model.termMention.TermMention;
 import com.altamiracorp.lumify.core.model.termMention.TermMentionMetadata;
 import com.altamiracorp.lumify.core.user.User;
+import com.altamiracorp.lumify.core.util.LumifyLogger;
+import com.altamiracorp.lumify.core.util.LumifyLoggerFactory;
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
 import com.thinkaurelius.titan.core.attribute.Geoshape;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.util.List;
 
@@ -18,7 +18,7 @@ import static com.google.common.base.Preconditions.checkNotNull;
 
 @Singleton
 public class ArtifactLocationAnalyzer {
-    private static final Logger LOGGER = LoggerFactory.getLogger(ArtifactLocationAnalyzer.class);
+    private static final LumifyLogger LOGGER = LumifyLoggerFactory.getLogger(ArtifactLocationAnalyzer.class);
 
     private final GraphRepository graphRepository;
 

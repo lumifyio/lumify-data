@@ -4,18 +4,14 @@ import com.altamiracorp.lumify.core.ingest.AdditionalArtifactWorkData;
 import com.altamiracorp.lumify.core.ingest.ArtifactExtractedInfo;
 import com.altamiracorp.lumify.core.ingest.TextExtractionWorkerPrepareData;
 import com.altamiracorp.lumify.core.ingest.video.VideoTextExtractionWorker;
-import com.altamiracorp.lumify.core.util.HdfsLimitOutputStream;
-import com.altamiracorp.lumify.core.util.ProcessRunner;
-import com.altamiracorp.lumify.core.util.ThreadedTeeInputStreamWorker;
+import com.altamiracorp.lumify.core.util.*;
 import com.google.inject.Inject;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.io.File;
 import java.io.InputStream;
 
 public class VideoPosterFrameWorker extends ThreadedTeeInputStreamWorker<ArtifactExtractedInfo, AdditionalArtifactWorkData> implements VideoTextExtractionWorker {
-    private static final Logger LOGGER = LoggerFactory.getLogger(VideoPosterFrameWorker.class);
+    private static final LumifyLogger LOGGER = LumifyLoggerFactory.getLogger(VideoPosterFrameWorker.class);
     private ProcessRunner processRunner;
 
     @Override
@@ -25,7 +21,7 @@ public class VideoPosterFrameWorker extends ThreadedTeeInputStreamWorker<Artifac
     @Override
     protected ArtifactExtractedInfo doWork(InputStream work, AdditionalArtifactWorkData additionalArtifactWorkData) throws Exception {
         File inputFile = new File(additionalArtifactWorkData.getLocalFileName());
-        LOGGER.info("Encoding (posterframe) [VideoPosterFrameWorker] " + inputFile.getAbsolutePath() + ", length: " + inputFile.length());
+        LOGGER.info("Encoding (posterframe) [VideoPosterFrameWorker] %s, length: %d", inputFile.getAbsolutePath(), inputFile.length());
         HdfsLimitOutputStream out = new HdfsLimitOutputStream(additionalArtifactWorkData.getHdfsFileSystem(), 0);
         try {
             processRunner.execute(
@@ -54,7 +50,7 @@ public class VideoPosterFrameWorker extends ThreadedTeeInputStreamWorker<Artifac
 
         ArtifactExtractedInfo info = new ArtifactExtractedInfo();
         info.setPosterFrameHdfsPath(out.getHdfsPath().toString());
-        LOGGER.debug("Finished [VideoPosterFrameWorker]: " + additionalArtifactWorkData.getFileName());
+        LOGGER.debug("Finished [VideoPosterFrameWorker]: %s", additionalArtifactWorkData.getFileName());
         return info;
     }
 

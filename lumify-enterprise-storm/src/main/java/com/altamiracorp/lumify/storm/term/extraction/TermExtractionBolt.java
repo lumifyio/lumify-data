@@ -14,14 +14,14 @@ import com.altamiracorp.lumify.core.model.termMention.TermMention;
 import com.altamiracorp.lumify.core.model.termMention.TermMentionRepository;
 import com.altamiracorp.lumify.core.model.termMention.TermMentionRowKey;
 import com.altamiracorp.lumify.core.model.workQueue.WorkQueueRepository;
+import com.altamiracorp.lumify.core.util.LumifyLogger;
+import com.altamiracorp.lumify.core.util.LumifyLoggerFactory;
 import com.altamiracorp.lumify.core.util.ThreadedInputStreamProcess;
 import com.altamiracorp.lumify.core.util.ThreadedTeeInputStreamWorker;
 import com.altamiracorp.lumify.storm.BaseTextProcessingBolt;
 import com.google.common.collect.Lists;
 import com.google.inject.Inject;
 import org.json.JSONObject;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.io.BufferedWriter;
 import java.io.FileWriter;
@@ -36,7 +36,7 @@ import static com.google.common.base.Preconditions.checkNotNull;
 import static com.google.common.base.Preconditions.checkState;
 
 public class TermExtractionBolt extends BaseTextProcessingBolt {
-    private static final Logger LOGGER = LoggerFactory.getLogger(TermExtractionBolt.class);
+    private static final LumifyLogger LOGGER = LumifyLoggerFactory.getLogger(TermExtractionBolt.class);
     private ThreadedInputStreamProcess<TermExtractionResult, TermExtractionAdditionalWorkData> termExtractionStreamProcess;
     private TermMentionRepository termMentionRepository;
     private OntologyRepository ontologyRepository;
@@ -59,7 +59,7 @@ public class TermExtractionBolt extends BaseTextProcessingBolt {
 
         ServiceLoader<TermExtractionWorker> services = ServiceLoader.load(TermExtractionWorker.class);
         for (TermExtractionWorker service : services) {
-            LOGGER.info(String.format("Adding service %s to %s", service.getClass().getName(), getClass().getName()));
+            LOGGER.info("Adding service %s to %s", service.getClass().getName(), getClass().getName());
             InjectHelper.inject(service);
             service.prepare(stormConf, getUser());
             workers.add(service);
@@ -115,9 +115,7 @@ public class TermExtractionBolt extends BaseTextProcessingBolt {
         List<TermMentionWithGraphVertex> results = new ArrayList<TermMentionWithGraphVertex>();
         Object artifactTitle = graphRepository.findVertex(artifactGraphVertexId, getUser()).getProperty(PropertyName.TITLE.toString());
         for (TermExtractionResult.TermMention termMention : termMentions) {
-            if (LOGGER.isDebugEnabled()) {
-                LOGGER.debug(String.format("Saving term mention '%s':%s (%d:%d)", termMention.getSign(), termMention.getOntologyClassUri(), termMention.getStart(), termMention.getEnd()));
-            }
+            LOGGER.debug("Saving term mention '%s':%s (%d:%d)", termMention.getSign(), termMention.getOntologyClassUri(), termMention.getStart(), termMention.getEnd());
             GraphVertex vertex = null;
             TermMention termMentionModel = new TermMention(new TermMentionRowKey(artifactGraphVertexId, termMention.getStart(), termMention.getEnd()));
             termMentionModel.getMetadata().setSign(termMention.getSign());
@@ -127,7 +125,7 @@ public class TermExtractionBolt extends BaseTextProcessingBolt {
             if (concept != null) {
                 termMentionModel.getMetadata().setConceptGraphVertexId(concept.getId());
             } else {
-                LOGGER.error(String.format("Could not find ontology graph vertex '%s'", termMention.getOntologyClassUri()));
+                LOGGER.error("Could not find ontology graph vertex '%s'", termMention.getOntologyClassUri());
             }
 
             if (termMention.isResolved()) {

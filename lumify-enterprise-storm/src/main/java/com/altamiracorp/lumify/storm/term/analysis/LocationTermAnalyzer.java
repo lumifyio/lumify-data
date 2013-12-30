@@ -9,19 +9,19 @@ import com.altamiracorp.lumify.core.model.termMention.TermMention;
 import com.altamiracorp.lumify.core.model.termMention.TermMentionMetadata;
 import com.altamiracorp.lumify.core.model.termMention.TermMentionRepository;
 import com.altamiracorp.lumify.core.user.User;
+import com.altamiracorp.lumify.core.util.LumifyLogger;
+import com.altamiracorp.lumify.core.util.LumifyLoggerFactory;
 import com.altamiracorp.lumify.location.SimpleTermLocationExtractor;
 import com.altamiracorp.lumify.storm.term.extraction.TermMentionWithGraphVertex;
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
 import com.thinkaurelius.titan.core.attribute.Geoshape;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 
 @Singleton
 public class LocationTermAnalyzer {
-    private static final Logger LOGGER = LoggerFactory.getLogger(LocationTermAnalyzer.class);
+    private static final LumifyLogger LOGGER = LumifyLoggerFactory.getLogger(LocationTermAnalyzer.class);
 
     private final SimpleTermLocationExtractor simpleTermLocationExtractor;
     private final GeoNamePostalCodeRepository geoNamePostalCodeRepository;
@@ -48,13 +48,13 @@ public class LocationTermAnalyzer {
 
         final TermMention termMention = data.getTermMention();
 
-        LOGGER.info("Analyzing term: " + termMention.getMetadata().getSign());
+        LOGGER.info("Analyzing term: %s", termMention.getMetadata().getSign());
         TermMention updatedTerm;
         if (simpleTermLocationExtractor.isPostalCode(termMention)) {
-            LOGGER.info("Analyzing postal code for term: " + termMention.getRowKey().toString());
+            LOGGER.info("Analyzing postal code for term: %s", termMention.getRowKey().toString());
             updatedTerm = simpleTermLocationExtractor.getTermWithPostalCodeLookup(geoNamePostalCodeRepository, termMention, user);
         } else {
-            LOGGER.info("Analyzing location for term: " + termMention.getRowKey().toString());
+            LOGGER.info("Analyzing location for term: %s", termMention.getRowKey().toString());
             updatedTerm = simpleTermLocationExtractor.getTermWithLocationLookup(geoNameRepository, termMention, user);
         }
 

@@ -13,9 +13,15 @@ import com.altamiracorp.lumify.core.model.ontology.Concept;
 import com.altamiracorp.lumify.core.model.ontology.VertexType;
 import com.altamiracorp.lumify.core.model.search.SearchProvider;
 import com.altamiracorp.lumify.core.user.User;
+import com.altamiracorp.lumify.core.util.LumifyLogger;
+import com.altamiracorp.lumify.core.util.LumifyLoggerFactory;
 import com.altamiracorp.lumify.storm.BaseLumifyBolt;
+import com.beust.jcommander.internal.Lists;
 import com.google.inject.Inject;
 import com.thinkaurelius.titan.core.attribute.Geoshape;
+import org.json.JSONArray;
+import org.json.JSONObject;
+
 import java.io.ByteArrayInputStream;
 import java.io.InputStream;
 import java.text.DateFormat;
@@ -25,18 +31,13 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
-import org.json.JSONArray;
-import org.json.JSONObject;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import static com.altamiracorp.lumify.core.model.ontology.PropertyName.*;
 import static com.altamiracorp.lumify.storm.twitter.TwitterConstants.*;
-import com.beust.jcommander.internal.Lists;
 
 public class TwitterStreamingBolt extends BaseLumifyBolt {
-    private static final Logger LOGGER = LoggerFactory.getLogger(TwitterStreamingBolt.class);
-    
+    private static final LumifyLogger LOGGER = LumifyLoggerFactory.getLogger(TwitterStreamingBolt.class);
+
     private static final String TWITTER_TEXT_PROPERTY = "text";
     private static final String TWITTER_CREATED_AT_PROPERTY = "created_at";
     private static final String TWITTER_USER_PROPERTY = "user";
@@ -60,7 +61,7 @@ public class TwitterStreamingBolt extends BaseLumifyBolt {
     private static final int LATITUDE_INDEX = 1;
     private static final int LONGITUDE_INDEX = 0;
     private static final int UNSET_INT_VALUE = Integer.MIN_VALUE;
-    
+
     /**
      * ThreadLocal DateFormat for Twitter dates.  This minimizes creation of
      * non-thread-safe SimpleDateFormat objects and eliminates the need for
@@ -88,7 +89,7 @@ public class TwitterStreamingBolt extends BaseLumifyBolt {
                 TWITTER_USER_JSON_FIELD
         ));
     }
-    
+
     @Override
     public void safeExecute(Tuple tuple) throws Exception {
         final JSONObject json = tryGetJsonFromTuple(tuple);
@@ -108,14 +109,14 @@ public class TwitterStreamingBolt extends BaseLumifyBolt {
             if (json == null) {
                 LOGGER.warn("Unable to extract JSON from Tuple.");
             } else {
-                LOGGER.warn(String.format("JSON Object cannot be processed as Twitter data."));
+                LOGGER.warn("JSON Object cannot be processed as Twitter data.");
             }
         }
     }
 
     private void parseTweet(final TweetTuple outputTuple) {
         User user = getUser();
-        
+
         JSONObject tweetJson = outputTuple.getTweet();
         String tweetText = outputTuple.getTweetText();
         String createdAtStr = tweetJson.optString(TWITTER_CREATED_AT_PROPERTY, null);
@@ -143,7 +144,7 @@ public class TwitterStreamingBolt extends BaseLumifyBolt {
         GraphVertex tweetVertex = saveArtifact(artifactExtractedInfo);
         outputTuple.setTweetVertex(tweetVertex);
         String tweetId = tweetVertex.getId();
-        LOGGER.info(String.format("Saving tweet to accumulo and as graph vertex: %s", tweetId));
+        LOGGER.info("Saving tweet to accumulo and as graph vertex: %s", tweetId);
 
         List<String> modifiedProperties = new ArrayList<String>();
 
@@ -169,11 +170,11 @@ public class TwitterStreamingBolt extends BaseLumifyBolt {
         graphRepository.save(tweetVertex, user);
         auditRepository.audit(tweetId, auditRepository.vertexPropertyAuditMessages(tweetVertex, modifiedProperties), user);
     }
-    
+
     private void parseTweeter(final TweetTuple outputTuple) {
         User user = getUser();
         Concept handleConcept = ontologyRepository.getConceptByName(TWITTER_HANDLE_CONCEPT, user);
-        
+
         JSONObject tweeterJson = outputTuple.getUserJSON();
         String tweeter = tweeterJson.getString(SCREEN_NAME_PROPERTY).toLowerCase();
         boolean newVertex = false;
@@ -192,20 +193,20 @@ public class TwitterStreamingBolt extends BaseLumifyBolt {
         tweeterVertex.setProperty(TITLE, tweeter);
         tweeterVertex.setProperty(TYPE, VertexType.ENTITY.toString());
         tweeterVertex.setProperty(SUBTYPE, handleConcept.getId());
-        
+
         String displayName = tweeterJson.optString(TWITTER_DISPLAY_NAME_PROPERTY, null);
         if (displayName != null && !displayName.trim().isEmpty()) {
             tweeterVertex.setProperty(DISPLAY_NAME, displayName);
             modifiedProperties.add(DISPLAY_NAME.toString());
         }
-        
+
         JSONArray coords = tweeterJson.optJSONArray(TWITTER_COORDINATES_PROPERTY);
         if (coords != null) {
             tweeterVertex.setProperty(GEO_LOCATION,
                     new GraphGeoLocation(coords.getDouble(LATITUDE_INDEX), coords.getDouble(LONGITUDE_INDEX)));
             modifiedProperties.add(GEO_LOCATION.toString());
         }
-        
+
         Integer statusCount = getOptInt(tweeterJson, TWITTER_STATUS_COUNT_PROPERTY);
         if (statusCount != null && statusCount > 0) {
             tweeterVertex.setProperty(STATUS_COUNT, statusCount);
@@ -236,7 +237,7 @@ public class TwitterStreamingBolt extends BaseLumifyBolt {
             tweeterVertex.setProperty(DESCRIPTION, description);
             modifiedProperties.add(DESCRIPTION);
         }
-        
+
         graphRepository.save(tweeterVertex, getUser());
         outputTuple.setUserVertex(tweeterVertex);
         String tweetId = outputTuple.getTweetId();
@@ -261,6 +262,7 @@ public class TwitterStreamingBolt extends BaseLumifyBolt {
     /**
      * Checks the provided object to determine if it contains the minimum
      * required fields to be processed by this bolt.
+     *
      * @param json the JSON object
      * @return true if the object can be processed as a tweet
      */
@@ -274,7 +276,7 @@ public class TwitterStreamingBolt extends BaseLumifyBolt {
         return text != null &&
                 user != null &&
                 scrName != null && !scrName.trim().isEmpty();
-                
+
     }
 
     private Date parseTwitterDate(String dateStr) {
@@ -292,7 +294,8 @@ public class TwitterStreamingBolt extends BaseLumifyBolt {
     /**
      * Get an optional integer field from the JSONObject as an Integer, returning
      * <code>null</code> if the field is not populated.
-     * @param obj the JSON Object
+     *
+     * @param obj      the JSON Object
      * @param property the integer property
      * @return the Integer value of the property or <code>null</code> if not specified
      */
@@ -305,7 +308,7 @@ public class TwitterStreamingBolt extends BaseLumifyBolt {
     public void setSearchProvider(SearchProvider searchProvider) {
         this.searchProvider = searchProvider;
     }
-        
+
     private class TweetTuple {
         private JSONObject tweet;
         private GraphVertex tweetVertex;
@@ -334,27 +337,27 @@ public class TwitterStreamingBolt extends BaseLumifyBolt {
         public void setUserVertex(final GraphVertex userVertex) {
             this.userVertex = userVertex;
         }
-        
+
         public String getTweetText() {
             return tweet.getString(TWITTER_TEXT_PROPERTY);
         }
-        
+
         public String getTweetId() {
             return tweetVertex.getId();
         }
-        
+
         public String getTweetTitle() {
             return tweetVertex.getProperty(TITLE).toString();
         }
-        
+
         public String getUserId() {
             return userVertex.getId();
         }
-        
+
         public JSONObject getUserJSON() {
             return tweet.getJSONObject(TWITTER_USER_PROPERTY);
         }
-        
+
         public void emit(final Tuple parent) {
             getCollector().emit(parent, Arrays.asList(
                     getTweetText(),

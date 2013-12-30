@@ -1,6 +1,8 @@
 package com.altamiracorp.lumify.objectDetection;
 
 import com.altamiracorp.lumify.core.ingest.ArtifactDetectedObject;
+import com.altamiracorp.lumify.core.util.LumifyLogger;
+import com.altamiracorp.lumify.core.util.LumifyLoggerFactory;
 import com.altamiracorp.lumify.util.OpenCVUtils;
 import org.apache.commons.io.IOUtils;
 import org.apache.hadoop.fs.FileSystem;
@@ -10,8 +12,6 @@ import org.opencv.core.Mat;
 import org.opencv.core.MatOfRect;
 import org.opencv.core.Rect;
 import org.opencv.objdetect.CascadeClassifier;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.awt.image.BufferedImage;
 import java.io.File;
@@ -25,8 +25,7 @@ import java.util.Map;
 import static com.google.common.base.Preconditions.checkNotNull;
 
 public class OpenCVObjectDetector extends ObjectDetector {
-
-    private static final Logger LOGGER = LoggerFactory.getLogger(OpenCVObjectDetector.class);
+    private static final LumifyLogger LOGGER = LumifyLoggerFactory.getLogger(OpenCVObjectDetector.class);
     public static final String OPENCV_CLASSIFIER_CONCEPT_LIST = "objectdetection.classifierConcepts";
     public static final String OPENCV_CLASSIFIER_PATH_PREFIX = "objectdetection.classifier.";
     public static final String OPENCV_CLASSIFIER_PATH_SUFFIX = ".path";

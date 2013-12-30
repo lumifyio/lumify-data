@@ -5,14 +5,10 @@ import com.altamiracorp.lumify.core.ingest.ArtifactExtractedInfo;
 import com.altamiracorp.lumify.core.ingest.TextExtractionWorkerPrepareData;
 import com.altamiracorp.lumify.core.ingest.video.VideoTextExtractionWorker;
 import com.altamiracorp.lumify.core.model.artifact.Artifact;
-import com.altamiracorp.lumify.core.util.HdfsLimitOutputStream;
-import com.altamiracorp.lumify.core.util.ProcessRunner;
-import com.altamiracorp.lumify.core.util.ThreadedTeeInputStreamWorker;
+import com.altamiracorp.lumify.core.util.*;
 import com.google.inject.Inject;
 import org.apache.commons.io.FileUtils;
 import org.apache.hadoop.fs.Path;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.io.File;
 import java.io.InputStream;
@@ -22,8 +18,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 public class VideoExtractFramesWorker extends ThreadedTeeInputStreamWorker<ArtifactExtractedInfo, AdditionalArtifactWorkData> implements VideoTextExtractionWorker {
-    private static final Logger LOGGER = LoggerFactory.getLogger(VideoExtractFramesWorker.class);
-
+    private static final LumifyLogger LOGGER = LumifyLoggerFactory.getLogger(VideoExtractFramesWorker.class);
     private static final Random random = new Random();
 
     private VideoFrameTextExtractor videoFrameTextExtractor;
@@ -35,14 +30,14 @@ public class VideoExtractFramesWorker extends ThreadedTeeInputStreamWorker<Artif
 
     @Override
     protected ArtifactExtractedInfo doWork(InputStream work, AdditionalArtifactWorkData additionalArtifactWorkData) throws Exception {
-        LOGGER.debug("Extracting Frames [VideoExtractFramesWorker]: " + additionalArtifactWorkData.getFileName());
+        LOGGER.debug("Extracting Frames [VideoExtractFramesWorker]: %s", additionalArtifactWorkData.getFileName());
         Pattern fileNamePattern = Pattern.compile("image-([0-9]+)\\.png");
         File tempDir = createTempDir("video-frames");
         HdfsLimitOutputStream textOut = new HdfsLimitOutputStream(additionalArtifactWorkData.getHdfsFileSystem(), Artifact.MAX_SIZE_OF_INLINE_FILE);
 
         int framesPerSecondToExtract = 1;
 
-        LOGGER.info("Extracting video frames from: " + additionalArtifactWorkData.getLocalFileName());
+        LOGGER.info("Extracting video frames from: %s", additionalArtifactWorkData.getLocalFileName());
         processRunner.execute(
                 "ffmpeg",
                 new String[]{
@@ -92,7 +87,7 @@ public class VideoExtractFramesWorker extends ThreadedTeeInputStreamWorker<Artif
             info.setText(new String(textOut.getSmall()));
         }
 
-        LOGGER.debug("Finished [VideoExtractFramesWorker]: " + additionalArtifactWorkData.getFileName());
+        LOGGER.debug("Finished [VideoExtractFramesWorker]: %s", additionalArtifactWorkData.getFileName());
         return info;
     }
 

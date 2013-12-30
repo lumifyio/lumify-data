@@ -6,14 +6,14 @@ import com.altamiracorp.lumify.core.model.artifact.ArtifactRepository;
 import com.altamiracorp.lumify.core.model.graph.GraphVertex;
 import com.altamiracorp.lumify.core.model.ontology.PropertyName;
 import com.altamiracorp.lumify.core.user.User;
+import com.altamiracorp.lumify.core.util.LumifyLogger;
+import com.altamiracorp.lumify.core.util.LumifyLoggerFactory;
 import com.altamiracorp.lumify.storm.structuredData.MappingProperties;
 import com.altamiracorp.lumify.util.LineReader;
 import com.google.inject.Inject;
 import com.thinkaurelius.titan.core.attribute.Geoshape;
 import org.json.JSONArray;
 import org.json.JSONObject;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.supercsv.io.CsvListReader;
 import org.supercsv.prefs.CsvPreference;
 
@@ -26,7 +26,7 @@ import java.util.*;
 import static com.google.common.base.Preconditions.checkNotNull;
 
 public class CsvEntityExtractor {
-    private static final Logger LOGGER = LoggerFactory.getLogger(CsvEntityExtractor.class);
+    private static final LumifyLogger LOGGER = LumifyLoggerFactory.getLogger(CsvEntityExtractor.class);
     private Map<String, SimpleDateFormat> dateFormatCache = new HashMap<String, SimpleDateFormat>();
     private ArtifactRepository artifactRepository;
 
@@ -35,9 +35,7 @@ public class CsvEntityExtractor {
         checkNotNull(user);
         TermExtractionResult termExtractionResult = new TermExtractionResult();
         String artifactRowKey = (String) graphVertex.getProperty(PropertyName.ROW_KEY);
-        if (LOGGER.isDebugEnabled()) {
-            LOGGER.debug(String.format("Processing graph vertex [%s] for artifact: %s", graphVertex.getId(), artifactRowKey));
-        }
+        LOGGER.debug("Processing graph vertex [%s] for artifact: %s", graphVertex.getId(), artifactRowKey);
 
         Artifact artifact = artifactRepository.findByRowKey(artifactRowKey, user.getModelUserContext());
         if (artifact.getMetadata().getMappingJson() != null) {

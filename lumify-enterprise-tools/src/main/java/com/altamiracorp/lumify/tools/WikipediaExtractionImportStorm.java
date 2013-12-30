@@ -2,20 +2,20 @@ package com.altamiracorp.lumify.tools;
 
 import com.altamiracorp.lumify.core.cmdline.CommandLineBase;
 import com.altamiracorp.lumify.core.model.workQueue.WorkQueueRepository;
+import com.altamiracorp.lumify.core.util.LumifyLogger;
+import com.altamiracorp.lumify.core.util.LumifyLoggerFactory;
 import com.google.inject.Inject;
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.OptionBuilder;
 import org.apache.commons.cli.Options;
 import org.json.JSONObject;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.io.BufferedReader;
 import java.io.FileInputStream;
 import java.io.InputStreamReader;
 
 public class WikipediaExtractionImportStorm extends CommandLineBase {
-    private static final Logger LOGGER = LoggerFactory.getLogger(WikipediaExtractionImportStorm.class);
+    private static final LumifyLogger LOGGER = LumifyLoggerFactory.getLogger(WikipediaExtractionImportStorm.class);
     private WorkQueueRepository workQueueRepository;
 
     public WikipediaExtractionImportStorm() {
@@ -101,7 +101,7 @@ public class WikipediaExtractionImportStorm extends CommandLineBase {
     }
 
     private void printProgress(int lineNumber) {
-        LOGGER.info("Sent " + lineNumber + " documents to queue.");
+        LOGGER.info("Sent %d documents to queue.", lineNumber);
     }
 
     @Inject

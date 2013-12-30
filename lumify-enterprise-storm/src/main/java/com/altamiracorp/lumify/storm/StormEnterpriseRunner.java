@@ -95,7 +95,7 @@ public class StormEnterpriseRunner extends StormRunnerBase {
             }
 
             Path dstPath = new Path(unknownDataDir, srcPath.getName());
-            LOGGER.debug("Copying file (" + (fileCount + 1) + "/" + totalFileCount + "): " + srcPath + " -> " + dstPath);
+            LOGGER.debug("Copying file (%d/%d): %s -> %s", fileCount + 1, totalFileCount, srcPath, dstPath);
             hdfsFileSystem.copyFromLocalFile(false, true, srcPath, dstPath);
             fileCount++;
         }

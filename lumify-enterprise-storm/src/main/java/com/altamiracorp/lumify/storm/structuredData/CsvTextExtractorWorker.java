@@ -7,11 +7,11 @@ import com.altamiracorp.lumify.core.ingest.structuredData.StructuredDataExtracti
 import com.altamiracorp.lumify.core.model.artifact.Artifact;
 import com.altamiracorp.lumify.core.model.artifact.ArtifactType;
 import com.altamiracorp.lumify.core.util.HdfsLimitOutputStream;
+import com.altamiracorp.lumify.core.util.LumifyLogger;
+import com.altamiracorp.lumify.core.util.LumifyLoggerFactory;
 import com.altamiracorp.lumify.core.util.ThreadedTeeInputStreamWorker;
 import org.apache.commons.io.FileUtils;
 import org.json.JSONObject;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.supercsv.io.CsvListReader;
 import org.supercsv.io.CsvListWriter;
 import org.supercsv.prefs.CsvPreference;
@@ -26,11 +26,11 @@ public class CsvTextExtractorWorker
         extends ThreadedTeeInputStreamWorker<ArtifactExtractedInfo, AdditionalArtifactWorkData>
         implements StructuredDataExtractionWorker {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(CsvTextExtractorWorker.class.getName());
+    private static final LumifyLogger LOGGER = LumifyLoggerFactory.getLogger(CsvTextExtractorWorker.class);
 
     @Override
     protected ArtifactExtractedInfo doWork(InputStream work, AdditionalArtifactWorkData data) throws Exception {
-        LOGGER.debug("Extracting Text from CSV [CsvTextExtractorWorker]: " + data.getFileName());
+        LOGGER.debug("Extracting Text from CSV [CsvTextExtractorWorker]: %s", data.getFileName());
         ArtifactExtractedInfo info = new ArtifactExtractedInfo();
         HdfsLimitOutputStream textOut = new HdfsLimitOutputStream(data.getHdfsFileSystem(), Artifact.MAX_SIZE_OF_INLINE_FILE);
 
@@ -60,14 +60,14 @@ public class CsvTextExtractorWorker
         if (textOut.hasExceededSizeLimit()) {
             info.setTextHdfsPath(textOut.getHdfsPath().toString());
         } else {
-            info.setText(new String (textOut.getSmall()));
+            info.setText(new String(textOut.getSmall()));
         }
         if (mappingJson.has(MappingProperties.SUBJECT)) {
             info.setTitle(mappingJson.get(MappingProperties.SUBJECT).toString());
         }
         info.setMappingJson(mappingJson);
         info.setArtifactType(ArtifactType.DOCUMENT.toString());
-        LOGGER.debug("Finished [CsvTextExtractorWorker]: " + data.getFileName());
+        LOGGER.debug("Finished [CsvTextExtractorWorker]: %s", data.getFileName());
         return info;
     }
 

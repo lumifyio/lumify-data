@@ -2,6 +2,8 @@ package com.altamiracorp.lumify.textExtraction;
 
 import com.altamiracorp.lumify.core.ingest.ArtifactExtractedInfo;
 import com.altamiracorp.lumify.core.model.artifact.ArtifactType;
+import com.altamiracorp.lumify.core.util.LumifyLogger;
+import com.altamiracorp.lumify.core.util.LumifyLoggerFactory;
 import com.altamiracorp.lumify.textExtraction.util.GenericDateExtractor;
 import com.altamiracorp.lumify.textExtraction.util.TikaMetadataUtils;
 import com.google.inject.Inject;
@@ -16,8 +18,6 @@ import org.apache.tika.parser.Parser;
 import org.apache.tika.sax.BodyContentHandler;
 import org.json.JSONException;
 import org.json.JSONObject;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.xml.sax.ContentHandler;
 
 import java.io.ByteArrayInputStream;
@@ -32,7 +32,7 @@ import java.util.List;
 import java.util.Properties;
 
 public class TikaTextExtractor {
-    private static final Logger LOGGER = LoggerFactory.getLogger(TikaTextExtractor.class);
+    private static final LumifyLogger LOGGER = LumifyLoggerFactory.getLogger(TikaTextExtractor.class);
     private static final String NAME = "tikaExtractor";
 
     private static final String PROPS_FILE = "tika-extractor.properties";
@@ -68,7 +68,7 @@ public class TikaTextExtractor {
                 tikaProperties.load(propsIn);
             }
         } catch (IOException e) {
-            LOGGER.error("Could not load config: " + PROPS_FILE);
+            LOGGER.error("Could not load config: %s", PROPS_FILE);
         }
 
         dateKeys = Arrays.asList(tikaProperties.getProperty(DATE_KEYS_PROPERTY, "date,published,pubdate,publish_date,last-modified, atc:last-modified").split(","));

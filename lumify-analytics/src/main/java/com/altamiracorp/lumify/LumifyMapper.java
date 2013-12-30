@@ -7,20 +7,19 @@ import com.altamiracorp.lumify.core.model.GraphSession;
 import com.altamiracorp.lumify.core.model.search.SearchProvider;
 import com.altamiracorp.lumify.core.user.SystemUser;
 import com.altamiracorp.lumify.core.user.User;
+import com.altamiracorp.lumify.core.util.LumifyLogger;
+import com.altamiracorp.lumify.core.util.LumifyLoggerFactory;
 import com.google.inject.Inject;
 import com.google.inject.Injector;
 import com.google.inject.Module;
 import org.apache.hadoop.mapreduce.Mapper;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 
 public abstract class LumifyMapper<KEYIN, VALUEIN, KEYOUT, VALUEOUT> extends Mapper<KEYIN, VALUEIN, KEYOUT, VALUEOUT> {
-    private static final Logger LOGGER = LoggerFactory.getLogger(LumifyMapper.class);
-
+    private static final LumifyLogger LOGGER = LumifyLoggerFactory.getLogger(LumifyMapper.class);
     private boolean failOnFirstError;
     private User user;
     private ModelSession modelSession;
