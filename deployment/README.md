@@ -35,7 +35,13 @@ ec2-modify-instance-attribute <instance id> --group-id <existing group id> --gro
 setup
 =====
 
-- ssh from the puppet server to one of the Kafka servers and run:
+- ssh from the puppet server to namenode and run:
+
+```
+/root/setup_config.sh
+```
+
+- ssh from the puppet server to one of the kafka servers and run:
 
 ```
 /opt/lumify/kafka-clear.sh --zookeeper 10.0.3.101:2181
