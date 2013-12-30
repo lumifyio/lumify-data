@@ -107,6 +107,9 @@ EO_YUM_CONF
   scp ${SSH_OPTS} setup_disks.sh ${other_host}:
   ssh ${SSH_OPTS} ${other_host} './setup_disks.sh instance 2>&1 | tee setup_disks.instance.log'
 
+  heading "ensure /data0 direcotry"
+  ssh ${SSH_OPTS} ${other_host} mkdir -p /data0
+
   # heading "${other_host}: setup EBS disks"
   # ssh ${SSH_OPTS} ${other_host} './setup_disks.sh ebs 2>&1 | tee setup_disks.ebs.log'
 
