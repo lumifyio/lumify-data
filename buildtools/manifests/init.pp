@@ -1,5 +1,5 @@
 class buildtools($tmpdir="/usr/local/src") {
-  $antVersion = '1.9.2'
+  $antVersion = '1.9.3'
   $mavenVersion = '3.0.5'
 
   include epel
