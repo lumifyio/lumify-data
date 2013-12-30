@@ -30,6 +30,7 @@ import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 import java.util.Properties;
+import java.util.regex.Pattern;
 
 public class TikaTextExtractor {
     private static final LumifyLogger LOGGER = LumifyLoggerFactory.getLogger(TikaTextExtractor.class);
@@ -99,10 +100,10 @@ public class TikaTextExtractor {
         if (isHtml(mimeType)) {
             text = extractTextFromHtml(IOUtils.toString(new ByteArrayInputStream(input)));
             if (text == null || text.length() == 0) {
-                text = handler.toString();
+                text = cleanExtractedText(handler.toString());
             }
         } else {
-            text = handler.toString();
+            text = cleanExtractedText(handler.toString());
         }
         textOut.write(text.getBytes());
 
@@ -214,4 +215,18 @@ public class TikaTextExtractor {
         return mimeType.contains("html");
     }
 
+    private String cleanExtractedText(String extractedText) {
+        StringBuilder trimmedText = new StringBuilder();
+        String[] splitResults = extractedText.split("\\n");
+        Pattern p = Pattern.compile("[a-zA-Z0-9]");
+        for (int i = 0; i < splitResults.length; i++) {
+            if (p.matcher(splitResults[i]).find()) {
+                trimmedText.append(splitResults[i].replaceAll("\\s{2,}", " ").trim());
+                if (i != splitResults.length) {
+                    trimmedText.append("\n");
+                }
+            }
+        }
+        return trimmedText.toString().replaceAll("\\n{3,}", "\n\n");
+    }
 }

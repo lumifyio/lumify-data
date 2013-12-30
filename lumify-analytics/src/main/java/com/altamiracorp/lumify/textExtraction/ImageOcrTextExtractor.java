@@ -49,7 +49,7 @@ public class ImageOcrTextExtractor {
 
     private String extractTextFromImage(BufferedImage image) throws TesseractException {
         BufferedImage grayImage = ImageHelper.convertImageToGrayscale(image);
-        String ocrResults = tesseract.doOCR(grayImage);
+        String ocrResults = tesseract.doOCR(grayImage).replaceAll("\\n{2,}", "\n");
         if (ocrResults == null || ocrResults.trim().length() == 0) {
             return null;
         }

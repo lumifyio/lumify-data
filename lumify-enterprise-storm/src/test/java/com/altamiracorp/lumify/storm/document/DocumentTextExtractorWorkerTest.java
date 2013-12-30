@@ -40,10 +40,8 @@ public class DocumentTextExtractorWorkerTest {
     public void testDoWork() throws Exception {
         InputStream in = getClass().getResourceAsStream("bffls.txt");
         info = worker.doWork(in, data);
-        assertEquals("\n" +
-                "Joe and Sam are BFFLs. Joe and Sam works together. Sam is an intern at Near Infinity. \n" +
-                "Joe is a full time employee at Near Infinity. Near Infinity was established in 2002. \n" +
-                "\n", info.getText());
+        assertEquals("Joe and Sam are BFFLs. Joe and Sam works together. Sam is an intern at Near Infinity.\n" +
+                "Joe is a full time employee at Near Infinity. Near Infinity was established in 2002.\n", info.getText());
         assertNull(info.getTextHdfsPath());
 
     }
