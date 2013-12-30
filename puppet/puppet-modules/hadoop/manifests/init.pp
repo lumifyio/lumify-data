@@ -30,43 +30,47 @@ class hadoop {
 */
 
   file { "/etc/hadoop/conf/core-site.xml":
-    ensure   => file,
-    content  => template("hadoop/core-site.xml.erb"),
-    owner    => "root",
-    group    => "root",
-    force    => true,
-    require  => [ Package['hadoop.x86_64'], File['/data0/hadoop'] ],
+    ensure  => file,
+    content => template("hadoop/core-site.xml.erb"),
+    owner   => "root",
+    group   => "root",
+    mode    => "u=rw,go=r",
+    require => [ Package['hadoop.x86_64'], File['/data0/hadoop'] ],
   }
 
   file { "/etc/hadoop/conf/hdfs-site.xml":
-    ensure   => file,
-    content  => template("hadoop/hdfs-site.xml.erb"),
-    owner    => "root",
-    group    => "root",
-    force    => true,
-    require  => [ Package['hadoop.x86_64'], File['/data0/hdfs'] ],
+    ensure  => file,
+    content => template("hadoop/hdfs-site.xml.erb"),
+    owner   => "root",
+    group   => "root",
+    mode    => "u=rw,go=r",
+    require => [ Package['hadoop.x86_64'], File['/data0/hdfs'] ],
   }
 
   file { "/etc/hadoop/conf/mapred-site.xml":
-    ensure   => file,
-    content  => template("hadoop/mapred-site.xml.erb"),
-    owner    => "root",
-    group    => "root",
-    force    => true,
-    require  => [ Package['hadoop.x86_64'], File['/data0/mapred'] ],
+    ensure  => file,
+    content => template("hadoop/mapred-site.xml.erb"),
+    owner   => "root",
+    group   => "root",
+    mode    => "u=rw,go=r",
+    require => [ Package['hadoop.x86_64'], File['/data0/mapred'] ],
   }
 
-  file { "hadoop-masters-config":
-    path    => "/etc/hadoop/conf/masters",
+  file { "/etc/hadoop/conf/masters":
     ensure  => file,
     content => template("hadoop/masters.erb"),
+    owner   => "root",
+    group   => "root",
+    mode    => "u=rw,go=r",
     require => Package['hadoop.x86_64'],
   }
 
-  file { "hadoop-slaves-config":
-    path    => "/etc/hadoop/conf/slaves",
+  file { "/etc/hadoop/conf/slaves":
     ensure  => file,
     content => template("hadoop/slaves.erb"),
+    owner   => "root",
+    group   => "root",
+    mode    => "u=rw,go=r",
     require => Package['hadoop.x86_64'],
   }
 
