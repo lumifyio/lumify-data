@@ -24,9 +24,16 @@ class storm::fw::supervisor {
     action => accept,
   }
 
-  $storm_supervisor_jmx_ports = hiera_array('storm_supervisor_jmx_ports')
-  firewall { '193 allow storm supervisor jmx' :
-    port   => $storm_supervisor_jmx_ports,
+  $storm_supervisor_jmx_registry_ports = hiera_array('storm_supervisor_jmx_registry_ports')
+  firewall { '194 allow storm supervisor jmx registry' :
+    port   => $storm_supervisor_jmx_registry_ports,
+    proto  => tcp,
+    action => accept,
+  }
+
+  $storm_supervisor_jmx_objects_ports = hiera_array('storm_supervisor_jmx_objects_ports')
+  firewall { '195 allow storm supervisor jmx objects' :
+    port   => $storm_supervisor_jmx_objects_ports,
     proto  => tcp,
     action => accept,
   }

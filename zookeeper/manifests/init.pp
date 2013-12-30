@@ -20,8 +20,7 @@ class zookeeper {
     require => Package['zookeeper-server'],
   }
 
-  file { 'hadoop-zookeeper-config':
-    path    => '/etc/zookeeper/conf/zoo.cfg',
+  file { '/etc/zookeeper/conf/zoo.cfg':
     ensure  => file,
     content => template('zookeeper/zoo.cfg.erb'),
     require => Package['zookeeper-server'],
@@ -33,11 +32,11 @@ class zookeeper {
     creates => '/var/lib/zookeeper/version-2',
     require => Package['zookeeper-server'],
   }
-  
-  file { 'hadoop-zookeeper-myid':
-    path    => '/var/lib/zookeeper/myid',
+
+  file { '/var/lib/zookeeper/myid':
     ensure  => file,
     content => template('zookeeper/myid.erb'),
+    mode    => 'u=rw,go=r',
     require => [
       Exec['initialize-zookeeper'],
       Package['zookeeper-server'],

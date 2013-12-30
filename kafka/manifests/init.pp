@@ -68,6 +68,14 @@ class kafka(
     require => File[$home]
   }
 
+  $java_agent_jar = "${home}/jmx-rmi-agent-0.1.jar"
+  file { "${java_agent_jar}" :
+    ensure  => file,
+    mode    => 'u=rw,go=r',
+    source  => 'puppet:///modules/kafka/jmx-rmi-agent-0.1.jar',
+    require => File["${home}"],
+  }
+
   file { "/etc/init/kafka.conf":
     ensure   => file,
     content  => template('kafka/upstart.conf.erb'),

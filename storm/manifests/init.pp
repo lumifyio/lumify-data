@@ -98,6 +98,14 @@ class storm(
     creates => $extractdir,
   }
 
+  $java_agent_jar = "${home}/jmx-rmi-agent-0.1.jar"
+  file { "${java_agent_jar}" :
+    ensure  => file,
+    mode    => 'u=rw,go=r',
+    source  => 'puppet:///modules/storm/jmx-rmi-agent-0.1.jar',
+    require => File["${home}"],
+  }
+
   file { "${extractdir}/conf/storm.yaml":
     ensure  => file,
     content => template("storm/storm.yaml.erb"),
