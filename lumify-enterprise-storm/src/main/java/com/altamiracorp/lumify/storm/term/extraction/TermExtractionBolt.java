@@ -121,11 +121,13 @@ public class TermExtractionBolt extends BaseTextProcessingBolt {
             }
 
             if (termMention.isResolved()) {
-                vertex = graphRepository.findVertexByTitleAndType(termMention.getSign(), VertexType.ENTITY, getUser());
+                String title = termMention.getSign();
+                vertex = graphRepository.findVertexByTitleAndType(title, VertexType.ENTITY, getUser());
                 if (!termMention.getUseExisting() || vertex == null) {
                     vertex = new InMemoryGraphVertex();
                     newVertex = true;
-                    vertex.setProperty(PropertyName.TITLE, termMention.getSign());
+                    title = termMention.getSign();
+                    vertex.setProperty(PropertyName.TITLE, title);
                     modifiedProperties.add(PropertyName.TITLE.toString());
                     if (concept != null) {
                         vertex.setProperty(PropertyName.SUBTYPE.toString(), concept.getId());
@@ -146,7 +148,7 @@ public class TermExtractionBolt extends BaseTextProcessingBolt {
                 String resolvedEntityGraphVertexId = graphRepository.saveVertex(vertex, getUser());
 
                 if (newVertex) {
-                    auditRepository.auditEntity(AuditAction.CREATE.toString(), vertex.getId(), artifactGraphVertexId, termMention.getProcess(), "", getUser());
+                    auditRepository.auditEntity(AuditAction.CREATE.toString(), vertex.getId(), artifactGraphVertexId, title, concept.getId(), termMention.getProcess(), "", getUser());
                 }
 
                 for (String property : modifiedProperties) {

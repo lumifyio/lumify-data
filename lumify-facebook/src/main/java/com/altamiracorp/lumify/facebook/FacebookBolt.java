@@ -96,17 +96,14 @@ public class FacebookBolt extends BaseLumifyBolt {
         Long name_uid = user.getLong(UID);
         String profileId = name_uid.toString();
         String username = user.getString(USERNAME);
-        Concept profileConcept = ontologyRepository.getConceptByName(FACEBOOK_PROFILE, getUser());
 
         GraphVertex userVertex = graphRepository.findVertexByPropertyAndType(PROFILE_ID, profileId, VertexType.ENTITY, getUser());
 
         List<String> modifiedProperties = Lists.newArrayList
-                (PropertyName.TITLE.toString(), PropertyName.TYPE.toString(), PropertyName.SUBTYPE.toString(), PropertyName.DISPLAY_NAME.toString());
+                (PropertyName.TITLE.toString(), PropertyName.DISPLAY_NAME.toString());
 
         userVertex.setProperty(PropertyName.DISPLAY_NAME, username);
         userVertex.setProperty(PropertyName.TITLE, name);
-        userVertex.setProperty(PropertyName.TYPE, VertexType.ENTITY.toString());
-        userVertex.setProperty(PropertyName.SUBTYPE, profileConcept.getId());
         graphRepository.save(userVertex, getUser());
 
         //get relationships for vertex and write audit message for each post
@@ -122,12 +119,14 @@ public class FacebookBolt extends BaseLumifyBolt {
         if (user.has(EMAIL) && !user.getString(EMAIL).equals(JSONObject.NULL)) {
             String email = user.getString(EMAIL);
             GraphVertex emailVertex = graphRepository.findVertexByPropertyAndType(EMAIL_ADDRESS, email, VertexType.ENTITY, getUser());
+            Concept emailConcept = ontologyRepository.getConceptByName(EMAIL_ADDRESS, getUser());
             if (emailVertex == null) {
                 emailVertex = new InMemoryGraphVertex();
+                emailVertex.setProperty(PropertyName.SUBTYPE, emailConcept.getId());
                 emailVertex.setProperty(PropertyName.TITLE, email);
                 graphRepository.save(emailVertex, getUser());
 
-                auditRepository.auditEntity(AuditAction.CREATE.toString(), emailVertex.getId(), userVertex.getId(), PROCESS, "", getUser());
+                auditRepository.auditEntity(AuditAction.CREATE.toString(), emailVertex.getId(), userVertex.getId(), email, emailConcept.getId(), PROCESS, "", getUser());
                 auditRepository.auditEntityProperties(AuditAction.UPDATE.toString(), emailVertex, PropertyName.TITLE.toString(), PROCESS, "", getUser());
             }
             graphRepository.saveRelationship(userVertex.getId(), emailVertex.getId(), EMAIL_RELATIONSHIP, getUser());
@@ -263,14 +262,17 @@ public class FacebookBolt extends BaseLumifyBolt {
 
         //create entities for each of the ids tagged or author and the relationships
         GraphVertex authorVertex = graphRepository.findVertexByPropertyAndType(PROFILE_ID, author_uid, VertexType.ENTITY, getUser());
+        Concept profileConcept = ontologyRepository.getConceptByName(FACEBOOK_PROFILE, getUser());
+        String facebookProfileSubtype = profileConcept.getId();
         if (authorVertex == null) {
             authorVertex = new InMemoryGraphVertex();
             authorVertex.setProperty(PROFILE_ID, author_uid);
-            authorVertex.setProperty(PropertyName.TYPE.toString(), VertexType.ENTITY.toString());
+            authorVertex.setProperty(PropertyName.TYPE, VertexType.ENTITY.toString());
+            authorVertex.setProperty(PropertyName.SUBTYPE, facebookProfileSubtype);
             graphRepository.save(authorVertex, getUser());
             graphRepository.commit();
 
-            auditRepository.auditEntity(AuditAction.CREATE.toString(), authorVertex.getId(), posting.getId(), PROCESS, "", getUser());
+            auditRepository.auditEntity(AuditAction.CREATE.toString(), authorVertex.getId(), posting.getId(), facebookProfileSubtype, author_uid, PROCESS, "", getUser());
             auditRepository.auditEntityProperties(AuditAction.UPDATE.toString(), authorVertex, PROFILE_ID, PROCESS, "", getUser());
             auditRepository.auditEntityProperties(AuditAction.UPDATE.toString(), authorVertex, PropertyName.TYPE.toString(), PROCESS, "", getUser());
         }
@@ -288,11 +290,12 @@ public class FacebookBolt extends BaseLumifyBolt {
                 if (taggedVertex == null) {
                     taggedVertex = new InMemoryGraphVertex();
                     taggedVertex.setProperty(PROFILE_ID, next);
-                    taggedVertex.setProperty(PropertyName.TYPE.toString(), VertexType.ENTITY.toString());
+                    taggedVertex.setProperty(PropertyName.TYPE, VertexType.ENTITY.toString());
+                    taggedVertex.setProperty(PropertyName.SUBTYPE, facebookProfileSubtype);
                     graphRepository.save(taggedVertex, getUser());
                     graphRepository.commit();
 
-                    auditRepository.auditEntity(AuditAction.CREATE.toString(), taggedVertex.getId(), posting.getId(), PROCESS, "", getUser());
+                    auditRepository.auditEntity(AuditAction.CREATE.toString(), taggedVertex.getId(), posting.getId(), facebookProfileSubtype, next, PROCESS, "", getUser());
                     auditRepository.auditEntityProperties(AuditAction.UPDATE.toString(), taggedVertex, PROFILE_ID, PROCESS, "", getUser());
                     auditRepository.auditEntityProperties(AuditAction.UPDATE.toString(), taggedVertex, PropertyName.TYPE.toString(), PROCESS, "", getUser());
                 }

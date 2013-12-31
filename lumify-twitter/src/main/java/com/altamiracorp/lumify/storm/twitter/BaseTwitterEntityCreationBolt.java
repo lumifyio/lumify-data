@@ -94,7 +94,7 @@ public abstract class BaseTwitterEntityCreationBolt extends BaseTwitterForkBolt 
                 String termId = termVertex.getId();
 
                 if (newVertex) {
-                    auditRepository.auditEntity(AuditAction.CREATE.toString(), termVertex.getId(), tweetVertexId, PROCESS, "", getUser());
+                    auditRepository.auditEntity(AuditAction.CREATE.toString(), termVertex.getId(), tweetVertexId, sign, conceptId, PROCESS, "", getUser());
                 }
                 for (String modifiedProperty : modifiedProps) {
                     auditRepository.auditEntityProperties(AuditAction.UPDATE.toString(), termVertex, modifiedProperty, PROCESS, "", getUser());
