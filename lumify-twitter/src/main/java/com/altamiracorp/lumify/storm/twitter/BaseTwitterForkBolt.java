@@ -20,6 +20,7 @@ import backtype.storm.topology.OutputFieldsDeclarer;
 import backtype.storm.tuple.Fields;
 import backtype.storm.tuple.Tuple;
 import com.altamiracorp.lumify.storm.BaseLumifyBolt;
+
 import java.util.Arrays;
 
 import static com.altamiracorp.lumify.storm.twitter.TwitterConstants.*;
@@ -32,9 +33,10 @@ public abstract class BaseTwitterForkBolt extends BaseLumifyBolt {
      * The bolt ID, used to identify when joins can occur.
      */
     private final String boltId;
-    
+
     /**
      * Create a new BaseTwitterForkBolt.
+     *
      * @param id the bolt ID
      */
     protected BaseTwitterForkBolt(final String id) {
@@ -43,12 +45,13 @@ public abstract class BaseTwitterForkBolt extends BaseLumifyBolt {
 
     /**
      * Get the bolt ID.
+     *
      * @return the bolt ID
      */
     protected final String getBoltId() {
         return boltId;
     }
-    
+
     @Override
     public void declareOutputFields(final OutputFieldsDeclarer declarer) {
         declarer.declare(new Fields(TWEET_VERTEX_ID_FIELD, TWITTER_BOLT_ID_FIELD));
@@ -59,12 +62,13 @@ public abstract class BaseTwitterForkBolt extends BaseLumifyBolt {
         try {
             executeFork(input);
         } finally {
-            getCollector().emit(input, Arrays.asList((Object)input.getStringByField(TWEET_VERTEX_ID_FIELD), getBoltId()));
+            getCollector().emit(input, Arrays.asList((Object) input.getStringByField(TWEET_VERTEX_ID_FIELD), getBoltId()));
         }
     }
-    
+
     /**
      * Execute the logic of the forked bolt.
+     *
      * @param input the Tuple to execute on
      * @throws Exception if an error occurs during execution
      */

@@ -18,6 +18,7 @@ package com.altamiracorp.lumify.storm.twitter;
 
 import backtype.storm.tuple.Tuple;
 import com.altamiracorp.lumify.core.ingest.term.extraction.TermRegexFinder;
+import com.altamiracorp.lumify.core.model.audit.AuditAction;
 import com.altamiracorp.lumify.core.model.graph.GraphVertex;
 import com.altamiracorp.lumify.core.model.graph.InMemoryGraphVertex;
 import com.altamiracorp.lumify.core.model.ontology.Concept;
@@ -39,6 +40,7 @@ import static com.altamiracorp.lumify.storm.twitter.TwitterConstants.*;
  */
 public abstract class BaseTwitterEntityCreationBolt extends BaseTwitterForkBolt {
     private static final LumifyLogger LOGGER = LumifyLoggerFactory.getLogger(BaseTwitterEntityCreationBolt.class);
+    private static final String PROCESS = BaseTwitterEntityCreationBolt.class.getName();
 
     /**
      * Create a new BaseTwitterEntityCreationBolt.
@@ -69,6 +71,7 @@ public abstract class BaseTwitterEntityCreationBolt extends BaseTwitterForkBolt 
             String relationshipDisplayName = ontologyRepository.getDisplayNameForLabel(relationshipLabel, user);
 
             GraphVertex conceptVertex = graphRepository.findVertex(conceptId, user);
+            GraphVertex tweetVertex = graphRepository.findVertex(tweetVertexId, user);
             List<TermMention> termMentions = TermRegexFinder.find(tweetVertexId, conceptVertex, tweetText, termRegex);
             List<String> modifiedProps = Lists.newArrayList(TITLE.toString(), ROW_KEY.toString(), TYPE.toString(), SUBTYPE.toString());
 
@@ -91,17 +94,17 @@ public abstract class BaseTwitterEntityCreationBolt extends BaseTwitterForkBolt 
                 String termId = termVertex.getId();
 
                 if (newVertex) {
-                    auditRepository.audit(tweetVertexId, auditRepository.resolvedEntityAuditMessageForArtifact(sign), user);
-                    auditRepository.audit(termId, auditRepository.resolvedEntityAuditMessage(tweetVertexTitle), user);
+                    auditRepository.auditEntity(AuditAction.CREATE.toString(), termVertex.getId(), tweetVertexId, PROCESS, "", getUser());
                 }
-                auditRepository.audit(termId, auditRepository.vertexPropertyAuditMessages(termVertex, modifiedProps), user);
+                for (String modifiedProperty : modifiedProps) {
+                    auditRepository.auditEntityProperties(AuditAction.UPDATE.toString(), termVertex, modifiedProperty, PROCESS, "", getUser());
+                }
 
                 mention.getMetadata().setGraphVertexId(termId);
                 termMentionRepository.save(mention, user.getModelUserContext());
 
                 graphRepository.saveRelationship(tweetVertexId, termId, relationshipLabel, user);
-                auditRepository.audit(tweetVertexId, auditRepository.relationshipAuditMessageOnSource(relationshipDisplayName, sign, ""), user);
-                auditRepository.audit(termId, auditRepository.relationshipAuditMessageOnDest(relationshipDisplayName, tweetText, ""), user);
+                auditRepository.auditRelationships(AuditAction.CREATE.toString(), tweetVertex, termVertex, relationshipDisplayName, PROCESS, "", getUser());
             }
         }
     }

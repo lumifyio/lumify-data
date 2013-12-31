@@ -1,5 +1,7 @@
 package com.altamiracorp.lumify.storm.term.analysis;
 
+import com.altamiracorp.lumify.core.model.audit.AuditAction;
+import com.altamiracorp.lumify.core.model.audit.AuditRepository;
 import com.altamiracorp.lumify.core.model.geoNames.GeoNamePostalCodeRepository;
 import com.altamiracorp.lumify.core.model.geoNames.GeoNameRepository;
 import com.altamiracorp.lumify.core.model.graph.GraphRepository;
@@ -27,16 +29,19 @@ public class LocationTermAnalyzer {
     private final GeoNamePostalCodeRepository geoNamePostalCodeRepository;
     private final GeoNameRepository geoNameRepository;
     private final GraphRepository graphRepository;
+    private final AuditRepository auditRepository;
     private final TermMentionRepository termRepository;
 
 
     @Inject
     public LocationTermAnalyzer(final SimpleTermLocationExtractor extractor, final GeoNamePostalCodeRepository postalCodeRepo,
-                                final GeoNameRepository geoNameRepo, final GraphRepository graphRepo, final TermMentionRepository termRepo) {
+                                final GeoNameRepository geoNameRepo, final GraphRepository graphRepo,
+                                final AuditRepository auditRepo, final TermMentionRepository termRepo) {
         simpleTermLocationExtractor = extractor;
         geoNamePostalCodeRepository = postalCodeRepo;
         geoNameRepository = geoNameRepo;
         graphRepository = graphRepo;
+        auditRepository = auditRepo;
         termRepository = termRepo;
     }
 
@@ -77,6 +82,8 @@ public class LocationTermAnalyzer {
             if (latitude != null && longitude != null) {
                 vertex.setProperty(PropertyName.GEO_LOCATION, Geoshape.point(latitude, longitude));
                 graphRepository.saveVertex(vertex, user);
+
+                auditRepository.auditEntityProperties(AuditAction.UPDATE.toString(), vertex, PropertyName.GEO_LOCATION.toString(), this.getClass().getName(), "", user);
 
                 LOGGER.debug("Updated vertex geolocation");
             } else {

@@ -1,5 +1,6 @@
 package com.altamiracorp.lumify.storm.term.analysis;
 
+import com.altamiracorp.lumify.core.model.audit.AuditRepository;
 import com.altamiracorp.lumify.core.model.geoNames.GeoNamePostalCodeRepository;
 import com.altamiracorp.lumify.core.model.geoNames.GeoNameRepository;
 import com.altamiracorp.lumify.core.model.graph.GraphRepository;
@@ -25,6 +26,8 @@ public class LocationTermAnalyzerTest {
     private LocationTermAnalyzer analyzer;
     @Mock
     TermMentionMetadata mockMetadata;
+    @Mock
+    private AuditRepository auditRepository;
     @Mock
     private GraphRepository graphRepository;
     @Mock
@@ -59,7 +62,7 @@ public class LocationTermAnalyzerTest {
         metadata.setGeoLocation(20.0, 10.0);
         when(termMention.getMetadata()).thenReturn(metadata);
         when(extractor.getTermWithLocationLookup(geoNameRepository, termMention, user)).thenReturn(termMention);
-        analyzer = new LocationTermAnalyzer(extractor, postalCodeRepository, geoNameRepository, graphRepository, termMentionRepository);
+        analyzer = new LocationTermAnalyzer(extractor, postalCodeRepository, geoNameRepository, graphRepository, auditRepository, termMentionRepository);
         analyzer.analyzeTermData(data, user);
         verify(termMention, times(3)).getMetadata();
         verify(extractor, times(1)).getTermWithLocationLookup(geoNameRepository, termMention, user);
@@ -74,7 +77,7 @@ public class LocationTermAnalyzerTest {
         when(termMention.getMetadata()).thenReturn(metadata);
         when(extractor.isPostalCode(termMention)).thenReturn(true);
         when(extractor.getTermWithPostalCodeLookup(postalCodeRepository, termMention, user)).thenReturn(termMention);
-        analyzer = new LocationTermAnalyzer(extractor, postalCodeRepository, geoNameRepository, graphRepository, termMentionRepository);
+        analyzer = new LocationTermAnalyzer(extractor, postalCodeRepository, geoNameRepository, graphRepository, auditRepository, termMentionRepository);
         analyzer.analyzeTermData(data, user);
         verify(termMention, times(3)).getMetadata();
         verify(extractor, times(1)).isPostalCode(termMention);
@@ -90,7 +93,7 @@ public class LocationTermAnalyzerTest {
         when(mockMetadata.getSign()).thenReturn("testSign");
         when(termMention.getMetadata()).thenReturn(mockMetadata);
         when(extractor.getTermWithLocationLookup(geoNameRepository, termMention, user)).thenReturn(termMention);
-        analyzer = new LocationTermAnalyzer(extractor, postalCodeRepository, geoNameRepository, graphRepository, termMentionRepository);
+        analyzer = new LocationTermAnalyzer(extractor, postalCodeRepository, geoNameRepository, graphRepository, auditRepository, termMentionRepository);
         analyzer.analyzeTermData(data, user);
         verify(mockMetadata, times(1)).getLatitude();
         verify(mockMetadata, times(1)).getLongitude();
@@ -108,7 +111,7 @@ public class LocationTermAnalyzerTest {
         when(mockMetadata.getSign()).thenReturn("testSign");
         when(termMention.getMetadata()).thenReturn(mockMetadata);
         when(extractor.getTermWithLocationLookup(geoNameRepository, termMention, user)).thenReturn(termMention);
-        analyzer = new LocationTermAnalyzer(extractor, postalCodeRepository, geoNameRepository, graphRepository, termMentionRepository);
+        analyzer = new LocationTermAnalyzer(extractor, postalCodeRepository, geoNameRepository, graphRepository, auditRepository, termMentionRepository);
         analyzer.analyzeTermData(data, user);
         verify(mockMetadata, times(1)).getLatitude();
         verify(mockMetadata, times(1)).getLongitude();
@@ -123,7 +126,7 @@ public class LocationTermAnalyzerTest {
         data = new TermMentionWithGraphVertex(termMention, vertex);
         metadata.setSign("testSign");
         when(termMention.getMetadata()).thenReturn(metadata);
-        analyzer = new LocationTermAnalyzer(extractor, postalCodeRepository, geoNameRepository, graphRepository, termMentionRepository);
+        analyzer = new LocationTermAnalyzer(extractor, postalCodeRepository, geoNameRepository, graphRepository, auditRepository, termMentionRepository);
         assertNull(analyzer.analyzeTermData(data, user));
         verify(graphRepository, times(0)).saveVertex(vertex, user);
         verify(termMention, times(2)).getMetadata();
@@ -135,7 +138,7 @@ public class LocationTermAnalyzerTest {
         metadata.setSign("testSign");
         when(termMention.getMetadata()).thenReturn(metadata);
         when(extractor.getTermWithLocationLookup(geoNameRepository, termMention, user)).thenReturn(termMention);
-        analyzer = new LocationTermAnalyzer(extractor, postalCodeRepository, geoNameRepository, graphRepository, termMentionRepository);
+        analyzer = new LocationTermAnalyzer(extractor, postalCodeRepository, geoNameRepository, graphRepository,auditRepository, termMentionRepository);
         analyzer.analyzeTermData(data, user);
         verify(termMention, times(3)).getMetadata();
         verify(extractor, times(1)).getTermWithLocationLookup(geoNameRepository, termMention, user);

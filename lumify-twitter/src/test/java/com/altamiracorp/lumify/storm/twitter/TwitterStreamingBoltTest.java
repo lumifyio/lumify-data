@@ -35,8 +35,8 @@ public class TwitterStreamingBoltTest extends BaseTwitterBoltTest<TwitterStreami
     private static final String TEST_USER_CREATED = "Fri May 18 14:48:35 +0000 2012";
     private static final String TEST_USER_DESCRIPTION =
             "Ya desde peque\\u00f1o supe dar ah\\u00ed donde hac\\u00eda da\\u00f1o." +
-            "Y no me refiero al tabaco,cateto, yo respeto al que consume y consumo con " +
-            "sumo respeto. R.A.P para to'desde el 99";
+                    "Y no me refiero al tabaco,cateto, yo respeto al que consume y consumo con " +
+                    "sumo respeto. R.A.P para to'desde el 99";
     private static final String TEST_USER_PROFILE_IMAGE_URL =
             "http://pbs.twimg.com/profile_images/412310266856996864/955IBes8_normal.jpeg";
     private static final Double TEST_USER_LATITUDE = 38.8951d;
@@ -48,10 +48,10 @@ public class TwitterStreamingBoltTest extends BaseTwitterBoltTest<TwitterStreami
     private static final Double TEST_TWEET_LATITUDE = 30.2500d;
     private static final Double TEST_TWEET_LONGITUDE = -97.7500d;
     private static final JSONArray TEST_TWEET_COORDS = new JSONArray(Arrays.asList(TEST_TWEET_LONGITUDE, TEST_TWEET_LATITUDE));
-    
+
     private static JSONObject FULL_USER;
     private static JSONObject FULL_TWEET;
-    
+
     @Mock
     private GraphVertex tweet;
     @Mock
@@ -70,7 +70,7 @@ public class TwitterStreamingBoltTest extends BaseTwitterBoltTest<TwitterStreami
     protected TwitterStreamingBolt createTestBolt() {
         return new TwitterStreamingBolt();
     }
-    
+
     @BeforeClass
     public static void setupClass() throws Exception {
         FULL_USER = new JSONObject();
@@ -83,14 +83,14 @@ public class TwitterStreamingBoltTest extends BaseTwitterBoltTest<TwitterStreami
         FULL_USER.put("description", TEST_USER_DESCRIPTION);
         FULL_USER.put("profile_image_url", TEST_USER_PROFILE_IMAGE_URL);
         FULL_USER.put("coordinates", TEST_USER_COORDS);
-        
+
         FULL_TWEET = new JSONObject();
         FULL_TWEET.put("created_at", TEST_TWEET_CREATED);
         FULL_TWEET.put("text", TEST_TWEET_TEXT);
         FULL_TWEET.put("user", FULL_USER);
         FULL_TWEET.put("coordinates", TEST_TWEET_COORDS);
     }
-    
+
     @Before
     @Override
     public void setup() throws Exception {
@@ -149,7 +149,7 @@ public class TwitterStreamingBoltTest extends BaseTwitterBoltTest<TwitterStreami
         verify(graphRepository, times(0)).save(any(GraphVertex.class), any(User.class));
         verify(outputCollector, times(0)).emit(eq(tuple), any(List.class));
     }
-    
+
     @Test
     public void testSafeExecute() throws Exception {
         when(tuple.getString(0)).thenReturn(FULL_TWEET.toString());
