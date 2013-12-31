@@ -23,8 +23,8 @@ import org.slf4j.LoggerFactory;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 
-public class FacebookSpout extends BaseRichSpout {
-    private static final Logger LOGGER = LoggerFactory.getLogger(FacebookSpout.class);
+public class FacebookStreamingSpout extends BaseRichSpout {
+    private static final Logger LOGGER = LoggerFactory.getLogger(FacebookStreamingSpout.class);
     private Facebook facebook = new FacebookFactory().getInstance();
     private static final String APP_ID = "facebook.appId";
     private static final String APP_SECRET = "facebook.appSecret";
@@ -77,7 +77,11 @@ public class FacebookSpout extends BaseRichSpout {
         facebook.setOAuthAppId((String) stormConf.get(APP_ID), (String) stormConf.get(APP_SECRET));
         facebook.setOAuthPermissions(locationPermissions + userPermissions);
         facebook.setOAuthAccessToken(new AccessToken((String) stormConf.get(ACCESS_TOKEN), null));
-        
+        distance = "10000";
+        latitude = "38.8895880";
+        longitude = "-77.0227870";
+        facebook.setOAuthAccessToken(new AccessToken("CAACEdEose0cBACZCLACU5Pu9vQgSwn9DBDZBzoogeTVp5ZArZCzhroqo5tJ1g3q2eb8E39e3bAVqwnxHsyJ5oPz58mKuTnjIr5BOjYu6MaAKE8mppyzmEzglKrKOhzEk1hgcoBXLoFjgdDPIpxTZCDq2rq3ZCKfQ3xpo2N0xctlGO720di8GUbS9JBhhuGSe4ZD"));
+
         LOGGER.info(String.format("Configuring environment for spout: %s-%d", context.getThisComponentId(), context.getThisTaskId()));
         getTuplesFromQuery();
         this.collector = collector;
@@ -151,6 +155,13 @@ public class FacebookSpout extends BaseRichSpout {
         } catch (JSONException e) {
             e.printStackTrace();
         }
+    }
+
+    public JSONArray getFacebookPostArray() {
+        return facebookPostArray;
+    }
+    public JSONArray getFacebookUserArray() {
+        return facebookUserArray;
     }
 }
 

@@ -3,71 +3,33 @@ package com.altamiracorp.lumify.facebook;
 
 import backtype.storm.tuple.Tuple;
 import com.altamiracorp.lumify.core.ingest.ArtifactExtractedInfo;
-import com.altamiracorp.lumify.core.model.artifact.Artifact;
-import com.altamiracorp.lumify.core.model.artifact.ArtifactRowKey;
-import com.altamiracorp.lumify.core.model.artifact.ArtifactType;
-import com.altamiracorp.lumify.core.model.audit.AuditAction;
 import com.altamiracorp.lumify.core.model.graph.GraphVertex;
-import com.altamiracorp.lumify.core.model.graph.InMemoryGraphVertex;
-import com.altamiracorp.lumify.core.model.ontology.Concept;
-import com.altamiracorp.lumify.core.model.ontology.LabelName;
-import com.altamiracorp.lumify.core.model.ontology.PropertyName;
-import com.altamiracorp.lumify.core.model.ontology.VertexType;
 import com.altamiracorp.lumify.core.model.search.SearchProvider;
-import com.altamiracorp.lumify.core.util.HdfsLimitOutputStream;
+import com.altamiracorp.lumify.core.user.User;
 import com.altamiracorp.lumify.storm.BaseLumifyBolt;
-import com.beust.jcommander.internal.Lists;
 import com.google.inject.Inject;
-import com.thinkaurelius.titan.core.attribute.Geoshape;
-import org.apache.commons.io.IOUtils;
-import org.apache.hadoop.fs.FSDataOutputStream;
-import org.apache.hadoop.fs.Path;
 import org.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.apache.hadoop.fs.FileSystem;
 
 import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
-import java.io.IOException;
 import java.io.InputStream;
-import java.net.URL;
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.Iterator;
-import java.util.List;
 
 public class FacebookBolt extends BaseLumifyBolt {
     private static final Logger LOGGER = LoggerFactory.getLogger(FacebookBolt.class);
     private static final String PROCESS = FacebookBolt.class.getName();
     private SearchProvider searchProvider;
-    private static final String PROFILE_ID = "profileId";
     private static final String USERNAME = "username";
     private static final String AUTHOR_UID = "author_uid";
-    private static final String NAME = "name";
-    private static final String UID = "uid";
-    private static final String SEX = "sex";
-    private static final String GENDER = "gender";
-    private static final String EMAIL = "email";
-    private static final String EMAIL_ADDRESS = "emailAddress";
-    private static final String EMAIL_RELATIONSHIP = "personHasEmailAddress";
-    private static final String COORDS = "coords";
-    private static final String BIRTHDAY_DATE = "birthday_date";
-    private static final String BIRTHDAY = "birthday";
-    private static final String PIC = "pic";
     private static final String MESSAGE = "message";
-    private static final String TAGGED_UUIDS = "tagged_uids";
-    private static final String TIMESTAMP = "timestamp";
-    private static final String POSTED_RELATIONSHIP = "postPostedByProfile";
-    private static final String MENTIONED_RELATIONSHIP = "postMentionedProfile";
-    private static final String FACEBOOK = "Facebook";
-    private static final String FACEBOOK_PROFILE = "facebookProfile";
-    private static final String BIRTHDAY_FORMAT = "MM/dd";
+    private static FileSystem fileSystem;
+    private static GraphVertex savedArtifact;
 
 
     @Override
     public void safeExecute(Tuple input) throws Exception {
+        setHdfsFileSystem();
         JSONObject json = getJsonFromTuple(input);
         String tupleName = calculateTupleType(json);
     }
@@ -78,238 +40,50 @@ public class FacebookBolt extends BaseLumifyBolt {
             Long name_uid = jsonObject.getLong(AUTHOR_UID);
             name = name_uid.toString();
             LOGGER.info(String.format("Facebook tuple is a post: %s", name));
-            GraphVertex post = processPost(jsonObject);
+            FacebookPost facebookPost = new FacebookPost();
+            ArtifactExtractedInfo postExtractedInfo = facebookPost.processPostArtifact(jsonObject);
+            setSavedArtifact(postExtractedInfo);
+            GraphVertex post = facebookPost.processPostVertex(jsonObject, savedArtifact, graphRepository, auditRepository, ontologyRepository, getUser());
             InputStream in = new ByteArrayInputStream(jsonObject.getString(MESSAGE).getBytes());
             searchProvider.add(post, in);
             workQueueRepository.pushArtifactHighlight(post.getId());
         } else {
             name = jsonObject.getString(USERNAME);
             LOGGER.info(String.format("Facebook tuple is a user: %s", name));
-            processUser(jsonObject);
+            FacebookUser facebookUser = new FacebookUser();
+            GraphVertex userVertex = facebookUser.process(jsonObject, graphRepository, auditRepository, ontologyRepository, getUser());
+            ArtifactExtractedInfo profilePicExtractedInfo = facebookUser.createProfilePhotoArtifact(jsonObject, userVertex);
+            setSavedArtifact(profilePicExtractedInfo);
+            facebookUser.createProfilePhotoVertex(savedArtifact, userVertex, graphRepository, auditRepository, getUser());
+//            InputStream in = new ByteArrayInputStream(jsonObject.getString(USERNAME).getBytes());
+//            searchProvider.add(userVertex, in);
+//            workQueueRepository.pushArtifactHighlight(userVertex.getId());
         }
         return name;
-    }
-
-    private void processUser(JSONObject user) throws ParseException {
-        //create entity for each user with the properties if one doesn't already exist
-        String name = user.getString(NAME);
-        Long name_uid = user.getLong(UID);
-        String profileId = name_uid.toString();
-        String username = user.getString(USERNAME);
-
-        GraphVertex userVertex = graphRepository.findVertexByPropertyAndType(PROFILE_ID, profileId, VertexType.ENTITY, getUser());
-
-        List<String> modifiedProperties = Lists.newArrayList
-                (PropertyName.TITLE.toString(), PropertyName.DISPLAY_NAME.toString());
-
-        userVertex.setProperty(PropertyName.DISPLAY_NAME, username);
-        userVertex.setProperty(PropertyName.TITLE, name);
-        graphRepository.save(userVertex, getUser());
-
-        //get relationships for vertex and write audit message for each post
-        List<GraphVertex> postings = graphRepository.getRelatedVertices(userVertex.getId(), getUser());
-        GraphVertex posting = postings.get(0);
-
-        if (user.has(SEX) && !user.getString(SEX).equals(JSONObject.NULL)) {
-            String gender = user.getString(SEX);
-            userVertex.setProperty(GENDER, gender);
-            modifiedProperties.add(GENDER);
-        }
-
-        if (user.has(EMAIL) && !user.getString(EMAIL).equals(JSONObject.NULL)) {
-            String email = user.getString(EMAIL);
-            GraphVertex emailVertex = graphRepository.findVertexByPropertyAndType(EMAIL_ADDRESS, email, VertexType.ENTITY, getUser());
-            Concept emailConcept = ontologyRepository.getConceptByName(EMAIL_ADDRESS, getUser());
-            if (emailVertex == null) {
-                emailVertex = new InMemoryGraphVertex();
-                emailVertex.setProperty(PropertyName.SUBTYPE, emailConcept.getId());
-                emailVertex.setProperty(PropertyName.TITLE, email);
-                graphRepository.save(emailVertex, getUser());
-
-                auditRepository.auditEntity(AuditAction.CREATE.toString(), emailVertex.getId(), userVertex.getId(), email, emailConcept.getId(), PROCESS, "", getUser());
-                auditRepository.auditEntityProperties(AuditAction.UPDATE.toString(), emailVertex, PropertyName.TITLE.toString(), PROCESS, "", getUser());
-            }
-            graphRepository.saveRelationship(userVertex.getId(), emailVertex.getId(), EMAIL_RELATIONSHIP, getUser());
-        }
-
-        if (user.has(COORDS) && !user.get(COORDS).equals(JSONObject.NULL)) {
-            JSONObject coordinates = user.getJSONObject(COORDS);
-            Geoshape geo = Geoshape.point(coordinates.getDouble("latitude"), coordinates.getDouble("longitude"));
-            userVertex.setProperty(PropertyName.GEO_LOCATION, geo);
-            modifiedProperties.add(PropertyName.GEO_LOCATION.toString());
-        }
-
-        if (user.has(BIRTHDAY_DATE) && (user.get(BIRTHDAY_DATE) instanceof String)) {
-            String birthday_date = user.getString(BIRTHDAY_DATE);
-            SimpleDateFormat birthdayFormat = new SimpleDateFormat(BIRTHDAY_FORMAT);
-            birthdayFormat.setLenient(true);
-            if (birthday_date.length() > BIRTHDAY_FORMAT.length()) {
-                birthdayFormat = new SimpleDateFormat(BIRTHDAY_FORMAT + "/yyyy");
-            }
-            Date birthday = birthdayFormat.parse(birthday_date);
-            userVertex.setProperty(BIRTHDAY, birthday.getTime());
-            modifiedProperties.add(BIRTHDAY);
-        }
-        //create and save profile picture
-        modifiedProperties.addAll(createProfilePhotoArtifact(user, userVertex, posting));
-
-        for (String property : modifiedProperties) {
-            auditRepository.auditEntityProperties(AuditAction.UPDATE.toString(), userVertex, property, PROCESS, "", getUser());
-        }
-    }
-
-    public List<String> createProfilePhotoArtifact(JSONObject user, GraphVertex userVertex, GraphVertex postingVertex) {
-        ByteArrayOutputStream os = new ByteArrayOutputStream();
-        List<String> modifiedProperties = new ArrayList<String>();
-        try {
-            URL url = new URL(user.get(PIC).toString());
-            InputStream is = url.openStream();
-            IOUtils.copy(is, os);
-            byte[] raw = os.toByteArray();
-            ArtifactRowKey build = ArtifactRowKey.build(raw);
-            String rowKey = build.toString();
-
-            ArtifactExtractedInfo artifactExtractedInfo = new ArtifactExtractedInfo();
-            artifactExtractedInfo.setMimeType("image/png");
-            artifactExtractedInfo.setRowKey(rowKey);
-            artifactExtractedInfo.setArtifactType(ArtifactType.IMAGE.toString());
-            artifactExtractedInfo.setTitle(user.getString(NAME) + " Facebook Profile Picture");
-            artifactExtractedInfo.setSource("Facebook profile picture");
-            artifactExtractedInfo.setProcess(PROCESS);
-
-            if (raw.length > Artifact.MAX_SIZE_OF_INLINE_FILE) {
-                FSDataOutputStream rawFile = getHdfsFileSystem().create(new Path("/lumify/artifacts/raw/" + rowKey));
-                try {
-                    rawFile.write(raw);
-                } finally {
-                    rawFile.close();
-                }
-            } else {
-                artifactExtractedInfo.setRaw(raw);
-            }
-
-            GraphVertex profile = saveArtifact(artifactExtractedInfo);
-            LOGGER.info(String.format("Saving Facebook profile picture to accumulo and as graph vertex: %s", profile.getId()));
-
-            userVertex.setProperty(PropertyName.GLYPH_ICON.toString(), "/artifact/" + rowKey + "/raw");
-            modifiedProperties.add(PropertyName.GLYPH_ICON.toString());
-            graphRepository.save(userVertex, getUser());
-
-            String labelDisplay = ontologyRepository.getDisplayNameForLabel(LabelName.HAS_IMAGE.toString(), getUser());
-            graphRepository.findOrAddRelationship(userVertex.getId(), profile.getId(), labelDisplay, getUser());
-            auditRepository.auditRelationships(AuditAction.CREATE.toString(), userVertex, profile, labelDisplay, PROCESS, "", getUser());
-        } catch (IOException e) {
-            LOGGER.warn(String.format("Failed to create image for vertex: %s", userVertex.getId()));
-            new IOException(e);
-        }
-        return modifiedProperties;
-    }
-
-    private GraphVertex processPost(JSONObject post) throws Exception {
-        //extract knowledge from post
-        String message = post.getString(MESSAGE);
-        Long name_uid = post.getLong(AUTHOR_UID);
-        String author_uid = name_uid.toString();
-        Date time = new Date(post.getLong(TIMESTAMP) * 1000);
-        //use extracted information
-        ArtifactRowKey build = ArtifactRowKey.build(post.toString().getBytes());
-        String rowKey = build.toString();
-
-        HdfsLimitOutputStream textOut = new HdfsLimitOutputStream(getHdfsFileSystem(), Artifact.MAX_SIZE_OF_INLINE_FILE);
-        try {
-            if (message != null) {
-                textOut.write(message.getBytes());
-            }
-        } finally {
-            textOut.close();
-        }
-
-        ArtifactExtractedInfo artifactExtractedInfo = new ArtifactExtractedInfo();
-        if (textOut.hasExceededSizeLimit()) {
-            artifactExtractedInfo.setTextHdfsPath(textOut.getHdfsPath().toString());
-        } else {
-            artifactExtractedInfo.setText(new String(textOut.getSmall()));
-        }
-        artifactExtractedInfo.setSource(FACEBOOK);
-        artifactExtractedInfo.setRaw(post.toString().getBytes());
-        artifactExtractedInfo.setMimeType("text/plain");
-        artifactExtractedInfo.setRowKey(rowKey);
-        artifactExtractedInfo.setArtifactType(ArtifactType.DOCUMENT.toString());
-        artifactExtractedInfo.setAuthor(author_uid);
-        artifactExtractedInfo.setDate(time);
-        if (message.length() == 0) {
-            artifactExtractedInfo.setTitle("Facebook Image Post");
-        } else if (message.length() > 140) {
-            String shortTitle = message.substring(0, 137) + "...";
-            artifactExtractedInfo.setTitle(shortTitle);
-        } else {
-            artifactExtractedInfo.setTitle(message);
-        }
-        artifactExtractedInfo.setProcess(PROCESS);
-
-        //write artifact with extracted info to accumulo and create entity
-        GraphVertex posting = saveArtifact(artifactExtractedInfo);
-        LOGGER.info("Saving Facebook post to accumulo and as graph vertex: " + posting.getId());
-
-        // geolocation property
-        if (post.has(COORDS) && !post.getJSONObject(COORDS).equals(JSONObject.NULL)) {
-            JSONObject coordinates = post.getJSONObject(COORDS);
-            Geoshape geo = Geoshape.point(coordinates.getDouble("latitude"), coordinates.getDouble("longitude"));
-            posting.setProperty(PropertyName.GEO_LOCATION, geo);
-            graphRepository.save(posting, getUser());
-            auditRepository.auditEntityProperties(AuditAction.UPDATE.toString(), posting, PropertyName.GEO_LOCATION.toString(), PROCESS, "", getUser());
-        }
-
-        //create entities for each of the ids tagged or author and the relationships
-        GraphVertex authorVertex = graphRepository.findVertexByPropertyAndType(PROFILE_ID, author_uid, VertexType.ENTITY, getUser());
-        Concept profileConcept = ontologyRepository.getConceptByName(FACEBOOK_PROFILE, getUser());
-        String facebookProfileSubtype = profileConcept.getId();
-        if (authorVertex == null) {
-            authorVertex = new InMemoryGraphVertex();
-            authorVertex.setProperty(PROFILE_ID, author_uid);
-            authorVertex.setProperty(PropertyName.TYPE, VertexType.ENTITY.toString());
-            authorVertex.setProperty(PropertyName.SUBTYPE, facebookProfileSubtype);
-            graphRepository.save(authorVertex, getUser());
-            graphRepository.commit();
-
-            auditRepository.auditEntity(AuditAction.CREATE.toString(), authorVertex.getId(), posting.getId(), facebookProfileSubtype, author_uid, PROCESS, "", getUser());
-            auditRepository.auditEntityProperties(AuditAction.UPDATE.toString(), authorVertex, PROFILE_ID, PROCESS, "", getUser());
-            auditRepository.auditEntityProperties(AuditAction.UPDATE.toString(), authorVertex, PropertyName.TYPE.toString(), PROCESS, "", getUser());
-        }
-        graphRepository.saveRelationship(posting.getId(), authorVertex.getId(), POSTED_RELATIONSHIP, getUser());
-        String postedRelationshipLabelDisplayName = ontologyRepository.getDisplayNameForLabel(POSTED_RELATIONSHIP, getUser());
-
-        auditRepository.auditRelationships(AuditAction.CREATE.toString(), posting, authorVertex, postedRelationshipLabelDisplayName, PROCESS, "", getUser());
-
-        // multiple tagged uids
-        if (post.get(TAGGED_UUIDS) instanceof JSONObject) {
-            Iterator tagged = post.getJSONObject(TAGGED_UUIDS).keys();
-            while (tagged.hasNext()) {
-                String next = tagged.next().toString();
-                GraphVertex taggedVertex = graphRepository.findVertexByPropertyAndType(PROFILE_ID, next, VertexType.ENTITY, getUser());
-                if (taggedVertex == null) {
-                    taggedVertex = new InMemoryGraphVertex();
-                    taggedVertex.setProperty(PROFILE_ID, next);
-                    taggedVertex.setProperty(PropertyName.TYPE, VertexType.ENTITY.toString());
-                    taggedVertex.setProperty(PropertyName.SUBTYPE, facebookProfileSubtype);
-                    graphRepository.save(taggedVertex, getUser());
-                    graphRepository.commit();
-
-                    auditRepository.auditEntity(AuditAction.CREATE.toString(), taggedVertex.getId(), posting.getId(), facebookProfileSubtype, next, PROCESS, "", getUser());
-                    auditRepository.auditEntityProperties(AuditAction.UPDATE.toString(), taggedVertex, PROFILE_ID, PROCESS, "", getUser());
-                    auditRepository.auditEntityProperties(AuditAction.UPDATE.toString(), taggedVertex, PropertyName.TYPE.toString(), PROCESS, "", getUser());
-                }
-                graphRepository.saveRelationship(posting.getId(), taggedVertex.getId(), MENTIONED_RELATIONSHIP, getUser());
-                String mentionedRelationshipLabelDisplayName = ontologyRepository.getDisplayNameForLabel(MENTIONED_RELATIONSHIP, getUser());
-                auditRepository.auditRelationships(AuditAction.CREATE.toString(), posting, taggedVertex, mentionedRelationshipLabelDisplayName, PROCESS, "", getUser());
-            }
-        }
-
-        return posting;
     }
 
     @Inject
     public void setSearchProvider(SearchProvider searchProvider) {
         this.searchProvider = searchProvider;
     }
+
+    public FileSystem getFileSystem() {
+        return fileSystem;
+    }
+    public User getUser() {
+        return super.getUser();
+    }
+
+    private void setHdfsFileSystem() {
+        this.fileSystem = getHdfsFileSystem();
+    }
+
+    public void setHdfsFileSystem(FileSystem fileSystem) {
+        this.fileSystem = fileSystem;
+    }
+
+    private void setSavedArtifact(ArtifactExtractedInfo artifactExtractedInfo) {
+        this.savedArtifact = saveArtifact(artifactExtractedInfo);
+    }
+
 }
