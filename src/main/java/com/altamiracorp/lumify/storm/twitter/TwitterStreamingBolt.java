@@ -6,6 +6,7 @@ import backtype.storm.tuple.Tuple;
 import com.altamiracorp.lumify.core.ingest.ArtifactExtractedInfo;
 import com.altamiracorp.lumify.core.model.artifact.ArtifactRowKey;
 import com.altamiracorp.lumify.core.model.artifact.ArtifactType;
+import com.altamiracorp.lumify.core.model.audit.AuditAction;
 import com.altamiracorp.lumify.core.model.graph.GraphGeoLocation;
 import com.altamiracorp.lumify.core.model.graph.GraphVertex;
 import com.altamiracorp.lumify.core.model.graph.InMemoryGraphVertex;
@@ -37,6 +38,7 @@ import static com.altamiracorp.lumify.storm.twitter.TwitterConstants.*;
 
 public class TwitterStreamingBolt extends BaseLumifyBolt {
     private static final LumifyLogger LOGGER = LumifyLoggerFactory.getLogger(TwitterStreamingBolt.class);
+    private static final String PROCESS = TwitterStreamingBolt.class.getName();
 
     private static final String TWITTER_TEXT_PROPERTY = "text";
     private static final String TWITTER_CREATED_AT_PROPERTY = "created_at";
@@ -134,6 +136,7 @@ public class TwitterStreamingBolt extends BaseLumifyBolt {
         artifactExtractedInfo.setTitle(tweetText);
         artifactExtractedInfo.setAuthor(tweeter);
         artifactExtractedInfo.setSource(TWITTER_SOURCE);
+        artifactExtractedInfo.setProcess(PROCESS);
 
         Date date = parseTwitterDate(createdAtStr);
         if (date != null) {
@@ -168,7 +171,9 @@ public class TwitterStreamingBolt extends BaseLumifyBolt {
         }
 
         graphRepository.save(tweetVertex, user);
-        auditRepository.audit(tweetId, auditRepository.vertexPropertyAuditMessages(tweetVertex, modifiedProperties), user);
+        for (String property : modifiedProperties) {
+            auditRepository.auditEntityProperties(AuditAction.UPDATE.toString(), tweetVertex, property, PROCESS, "", getUser());
+        }
     }
 
     private void parseTweeter(final TweetTuple outputTuple) {
@@ -243,20 +248,13 @@ public class TwitterStreamingBolt extends BaseLumifyBolt {
         String tweetId = outputTuple.getTweetId();
         String tweeterId = outputTuple.getUserId();
 
-        if (newVertex) {
-            auditRepository.audit(tweetId, auditRepository.resolvedEntityAuditMessageForArtifact(tweeter), user);
-            auditRepository.
-                    audit(tweeterId, auditRepository.resolvedEntityAuditMessage(outputTuple.getTweetVertex().getProperty(TITLE)), user);
+        for (String modifiedProperty : modifiedProperties) {
+            auditRepository.auditEntityProperties(AuditAction.UPDATE.toString(), tweeterVertex, modifiedProperty, PROCESS, "", getUser());
         }
-        auditRepository.audit(tweeterId, auditRepository.vertexPropertyAuditMessages(tweeterVertex, modifiedProperties), user);
 
         graphRepository.saveRelationship(tweeterId, tweetId, TWEETED_RELATIONSHIP, user);
-        String tweetText = outputTuple.getTweetText();
-        String relationshipLabelDisplayName = ontologyRepository.getDisplayNameForLabel(TWEETED_RELATIONSHIP, user);
-        auditRepository.
-                audit(tweeterId, auditRepository.relationshipAuditMessageOnSource(relationshipLabelDisplayName, tweetText, ""), user);
-        auditRepository.
-                audit(tweetId, auditRepository.relationshipAuditMessageOnDest(relationshipLabelDisplayName, tweeter, tweetText), user);
+        String relationshipLabelDisplayName = ontologyRepository.getDisplayNameForLabel(TWEETED_RELATIONSHIP, getUser());
+        auditRepository.auditRelationships(AuditAction.CREATE.toString(), tweeterVertex, outputTuple.getTweetVertex(), relationshipLabelDisplayName, PROCESS, "", getUser());
     }
 
     /**

@@ -21,8 +21,10 @@ import com.altamiracorp.lumify.core.ingest.ArtifactExtractedInfo;
 import com.altamiracorp.lumify.core.model.artifact.Artifact;
 import com.altamiracorp.lumify.core.model.artifact.ArtifactRowKey;
 import com.altamiracorp.lumify.core.model.artifact.ArtifactType;
+import com.altamiracorp.lumify.core.model.audit.AuditAction;
 import com.altamiracorp.lumify.core.model.graph.GraphVertex;
 import com.altamiracorp.lumify.core.model.ontology.LabelName;
+import com.altamiracorp.lumify.core.model.ontology.PropertyName;
 import com.altamiracorp.lumify.core.user.User;
 import com.altamiracorp.lumify.core.util.LumifyLogger;
 import com.altamiracorp.lumify.core.util.LumifyLoggerFactory;
@@ -35,11 +37,8 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URL;
-import java.util.Arrays;
-import java.util.List;
 
 import static com.altamiracorp.lumify.core.model.ontology.PropertyName.GLYPH_ICON;
-import static com.altamiracorp.lumify.core.model.ontology.PropertyName.TITLE;
 import static com.altamiracorp.lumify.storm.twitter.TwitterConstants.*;
 
 /**
@@ -78,6 +77,7 @@ public class TwitterProfilePhotoBolt extends BaseTwitterForkBolt {
      * The glyph icon property value format.
      */
     private static final String GLYPH_ICON_FMT = "/artifact/%s/raw";
+    private static final String PROCESS = TwitterProfilePhotoBolt.class.getName();
 
     /**
      * Create a new TwitterProfilePhotoBolt.
@@ -114,6 +114,7 @@ public class TwitterProfilePhotoBolt extends BaseTwitterForkBolt {
                 artifactInfo.setArtifactType(ArtifactType.IMAGE.toString());
                 artifactInfo.setTitle(String.format(IMAGE_ARTIFACT_TITLE_FMT, tweeter.getString(SCREEN_NAME_PROPERTY)));
                 artifactInfo.setSource(IMAGE_ARTIFACT_SOURCE);
+                artifactInfo.setProcess(PROCESS);
                 if (rawImg.length > Artifact.MAX_SIZE_OF_INLINE_FILE) {
                     FSDataOutputStream hdfsOut = getHdfsFileSystem().create(new Path(String.format(HDFS_PATH_FMT, rowKey)));
                     try {
@@ -127,22 +128,16 @@ public class TwitterProfilePhotoBolt extends BaseTwitterForkBolt {
 
                 GraphVertex imageVertex = saveArtifact(artifactInfo);
                 String imageId = imageVertex.getId();
+
                 LOGGER.debug("Saving tweeter profile picture to accumulo and as graph vertex: %s", imageId);
 
                 tweeterVertex.setProperty(GLYPH_ICON.toString(), String.format(GLYPH_ICON_FMT, rowKey));
                 graphRepository.save(tweeterVertex, user);
-                List<String> modifiedProps = Arrays.asList(GLYPH_ICON.toString());
-                auditRepository.audit(tweeterId, auditRepository.vertexPropertyAuditMessages(tweeterVertex, modifiedProps), user);
+                auditRepository.auditEntityProperties(AuditAction.UPDATE.toString(), tweeterVertex, PropertyName.GLYPH_ICON.toString(), PROCESS, "", user);
 
                 String labelDisplay = ontologyRepository.getDisplayNameForLabel(LabelName.HAS_IMAGE.toString(), user);
                 graphRepository.findOrAddRelationship(tweeterId, imageId, LabelName.HAS_IMAGE, user);
-                Object srcTitle = tweeterVertex.getProperty(TITLE.toString());
-                Object destTitle = imageVertex.getProperty(TITLE.toString());
-                auditRepository.audit(tweeterId, auditRepository.relationshipAuditMessageOnSource(labelDisplay, destTitle, tweetText),
-                        user);
-                auditRepository.audit(imageId, auditRepository.relationshipAuditMessageOnDest(labelDisplay, srcTitle, tweetText), user);
-                auditRepository.audit(tweetId, auditRepository.relationshipAuditMessageOnArtifact(srcTitle, destTitle, labelDisplay),
-                        user);
+                auditRepository.auditRelationships(AuditAction.CREATE.toString(), tweeterVertex, imageVertex, labelDisplay, PROCESS, "", getUser());
             }
         } catch (IOException ioe) {
             String msg = String.format("Unable to create image for vertex: %s", tweeterId);
