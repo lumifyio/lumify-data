@@ -26,3 +26,7 @@
 	url = git@github.com:altamiracorp/lumify-rpms.git
 	path = lumify-rpms
 	branch = master
+[subtree "deployment/aws"]
+	url = git@github.com:dsingley/aws.git
+	path = deployment/aws
+	branch = master
