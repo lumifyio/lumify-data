@@ -1,0 +1,5 @@
+.*
+repo/
+source/
+rpmbuild/
+repo.tar.gz
