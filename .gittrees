@@ -22,3 +22,7 @@
 	url = git@github.com:altamiracorp/puppet-modules.git
 	path = puppet/puppet-modules
 	branch = master
+[subtree "lumify-rpms"]
+	url = git@github.com:altamiracorp/lumify-rpms.git
+	path = lumify-rpms
+	branch = master
