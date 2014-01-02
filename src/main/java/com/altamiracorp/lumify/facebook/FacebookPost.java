@@ -111,7 +111,6 @@ public class FacebookPost {
         }
         graphRepository.saveRelationship(authorVertex.getId(), posting.getId(), POSTED_RELATIONSHIP, user);
         String postedRelationshipLabelDisplayName = ontologyRepository.getDisplayNameForLabel(POSTED_RELATIONSHIP, user);
-        String text = posting.getProperty(PropertyName.TITLE).toString();
         auditRepository.auditRelationships(AuditAction.CREATE.toString(), posting, authorVertex, postedRelationshipLabelDisplayName, PROCESS, "", user);
         if (post.get(TAGGEED_UIDS) instanceof JSONObject) {
             Iterator tagged = post.getJSONObject(TAGGEED_UIDS).keys();

@@ -55,14 +55,18 @@ public class FacebookUser {
         //create entity for each user with the properties if one doesn't already exist
         String name = userJson.getString(NAME);
         Long name_uid = userJson.getLong(UID);
-        String profileId = name_uid.toString();
         String username = userJson.getString(USERNAME);
         Concept emailConcept = ontologyRepository.getConceptByName(EMAIL_ADDRESS, user);
-
-        GraphVertex userVertex = graphRepository.findVertexByPropertyAndType(PROFILE_ID, profileId, VertexType.ENTITY, user);
+        GraphVertex userVertex = graphRepository.findVertexByTitleAndType(name_uid.toString(), VertexType.ENTITY, user);
         if (userVertex == null) {
-            LOGGER.error("Could not find user in system, with given profile_id.");
-            throw new RuntimeException();
+            userVertex = graphRepository.findVertexByTitleAndType(name, VertexType.ENTITY, user);
+            if (userVertex == null) {
+                LOGGER.error("Could not find user in system, with given profile_id.");
+                throw new RuntimeException();
+            } else {
+                LOGGER.info("Vertex previously processed: " + userVertex.getId());
+                return userVertex;
+            }
         }
         List<String> modifiedProperties = Lists.newArrayList
                 (PropertyName.TITLE.toString(), PropertyName.TYPE.toString(), PropertyName.SUBTYPE.toString(), PropertyName.DISPLAY_NAME.toString(), PROFILE_ID);
