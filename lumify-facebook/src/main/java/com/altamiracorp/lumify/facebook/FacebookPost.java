@@ -15,11 +15,10 @@ import com.altamiracorp.lumify.core.model.ontology.PropertyName;
 import com.altamiracorp.lumify.core.model.ontology.VertexType;
 import com.altamiracorp.lumify.core.user.User;
 import com.altamiracorp.lumify.core.util.HdfsLimitOutputStream;
+import com.altamiracorp.lumify.core.util.LumifyLogger;
+import com.altamiracorp.lumify.core.util.LumifyLoggerFactory;
 import com.thinkaurelius.titan.core.attribute.Geoshape;
 import org.json.JSONObject;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.Iterator;
@@ -36,7 +35,7 @@ public class FacebookPost {
     private static final String MESSAGE = "message";
     private static final String AUTHOR_UID = "author_uid";
     private static final String FACEBOOK_PROFILE = "facebookProfile";
-    private static final Logger LOGGER = LoggerFactory.getLogger(FacebookBolt.class);
+    private static final LumifyLogger LOGGER = LumifyLoggerFactory.getLogger(FacebookBolt.class);
     private static final String PROCESS = FacebookPost.class.getName();
     private FacebookBolt facebookBolt = new FacebookBolt();
 
@@ -90,7 +89,7 @@ public class FacebookPost {
     protected GraphVertex processPostVertex (JSONObject post, GraphVertex posting, GraphRepository graphRepository, AuditRepository auditRepository, OntologyRepository ontologyRepository, User user) throws Exception {
         Long name_uid = post.getLong(AUTHOR_UID);
         String author_uid = name_uid.toString();
-        LOGGER.info("Saving Facebook post to accumulo and as graph vertex: " + posting.getId());
+        LOGGER.info("Saving Facebook post to accumulo and as graph vertex: ", posting.getId());
         Concept profileConcept = ontologyRepository.getConceptByName(FACEBOOK_PROFILE, user);
         String profileConceptId = profileConcept.getId();
         List<String> modifiedProperties = new ArrayList<String>();
