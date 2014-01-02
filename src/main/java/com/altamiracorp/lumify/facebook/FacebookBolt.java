@@ -55,9 +55,6 @@ public class FacebookBolt extends BaseLumifyBolt {
             ArtifactExtractedInfo profilePicExtractedInfo = facebookUser.createProfilePhotoArtifact(jsonObject, userVertex);
             setSavedArtifact(profilePicExtractedInfo);
             facebookUser.createProfilePhotoVertex(savedArtifact, userVertex, graphRepository, auditRepository, getUser());
-//            InputStream in = new ByteArrayInputStream(jsonObject.getString(USERNAME).getBytes());
-//            searchProvider.add(userVertex, in);
-//            workQueueRepository.pushArtifactHighlight(userVertex.getId());
         }
         return name;
     }
