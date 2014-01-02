@@ -55,10 +55,10 @@ public class StormRunner extends StormRunnerBase {
     }
 
     private void createFacebookFileTopology(TopologyBuilder builder, int parallelismHint) {
-        String spoutName = "facebookFileProcessingSpout";
-        builder.setSpout(spoutName, new FacebookFileProcessingSpout(hdfsFacebookSubdir), 1);
-        builder.setBolt(spoutName + "-bolt", new FacebookBolt(), parallelismHint)
-                .shuffleGrouping(spoutName);
+//        String spoutName = "facebookFileProcessingSpout";
+//        builder.setSpout(spoutName, new FacebookFileProcessingSpout(hdfsFacebookSubdir), 1);
+//        builder.setBolt(spoutName + "-bolt", new FacebookBolt(), parallelismHint)
+//                .shuffleGrouping(spoutName);
     }
 
     private void createFacebookStreamingTopology(TopologyBuilder builder, int parallelismHint) {

@@ -1,0 +1,13 @@
+/data/
+target/
+.idea
+*.iml
+.vagrant
+.settings/
+.project
+.classpath
+.DS_Store
+node_modules/
+*.swp
+coverage-error.log
+npm-debug.log
