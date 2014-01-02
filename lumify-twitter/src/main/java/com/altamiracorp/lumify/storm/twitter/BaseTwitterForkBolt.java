@@ -23,7 +23,7 @@ import com.altamiracorp.lumify.storm.BaseLumifyBolt;
 
 import java.util.Arrays;
 
-import static com.altamiracorp.lumify.storm.twitter.TwitterConstants.*;
+import static com.altamiracorp.lumify.twitter.TwitterConstants.*;
 
 /**
  * Base class for bolts that fork processing for joining in a later bolt.

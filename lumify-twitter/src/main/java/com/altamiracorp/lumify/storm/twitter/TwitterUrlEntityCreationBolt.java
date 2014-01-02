@@ -16,8 +16,8 @@
 
 package com.altamiracorp.lumify.storm.twitter;
 
-import static com.altamiracorp.lumify.storm.twitter.TwitterConstants.TWEET_URL_RELATIONSHIP;
-import static com.altamiracorp.lumify.storm.twitter.TwitterConstants.TWITTER_URL_CONCEPT;
+import static com.altamiracorp.lumify.twitter.TwitterConstants.TWEET_URL_RELATIONSHIP;
+import static com.altamiracorp.lumify.twitter.TwitterConstants.CONCEPT_TWITTER_URL;
 
 /**
  * This bolt creates entities from URLs found in a tweet.
@@ -34,7 +34,7 @@ public class TwitterUrlEntityCreationBolt extends BaseTwitterEntityCreationBolt 
 
     @Override
     protected String getConceptName() {
-        return TWITTER_URL_CONCEPT;
+        return CONCEPT_TWITTER_URL;
     }
 
     @Override

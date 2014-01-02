@@ -16,8 +16,8 @@
 
 package com.altamiracorp.lumify.storm.twitter;
 
-import static com.altamiracorp.lumify.storm.twitter.TwitterConstants.TWEET_HASHTAG_RELATIONSHIP;
-import static com.altamiracorp.lumify.storm.twitter.TwitterConstants.TWITTER_HASHTAG_CONCEPT;
+import static com.altamiracorp.lumify.twitter.TwitterConstants.TWEET_HASHTAG_RELATIONSHIP;
+import static com.altamiracorp.lumify.twitter.TwitterConstants.CONCEPT_TWITTER_HASHTAG;
 
 /**
  * This bolt creates entities from hashtags found in a tweet.
@@ -34,7 +34,7 @@ public class TwitterHashtagEntityCreationBolt extends BaseTwitterEntityCreationB
 
     @Override
     protected String getConceptName() {
-        return TWITTER_HASHTAG_CONCEPT;
+        return CONCEPT_TWITTER_HASHTAG;
     }
 
     @Override

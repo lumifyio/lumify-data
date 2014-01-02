@@ -14,8 +14,11 @@
  * limitations under the License.
  */
 
-package com.altamiracorp.lumify.storm.twitter;
+package com.altamiracorp.lumify.twitter;
 
+import com.altamiracorp.lumify.core.json.IntegerJsonProperty;
+import com.altamiracorp.lumify.core.json.JSONObjectJsonProperty;
+import com.altamiracorp.lumify.core.json.StringJsonProperty;
 import java.nio.charset.Charset;
 
 /**
@@ -63,22 +66,22 @@ public interface TwitterConstants {
     /**
      * The Twitter Handle (user) concept name.
      */
-    static final String TWITTER_HANDLE_CONCEPT = "twitterHandle";
+    static final String CONCEPT_TWITTER_HANDLE = "twitterHandle";
     
     /**
      * The Twitter Mention concept name.
      */
-    static final String TWITTER_MENTION_CONCEPT = TWITTER_HANDLE_CONCEPT;
+    static final String CONCEPT_TWITTER_MENTION = CONCEPT_TWITTER_HANDLE;
     
     /**
      * The Twitter Hashtag concept name.
      */
-    static final String TWITTER_HASHTAG_CONCEPT = "hashtag";
+    static final String CONCEPT_TWITTER_HASHTAG = "hashtag";
     
     /**
      * The Twitter URL concept name.
      */
-    static final String TWITTER_URL_CONCEPT = "url";
+    static final String CONCEPT_TWITTER_URL = "url";
     
     /**
      * The Tweeted relationship label.
@@ -109,4 +112,64 @@ public interface TwitterConstants {
      * The Twitter Character Set.
      */
     static final Charset TWITTER_CHARSET = Charset.forName("UTF-8");
+    
+    /**
+     * The Twitter text property.
+     */
+    static final StringJsonProperty JSON_TEXT_PROPERTY = new StringJsonProperty("text");
+    
+    /**
+     * The Twitter created at property.
+     */
+    static final TwitterDateJsonProperty JSON_CREATED_AT_PROPERTY = new TwitterDateJsonProperty("created_at");
+    
+    /**
+     * The Twitter user property.
+     */
+    static final JSONObjectJsonProperty JSON_USER_PROPERTY = new JSONObjectJsonProperty("user");
+    
+    /**
+     * The Twitter coordinates property.
+     */
+    static final TwitterGeoPointJsonProperty JSON_COORDINATES_PROPERTY = new TwitterGeoPointJsonProperty("coordinates");
+    
+    /**
+     * The Twitter favorite count property.
+     */
+    static final IntegerJsonProperty JSON_FAVORITE_COUNT_PROPERTY = new IntegerJsonProperty("favorite_count");
+    
+    /**
+     * The Twitter retweet count property.
+     */
+    static final IntegerJsonProperty JSON_RETWEET_COUNT_PROPERTY = new IntegerJsonProperty("retweet_count");
+    
+    /**
+     * The Twitter user screen name property.
+     */
+    static final StringJsonProperty JSON_SCREEN_NAME_PROPERTY = new StringJsonProperty("screen_name");
+    
+    /**
+     * The Twitter user display name property.
+     */
+    static final StringJsonProperty JSON_DISPLAY_NAME_PROPERTY = new StringJsonProperty("name");
+    
+    /**
+     * The Twitter status count property.
+     */
+    static final IntegerJsonProperty JSON_STATUS_COUNT_PROPERTY = new IntegerJsonProperty("statuses_count");
+    
+    /**
+     * The Twitter followers count property.
+     */
+    static final IntegerJsonProperty JSON_FOLLOWERS_COUNT_PROPERTY = new IntegerJsonProperty("followers_count");
+    
+    /**
+     * The Twitter friends count property.
+     */
+    static final IntegerJsonProperty JSON_FRIENDS_COUNT_PROPERTY = new IntegerJsonProperty("friends_count");
+    
+    /**
+     * The Twitter user description property.
+     */
+    static final StringJsonProperty JSON_DESCRIPTION_PROPERTY = new StringJsonProperty("description");
 }

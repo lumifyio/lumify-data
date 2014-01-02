@@ -34,7 +34,7 @@ import java.util.Date;
 import java.util.List;
 
 import static com.altamiracorp.lumify.core.model.ontology.PropertyName.*;
-import static com.altamiracorp.lumify.storm.twitter.TwitterConstants.*;
+import static com.altamiracorp.lumify.twitter.TwitterConstants.*;
 
 public class TwitterStreamingBolt extends BaseLumifyBolt {
     private static final LumifyLogger LOGGER = LumifyLoggerFactory.getLogger(TwitterStreamingBolt.class);
@@ -178,7 +178,7 @@ public class TwitterStreamingBolt extends BaseLumifyBolt {
 
     private void parseTweeter(final TweetTuple outputTuple) {
         User user = getUser();
-        Concept handleConcept = ontologyRepository.getConceptByName(TWITTER_HANDLE_CONCEPT, user);
+        Concept handleConcept = ontologyRepository.getConceptByName(CONCEPT_TWITTER_HANDLE, user);
 
         JSONObject tweeterJson = outputTuple.getUserJSON();
         String tweeter = tweeterJson.getString(SCREEN_NAME_PROPERTY).toLowerCase();
