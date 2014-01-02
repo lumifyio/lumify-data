@@ -14,3 +14,7 @@
 	url = git@github.com:altamiracorp/lumify-root.git
 	path = lumify-root
 	branch = master
+[subtree "lumify-enterprise"]
+	url = git@github.com:altamiracorp/lumify-enterprise.git
+	path = lumify-enterprise
+	branch = develop
