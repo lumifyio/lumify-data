@@ -1,7 +1,0 @@
-This is a sentence.
-The tokenizer should break this sentence into an array of words.
-Apple Pie
-Rainy Day
-Hello Goodbye
-Sam Woloszynski
-Jeff Principe
