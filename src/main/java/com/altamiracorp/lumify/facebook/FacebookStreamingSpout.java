@@ -3,13 +3,14 @@ package com.altamiracorp.lumify.facebook;
 
 import java.util.Iterator;
 import java.util.Map;
-
 import backtype.storm.spout.SpoutOutputCollector;
 import backtype.storm.task.TopologyContext;
 import backtype.storm.topology.OutputFieldsDeclarer;
 import backtype.storm.topology.base.BaseRichSpout;
 import backtype.storm.tuple.Fields;
 import backtype.storm.tuple.Values;
+import com.altamiracorp.lumify.core.util.LumifyLogger;
+import com.altamiracorp.lumify.core.util.LumifyLoggerFactory;
 import com.altamiracorp.lumify.storm.FieldNames;
 import facebook4j.Facebook;
 import facebook4j.FacebookException;
@@ -18,13 +19,10 @@ import facebook4j.auth.AccessToken;
 import facebook4j.internal.org.json.JSONArray;
 import facebook4j.internal.org.json.JSONException;
 import facebook4j.internal.org.json.JSONObject;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import static com.google.common.base.Preconditions.checkNotNull;
 
 public class FacebookStreamingSpout extends BaseRichSpout {
-    private static final Logger LOGGER = LoggerFactory.getLogger(FacebookStreamingSpout.class);
+    private static final LumifyLogger LOGGER = LumifyLoggerFactory.getLogger(FacebookStreamingSpout.class);
     private Facebook facebook = new FacebookFactory().getInstance();
     private static final String APP_ID = "facebook.appId";
     private static final String APP_SECRET = "facebook.appSecret";
@@ -77,12 +75,8 @@ public class FacebookStreamingSpout extends BaseRichSpout {
         facebook.setOAuthAppId((String) stormConf.get(APP_ID), (String) stormConf.get(APP_SECRET));
         facebook.setOAuthPermissions(locationPermissions + userPermissions);
         facebook.setOAuthAccessToken(new AccessToken((String) stormConf.get(ACCESS_TOKEN), null));
-        distance = "10000";
-        latitude = "38.8895880";
-        longitude = "-77.0227870";
-        facebook.setOAuthAccessToken(new AccessToken("CAACEdEose0cBACZCLACU5Pu9vQgSwn9DBDZBzoogeTVp5ZArZCzhroqo5tJ1g3q2eb8E39e3bAVqwnxHsyJ5oPz58mKuTnjIr5BOjYu6MaAKE8mppyzmEzglKrKOhzEk1hgcoBXLoFjgdDPIpxTZCDq2rq3ZCKfQ3xpo2N0xctlGO720di8GUbS9JBhhuGSe4ZD"));
 
-        LOGGER.info(String.format("Configuring environment for spout: %s-%d", context.getThisComponentId(), context.getThisTaskId()));
+        LOGGER.info("Configuring environment for spout: %s-%d", context.getThisComponentId(), context.getThisTaskId());
         getTuplesFromQuery();
         this.collector = collector;
     }
@@ -124,7 +118,7 @@ public class FacebookStreamingSpout extends BaseRichSpout {
                 return array.get(0).toString();
             }
         } catch (JSONException e) {
-            LOGGER.info("Facebook user object is empty");
+            LOGGER.error("Facebook user object is empty");
             e.printStackTrace();
         }
         return null;
@@ -139,7 +133,6 @@ public class FacebookStreamingSpout extends BaseRichSpout {
                     object = createJsonObject(facebookPostArray.getJSONObject(i));
                     collector.emit(new Values(object));
                 }
-                LOGGER.debug("Received facebook post tuple");
                 i++;
             } else if (j < facebookUserArray.length()) {
                 String object;
@@ -149,7 +142,6 @@ public class FacebookStreamingSpout extends BaseRichSpout {
                         collector.emit(new Values(object));
                     }
                 }
-                LOGGER.debug("Received facebook user tuple");
                 j++;
             }
         } catch (JSONException e) {

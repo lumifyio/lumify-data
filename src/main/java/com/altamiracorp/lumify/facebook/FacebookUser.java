@@ -11,15 +11,14 @@ import com.altamiracorp.lumify.core.model.graph.GraphVertex;
 import com.altamiracorp.lumify.core.model.graph.InMemoryGraphVertex;
 import com.altamiracorp.lumify.core.model.ontology.*;
 import com.altamiracorp.lumify.core.user.User;
+import com.altamiracorp.lumify.core.util.LumifyLogger;
+import com.altamiracorp.lumify.core.util.LumifyLoggerFactory;
 import com.beust.jcommander.internal.Lists;
 import com.thinkaurelius.titan.core.attribute.Geoshape;
 import org.apache.commons.io.IOUtils;
 import org.apache.hadoop.fs.FSDataOutputStream;
 import org.apache.hadoop.fs.Path;
 import org.json.JSONObject;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -45,7 +44,7 @@ public class FacebookUser {
     private static final String USERNAME = "username";
     private static final String PROFILE_ID = "profileId";
     private static final String COORDS = "coords";
-    private static final Logger LOGGER = LoggerFactory.getLogger(FacebookBolt.class);
+    private static final LumifyLogger LOGGER = LumifyLoggerFactory.getLogger(FacebookBolt.class);
     private static final String PROCESS = FacebookUser.class.getName();
     private FacebookBolt facebookBolt = new FacebookBolt();
 //    protected OntologyRepository ontologyRepository;
@@ -64,7 +63,7 @@ public class FacebookUser {
                 LOGGER.error("Could not find user in system, with given profile_id.");
                 throw new RuntimeException();
             } else {
-                LOGGER.info("Vertex previously processed: " + userVertex.getId());
+                LOGGER.info("Vertex previously processed: ", userVertex.getId());
                 return userVertex;
             }
         }
@@ -160,7 +159,7 @@ public class FacebookUser {
             }
             return  artifactExtractedInfo;
         } catch (IOException e) {
-            LOGGER.warn(String.format("Failed to create image for vertex: %s", userVertex.getId()));
+            LOGGER.warn("Failed to create image for vertex: %s", userVertex.getId());
             new IOException(e);
         }
         return null;
@@ -169,16 +168,13 @@ public class FacebookUser {
     protected void createProfilePhotoVertex (GraphVertex picture, GraphVertex userVertex, GraphRepository graphRepository, AuditRepository auditRepository, User user) {
         List<String> modifiedProperties = new ArrayList<String>();
         List<GraphVertex> postings = graphRepository.getRelatedVertices(userVertex.getId(), user);
-        GraphVertex postingVertex = postings.get(0);
         userVertex.setProperty(PropertyName.GLYPH_ICON.toString(), "/artifact/" + picture.getProperty(PropertyName.ROW_KEY).toString() + "/raw");
         modifiedProperties.add(PropertyName.GLYPH_ICON.toString());
         String labelDisplay = LabelName.HAS_IMAGE.toString();
-        Object sourceTitle = userVertex.getProperty(PropertyName.TITLE.toString());
-        Object destTitle = picture.getProperty(PropertyName.TITLE.toString());
         graphRepository.save(userVertex, user);
         graphRepository.findOrAddRelationship(userVertex.getId(), picture.getId(), labelDisplay, user);
         auditRepository.auditRelationships(AuditAction.CREATE.toString(), userVertex, picture, labelDisplay, PROCESS, "", user);
-        LOGGER.info(String.format("Saving Facebook picture to accumulo and as graph vertex: %s", picture.getId()));
+        LOGGER.info("Saving Facebook picture to accumulo and as graph vertex: %s", picture.getId());
 //        return modifiedProperties;
     }
 
