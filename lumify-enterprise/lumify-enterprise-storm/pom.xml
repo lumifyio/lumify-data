@@ -10,7 +10,7 @@
     </parent>
     <artifactId>lumify-enterprise-storm</artifactId>
 
-    <name>Lumify Enterprise Storm</name>
+    <name>Lumify Enterprise: Storm</name>
 
     <profiles>
         <!-- Use this profile to build when deploying to a clustered environment. -->

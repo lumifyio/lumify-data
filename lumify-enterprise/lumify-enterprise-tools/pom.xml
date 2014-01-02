@@ -10,7 +10,7 @@
     </parent>
     <artifactId>lumify-enterprise-tools</artifactId>
 
-    <name>Lumify Enterprise Tools</name>
+    <name>Lumify Enterprise: Tools</name>
 
     <profiles>
         <!-- Use this profile to build when deploying to a clustered environment. -->

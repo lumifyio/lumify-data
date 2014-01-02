@@ -10,7 +10,7 @@
     </parent>
     <artifactId>lumify-analytics</artifactId>
 
-    <name>Lumify Enterprise Analytics</name>
+    <name>Lumify Enterprise: Analytics</name>
 
     <profiles>
         <!-- Build with OpenCV 2.4.6 -->
