@@ -1,0 +1,227 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+
+    <parent>
+        <groupId>com.altamiracorp.lumify</groupId>
+        <artifactId>lumify</artifactId>
+        <version>1.0-SNAPSHOT</version>
+        <relativePath>lumify-public/pom.xml</relativePath>
+    </parent>
+    
+    <artifactId>lumify-enterprise</artifactId>
+    <version>1.0-SNAPSHOT</version>
+    <packaging>pom</packaging>
+
+    <name>Lumify Enterprise</name>
+
+    <scm>
+        <url>https://github.com/altamiracorp/lumify-enterprise</url>
+        <connection>scm:git:git://github.com:altamiracorp/lumify-enterprise.git</connection>
+        <developerConnection>scm:git:ssh://git@github.com:altamiracorp/lumify-enterprise.git</developerConnection>
+    </scm>
+
+    <properties>
+        <!-- Dependency Versions -->
+        <ahocorasick.version>1.4</ahocorasick.version>
+        <bliki.version>3.0.19</bliki.version>
+        <boilerpipe.version>1.1.0</boilerpipe.version>
+        <commons.httpclient.version>3.1</commons.httpclient.version>
+        <libphonenumber.version>5.7</libphonenumber.version>
+        <lumify.public.version>1.0-SNAPSHOT</lumify.public.version>
+        <lumify.twitter.version>1.0-SNAPSHOT</lumify.twitter.version>
+        <natty.version>0.7</natty.version>
+        <nekohtml.version>1.9.18</nekohtml.version>
+        <opencv.version>2.4.5</opencv.version>
+        <opennlp.version>1.5.3</opennlp.version>
+        <tika.version>1.4</tika.version>
+        <tess4j.version>1.1</tess4j.version>
+        <supercsv.version>2.1.0</supercsv.version>
+        
+        <!-- Test Dependency Versions -->
+        <javax.ws.rs.api.version>2.0-rc3</javax.ws.rs.api.version>
+        <mrunit.version>0.9.0-incubating</mrunit.version>
+    </properties>
+    
+    <distributionManagement>
+        <site>
+            <id>site-docs</id>
+            <url>file:///</url>
+        </site>
+    </distributionManagement>
+
+    <dependencyManagement>
+        <dependencies>
+            <!-- Lumify Public Dependencies -->
+            <dependency>
+                <groupId>com.altamiracorp.lumify</groupId>
+                <artifactId>lumify-core</artifactId>
+                <version>${lumify.public.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.altamiracorp.lumify</groupId>
+                <artifactId>lumify-fs-hdfs</artifactId>
+                <version>${lumify.public.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.altamiracorp.lumify</groupId>
+                <artifactId>lumify-model-accumulo</artifactId>
+                <version>${lumify.public.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.altamiracorp.lumify</groupId>
+                <artifactId>lumify-model-elasticsearch</artifactId>
+                <version>${lumify.public.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.altamiracorp.lumify</groupId>
+                <artifactId>lumify-model-kafka</artifactId>
+                <version>${lumify.public.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.altamiracorp.lumify</groupId>
+                <artifactId>lumify-model-titan</artifactId>
+                <version>${lumify.public.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.altamiracorp.lumify</groupId>
+                <artifactId>lumify-storm</artifactId>
+                <version>${lumify.public.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.altamiracorp.lumify</groupId>
+                <artifactId>lumify-twitter</artifactId>
+                <version>${lumify.twitter.version}</version>
+            </dependency>
+            
+            <!-- Compile Dependencies -->
+            <dependency>
+                <groupId>com.googlecode.libphonenumber</groupId>
+                <artifactId>libphonenumber</artifactId>
+                <version>${libphonenumber.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.joestelmach</groupId>
+                <artifactId>natty</artifactId>
+                <version>${natty.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>de.l3s.boilerpipe</groupId>
+                <artifactId>boilerpipe</artifactId>
+                <version>${boilerpipe.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>info.bliki.wiki</groupId>
+                <artifactId>bliki-core</artifactId>
+                <version>${bliki.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>net.sf.supercsv</groupId>
+                <artifactId>super-csv</artifactId>
+                <version>${supercsv.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>net.sourceforge.nekohtml</groupId>
+                <artifactId>nekohtml</artifactId>
+                <version>${nekohtml.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>net.sourceforge.tess4j</groupId>
+                <artifactId>tess4j</artifactId>
+                <version>${tess4j.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.apache.opennlp</groupId>
+                <artifactId>opennlp-tools</artifactId>
+                <version>${opennlp.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.apache.tika</groupId>
+                <artifactId>tika-core</artifactId>
+                <version>${tika.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.apache.tika</groupId>
+                <artifactId>tika-parsers</artifactId>
+                <version>${tika.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.arabidopsis.ahocorasick</groupId>
+                <artifactId>ahocorasick</artifactId>
+                <version>${ahocorasick.version}</version>
+                <exclusions>
+                    <exclusion>
+                        <groupId>org.apache.lucene</groupId>
+                        <artifactId>lucene-core</artifactId>
+                    </exclusion>
+                    <exclusion>
+                        <groupId>org.apache.lucene</groupId>
+                        <artifactId>lucene-analyzers-common</artifactId>
+                    </exclusion>
+                </exclusions>
+            </dependency>
+            <dependency>
+                <groupId>org.opencv</groupId>
+                <artifactId>opencv</artifactId>
+                <version>${opencv.version}</version>
+            </dependency>
+            
+            <!-- Runtime Dependencies -->
+            <dependency>
+                <groupId>commons-httpclient</groupId>
+                <artifactId>commons-httpclient</artifactId>
+                <version>${commons.httpclient.version}</version>
+                <scope>runtime</scope>
+            </dependency>
+            
+            <!-- Test Dependencies -->
+            <dependency>
+                <groupId>javax.ws.rs</groupId>
+                <artifactId>javax.ws.rs-api</artifactId>
+                <version>${javax.ws.rs.api.version}</version>
+                <scope>test</scope>
+            </dependency>
+            <dependency>
+                <groupId>org.apache.mrunit</groupId>
+                <artifactId>mrunit</artifactId>
+                <version>${mrunit.version}</version>
+                <classifier>hadoop1</classifier>
+                <scope>test</scope>
+            </dependency>
+        </dependencies>
+    </dependencyManagement>
+
+    <build>
+        <pluginManagement>
+            <plugins>
+                <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-surefire-plugin</artifactId>
+                    <version>${plugin.maven.surefire.version}</version>
+                    <dependencies>
+                        <dependency>
+                            <groupId>org.apache.maven.plugins</groupId>
+                            <artifactId>maven-surefire-plugin</artifactId>
+                            <version>${plugin.maven.surefire.version}</version>
+                        </dependency>
+                    </dependencies>
+                    <configuration>
+                        <forkMode>once</forkMode>
+                        <argLine>-Djava.library.path=/usr/local/lib/</argLine>
+                    </configuration>
+                </plugin>
+            </plugins>
+        </pluginManagement>
+    </build>
+
+    <modules>
+        <module>lumify-analytics</module>
+        <module>lumify-enterprise-storm</module>
+        <module>lumify-enterprise-tools</module>
+        <module>lumify-public</module>
+        <module>lumify-twitter</module>
+        <module>lumify-facebook</module>
+
+    </modules>
+</project>
