@@ -1,0 +1,4 @@
+[subtree "lumify-public"]
+	url = git@github.com:altamiracorp/lumify.git
+	path = lumify-public
+	branch = master
