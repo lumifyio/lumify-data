@@ -28,14 +28,12 @@ import com.altamiracorp.lumify.core.model.termMention.TermMentionRepository;
 import com.altamiracorp.lumify.core.model.workQueue.WorkQueueRepository;
 import com.altamiracorp.lumify.core.user.SystemUser;
 import com.altamiracorp.lumify.storm.BaseLumifyBolt;
-import java.util.Map;
-import org.json.JSONObject;
 import org.junit.Before;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
-import static com.altamiracorp.lumify.storm.twitter.TwitterConstants.*;
+import static com.altamiracorp.lumify.twitter.TwitterConstants.*;
 import static org.mockito.Mockito.*;
 
 /**
@@ -88,9 +86,9 @@ public abstract class BaseTwitterBoltTest<B extends BaseLumifyBolt> {
         when(testBolt.getCollector()).thenReturn(outputCollector);
         
         when(systemUser.getModelUserContext()).thenReturn(modelUserContext);
-        when(ontologyRepository.getConceptByName(TWITTER_HANDLE_CONCEPT, systemUser)).thenReturn(handleConcept);
-        when(ontologyRepository.getConceptByName(TWITTER_URL_CONCEPT, systemUser)).thenReturn(urlConcept);
-        when(ontologyRepository.getConceptByName(TWITTER_HASHTAG_CONCEPT, systemUser)).thenReturn(hashtagConcept);
+        when(ontologyRepository.getConceptByName(CONCEPT_TWITTER_HANDLE, systemUser)).thenReturn(handleConcept);
+        when(ontologyRepository.getConceptByName(CONCEPT_TWITTER_URL, systemUser)).thenReturn(urlConcept);
+        when(ontologyRepository.getConceptByName(CONCEPT_TWITTER_HASHTAG, systemUser)).thenReturn(hashtagConcept);
         when(artifactRepository.findByRowKey(anyString(), any(ModelUserContext.class))).thenReturn(null);
     }
 }

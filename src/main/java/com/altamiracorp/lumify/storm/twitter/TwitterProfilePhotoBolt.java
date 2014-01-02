@@ -39,7 +39,7 @@ import java.io.InputStream;
 import java.net.URL;
 
 import static com.altamiracorp.lumify.core.model.ontology.PropertyName.GLYPH_ICON;
-import static com.altamiracorp.lumify.storm.twitter.TwitterConstants.*;
+import static com.altamiracorp.lumify.twitter.TwitterConstants.*;
 
 /**
  * This bolt attempts to retrieve a processed Twitter user's profile

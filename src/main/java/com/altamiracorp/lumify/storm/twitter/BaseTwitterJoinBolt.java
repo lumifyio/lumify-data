@@ -23,8 +23,8 @@ import com.altamiracorp.lumify.storm.BaseLumifyBolt;
 
 import java.util.*;
 
-import static com.altamiracorp.lumify.storm.twitter.TwitterConstants.TWEET_VERTEX_ID_FIELD;
-import static com.altamiracorp.lumify.storm.twitter.TwitterConstants.TWITTER_BOLT_ID_FIELD;
+import static com.altamiracorp.lumify.twitter.TwitterConstants.TWEET_VERTEX_ID_FIELD;
+import static com.altamiracorp.lumify.twitter.TwitterConstants.TWITTER_BOLT_ID_FIELD;
 
 /**
  * Base class for bolts that join one or more forked bolt processes.

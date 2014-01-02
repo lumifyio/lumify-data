@@ -32,7 +32,7 @@ import com.google.common.collect.Lists;
 import java.util.List;
 
 import static com.altamiracorp.lumify.core.model.ontology.PropertyName.*;
-import static com.altamiracorp.lumify.storm.twitter.TwitterConstants.*;
+import static com.altamiracorp.lumify.twitter.TwitterConstants.*;
 
 /**
  * Base class for bolts that identify and create entities and

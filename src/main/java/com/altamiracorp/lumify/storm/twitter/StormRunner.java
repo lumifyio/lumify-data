@@ -1,5 +1,6 @@
 package com.altamiracorp.lumify.storm.twitter;
 
+import com.altamiracorp.lumify.twitter.TwitterConstants;
 import backtype.storm.Config;
 import backtype.storm.generated.StormTopology;
 import backtype.storm.topology.BoltDeclarer;
