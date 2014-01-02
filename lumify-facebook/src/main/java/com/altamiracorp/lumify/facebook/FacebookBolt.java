@@ -4,6 +4,7 @@ package com.altamiracorp.lumify.facebook;
 import backtype.storm.tuple.Tuple;
 import com.altamiracorp.lumify.core.ingest.ArtifactExtractedInfo;
 import com.altamiracorp.lumify.core.model.graph.GraphVertex;
+import com.altamiracorp.lumify.core.model.ontology.PropertyName;
 import com.altamiracorp.lumify.core.model.search.SearchProvider;
 import com.altamiracorp.lumify.core.user.User;
 import com.altamiracorp.lumify.core.util.LumifyLogger;
@@ -14,6 +15,7 @@ import org.json.JSONObject;
 import org.apache.hadoop.fs.FileSystem;
 import java.io.ByteArrayInputStream;
 import java.io.InputStream;
+import java.util.List;
 
 public class FacebookBolt extends BaseLumifyBolt {
     private static final LumifyLogger LOGGER = LumifyLoggerFactory.getLogger(FacebookBolt.class);
@@ -51,9 +53,11 @@ public class FacebookBolt extends BaseLumifyBolt {
             LOGGER.info("Facebook tuple is a user: %s", name);
             FacebookUser facebookUser = new FacebookUser();
             GraphVertex userVertex = facebookUser.process(jsonObject, graphRepository, auditRepository, ontologyRepository, getUser());
-            ArtifactExtractedInfo profilePicExtractedInfo = facebookUser.createProfilePhotoArtifact(jsonObject, userVertex);
-            setSavedArtifact(profilePicExtractedInfo);
-            facebookUser.createProfilePhotoVertex(savedArtifact, userVertex, graphRepository, auditRepository, getUser());
+            if (userVertex.getProperty(PropertyName.GLYPH_ICON) == null) {
+                ArtifactExtractedInfo profilePicExtractedInfo = facebookUser.createProfilePhotoArtifact(jsonObject, userVertex);
+                setSavedArtifact(profilePicExtractedInfo);
+                facebookUser.createProfilePhotoVertex(savedArtifact, userVertex, graphRepository, auditRepository, getUser());
+            }
         }
     }
 
