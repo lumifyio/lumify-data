@@ -8,7 +8,7 @@ while [ -h "$SOURCE" ]; do
 done
 DIR="$(cd -P "$(dirname "$SOURCE")" && pwd)"
 
-classpath=$(${DIR}/classpath.sh lumify-enterprise-tools)
+classpath=$(${DIR}/classpath.sh lumify-enterprise/lumify-enterprise-tools)
 if [ $? -ne 0 ]; then
   echo "${classpath}"
   exit
