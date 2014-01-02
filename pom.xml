@@ -219,9 +219,5 @@
         <module>lumify-analytics</module>
         <module>lumify-enterprise-storm</module>
         <module>lumify-enterprise-tools</module>
-        <module>lumify-public</module>
-        <module>lumify-twitter</module>
-        <module>lumify-facebook</module>
-
     </modules>
 </project>
