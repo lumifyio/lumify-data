@@ -1,4 +1,0 @@
-[subtree "deployment/aws"]
-	url = git@github.com:dsingley/aws.git
-	path = deployment/aws
-	branch = master
