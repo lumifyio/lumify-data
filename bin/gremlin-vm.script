@@ -1,1 +1,0 @@
-g = TitanFactory.open('bin/gremlin-vm.config')
