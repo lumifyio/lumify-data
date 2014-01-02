@@ -59,6 +59,8 @@ public class FacebookUserTest {
     @Mock
     private Concept facebookConcept;
     @Mock
+    private Concept emailConcept;
+    @Mock
     private FileSystem fileSystem;
     @Mock
     private FacebookBolt facebookBolt;
@@ -84,16 +86,6 @@ public class FacebookUserTest {
         facebookUser = new FacebookUser();
         when(graphRepository.findVertexByPropertyAndType("profileId", "12345", VertexType.ENTITY, systemUser)).thenReturn(profileUser);
         when(graphRepository.findVertexByPropertyAndType("email", "facebookTest@lumify.io", VertexType.ENTITY, systemUser)).thenReturn(emailVertex);
-
-        doAnswer(new Answer() {
-            @Override
-            public Object answer(InvocationOnMock invocationOnMock) throws Throwable {
-                profileUser = (GraphVertex) invocationOnMock.getArguments()[0];
-                emailVertex = (GraphVertex) invocationOnMock.getArguments()[0];
-                return null;
-            }
-        }).when(searchProvider).add(any(GraphVertex.class), any(InputStream.class));
-
         when(graphRepository.save(profileUser, systemUser)).thenReturn("");
         when(graphRepository.save(emailVertex, systemUser)).thenReturn("");
         when(profileUser.getId()).thenReturn("");
@@ -112,19 +104,13 @@ public class FacebookUserTest {
         facebookUser = new FacebookUser();
         when(graphRepository.findVertexByPropertyAndType("profileId", "12345", VertexType.ENTITY, systemUser)).thenReturn(profileUser);
         when(graphRepository.findVertexByPropertyAndType("email", "facebookTest@lumify.io", VertexType.ENTITY, systemUser)).thenReturn(null);
-
-        doAnswer(new Answer() {
-            @Override
-            public Object answer(InvocationOnMock invocationOnMock) throws Throwable {
-                profileUser = (GraphVertex) invocationOnMock.getArguments()[0];
-                emailVertex = (GraphVertex) invocationOnMock.getArguments()[0];
-                return null;
-            }
-        }).when(searchProvider).add(any(GraphVertex.class), any(InputStream.class));
-
         when(graphRepository.save(profileUser, systemUser)).thenReturn("");
         when(graphRepository.save(emailVertex, systemUser)).thenReturn("");
         when(profileUser.getId()).thenReturn("");
+        when(ontologyRepository.getConceptByName("facebookProfile", systemUser)).thenReturn(facebookConcept);
+        when(ontologyRepository.getConceptByName("emailAddress", systemUser)).thenReturn(emailConcept);
+        when(facebookConcept.getId()).thenReturn("32");
+        when(emailConcept.getId()).thenReturn("48");
 
         returnedVertex = facebookUser.process(fullUserObject, graphRepository, auditRepository, ontologyRepository, systemUser);
 
