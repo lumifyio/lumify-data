@@ -56,6 +56,15 @@ class hadoop {
     require => [ Package['hadoop.x86_64'], File['/data0/mapred'] ],
   }
 
+  file { "/etc/hadoop/conf/log4j.properties":
+    ensure  => file,
+    source  => "puppet:///modules/hadoop/log4j.properties",
+    owner   => "root",
+    group   => "root",
+    mode    => "u=rw,go=r",
+    require => Package['hadoop.x86_64'],
+  }
+
   file { "/etc/hadoop/conf/masters":
     ensure  => file,
     content => template("hadoop/masters.erb"),
