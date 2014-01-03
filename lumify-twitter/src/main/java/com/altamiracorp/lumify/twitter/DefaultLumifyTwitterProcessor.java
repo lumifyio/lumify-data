@@ -66,14 +66,6 @@ public class DefaultLumifyTwitterProcessor extends BaseArtifactProcessor impleme
      */
     private static final String TWITTER_SOURCE = "Twitter";
     
-    private static final String FAVORITE_COUNT = "favoriteCount";
-    private static final String RETWEET_COUNT = "retweetCount";
-    private static final String STATUS_COUNT = "statusCount";
-    private static final String FOLLOWER_COUNT = "followerCount";
-    private static final String FOLLOWING_COUNT = "followingCount";
-    private static final String CREATION_DATE = "creationDate";
-    private static final String DESCRIPTION = "description";
-    
     /**
      * The Map of Lumify property keys to optional properties to extract
      * from a Tweet JSONObject.
@@ -92,18 +84,18 @@ public class DefaultLumifyTwitterProcessor extends BaseArtifactProcessor impleme
     static {
         Map<String, JsonProperty<?, ?>> optTweetMap = new HashMap<String, JsonProperty<?, ?>>();
         optTweetMap.put(PropertyName.GEO_LOCATION.toString(), JSON_COORDINATES_PROPERTY);
-        optTweetMap.put(FAVORITE_COUNT, JSON_FAVORITE_COUNT_PROPERTY);
-        optTweetMap.put(RETWEET_COUNT, JSON_RETWEET_COUNT_PROPERTY);
+        optTweetMap.put(LUMIFY_FAVORITE_COUNT_PROPERTY, JSON_FAVORITE_COUNT_PROPERTY);
+        optTweetMap.put(LUMIFY_RETWEET_COUNT_PROPERTY, JSON_RETWEET_COUNT_PROPERTY);
         OPTIONAL_TWEET_PROPERTY_MAP = Collections.unmodifiableMap(optTweetMap);
         
         Map<String, JsonProperty<?, ?>> optUserMap = new HashMap<String, JsonProperty<?, ?>>();
         optUserMap.put(PropertyName.DISPLAY_NAME.toString(), JSON_DISPLAY_NAME_PROPERTY);
         optUserMap.put(PropertyName.GEO_LOCATION.toString(), JSON_COORDINATES_PROPERTY);
-        optUserMap.put(STATUS_COUNT, JSON_STATUS_COUNT_PROPERTY);
-        optUserMap.put(FOLLOWER_COUNT, JSON_FOLLOWERS_COUNT_PROPERTY);
-        optUserMap.put(FOLLOWING_COUNT, JSON_FRIENDS_COUNT_PROPERTY);
-        optUserMap.put(CREATION_DATE, JSON_CREATED_AT_PROPERTY);
-        optUserMap.put(DESCRIPTION, JSON_DESCRIPTION_PROPERTY);
+        optUserMap.put(LUMIFY_STATUS_COUNT_PROPERTY, JSON_STATUS_COUNT_PROPERTY);
+        optUserMap.put(LUMIFY_FOLLOWER_COUNT_PROPERTY, JSON_FOLLOWERS_COUNT_PROPERTY);
+        optUserMap.put(LUMIFY_FOLLOWING_COUNT_PROPERTY, JSON_FRIENDS_COUNT_PROPERTY);
+        optUserMap.put(LUMIFY_CREATION_DATE_PROPERTY, JSON_CREATED_AT_PROPERTY);
+        optUserMap.put(LUMIFY_DESCRIPTION_PROPERTY, JSON_DESCRIPTION_PROPERTY);
         OPTIONAL_USER_PROPERTY_MAP = Collections.unmodifiableMap(optUserMap);
     }
     
@@ -154,11 +146,12 @@ public class DefaultLumifyTwitterProcessor extends BaseArtifactProcessor impleme
         LOGGER.info("Saving tweet to Accumulo and as Graph Vertex: %s", tweetId);
         
         List<String> modifiedProps = setOptionalProps(tweet, jsonTweet, OPTIONAL_TWEET_PROPERTY_MAP);
-        
-        getGraphRepository().save(tweet, user);
-        AuditRepository auditRepo = getAuditRepository();
-        for (String prop : modifiedProps) {
-            auditRepo.auditEntityProperties(AuditAction.UPDATE.toString(), tweet, prop, processId, "", user);
+        if (!modifiedProps.isEmpty()) {
+            getGraphRepository().save(tweet, user);
+            AuditRepository auditRepo = getAuditRepository();
+            for (String prop : modifiedProps) {
+                auditRepo.auditEntityProperties(AuditAction.UPDATE.toString(), tweet, prop, processId, "", user);
+            }
         }
         
         return tweet;
