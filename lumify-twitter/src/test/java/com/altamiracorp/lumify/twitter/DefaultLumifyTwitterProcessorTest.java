@@ -34,6 +34,7 @@ import com.altamiracorp.lumify.core.model.graph.GraphVertex;
 import com.altamiracorp.lumify.core.model.ontology.Concept;
 import com.altamiracorp.lumify.core.model.ontology.OntologyRepository;
 import com.altamiracorp.lumify.core.model.ontology.PropertyName;
+import com.altamiracorp.lumify.core.model.ontology.VertexType;
 import com.altamiracorp.lumify.core.model.termMention.TermMentionRepository;
 import com.altamiracorp.lumify.core.model.workQueue.WorkQueueRepository;
 import com.altamiracorp.lumify.core.user.User;
@@ -75,8 +76,12 @@ public class DefaultLumifyTwitterProcessorTest {
     private static final Integer TEST_TWEET_FAVORITE_COUNT = 42;
     private static final Integer TEST_TWEET_RETWEET_COUNT = 27;
     
-    private static final String TEST_TWEET_VERTEX_ID = "testTweetVertex";
-    private static final String TEST_TWEETER_VERTEX_ID = "testTweeterVertex";
+    private static final String TWEET_VERTEX_ID = "testTweetVertex";
+    private static final String TWEETER_VERTEX_ID = "testTweeterVertex";
+    private static final String HANDLE_CONCEPT_ID = "handleConcept";
+    private static final String HASHTAG_CONCEPT_ID = "hashtagConcept";
+    private static final String URL_CONCEPT_ID = "urlConcept";
+    private static final String TWEETED_RELATIONSHIP_LABEL = "tweetedLabel";
     
     private static JSONObject FULL_USER;
     private static JSONObject FULL_TWEET;
@@ -152,26 +157,30 @@ public class DefaultLumifyTwitterProcessorTest {
         when(ontologyRepository.getConceptByName(CONCEPT_TWITTER_HANDLE, user)).thenReturn(handleConcept);
         when(ontologyRepository.getConceptByName(CONCEPT_TWITTER_URL, user)).thenReturn(urlConcept);
         when(ontologyRepository.getConceptByName(CONCEPT_TWITTER_HASHTAG, user)).thenReturn(hashtagConcept);
+        when(ontologyRepository.getDisplayNameForLabel(TWEETED_RELATIONSHIP, user)).thenReturn(TWEETED_RELATIONSHIP_LABEL);
         when(artifactRepository.findByRowKey(anyString(), any(ModelUserContext.class))).thenReturn(null);
-        when(tweetVertex.getId()).thenReturn(TEST_TWEET_VERTEX_ID);
-        when(tweeterVertex.getId()).thenReturn(TEST_TWEETER_VERTEX_ID);
+        when(tweetVertex.getId()).thenReturn(TWEET_VERTEX_ID);
+        when(tweeterVertex.getId()).thenReturn(TWEETER_VERTEX_ID);
+        when(handleConcept.getId()).thenReturn(HANDLE_CONCEPT_ID);
+        when(hashtagConcept.getId()).thenReturn(HASHTAG_CONCEPT_ID);
+        when(urlConcept.getId()).thenReturn(URL_CONCEPT_ID);
     }
     
     @Test
     public void testParseTweet_NullJSON() {
-        doShortCircuitTest(null);
+        doShortCircuitTweetTest(null);
     }
     
     @Test
     public void testParseTweet_NoText() {
-        doShortCircuitTest(new JSONObject());
+        doShortCircuitTweetTest(new JSONObject());
     }
     
     @Test
     public void testParseTweet_NoUser() {
         JSONObject tweet = new JSONObject();
         JSON_TEXT_PROPERTY.setOn(tweet, TEST_TWEET_TEXT);
-        doShortCircuitTest(tweet);
+        doShortCircuitTweetTest(tweet);
     }
     
     @Test
@@ -179,7 +188,7 @@ public class DefaultLumifyTwitterProcessorTest {
         JSONObject tweet = new JSONObject();
         JSON_TEXT_PROPERTY.setOn(tweet, TEST_TWEET_TEXT);
         JSON_USER_PROPERTY.setOn(tweet, new JSONObject());
-        doShortCircuitTest(tweet);
+        doShortCircuitTweetTest(tweet);
     }
     
     @Test
@@ -189,7 +198,7 @@ public class DefaultLumifyTwitterProcessorTest {
         JSONObject tweet = new JSONObject();
         JSON_TEXT_PROPERTY.setOn(tweet, TEST_TWEET_TEXT);
         JSON_USER_PROPERTY.setOn(tweet, userJson);
-        doShortCircuitTest(tweet);
+        doShortCircuitTweetTest(tweet);
     }
     
     @Test
@@ -199,16 +208,7 @@ public class DefaultLumifyTwitterProcessorTest {
         JSONObject tweet = new JSONObject();
         JSON_TEXT_PROPERTY.setOn(tweet, TEST_TWEET_TEXT);
         JSON_USER_PROPERTY.setOn(tweet, userJson);
-        doShortCircuitTest(tweet);
-    }
-    
-    private void doShortCircuitTest(final JSONObject input) {
-        GraphVertex vertex = instance.parseTweet(TEST_PROCESS_ID, input);
-        assertNull(vertex);
-        verify(artifactRepository, times(0)).saveArtifact(any(ArtifactExtractedInfo.class), any(User.class));
-        verify(graphRepository, times(0)).save(any(GraphVertex.class), any(User.class));
-        verify(auditRepository, times(0)).auditEntityProperties(anyString(), any(GraphVertex.class), anyString(), anyString(), anyString(),
-                any(User.class));
+        doShortCircuitTweetTest(tweet);
     }
     
     @Test
@@ -230,7 +230,7 @@ public class DefaultLumifyTwitterProcessorTest {
                 .source("Twitter")
                 .process(TEST_PROCESS_ID);
         
-        when(artifactRepository.saveArtifact(eq(expectedArtifactInfo), eq(user))).thenReturn(tweetVertex);
+        when(artifactRepository.saveArtifact(expectedArtifactInfo, user)).thenReturn(tweetVertex);
         
         GraphVertex vertex = instance.parseTweet(TEST_PROCESS_ID, tweet);
         
@@ -263,13 +263,13 @@ public class DefaultLumifyTwitterProcessorTest {
                 .process(TEST_PROCESS_ID)
                 .date(TEST_TWEET_CREATED);
         
-        when(artifactRepository.saveArtifact(eq(expectedArtifactInfo), eq(user))).thenReturn(tweetVertex);
+        when(artifactRepository.saveArtifact(expectedArtifactInfo, user)).thenReturn(tweetVertex);
         
         GraphVertex vertex = instance.parseTweet(TEST_PROCESS_ID, tweet);
         
-        verify(tweetVertex).setProperty(eq(PropertyName.GEO_LOCATION.toString()), eq(TEST_TWEET_COORDS));
-        verify(tweetVertex).setProperty(eq(LUMIFY_FAVORITE_COUNT_PROPERTY), eq(TEST_TWEET_FAVORITE_COUNT));
-        verify(graphRepository).save(eq(tweetVertex), eq(user));
+        verify(tweetVertex).setProperty(PropertyName.GEO_LOCATION.toString(), TEST_TWEET_COORDS);
+        verify(tweetVertex).setProperty(LUMIFY_FAVORITE_COUNT_PROPERTY, TEST_TWEET_FAVORITE_COUNT);
+        verify(graphRepository).save(tweetVertex, user);
         verify(auditRepository).auditEntityProperties(eq(AuditAction.UPDATE.toString()), eq(tweetVertex),
                 eq(PropertyName.GEO_LOCATION.toString()), eq(TEST_PROCESS_ID), anyString(), eq(user));
         verify(auditRepository).auditEntityProperties(eq(AuditAction.UPDATE.toString()), eq(tweetVertex),
@@ -292,14 +292,14 @@ public class DefaultLumifyTwitterProcessorTest {
                 .process(TEST_PROCESS_ID)
                 .date(TEST_TWEET_CREATED);
         
-        when(artifactRepository.saveArtifact(eq(expectedArtifactInfo), eq(user))).thenReturn(tweetVertex);
+        when(artifactRepository.saveArtifact(expectedArtifactInfo, user)).thenReturn(tweetVertex);
         
         GraphVertex vertex = instance.parseTweet(TEST_PROCESS_ID, FULL_TWEET);
         
-        verify(tweetVertex).setProperty(eq(PropertyName.GEO_LOCATION.toString()), eq(TEST_TWEET_COORDS));
-        verify(tweetVertex).setProperty(eq(LUMIFY_FAVORITE_COUNT_PROPERTY), eq(TEST_TWEET_FAVORITE_COUNT));
-        verify(tweetVertex).setProperty(eq(LUMIFY_RETWEET_COUNT_PROPERTY), eq(TEST_TWEET_RETWEET_COUNT));
-        verify(graphRepository).save(eq(tweetVertex), eq(user));
+        verify(tweetVertex).setProperty(PropertyName.GEO_LOCATION.toString(), TEST_TWEET_COORDS);
+        verify(tweetVertex).setProperty(LUMIFY_FAVORITE_COUNT_PROPERTY, TEST_TWEET_FAVORITE_COUNT);
+        verify(tweetVertex).setProperty(LUMIFY_RETWEET_COUNT_PROPERTY, TEST_TWEET_RETWEET_COUNT);
+        verify(graphRepository).save(tweetVertex, user);
         verify(auditRepository).auditEntityProperties(eq(AuditAction.UPDATE.toString()), eq(tweetVertex),
                 eq(PropertyName.GEO_LOCATION.toString()), eq(TEST_PROCESS_ID), anyString(), eq(user));
         verify(auditRepository).auditEntityProperties(eq(AuditAction.UPDATE.toString()), eq(tweetVertex),
@@ -307,6 +307,168 @@ public class DefaultLumifyTwitterProcessorTest {
         verify(auditRepository).auditEntityProperties(eq(AuditAction.UPDATE.toString()), eq(tweetVertex),
                 eq(LUMIFY_RETWEET_COUNT_PROPERTY), eq(TEST_PROCESS_ID), anyString(), eq(user));
         assertEquals(tweetVertex, vertex);
+    }
+    
+    @Test
+    public void testParseTwitterUser_NullJSON() {
+        doShortCircuitUserTest(null);
+    }
+    
+    @Test
+    public void testParseTwitterUser_NoUser() {
+        doShortCircuitUserTest(new JSONObject());
+    }
+    
+    @Test
+    public void testParseTwitterUser_NoScreenName() {
+        JSONObject tweeter = new JSONObject();
+        JSONObject tweet = new JSONObject();
+        JSON_USER_PROPERTY.setOn(tweet, tweeter);
+        doShortCircuitUserTest(tweet);
+    }
+    
+    @Test
+    public void testParseTwitterUser_EmptyScreenName() {
+        JSONObject tweeter = new JSONObject();
+        JSON_SCREEN_NAME_PROPERTY.setOn(tweeter, "");
+        JSONObject tweet = new JSONObject();
+        JSON_USER_PROPERTY.setOn(tweet, tweeter);
+        doShortCircuitUserTest(tweet);
+    }
+    
+    @Test
+    public void testParseTwitterUser_WhitespaceScreenName() {
+        JSONObject tweeter = new JSONObject();
+        JSON_SCREEN_NAME_PROPERTY.setOn(tweeter, "\n \t\t \n");
+        JSONObject tweet = new JSONObject();
+        JSON_USER_PROPERTY.setOn(tweet, tweeter);
+        doShortCircuitUserTest(tweet);
+    }
+    
+    @Test
+    public void testParseTwitterUser_ScreenNameOnly() {
+        JSONObject tweet = new JSONObject();
+        JSON_USER_PROPERTY.setOn(tweet, buildScreenNameOnlyUser());
+        doExistingUserTest(tweet);
+    }
+    
+    @Test
+    public void testParseTwitterUser_SomeOptionalProperties() {
+        JSONObject tweeter = buildScreenNameOnlyUser();
+        JSON_DISPLAY_NAME_PROPERTY.setOn(tweeter, TEST_USER_NAME);
+        JSON_CREATED_AT_PROPERTY.setOn(tweeter, TEST_USER_CREATED);
+        JSON_FRIENDS_COUNT_PROPERTY.setOn(tweeter, TEST_USER_FRIENDS_COUNT);
+        JSONObject tweet = new JSONObject();
+        JSON_USER_PROPERTY.setOn(tweet, tweeter);
+        
+        doExistingUserTest(tweet);
+        
+        verify(tweeterVertex).setProperty(PropertyName.DISPLAY_NAME.toString(), TEST_USER_NAME);
+        verify(tweeterVertex).setProperty(LUMIFY_CREATION_DATE_PROPERTY, TEST_USER_CREATED);
+        verify(tweeterVertex).setProperty(LUMIFY_FOLLOWING_COUNT_PROPERTY, TEST_USER_FRIENDS_COUNT);
+        verify(auditRepository).auditEntityProperties(eq(AuditAction.UPDATE.toString()), eq(tweeterVertex),
+                eq(PropertyName.DISPLAY_NAME.toString()), eq(TEST_PROCESS_ID), anyString(), eq(user));
+        verify(auditRepository).auditEntityProperties(eq(AuditAction.UPDATE.toString()), eq(tweeterVertex),
+                eq(LUMIFY_CREATION_DATE_PROPERTY), eq(TEST_PROCESS_ID), anyString(), eq(user));
+        verify(auditRepository).auditEntityProperties(eq(AuditAction.UPDATE.toString()), eq(tweeterVertex),
+                eq(LUMIFY_FOLLOWING_COUNT_PROPERTY), eq(TEST_PROCESS_ID), anyString(), eq(user));
+    }
+    
+    @Test
+    public void testParseTwitterUser_AllOptionalProperties() {
+        doExistingUserTest(FULL_TWEET);
+        
+        verify(tweeterVertex).setProperty(PropertyName.DISPLAY_NAME.toString(), TEST_USER_NAME);
+        verify(tweeterVertex).setProperty(LUMIFY_CREATION_DATE_PROPERTY, TEST_USER_CREATED);
+        verify(tweeterVertex).setProperty(LUMIFY_FOLLOWING_COUNT_PROPERTY, TEST_USER_FRIENDS_COUNT);
+        verify(tweeterVertex).setProperty(PropertyName.GEO_LOCATION.toString(), TEST_USER_COORDS);
+        verify(tweeterVertex).setProperty(LUMIFY_STATUS_COUNT_PROPERTY, TEST_USER_STATUS_COUNT);
+        verify(tweeterVertex).setProperty(LUMIFY_FOLLOWER_COUNT_PROPERTY, TEST_USER_FOLLOWERS_COUNT);
+        verify(tweeterVertex).setProperty(LUMIFY_DESCRIPTION_PROPERTY, TEST_USER_DESCRIPTION);
+        verify(auditRepository).auditEntityProperties(eq(AuditAction.UPDATE.toString()), eq(tweeterVertex),
+                eq(PropertyName.DISPLAY_NAME.toString()), eq(TEST_PROCESS_ID), anyString(), eq(user));
+        verify(auditRepository).auditEntityProperties(eq(AuditAction.UPDATE.toString()), eq(tweeterVertex),
+                eq(LUMIFY_CREATION_DATE_PROPERTY), eq(TEST_PROCESS_ID), anyString(), eq(user));
+        verify(auditRepository).auditEntityProperties(eq(AuditAction.UPDATE.toString()), eq(tweeterVertex),
+                eq(LUMIFY_FOLLOWING_COUNT_PROPERTY), eq(TEST_PROCESS_ID), anyString(), eq(user));
+        verify(auditRepository).auditEntityProperties(eq(AuditAction.UPDATE.toString()), eq(tweeterVertex),
+                eq(PropertyName.GEO_LOCATION.toString()), eq(TEST_PROCESS_ID), anyString(), eq(user));
+        verify(auditRepository).auditEntityProperties(eq(AuditAction.UPDATE.toString()), eq(tweeterVertex),
+                eq(LUMIFY_STATUS_COUNT_PROPERTY), eq(TEST_PROCESS_ID), anyString(), eq(user));
+        verify(auditRepository).auditEntityProperties(eq(AuditAction.UPDATE.toString()), eq(tweeterVertex),
+                eq(LUMIFY_FOLLOWER_COUNT_PROPERTY), eq(TEST_PROCESS_ID), anyString(), eq(user));
+        verify(auditRepository).auditEntityProperties(eq(AuditAction.UPDATE.toString()), eq(tweeterVertex),
+                eq(LUMIFY_DESCRIPTION_PROPERTY), eq(TEST_PROCESS_ID), anyString(), eq(user));
+    }
+    
+    @Test
+    public void testParseTwitterUser_ScreenNameOnly_NewVertex() {
+        JSONObject tweet = new JSONObject();
+        JSON_USER_PROPERTY.setOn(tweet, buildScreenNameOnlyUser());
+        
+        when(graphRepository.findVertexByTitleAndType(TEST_USER_SCREEN_NAME, VertexType.ENTITY, user)).thenReturn(null);
+        
+        GraphVertex vertex = instance.parseTwitterUser(TEST_PROCESS_ID, tweet, tweetVertex);
+        String vertexId = vertex.getId();
+        
+        assertEquals(TEST_USER_SCREEN_NAME, vertex.getProperty(PropertyName.TITLE));
+        assertEquals(VertexType.ENTITY.toString(), vertex.getProperty(PropertyName.TYPE));
+        assertEquals(HANDLE_CONCEPT_ID, vertex.getProperty(PropertyName.SUBTYPE));
+        
+        verify(graphRepository).save(vertex, user);
+        verify(auditRepository).auditEntityProperties(eq(AuditAction.UPDATE.toString()), eq(vertex),
+                eq(PropertyName.TITLE.toString()), eq(TEST_PROCESS_ID), anyString(), eq(user));
+        verify(auditRepository).auditEntityProperties(eq(AuditAction.UPDATE.toString()), eq(vertex),
+                eq(PropertyName.TYPE.toString()), eq(TEST_PROCESS_ID), anyString(), eq(user));
+        verify(auditRepository).auditEntityProperties(eq(AuditAction.UPDATE.toString()), eq(vertex),
+                eq(PropertyName.SUBTYPE.toString()), eq(TEST_PROCESS_ID), anyString(), eq(user));
+        verify(graphRepository).saveRelationship(vertexId, TWEET_VERTEX_ID, TWEETED_RELATIONSHIP,
+                user);
+        verify(auditRepository).auditRelationships(eq(AuditAction.CREATE.toString()), eq(vertex), eq(tweetVertex),
+                eq(TWEETED_RELATIONSHIP_LABEL), eq(TEST_PROCESS_ID), anyString(), eq(user));
+    }
+    
+    private void doShortCircuitTweetTest(final JSONObject input) {
+        GraphVertex vertex = instance.parseTweet(TEST_PROCESS_ID, input);
+        assertNull(vertex);
+        verify(artifactRepository, times(0)).saveArtifact(any(ArtifactExtractedInfo.class), any(User.class));
+        verify(graphRepository, times(0)).save(any(GraphVertex.class), any(User.class));
+        verify(auditRepository, times(0)).auditEntityProperties(anyString(), any(GraphVertex.class), anyString(), anyString(), anyString(),
+                any(User.class));
+    }
+    
+    private void doShortCircuitUserTest(final JSONObject input) {
+        GraphVertex vertex = instance.parseTwitterUser(TEST_PROCESS_ID, input, tweetVertex);
+        assertNull(vertex);
+        verify(ontologyRepository, times(0)).getConceptByName(anyString(), any(User.class));
+        verify(graphRepository, times(0)).save(any(GraphVertex.class), any(User.class));
+        verify(auditRepository, times(0)).auditEntityProperties(anyString(), any(GraphVertex.class), anyString(), anyString(), anyString(),
+                any(User.class));
+        verify(graphRepository, times(0)).saveRelationship(anyString(), anyString(), anyString(), any(User.class));
+        verify(auditRepository, times(0)).auditRelationships(anyString(), any(GraphVertex.class), any(GraphVertex.class), anyString(),
+                anyString(), anyString(), any(User.class));
+    }
+    
+    private void doExistingUserTest(final JSONObject input) {
+        when(graphRepository.findVertexByTitleAndType(TEST_USER_SCREEN_NAME, VertexType.ENTITY, user)).
+                thenReturn(tweeterVertex);
+        
+        GraphVertex vertex = instance.parseTwitterUser(TEST_PROCESS_ID, input, tweetVertex);
+        
+        verify(tweeterVertex).setProperty(PropertyName.TITLE, TEST_USER_SCREEN_NAME);
+        verify(tweeterVertex).setProperty(PropertyName.TYPE, VertexType.ENTITY.toString());
+        verify(tweeterVertex).setProperty(PropertyName.SUBTYPE, HANDLE_CONCEPT_ID);
+        verify(graphRepository).save(tweeterVertex, user);
+        verify(auditRepository).auditEntityProperties(eq(AuditAction.UPDATE.toString()), eq(tweeterVertex),
+                eq(PropertyName.TITLE.toString()), eq(TEST_PROCESS_ID), anyString(), eq(user));
+        verify(auditRepository).auditEntityProperties(eq(AuditAction.UPDATE.toString()), eq(tweeterVertex),
+                eq(PropertyName.TYPE.toString()), eq(TEST_PROCESS_ID), anyString(), eq(user));
+        verify(auditRepository).auditEntityProperties(eq(AuditAction.UPDATE.toString()), eq(tweeterVertex),
+                eq(PropertyName.SUBTYPE.toString()), eq(TEST_PROCESS_ID), anyString(), eq(user));
+        verify(graphRepository).saveRelationship(TWEETER_VERTEX_ID, TWEET_VERTEX_ID, TWEETED_RELATIONSHIP,
+                user);
+        verify(auditRepository).auditRelationships(eq(AuditAction.CREATE.toString()), eq(tweeterVertex), eq(tweetVertex),
+                eq(TWEETED_RELATIONSHIP_LABEL), eq(TEST_PROCESS_ID), anyString(), eq(user));
     }
     
     private JSONObject buildScreenNameOnlyUser() {

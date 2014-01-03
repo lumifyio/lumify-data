@@ -160,7 +160,8 @@ public class DefaultLumifyTwitterProcessor extends BaseArtifactProcessor impleme
     @Override
     public GraphVertex parseTwitterUser(final String processId, final JSONObject jsonTweet, final GraphVertex tweetVertex) {
         JSONObject jsonUser = JSON_USER_PROPERTY.getFrom(jsonTweet);
-        if (jsonUser == null) {
+        String screenName = JSON_SCREEN_NAME_PROPERTY.getFrom(jsonUser);
+        if (jsonUser == null || screenName == null || screenName.trim().isEmpty()) {
             return null;
         }
         
@@ -169,7 +170,6 @@ public class DefaultLumifyTwitterProcessor extends BaseArtifactProcessor impleme
         GraphRepository graphRepo = getGraphRepository();
         
         Concept handleConcept = getOntologyRepository().getConceptByName(CONCEPT_TWITTER_HANDLE, lumifyUser);
-        String screenName = JSON_SCREEN_NAME_PROPERTY.getFrom(jsonUser);
         GraphVertex userVertex = graphRepo.findVertexByTitleAndType(screenName, VertexType.ENTITY, lumifyUser);
         if (userVertex == null) {
             userVertex = new InMemoryGraphVertex();
