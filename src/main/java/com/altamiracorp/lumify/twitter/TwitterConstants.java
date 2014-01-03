@@ -172,4 +172,44 @@ public interface TwitterConstants {
      * The Twitter user description property.
      */
     static final StringJsonProperty JSON_DESCRIPTION_PROPERTY = new StringJsonProperty("description");
+    
+    /**
+     * The Twitter profile image URL property.
+     */
+    static final StringJsonProperty JSON_PROFILE_IMAGE_URL_PROPERTY = new StringJsonProperty("profile_image_url");
+    
+    /**
+     * The Lumify favorite count property.
+     */
+    static final String LUMIFY_FAVORITE_COUNT_PROPERTY = "favoriteCount";
+    
+    /**
+     * The Lumify retweet count property.
+     */
+    static final String LUMIFY_RETWEET_COUNT_PROPERTY = "retweetCount";
+    
+    /**
+     * The Lumify status count property.
+     */
+    static final String LUMIFY_STATUS_COUNT_PROPERTY = "statusCount";
+    
+    /**
+     * The Lumify follower count property.
+     */
+    static final String LUMIFY_FOLLOWER_COUNT_PROPERTY = "followerCount";
+    
+    /**
+     * The Lumify following count property.
+     */
+    static final String LUMIFY_FOLLOWING_COUNT_PROPERTY = "followingCount";
+    
+    /**
+     * The Lumify creation date property.
+     */
+    static final String LUMIFY_CREATION_DATE_PROPERTY = "creationDate";
+    
+    /**
+     * The Lumify description property.
+     */
+    static final String LUMIFY_DESCRIPTION_PROPERTY = "description";
 }
