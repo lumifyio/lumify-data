@@ -84,7 +84,7 @@ public class FacebookUserTest {
     @Test
     public void testNormalUserProcess () throws Exception {
         facebookUser = new FacebookUser();
-        when(graphRepository.findVertexByPropertyAndType("profileId", "12345", VertexType.ENTITY, systemUser)).thenReturn(profileUser);
+        when(graphRepository.findVertexByTitleAndType("12345", VertexType.ENTITY, systemUser)).thenReturn(profileUser);
         when(graphRepository.findVertexByPropertyAndType("email", "facebookTest@lumify.io", VertexType.ENTITY, systemUser)).thenReturn(emailVertex);
         when(graphRepository.save(profileUser, systemUser)).thenReturn("");
         when(graphRepository.save(emailVertex, systemUser)).thenReturn("");
@@ -95,14 +95,13 @@ public class FacebookUserTest {
         returnedVertex = facebookUser.process(normalUserObject, graphRepository, auditRepository, ontologyRepository, systemUser);
 
         verify(graphRepository, times(2)).save(any(GraphVertex.class), eq(systemUser));
-        verify(graphRepository, times(1)).findVertexByPropertyAndType(eq("profileId"), anyString(), eq(VertexType.ENTITY), eq(systemUser));
         verify(profileUser, times(2)).setProperty(any(PropertyName.class), anyString());
         verify(profileUser, times(1)).setProperty(anyString(), anyString());
     }
     @Test
     public void testFullUserProcess () throws Exception {
         facebookUser = new FacebookUser();
-        when(graphRepository.findVertexByPropertyAndType("profileId", "12345", VertexType.ENTITY, systemUser)).thenReturn(profileUser);
+        when(graphRepository.findVertexByTitleAndType("12345", VertexType.ENTITY, systemUser)).thenReturn(profileUser);
         when(graphRepository.findVertexByPropertyAndType("email", "facebookTest@lumify.io", VertexType.ENTITY, systemUser)).thenReturn(null);
         when(graphRepository.save(profileUser, systemUser)).thenReturn("");
         when(graphRepository.save(emailVertex, systemUser)).thenReturn("");
@@ -116,10 +115,36 @@ public class FacebookUserTest {
 
         verify(graphRepository, times(3)).save(any(GraphVertex.class), eq(systemUser));
         verify(graphRepository, times(1)).saveRelationship(anyString(), anyString(), eq("personHasEmailAddress"), eq(systemUser));
-        verify(graphRepository, times(1)).findVertexByPropertyAndType(eq("profileId"), anyString(), eq(VertexType.ENTITY), eq(systemUser));
         verify(graphRepository, times(1)).findVertexByPropertyAndType(eq("emailAddress"), anyString(), eq(VertexType.ENTITY), eq(systemUser));
         verify(profileUser, times(3)).setProperty(any(PropertyName.class), anyString());
         verify(profileUser, times(2)).setProperty(anyString(), anyString());
+    }
+
+    @Test
+    public void testAlreadyProcessedUserProcess () throws Exception {
+        facebookUser = new FacebookUser();
+        when(graphRepository.findVertexByTitleAndType("12345", VertexType.ENTITY, systemUser)).thenReturn(null);
+        when(graphRepository.findVertexByTitleAndType("Facebook Test", VertexType.ENTITY, systemUser)).thenReturn(profileUser);
+        when(graphRepository.findVertexByPropertyAndType("email", "facebookTest@lumify.io", VertexType.ENTITY, systemUser)).thenReturn(null);
+        when(graphRepository.save(profileUser, systemUser)).thenReturn("");
+        when(graphRepository.save(emailVertex, systemUser)).thenReturn("");
+        when(profileUser.getId()).thenReturn("");
+        when(ontologyRepository.getConceptByName("facebookProfile", systemUser)).thenReturn(facebookConcept);
+        when(ontologyRepository.getConceptByName("emailAddress", systemUser)).thenReturn(emailConcept);
+        when(facebookConcept.getId()).thenReturn("32");
+        when(emailConcept.getId()).thenReturn("48");
+
+        returnedVertex = facebookUser.process(fullUserObject, graphRepository, auditRepository, ontologyRepository, systemUser);
+
+        verify(graphRepository, times(0)).save(any(GraphVertex.class), eq(systemUser));
+    }
+
+    @Test (expected = RuntimeException.class)
+    public void testNoPostUserProcess () throws Exception {
+        facebookUser = new FacebookUser();
+        when(graphRepository.findVertexByTitleAndType("12345", VertexType.ENTITY, systemUser)).thenReturn(null);
+        when(graphRepository.findVertexByTitleAndType("Facebook Test", VertexType.ENTITY, systemUser)).thenReturn(null);
+        returnedVertex = facebookUser.process(fullUserObject, graphRepository, auditRepository, ontologyRepository, systemUser);
     }
 
     @Test
