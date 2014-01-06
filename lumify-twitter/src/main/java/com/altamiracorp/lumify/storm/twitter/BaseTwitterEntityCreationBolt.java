@@ -79,7 +79,7 @@ public abstract class BaseTwitterEntityCreationBolt extends BaseTwitterForkBolt 
                 String sign = mention.getMetadata().getSign().toLowerCase();
                 String rowKey = mention.getRowKey().toString();
 
-                GraphVertex termVertex = graphRepository.findVertexByTitleAndType(sign, VertexType.ENTITY, user);
+                GraphVertex termVertex = graphRepository.findVertexByExactTitle(sign, user);
 
                 boolean newVertex = false;
                 if (termVertex == null) {

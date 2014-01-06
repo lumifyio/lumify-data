@@ -56,9 +56,9 @@ public class FacebookUser {
         Long name_uid = userJson.getLong(UID);
         String username = userJson.getString(USERNAME);
         Concept emailConcept = ontologyRepository.getConceptByName(EMAIL_ADDRESS, user);
-        GraphVertex userVertex = graphRepository.findVertexByTitleAndType(name_uid.toString(), VertexType.ENTITY, user);
+        GraphVertex userVertex = graphRepository.findVertexByExactTitle(name_uid.toString(), user);
         if (userVertex == null) {
-            userVertex = graphRepository.findVertexByTitleAndType(name, VertexType.ENTITY, user);
+            userVertex = graphRepository.findVertexByExactTitle(name, user);
             if (userVertex == null) {
                 LOGGER.error("Could not find user in system, with given profile_id.");
                 throw new RuntimeException();

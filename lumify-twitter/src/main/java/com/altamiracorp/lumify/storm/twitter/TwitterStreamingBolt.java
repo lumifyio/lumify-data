@@ -183,7 +183,7 @@ public class TwitterStreamingBolt extends BaseLumifyBolt {
         JSONObject tweeterJson = outputTuple.getUserJSON();
         String tweeter = tweeterJson.getString(SCREEN_NAME_PROPERTY).toLowerCase();
         boolean newVertex = false;
-        GraphVertex tweeterVertex = graphRepository.findVertexByTitleAndType(tweeter, VertexType.ENTITY, user);
+        GraphVertex tweeterVertex = graphRepository.findVertexByExactTitle(tweeter, user);
         if (tweeterVertex == null) {
             newVertex = true;
             tweeterVertex = new InMemoryGraphVertex();
