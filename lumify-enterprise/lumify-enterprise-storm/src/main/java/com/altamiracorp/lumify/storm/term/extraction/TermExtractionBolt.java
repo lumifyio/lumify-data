@@ -130,11 +130,9 @@ public class TermExtractionBolt extends BaseTextProcessingBolt {
                     vertex.setProperty(PropertyName.TITLE, title);
                     modifiedProperties.add(PropertyName.TITLE.toString());
                     if (concept != null) {
-                        vertex.setProperty(PropertyName.SUBTYPE.toString(), concept.getId());
-                        modifiedProperties.add(PropertyName.SUBTYPE.toString());
+                        vertex.setProperty(PropertyName.CONCEPT_TYPE.toString(), concept.getId());
+                        modifiedProperties.add(PropertyName.CONCEPT_TYPE.toString());
                     }
-                    vertex.setType(VertexType.ENTITY);
-                    modifiedProperties.add(PropertyName.TYPE.toString());
                 }
 
                 if (termMention.getPropertyValue() != null) {
