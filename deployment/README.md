@@ -29,7 +29,7 @@ ec2-modify-instance-attribute <instance id> --group-id <existing group id> --gro
 1. install our software on the puppet server and via puppet on all the other cluster nodes: `./init.sh cluster_name_hosts`
 1. monitor the progress of the other nodes: `tail -f run_puppet.*.log`
 1. configure ssh for the proxy users: `./setup_ssh.ssh cluster_name_hosts`
-1. start and perform initial setup of our services: `./start_all.sh cluster_name_hosts`
+1. start and perform initial setup of our services: `./control.sh cluster_name_hosts first`
 1. ssh from the puppet server to the Hadoop namenode and Accumulo master servers when prompted to format and init
 
 setup
