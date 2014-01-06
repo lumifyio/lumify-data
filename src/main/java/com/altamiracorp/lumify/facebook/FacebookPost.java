@@ -95,7 +95,7 @@ public class FacebookPost {
         List<String> modifiedProperties = new ArrayList<String>();
 
         //create entities for each of the ids tagged or author and the relationships
-        GraphVertex authorVertex = graphRepository.findVertexByPropertyAndType(PROFILE_ID, author_uid, VertexType.ENTITY, user);
+        GraphVertex authorVertex = graphRepository.findVertexByProperty(PROFILE_ID, author_uid, user);
         if (authorVertex == null) {
             authorVertex = new InMemoryGraphVertex();
             authorVertex.setProperty(PROFILE_ID, author_uid);
@@ -114,7 +114,7 @@ public class FacebookPost {
             Iterator tagged = post.getJSONObject(TAGGEED_UIDS).keys();
             while (tagged.hasNext()) {
                 String next = tagged.next().toString();
-                GraphVertex taggedVertex = graphRepository.findVertexByPropertyAndType(PROFILE_ID, next, VertexType.ENTITY, user);
+                GraphVertex taggedVertex = graphRepository.findVertexByProperty(PROFILE_ID, next, user);
                 if (taggedVertex == null) {
                     taggedVertex = new InMemoryGraphVertex();
                     taggedVertex.setProperty(PROFILE_ID, next);

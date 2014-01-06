@@ -85,7 +85,7 @@ public class FacebookUser {
 
         if (userJson.has(EMAIL) && !userJson.getString(EMAIL).equals(JSONObject.NULL)) {
             String email = userJson.getString(EMAIL);
-            GraphVertex emailVertex = graphRepository.findVertexByPropertyAndType(EMAIL_ADDRESS, email, VertexType.ENTITY, user);
+            GraphVertex emailVertex = graphRepository.findVertexByProperty(EMAIL_ADDRESS, email, user);
             if (emailVertex == null) {
                 emailVertex = new InMemoryGraphVertex();
                 emailVertex.setProperty(PropertyName.TITLE, email);

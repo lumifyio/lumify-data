@@ -85,7 +85,7 @@ public class FacebookUserTest {
     public void testNormalUserProcess () throws Exception {
         facebookUser = new FacebookUser();
         when(graphRepository.findVertexByExactTitle("12345", systemUser)).thenReturn(profileUser);
-        when(graphRepository.findVertexByPropertyAndType("email", "facebookTest@lumify.io", VertexType.ENTITY, systemUser)).thenReturn(emailVertex);
+        when(graphRepository.findVertexByProperty("email", "facebookTest@lumify.io", systemUser)).thenReturn(emailVertex);
         when(graphRepository.save(profileUser, systemUser)).thenReturn("");
         when(graphRepository.save(emailVertex, systemUser)).thenReturn("");
         when(profileUser.getId()).thenReturn("");
@@ -102,7 +102,7 @@ public class FacebookUserTest {
     public void testFullUserProcess () throws Exception {
         facebookUser = new FacebookUser();
         when(graphRepository.findVertexByExactTitle("12345", systemUser)).thenReturn(profileUser);
-        when(graphRepository.findVertexByPropertyAndType("email", "facebookTest@lumify.io", VertexType.ENTITY, systemUser)).thenReturn(null);
+        when(graphRepository.findVertexByProperty("email", "facebookTest@lumify.io", systemUser)).thenReturn(null);
         when(graphRepository.save(profileUser, systemUser)).thenReturn("");
         when(graphRepository.save(emailVertex, systemUser)).thenReturn("");
         when(profileUser.getId()).thenReturn("");
@@ -115,7 +115,7 @@ public class FacebookUserTest {
 
         verify(graphRepository, times(3)).save(any(GraphVertex.class), eq(systemUser));
         verify(graphRepository, times(1)).saveRelationship(anyString(), anyString(), eq("personHasEmailAddress"), eq(systemUser));
-        verify(graphRepository, times(1)).findVertexByPropertyAndType(eq("emailAddress"), anyString(), eq(VertexType.ENTITY), eq(systemUser));
+        verify(graphRepository, times(1)).findVertexByProperty(eq("emailAddress"), anyString(), eq(systemUser));
         verify(profileUser, times(3)).setProperty(any(PropertyName.class), anyString());
         verify(profileUser, times(2)).setProperty(anyString(), anyString());
     }
@@ -125,7 +125,7 @@ public class FacebookUserTest {
         facebookUser = new FacebookUser();
         when(graphRepository.findVertexByExactTitle("12345", systemUser)).thenReturn(null);
         when(graphRepository.findVertexByExactTitle("Facebook Test", systemUser)).thenReturn(profileUser);
-        when(graphRepository.findVertexByPropertyAndType("email", "facebookTest@lumify.io", VertexType.ENTITY, systemUser)).thenReturn(null);
+        when(graphRepository.findVertexByProperty("email", "facebookTest@lumify.io", systemUser)).thenReturn(null);
         when(graphRepository.save(profileUser, systemUser)).thenReturn("");
         when(graphRepository.save(emailVertex, systemUser)).thenReturn("");
         when(profileUser.getId()).thenReturn("");
@@ -198,8 +198,8 @@ public class FacebookUserTest {
     @Test
     public void testCreateProfilePictureVertex () throws Exception {
         facebookUser = new FacebookUser();
-        when(graphRepository.findVertexByPropertyAndType("profileId", "12345", VertexType.ENTITY, systemUser)).thenReturn(profileUser);
-        when(graphRepository.findVertexByPropertyAndType("email", "facebookTest@lumify.io", VertexType.ENTITY, systemUser)).thenReturn(null);
+        when(graphRepository.findVertexByProperty("profileId", "12345", systemUser)).thenReturn(profileUser);
+        when(graphRepository.findVertexByProperty("email", "facebookTest@lumify.io", systemUser)).thenReturn(null);
 
         doAnswer(new Answer() {
             @Override
