@@ -59,6 +59,16 @@ public interface TwitterConstants {
      * The Twitter Date format string.
      */
     static final String TWITTER_DATE_FORMAT_STR = "EEE MMM dd HH:mm:ss ZZZZZ yyyy";
+
+    /**
+     * The Twitter tweet concept name.
+     */
+    static final String TWITTER_CONCEPT = "tweet";
+
+    /**
+     * The Twitter tweeter profile phot image.
+     */
+    static final String TWEETER_PROFILE_IMAGE_CONCEPT = "tweetProfileImage";
     
     /**
      * The Twitter Handle (user) concept name.

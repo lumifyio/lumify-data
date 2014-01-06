@@ -3,7 +3,6 @@ package com.altamiracorp.lumify.facebook;
 import com.altamiracorp.lumify.core.ingest.ArtifactExtractedInfo;
 import com.altamiracorp.lumify.core.model.artifact.Artifact;
 import com.altamiracorp.lumify.core.model.artifact.ArtifactRowKey;
-import com.altamiracorp.lumify.core.model.artifact.ArtifactType;
 import com.altamiracorp.lumify.core.model.audit.AuditAction;
 import com.altamiracorp.lumify.core.model.audit.AuditRepository;
 import com.altamiracorp.lumify.core.model.graph.GraphRepository;
@@ -44,6 +43,7 @@ public class FacebookUser {
     private static final String USERNAME = "username";
     private static final String PROFILE_ID = "profileId";
     private static final String COORDS = "coords";
+    private static final String FACEBOOK_PROFILE_IMAGE = "profileImage";
     private static final LumifyLogger LOGGER = LumifyLoggerFactory.getLogger(FacebookBolt.class);
     private static final String PROCESS = FacebookUser.class.getName();
     private FacebookBolt facebookBolt = new FacebookBolt();
@@ -140,7 +140,7 @@ public class FacebookUser {
             ArtifactExtractedInfo artifactExtractedInfo = new ArtifactExtractedInfo();
             artifactExtractedInfo.setMimeType("image/png");
             artifactExtractedInfo.setRowKey(rowKey);
-            artifactExtractedInfo.setArtifactType(ArtifactType.IMAGE.toString());
+            artifactExtractedInfo.setConceptType(FACEBOOK_PROFILE_IMAGE);
             artifactExtractedInfo.setTitle(facebookPictureTitle);
             artifactExtractedInfo.setSource(facebookPictureSource);
             artifactExtractedInfo.setProcess(PROCESS);

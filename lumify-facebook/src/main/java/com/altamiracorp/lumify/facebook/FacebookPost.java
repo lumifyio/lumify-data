@@ -3,7 +3,6 @@ package com.altamiracorp.lumify.facebook;
 import com.altamiracorp.lumify.core.ingest.ArtifactExtractedInfo;
 import com.altamiracorp.lumify.core.model.artifact.Artifact;
 import com.altamiracorp.lumify.core.model.artifact.ArtifactRowKey;
-import com.altamiracorp.lumify.core.model.artifact.ArtifactType;
 import com.altamiracorp.lumify.core.model.audit.AuditAction;
 import com.altamiracorp.lumify.core.model.audit.AuditRepository;
 import com.altamiracorp.lumify.core.model.graph.GraphRepository;
@@ -31,6 +30,7 @@ public class FacebookPost {
     private static final String POSTED_RELATIONSHIP = "postPostedByProfile";
     private static final String MENTIONED_RELATIONSHIP = "postMentionedProfile";
     private static final String FACEBOOK = "Facebook";
+    private static final String FACEBOOK_POST = "post";
     private static final String MESSAGE = "message";
     private static final String AUTHOR_UID = "author_uid";
     private static final String FACEBOOK_PROFILE = "facebookProfile";
@@ -68,7 +68,7 @@ public class FacebookPost {
         artifactExtractedInfo.setRaw(post.toString().getBytes());
         artifactExtractedInfo.setMimeType("text/plain");
         artifactExtractedInfo.setRowKey(rowKey);
-        artifactExtractedInfo.setArtifactType(ArtifactType.DOCUMENT.toString());
+        artifactExtractedInfo.setConceptType(FACEBOOK_POST);
         artifactExtractedInfo.setAuthor(author_uid);
         artifactExtractedInfo.setDate(time);
         artifactExtractedInfo.setProcess(PROCESS);
