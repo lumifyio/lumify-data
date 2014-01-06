@@ -68,7 +68,7 @@ public class FacebookUser {
             }
         }
         List<String> modifiedProperties = Lists.newArrayList
-                (PropertyName.TITLE.toString(), PropertyName.TYPE.toString(), PropertyName.SUBTYPE.toString(), PropertyName.DISPLAY_NAME.toString(), PROFILE_ID);
+                (PropertyName.TITLE.toString(), PropertyName.CONCEPT_TYPE.toString(), PropertyName.DISPLAY_NAME.toString(), PROFILE_ID);
 
 
         userVertex.setProperty(PropertyName.DISPLAY_NAME, username);
@@ -89,8 +89,7 @@ public class FacebookUser {
             if (emailVertex == null) {
                 emailVertex = new InMemoryGraphVertex();
                 emailVertex.setProperty(PropertyName.TITLE, email);
-                emailVertex.setProperty(PropertyName.TYPE, VertexType.ENTITY.toString());
-                emailConcept.setProperty(PropertyName.SUBTYPE, emailConcept.getId());
+                emailConcept.setProperty(PropertyName.CONCEPT_TYPE, emailConcept.getId());
                 graphRepository.save(emailVertex, user);
                 auditRepository.auditEntity(AuditAction.CREATE.toString(), emailVertex.getId(), userVertex.getId(), email, emailConcept.getId(), PROCESS, "", user);
                 auditRepository.auditEntityProperties(AuditAction.UPDATE.toString(), emailVertex, PropertyName.TITLE.toString(), PROCESS, "", user);
