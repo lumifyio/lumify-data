@@ -191,13 +191,11 @@ public class TwitterStreamingBolt extends BaseLumifyBolt {
 
         List<String> modifiedProperties = Lists.newArrayList(
                 TITLE.toString(),
-                TYPE.toString(),
-                SUBTYPE.toString()
+                CONCEPT_TYPE.toString()
         );
 
         tweeterVertex.setProperty(TITLE, tweeter);
-        tweeterVertex.setProperty(TYPE, VertexType.ENTITY.toString());
-        tweeterVertex.setProperty(SUBTYPE, handleConcept.getId());
+        tweeterVertex.setProperty(CONCEPT_TYPE, handleConcept.getId());
 
         String displayName = tweeterJson.optString(TWITTER_DISPLAY_NAME_PROPERTY, null);
         if (displayName != null && !displayName.trim().isEmpty()) {

@@ -73,7 +73,7 @@ public abstract class BaseTwitterEntityCreationBolt extends BaseTwitterForkBolt 
             GraphVertex conceptVertex = graphRepository.findVertex(conceptId, user);
             GraphVertex tweetVertex = graphRepository.findVertex(tweetVertexId, user);
             List<TermMention> termMentions = TermRegexFinder.find(tweetVertexId, conceptVertex, tweetText, termRegex);
-            List<String> modifiedProps = Lists.newArrayList(TITLE.toString(), ROW_KEY.toString(), TYPE.toString(), SUBTYPE.toString());
+            List<String> modifiedProps = Lists.newArrayList(TITLE.toString(), ROW_KEY.toString(), CONCEPT_TYPE.toString());
 
             for (TermMention mention : termMentions) {
                 String sign = mention.getMetadata().getSign().toLowerCase();
@@ -88,8 +88,7 @@ public abstract class BaseTwitterEntityCreationBolt extends BaseTwitterForkBolt 
                 }
                 termVertex.setProperty(TITLE, sign);
                 termVertex.setProperty(ROW_KEY, rowKey);
-                termVertex.setProperty(TYPE, VertexType.ENTITY.toString());
-                termVertex.setProperty(SUBTYPE, conceptId);
+                termVertex.setProperty(CONCEPT_TYPE, conceptId);
                 graphRepository.save(termVertex, getUser());
                 String termId = termVertex.getId();
 
