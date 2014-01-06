@@ -8,19 +8,19 @@
     
 <!-- Concept: tweet -->
 
-    <owl:Class rdf:about="document">
+    <owl:Class rdf:about="tweet">
         <rdfs:label xml:lang="en">Tweet</rdfs:label>
         <atc:property atc:name="glyphIconFileName">artifact.png</atc:property>
-        <rdfs:subClassOf rdf:resource="http://altamiracorp.com/ontology/artifact"/>
+        <rdfs:subClassOf rdf:resource="http://altamiracorp.com/ontology/entity"/>
     </owl:Class>
     <owl:DatatypeProperty rdf:about="retweetCount">
         <rdfs:label xml:lang="en">number of retweets</rdfs:label>
-        <rdfs:domain rdf:resource="#document"/>
+        <rdfs:domain rdf:resource="#tweet"/>
         <rdfs:range rdf:resource="http://altamiracorp.com/datatype/double"/>
     </owl:DatatypeProperty>
     <owl:DatatypeProperty rdf:about="favoriteCount">
         <rdfs:label xml:lang="en">number of favorites</rdfs:label>
-        <rdfs:domain rdf:resource="#document"/>
+        <rdfs:domain rdf:resource="#tweet"/>
         <rdfs:range rdf:resource="http://altamiracorp.com/datatype/double"/>
     </owl:DatatypeProperty>
 
@@ -591,83 +591,83 @@
         <rdfs:domain rdf:resource="#location"/>
         <rdfs:range rdf:resource="#location"/>
     </owl:ObjectProperty>
-    <owl:ObjectProperty rdf:about="artifactHasSourcePerson">
+    <owl:ObjectProperty rdf:about="tweetHasSourcePerson">
         <rdfs:label xml:lang="en">has author</rdfs:label>
-        <rdfs:domain rdf:resource="#artifact"/>
+        <rdfs:domain rdf:resource="#tweet"/>
         <rdfs:range rdf:resource="#person"/>
     </owl:ObjectProperty>
-    <owl:ObjectProperty rdf:about="artifactHasSourceOrganization">
+    <owl:ObjectProperty rdf:about="tweetHasSourceOrganization">
         <rdfs:label xml:lang="en">has author</rdfs:label>
-        <rdfs:domain rdf:resource="#artifact"/>
+        <rdfs:domain rdf:resource="#tweet"/>
         <rdfs:range rdf:resource="#organization"/>
     </owl:ObjectProperty>
-        <owl:ObjectProperty rdf:about="personAuthoredArtifact">
+        <owl:ObjectProperty rdf:about="personAuthoredTweet">
         <rdfs:label xml:lang="en">authored</rdfs:label>
         <rdfs:domain rdf:resource="#person"/>
-        <rdfs:range rdf:resource="#artifact"/>
+        <rdfs:range rdf:resource="#tweet"/>
     </owl:ObjectProperty>
     <owl:ObjectProperty rdf:about="organizationAuthored">
         <rdfs:label xml:lang="en">authored</rdfs:label>
         <rdfs:domain rdf:resource="#organization"/>
-        <rdfs:range rdf:resource="#artifact"/>
+        <rdfs:range rdf:resource="#tweet"/>
     </owl:ObjectProperty>
     <owl:ObjectProperty rdf:about="organizationPublished">
         <rdfs:label xml:lang="en">published</rdfs:label>
         <rdfs:domain rdf:resource="#organization"/>
-        <rdfs:range rdf:resource="#artifact"/>
+        <rdfs:range rdf:resource="#tweet"/>
     </owl:ObjectProperty>
     
 <!-- Tweet Relationships -->    
   
     <owl:ObjectProperty rdf:about="tweetMentionedEvent">
         <rdfs:label xml:lang="en">mentioned</rdfs:label>
-        <rdfs:domain rdf:resource="#artifact"/>
+        <rdfs:domain rdf:resource="#tweet"/>
         <rdfs:range rdf:resource="#event"/>
     </owl:ObjectProperty>
     <owl:ObjectProperty rdf:about="tweetMentionedPerson">
         <rdfs:label xml:lang="en">mentioned</rdfs:label>
-        <rdfs:domain rdf:resource="#artifact"/>
+        <rdfs:domain rdf:resource="#tweet"/>
         <rdfs:range rdf:resource="#person"/>
     </owl:ObjectProperty>
     <owl:ObjectProperty rdf:about="tweetMentionedOrganization">
         <rdfs:label xml:lang="en">mentioned</rdfs:label>
-        <rdfs:domain rdf:resource="#artifact"/>
+        <rdfs:domain rdf:resource="#tweet"/>
         <rdfs:range rdf:resource="#organization"/>
     </owl:ObjectProperty>
 	<owl:ObjectProperty rdf:about="tweetMentionedHandle">
         <rdfs:label xml:lang="en">mentioned</rdfs:label>
-        <rdfs:domain rdf:resource="#artifact"/>
+        <rdfs:domain rdf:resource="#tweet"/>
         <rdfs:range rdf:resource="#twitterHandle"/>
     </owl:ObjectProperty>
 	<owl:ObjectProperty rdf:about="tweetMentionedLocation">
         <rdfs:label xml:lang="en">mentioned</rdfs:label>
-        <rdfs:domain rdf:resource="#artifact"/>
+        <rdfs:domain rdf:resource="#tweet"/>
         <rdfs:range rdf:resource="#location"/>
     </owl:ObjectProperty>
     <owl:ObjectProperty rdf:about="tweetTweetedByHandle">
         <rdfs:label xml:lang="en">tweeted by</rdfs:label>
-        <rdfs:domain rdf:resource="#artifact"/>
+        <rdfs:domain rdf:resource="#tweet"/>
         <rdfs:range rdf:resource="#twitterHandle"/>
     </owl:ObjectProperty>
 	<owl:ObjectProperty rdf:about="tweetContributorHandle">
         <rdfs:label xml:lang="en">had contributor</rdfs:label>
-        <rdfs:domain rdf:resource="#artifact"/>
+        <rdfs:domain rdf:resource="#tweet"/>
         <rdfs:range rdf:resource="#twitterHandle"/>
     </owl:ObjectProperty>
 	<owl:ObjectProperty rdf:about="tweetReplyToTweet">
         <rdfs:label xml:lang="en">replies to</rdfs:label>
-        <rdfs:domain rdf:resource="#artifact"/>
-        <rdfs:range rdf:resource="#artifact"/>
+        <rdfs:domain rdf:resource="#tweet"/>
+        <rdfs:range rdf:resource="#tweet"/>
     </owl:ObjectProperty>
 	<owl:ObjectProperty rdf:about="tweetRetweetTweet">
         <rdfs:label xml:lang="en">retweets</rdfs:label>
-        <rdfs:domain rdf:resource="#artifact"/>
-        <rdfs:range rdf:resource="#artifact"/>
+        <rdfs:domain rdf:resource="#tweet"/>
+        <rdfs:range rdf:resource="#tweet"/>
     </owl:ObjectProperty>
     <owl:ObjectProperty rdf:about="tweetHasImage">
         <rdfs:label xml:lang="en">has</rdfs:label>
-        <rdfs:domain rdf:resource="#artifact"/>
-        <rdfs:range rdf:resource="#artifact"/>
+        <rdfs:domain rdf:resource="#tweet"/>
+        <rdfs:range rdf:resource="#tweet"/>
     </owl:ObjectProperty>
     
 <!-- TwitterHandle Relationships -->
@@ -680,17 +680,17 @@
 	<owl:ObjectProperty rdf:about="twitterHandleTweetedTweet">
         <rdfs:label xml:lang="en">tweeted</rdfs:label>
         <rdfs:domain rdf:resource="#twitterHandle"/>
-        <rdfs:range rdf:resource="#artifact"/>
+        <rdfs:range rdf:resource="#tweet"/>
     </owl:ObjectProperty>
 	<owl:ObjectProperty rdf:about="twitterHandleHasHeaderPhoto">
         <rdfs:label xml:lang="en">has header photo</rdfs:label>
         <rdfs:domain rdf:resource="#twitterHandle"/>
-        <rdfs:range rdf:resource="#artifact"/>
+        <rdfs:range rdf:resource="#tweet"/>
     </owl:ObjectProperty>
 	<owl:ObjectProperty rdf:about="twitterHandleHasProfilePhoto">
         <rdfs:label xml:lang="en">has profile photo</rdfs:label>
         <rdfs:domain rdf:resource="#twitterHandle"/>
-        <rdfs:range rdf:resource="#artifact"/>
+        <rdfs:range rdf:resource="#tweet"/>
     </owl:ObjectProperty>
 	<owl:ObjectProperty rdf:about="twitterHandleHasFollowerTwitterHandle">
         <rdfs:label xml:lang="en">has follower</rdfs:label>
@@ -723,13 +723,13 @@
 <!-- Hashtag Relationships -->
   	<owl:ObjectProperty rdf:about="tweetHasHashtag">
         <rdfs:label xml:lang="en">has</rdfs:label>
-        <rdfs:domain rdf:resource="#artifact"/>
+        <rdfs:domain rdf:resource="#tweet"/>
         <rdfs:range rdf:resource="#hashtag"/>
     </owl:ObjectProperty>
     <owl:ObjectProperty rdf:about="hashtagMentionedInTweet">
         <rdfs:label xml:lang="en">mentioned in</rdfs:label>
         <rdfs:domain rdf:resource="#hashtag"/>
-        <rdfs:range rdf:resource="#artifact"/>
+        <rdfs:range rdf:resource="#tweet"/>
     </owl:ObjectProperty>
     
     <owl:ObjectProperty rdf:about="hashtagIsAssociatedWithLocation">
@@ -798,13 +798,13 @@
 <!-- URL Relationships -->
   	<owl:ObjectProperty rdf:about="tweetHasURL">
         <rdfs:label xml:lang="en">has</rdfs:label>
-        <rdfs:domain rdf:resource="#artifact"/>
+        <rdfs:domain rdf:resource="#tweet"/>
         <rdfs:range rdf:resource="#url"/>
     </owl:ObjectProperty>
     <owl:ObjectProperty rdf:about="urlMentionedInTweet">
         <rdfs:label xml:lang="en">mentioned in</rdfs:label>
         <rdfs:domain rdf:resource="#url"/>
-        <rdfs:range rdf:resource="#artifact"/>
+        <rdfs:range rdf:resource="#tweet"/>
     </owl:ObjectProperty>
     
     <owl:ObjectProperty rdf:about="urlIsAssociatedWithLocation">
