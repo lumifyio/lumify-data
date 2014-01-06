@@ -41,6 +41,7 @@ function _hadoop_start {
   ssh ${SSH_OPTS} $(_secondarynamenode) service hadoop-hdfs-secondarynamenode start
 
   for node in $(_nodes); do
+    echo ${node}
     if [ "${FORMAT_HDFS}" = 'true' ]; then
       for n in 1 2 3; do
         ssh ${SSH_OPTS} ${node} mkdir -p /data${n}/hadoop/tmp
@@ -65,20 +66,44 @@ function _hadoop_stop {
   ssh ${SSH_OPTS} $(_secondarynamenode) service hadoop-hdfs-secondarynamenode stop
 
   for node in $(_nodes); do
+    echo ${node}
     ssh ${SSH_OPTS} ${node} service hadoop-0.20-mapreduce-tasktracker stop
     ssh ${SSH_OPTS} ${node} service hadoop-hdfs-datanode stop
   done
 }
 
+function _hadoop_status {
+  ssh ${SSH_OPTS} $(_namenode) service hadoop-hdfs-namenode status
+  ssh ${SSH_OPTS} $(_secondarynamenode) service hadoop-hdfs-secondarynamenode status
+
+  for node in $(_nodes); do
+    echo -n "${node}: "
+    ssh ${SSH_OPTS} ${node} service hadoop-hdfs-datanode status
+    echo -n "${node}: "
+    ssh ${SSH_OPTS} ${node} service hadoop-0.20-mapreduce-tasktracker status
+  done
+
+  ssh ${SSH_OPTS} ${namenode} service hadoop-0.20-mapreduce-jobtracker status
+}
+
 function _zookeeper_start {
   for zk in $(_zk_servers); do
+    echo ${zk}
     ssh ${SSH_OPTS} ${zk} service zookeeper-server start
   done
 }
 
 function _zookeeper_stop {
   for zk in $(_zk_servers); do
+    echo ${zk}
     ssh ${SSH_OPTS} ${zk} service zookeeper-server stop
+  done
+}
+
+function _zookeeper_status {
+  for zk in $(_zk_servers); do
+    echo -n "${zk}: "
+    ssh ${SSH_OPTS} ${zk} service zookeeper-server status
   done
 }
 
@@ -95,6 +120,7 @@ function _accumulo_start {
   ssh ${SSH_OPTS} $(_accumulomaster) su - accumulo -c '/usr/lib/accumulo/bin/start-here.sh'
 
   for node in $(_nodes); do
+    echo ${node}
     ssh ${SSH_OPTS} ${node} su - accumulo -c '/usr/lib/accumulo/bin/start-here.sh'
   done
 }
@@ -103,31 +129,54 @@ function _accumulo_stop {
   ssh ${SSH_OPTS} $(_accumulomaster) su - accumulo -c '/usr/lib/accumulo/bin/stop-here.sh'
 
   for node in $(_nodes); do
+    echo ${node}
     ssh ${SSH_OPTS} ${node} su - accumulo -c '/usr/lib/accumulo/bin/stop-here.sh'
   done
 }
 
+function _accumulo_status {
+  echo "accumulo status not yet implemented!"
+}
+
 function _elasticsearch_start {
   for node in $(_nodes); do
+    echo ${node}
     ssh ${SSH_OPTS} ${node} initctl start elasticsearch
   done
 }
 
 function _elasticsearch_stop {
   for node in $(_nodes); do
+    echo ${node}
     ssh ${SSH_OPTS} ${node} initctl stop elasticsearch
+  done
+}
+
+function _elasticsearch_status {
+  for node in $(_nodes); do
+    echo -n "${node}: "
+    ssh ${SSH_OPTS} ${node} initctl status elasticsearch
   done
 }
 
 function _kafka_start {
   for kafka in $(_kafka_servers); do
+    echo ${kafka}
     ssh ${SSH_OPTS} ${kafka} initctl start kafka
   done
 }
 
 function _kafka_stop {
   for kafka in $(_kafka_servers); do
+    echo ${kafka}
     ssh ${SSH_OPTS} ${kafka} initctl stop kafka
+  done
+}
+
+function _kafka_status {
+  for kafka in $(_kafka_servers); do
+    echo -n "${kafka}: "
+    ssh ${SSH_OPTS} ${kafka} initctl status kafka
   done
 }
 
@@ -136,17 +185,29 @@ function _storm_start {
   ssh ${SSH_OPTS} $(_stormmaster) initctl start storm-ui
 
   for node in $(_nodes); do
+    echo ${node}
     ssh ${SSH_OPTS} ${node} initctl start storm-supervisor
   done
 }
 
 function _storm_stop {
   for node in $(_nodes); do
+    echo ${node}
     ssh ${SSH_OPTS} ${node} initctl stop storm-supervisor
   done
 
   ssh ${SSH_OPTS} $(_stormmaster) initctl stop storm-ui
   ssh ${SSH_OPTS} $(_stormmaster) initctl stop storm-nimbus
+}
+
+function _storm_status {
+  ssh ${SSH_OPTS} $(_stormmaster) initctl status storm-ui
+  ssh ${SSH_OPTS} $(_stormmaster) initctl status storm-nimbus
+
+  for node in $(_nodes); do
+    echo -n "${node}: "
+    ssh ${SSH_OPTS} ${node} initctl status storm-supervisor
+  done
 }
 
 function _all_start {
@@ -167,14 +228,23 @@ function _all_stop {
   _hadoop_stop
 }
 
+function _all_status {
+  _hadoop_status
+  _zookeeper_status
+  _accumulo_status
+  _elasticsearch_status
+  _kafka_status
+  _storm_status
+}
+
 function _usage {
-  echo "$0 <hosts file> first|start|stop|restart [component name]"
+  echo "$0 <hosts file> first|start|stop|restart|status [component name]"
   echo "where the optional component name is one of the following:"
   awk '/function.*_start/ && ! /all/ {print $2}' $0 | sed -e 's/^_/    /' -e 's/_start//'
 }
 
 
-if [ ! -f ${HOSTS_FILE} ]; then
+if [ ! -f "${HOSTS_FILE}" ]; then
   echo "ERROR: host file required!"
   _usage
   exit -1
@@ -207,6 +277,13 @@ case "$2" in
     else
       _all_stop
       _all_start
+    fi
+    ;;
+  status)
+    if [ "$3" ]; then
+      _$3_status
+    else
+      _all_status
     fi
     ;;
   *)
