@@ -140,14 +140,14 @@ function _accumulo_status {
 
 function _elasticsearch_start {
   for node in $(_nodes); do
-    echo ${node}
+    echo -n "${node}: "
     ssh ${SSH_OPTS} ${node} initctl start elasticsearch
   done
 }
 
 function _elasticsearch_stop {
   for node in $(_nodes); do
-    echo ${node}
+    echo -n "${node}: "
     ssh ${SSH_OPTS} ${node} initctl stop elasticsearch
   done
 }
@@ -161,14 +161,14 @@ function _elasticsearch_status {
 
 function _kafka_start {
   for kafka in $(_kafka_servers); do
-    echo ${kafka}
+    echo -n "${kafka}: "
     ssh ${SSH_OPTS} ${kafka} initctl start kafka
   done
 }
 
 function _kafka_stop {
   for kafka in $(_kafka_servers); do
-    echo ${kafka}
+    echo -n "${kafka}: "
     ssh ${SSH_OPTS} ${kafka} initctl stop kafka
   done
 }
@@ -185,14 +185,14 @@ function _storm_start {
   ssh ${SSH_OPTS} $(_stormmaster) initctl start storm-ui
 
   for node in $(_nodes); do
-    echo ${node}
+    echo -n "${node}: "
     ssh ${SSH_OPTS} ${node} initctl start storm-supervisor
   done
 }
 
 function _storm_stop {
   for node in $(_nodes); do
-    echo ${node}
+    echo -n "${node}: "
     ssh ${SSH_OPTS} ${node} initctl stop storm-supervisor
   done
 
