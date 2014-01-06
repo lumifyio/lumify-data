@@ -122,7 +122,7 @@ public class TermExtractionBolt extends BaseTextProcessingBolt {
 
             if (termMention.isResolved()) {
                 String title = termMention.getSign();
-                vertex = graphRepository.findVertexByTitleAndType(title, VertexType.ENTITY, getUser());
+                vertex = graphRepository.findVertexByExactTitle(title, getUser());
                 if (!termMention.getUseExisting() || vertex == null) {
                     vertex = new InMemoryGraphVertex();
                     newVertex = true;
