@@ -47,6 +47,14 @@ setup
 /opt/lumify/kafka-clear.sh --zookeeper 10.0.3.101:2181
 ```
 
+- ssh from the puppet server to the web server and run:
+
+```
+service jetty stop && rm -f /opt/jetty/logs/* && service jetty start && tail -f /opt/jetty/logs/*
+```
+
+- web brose to https://demo.lumify.io/admin/uploadOntology.html and upload `dev-ontology.zip`
+
 - ssh from the puppet server to storm nimbus server and run:
 
 ```
