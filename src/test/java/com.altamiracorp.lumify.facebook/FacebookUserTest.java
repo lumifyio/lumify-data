@@ -84,7 +84,7 @@ public class FacebookUserTest {
     @Test
     public void testNormalUserProcess () throws Exception {
         facebookUser = new FacebookUser();
-        when(graphRepository.findVertexByTitleAndType("12345", VertexType.ENTITY, systemUser)).thenReturn(profileUser);
+        when(graphRepository.findVertexByExactTitle("12345", systemUser)).thenReturn(profileUser);
         when(graphRepository.findVertexByPropertyAndType("email", "facebookTest@lumify.io", VertexType.ENTITY, systemUser)).thenReturn(emailVertex);
         when(graphRepository.save(profileUser, systemUser)).thenReturn("");
         when(graphRepository.save(emailVertex, systemUser)).thenReturn("");
@@ -101,7 +101,7 @@ public class FacebookUserTest {
     @Test
     public void testFullUserProcess () throws Exception {
         facebookUser = new FacebookUser();
-        when(graphRepository.findVertexByTitleAndType("12345", VertexType.ENTITY, systemUser)).thenReturn(profileUser);
+        when(graphRepository.findVertexByExactTitle("12345", systemUser)).thenReturn(profileUser);
         when(graphRepository.findVertexByPropertyAndType("email", "facebookTest@lumify.io", VertexType.ENTITY, systemUser)).thenReturn(null);
         when(graphRepository.save(profileUser, systemUser)).thenReturn("");
         when(graphRepository.save(emailVertex, systemUser)).thenReturn("");
@@ -123,8 +123,8 @@ public class FacebookUserTest {
     @Test
     public void testAlreadyProcessedUserProcess () throws Exception {
         facebookUser = new FacebookUser();
-        when(graphRepository.findVertexByTitleAndType("12345", VertexType.ENTITY, systemUser)).thenReturn(null);
-        when(graphRepository.findVertexByTitleAndType("Facebook Test", VertexType.ENTITY, systemUser)).thenReturn(profileUser);
+        when(graphRepository.findVertexByExactTitle("12345", systemUser)).thenReturn(null);
+        when(graphRepository.findVertexByExactTitle("Facebook Test", systemUser)).thenReturn(profileUser);
         when(graphRepository.findVertexByPropertyAndType("email", "facebookTest@lumify.io", VertexType.ENTITY, systemUser)).thenReturn(null);
         when(graphRepository.save(profileUser, systemUser)).thenReturn("");
         when(graphRepository.save(emailVertex, systemUser)).thenReturn("");
@@ -142,8 +142,8 @@ public class FacebookUserTest {
     @Test (expected = RuntimeException.class)
     public void testNoPostUserProcess () throws Exception {
         facebookUser = new FacebookUser();
-        when(graphRepository.findVertexByTitleAndType("12345", VertexType.ENTITY, systemUser)).thenReturn(null);
-        when(graphRepository.findVertexByTitleAndType("Facebook Test", VertexType.ENTITY, systemUser)).thenReturn(null);
+        when(graphRepository.findVertexByExactTitle("12345", systemUser)).thenReturn(null);
+        when(graphRepository.findVertexByExactTitle("Facebook Test", systemUser)).thenReturn(null);
         returnedVertex = facebookUser.process(fullUserObject, graphRepository, auditRepository, ontologyRepository, systemUser);
     }
 
