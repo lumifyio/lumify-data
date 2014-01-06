@@ -90,7 +90,12 @@
        <rdfs:range rdf:resource="http://altamiracorp.com/datatype/date"/>
     </owl:DatatypeProperty>
 
-
+<!-- Concept: Facebook profile Image -->
+	<owl:Class rdf:about="facebookProfileImage">
+        <rdfs:label xml:lang="en">Facebook Profile Image</rdfs:label>
+        <atc:property atc:name="_color">rgb(70, 97, 159)</atc:property>
+        <rdfs:subClassOf rdf:resource="http://altamiracorp.com/ontology/person"/>
+    </owl:Class>
 
 <!-- Concept: contact -->
 

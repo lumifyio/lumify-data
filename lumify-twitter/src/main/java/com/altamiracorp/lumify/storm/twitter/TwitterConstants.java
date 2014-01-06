@@ -68,7 +68,7 @@ public interface TwitterConstants {
     /**
      * The Twitter tweeter profile phot image.
      */
-    static final String TWEETER_PROFILE_IMAGE_CONCEPT = "tweetProfileImage";
+    static final String TWEETER_PROFILE_IMAGE_CONCEPT = "tweeterProfileImage";
     
     /**
      * The Twitter Handle (user) concept name.
