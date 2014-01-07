@@ -30,6 +30,7 @@ import com.altamiracorp.lumify.core.model.graph.GraphRepository;
 import com.altamiracorp.lumify.core.model.graph.GraphVertex;
 import com.altamiracorp.lumify.core.model.graph.InMemoryGraphVertex;
 import com.altamiracorp.lumify.core.model.ontology.Concept;
+import com.altamiracorp.lumify.core.model.ontology.LabelName;
 import com.altamiracorp.lumify.core.model.ontology.OntologyRepository;
 import com.altamiracorp.lumify.core.model.ontology.PropertyName;
 import com.altamiracorp.lumify.core.model.ontology.VertexType;
@@ -38,6 +39,11 @@ import com.altamiracorp.lumify.core.user.User;
 import com.altamiracorp.lumify.core.util.LumifyLogger;
 import com.altamiracorp.lumify.core.util.LumifyLoggerFactory;
 import com.google.common.collect.Lists;
+import com.google.inject.Inject;
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.net.MalformedURLException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -45,6 +51,7 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import org.apache.commons.io.IOUtils;
 import org.json.JSONObject;
 
 /**
@@ -65,6 +72,26 @@ public class DefaultLumifyTwitterProcessor extends BaseArtifactProcessor impleme
      * The source of Twitter artifacts.
      */
     private static final String TWITTER_SOURCE = "Twitter";
+    
+    /**
+     * The profile image MIME type.
+     */
+    private static final String PROFILE_IMAGE_MIME_TYPE = "image/png";
+
+    /**
+     * The image artifact title format string.
+     */
+    private static final String IMAGE_ARTIFACT_TITLE_FMT = "%s Twitter Profile Picture";
+
+    /**
+     * The image artifact source.
+     */
+    private static final String IMAGE_ARTIFACT_SOURCE = "Twitter Profile Picture";
+
+    /**
+     * The glyph icon property value format.
+     */
+    private static final String GLYPH_ICON_FMT = "/artifact/%s/raw";
     
     /**
      * The Map of Lumify property keys to optional properties to extract
@@ -108,6 +135,11 @@ public class DefaultLumifyTwitterProcessor extends BaseArtifactProcessor impleme
             PropertyName.TYPE.toString(),
             PropertyName.SUBTYPE.toString()
     );
+    
+    /**
+     * The URL Stream Creator.
+     */
+    private UrlStreamCreator urlStreamCreator;
     
     @Override
     public GraphVertex parseTweet(final String processId, final JSONObject jsonTweet) {
@@ -251,6 +283,64 @@ public class DefaultLumifyTwitterProcessor extends BaseArtifactProcessor impleme
                 auditRepo.auditRelationships(AuditAction.CREATE.toString(), tweetVertex, termVertex, relDispName, processId, "", user);
             }
         }
+    }
+
+    @Override
+    public void retrieveProfileImage(final String processId, final JSONObject jsonTweet, final GraphVertex tweeterVertex) {
+        JSONObject tweeter = JSON_USER_PROPERTY.getFrom(jsonTweet);
+        String screenName = JSON_SCREEN_NAME_PROPERTY.getFrom(tweeter);
+        if (screenName != null) {
+            screenName = screenName.trim();
+        }
+        String imageUrl = JSON_PROFILE_IMAGE_URL_PROPERTY.getFrom(tweeter);
+        if (imageUrl != null) {
+            imageUrl = imageUrl.trim();
+        }
+        if (screenName != null && !screenName.isEmpty() && imageUrl != null && !imageUrl.isEmpty()) {
+            try {
+                InputStream imgIn = urlStreamCreator.openUrlStream(imageUrl);
+                ByteArrayOutputStream imgOut = new ByteArrayOutputStream();
+                IOUtils.copy(imgIn, imgOut);
+
+                byte[] rawImg = imgOut.toByteArray();
+                String rowKey = ArtifactRowKey.build(rawImg).toString();
+
+                ArtifactExtractedInfo artifactInfo = new ArtifactExtractedInfo()
+                        .mimeType(PROFILE_IMAGE_MIME_TYPE)
+                        .rowKey(rowKey)
+                        .artifactType(ArtifactType.IMAGE.toString())
+                        .title(String.format(IMAGE_ARTIFACT_TITLE_FMT, screenName))
+                        .source(IMAGE_ARTIFACT_SOURCE)
+                        .process(processId)
+                        .raw(rawImg);
+
+                User user = getUser();
+                GraphRepository graphRepo = getGraphRepository();
+                AuditRepository auditRepo = getAuditRepository();
+
+                GraphVertex imageVertex = getArtifactRepository().saveArtifact(artifactInfo, user);
+
+                LOGGER.debug("Saved Twitter User [%s] Profile Photo to Accumulo and as graph vertex: %s", screenName, imageVertex.getId());
+
+                tweeterVertex.setProperty(PropertyName.GLYPH_ICON.toString(), String.format(GLYPH_ICON_FMT, rowKey));
+                graphRepo.save(tweeterVertex, user);
+                auditRepo.auditEntityProperties(AuditAction.UPDATE.toString(), tweeterVertex, PropertyName.GLYPH_ICON.toString(),
+                        processId, "", user);
+
+                String labelDisplay = getOntologyRepository().getDisplayNameForLabel(LabelName.HAS_IMAGE.toString(), user);
+                graphRepo.findOrAddRelationship(tweeterVertex.getId(), imageVertex.getId(), LabelName.HAS_IMAGE.toString(), user);
+                auditRepo.auditRelationships(AuditAction.CREATE.toString(), tweeterVertex, imageVertex, labelDisplay, processId, "", user);
+            } catch (MalformedURLException mue) {
+                LOGGER.warn("Invalid Profile Photo URL [%s] for Twitter User: %s", imageUrl, screenName, mue);
+            } catch (IOException ioe) {
+                LOGGER.warn("Unable to retrieve Profile Photo [%s] for Twitter User: %s", imageUrl, screenName, ioe);
+            }
+        }
+    }
+    
+    @Inject
+    public void setUrlStreamCreator(final UrlStreamCreator urlCreator) {
+        urlStreamCreator = urlCreator;
     }
     
     /**
