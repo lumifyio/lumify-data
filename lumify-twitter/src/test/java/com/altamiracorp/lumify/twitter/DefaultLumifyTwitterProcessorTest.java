@@ -21,7 +21,6 @@ import static org.junit.Assert.*;
 import static org.mockito.Mockito.*;
 import static org.mockito.Matchers.*;
 
-import backtype.storm.tuple.Tuple;
 import com.altamiracorp.bigtable.model.user.ModelUserContext;
 import com.altamiracorp.lumify.core.ingest.ArtifactExtractedInfo;
 import com.altamiracorp.lumify.core.ingest.term.extraction.TermRegexFinder;
@@ -34,6 +33,7 @@ import com.altamiracorp.lumify.core.model.graph.GraphRepository;
 import com.altamiracorp.lumify.core.model.graph.GraphVertex;
 import com.altamiracorp.lumify.core.model.graph.InMemoryGraphVertex;
 import com.altamiracorp.lumify.core.model.ontology.Concept;
+import com.altamiracorp.lumify.core.model.ontology.LabelName;
 import com.altamiracorp.lumify.core.model.ontology.OntologyRepository;
 import com.altamiracorp.lumify.core.model.ontology.PropertyName;
 import com.altamiracorp.lumify.core.model.ontology.VertexType;
@@ -43,7 +43,11 @@ import com.altamiracorp.lumify.core.model.termMention.TermMentionRepository;
 import com.altamiracorp.lumify.core.model.termMention.TermMentionRowKey;
 import com.altamiracorp.lumify.core.model.workQueue.WorkQueueRepository;
 import com.altamiracorp.lumify.core.user.User;
+import com.altamiracorp.lumify.core.util.LumifyLogger;
 import com.thinkaurelius.titan.core.attribute.Geoshape;
+import java.io.ByteArrayInputStream;
+import java.io.IOException;
+import java.net.MalformedURLException;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.Date;
@@ -57,12 +61,13 @@ import org.mockito.Mock;
 import org.powermock.api.mockito.PowerMockito;
 import org.powermock.core.classloader.annotations.PrepareForTest;
 import org.powermock.modules.junit4.PowerMockRunner;
+import org.powermock.reflect.Whitebox;
 
 /**
  * Abstract base class for testing Twitter bolts.
  */
 @RunWith(PowerMockRunner.class)
-@PrepareForTest({ TermRegexFinder.class, DefaultLumifyTwitterProcessor.class })
+@PrepareForTest({ ArtifactRowKey.class, TermRegexFinder.class, DefaultLumifyTwitterProcessor.class })
 public class DefaultLumifyTwitterProcessorTest {
     private static final String TEST_PROCESS_ID = "twitter-processor-test";
     private static final String TEST_USER_SCREEN_NAME = "jota_2705";
@@ -90,7 +95,6 @@ public class DefaultLumifyTwitterProcessorTest {
     
     private static final String TWEET_VERTEX_ID = "testTweetVertex";
     private static final String TWEETER_VERTEX_ID = "testTweeterVertex";
-    private static final String HANDLE_CONCEPT_VERTEX_ID = "handleConceptVertex";
     private static final String HANDLE_CONCEPT_ID = "handleConcept";
     private static final String HASHTAG_CONCEPT_ID = "hashtagConcept";
     private static final String URL_CONCEPT_ID = "urlConcept";
@@ -102,7 +106,7 @@ public class DefaultLumifyTwitterProcessorTest {
     private static byte[] FULL_TWEET_BYTES;
     
     @Mock
-    private Tuple tuple;
+    private LumifyLogger logger;
     @Mock
     private AuditRepository auditRepository;
     @Mock
@@ -117,6 +121,8 @@ public class DefaultLumifyTwitterProcessorTest {
     private TermMentionRepository termMentionRepository;
     @Mock
     private WorkQueueRepository workQueueRepository;
+    @Mock
+    private UrlStreamCreator urlStreamCreator;
     @Mock
     private ModelUserContext modelUserContext;
     @Mock
@@ -168,6 +174,8 @@ public class DefaultLumifyTwitterProcessorTest {
         instance.setUser(user);
         instance.setTermMentionRepository(termMentionRepository);
         instance.setWorkQueueRepository(workQueueRepository);
+        instance.setUrlStreamCreator(urlStreamCreator);
+        Whitebox.setInternalState(DefaultLumifyTwitterProcessor.class, logger);
         
         when(user.getModelUserContext()).thenReturn(modelUserContext);
         when(ontologyRepository.getConceptByName(CONCEPT_TWITTER_HANDLE, user)).thenReturn(handleConcept);
@@ -561,6 +569,150 @@ public class DefaultLumifyTwitterProcessorTest {
         
     }
     
+    @Test
+    public void testRetrieveProfileImage_NoUser() throws Exception {
+        JSONObject tweet = new JSONObject();
+        doShortCircuitProfileImageTest(tweet);
+    }
+    
+    @Test
+    public void testRetrieveProfileImage_NoScreenName() throws Exception {
+        JSONObject tweeter = new JSONObject();
+        JSON_PROFILE_IMAGE_URL_PROPERTY.setOn(tweeter, TEST_USER_PROFILE_IMAGE_URL);
+        JSONObject tweet = new JSONObject();
+        JSON_USER_PROPERTY.setOn(tweet, tweeter);
+        doShortCircuitProfileImageTest(tweet);
+    }
+    
+    @Test
+    public void testRetrieveProfileImage_EmptyScreenName() throws Exception {
+        JSONObject tweeter = new JSONObject();
+        JSON_SCREEN_NAME_PROPERTY.setOn(tweeter, "");
+        JSON_PROFILE_IMAGE_URL_PROPERTY.setOn(tweeter, TEST_USER_PROFILE_IMAGE_URL);
+        JSONObject tweet = new JSONObject();
+        JSON_USER_PROPERTY.setOn(tweet, tweeter);
+        doShortCircuitProfileImageTest(tweet);
+    }
+    
+    @Test
+    public void testRetrieveProfileImage_WhitespaceScreenName() throws Exception {
+        JSONObject tweeter = new JSONObject();
+        JSON_SCREEN_NAME_PROPERTY.setOn(tweeter, "\n \t\t \n");
+        JSON_PROFILE_IMAGE_URL_PROPERTY.setOn(tweeter, TEST_USER_PROFILE_IMAGE_URL);
+        JSONObject tweet = new JSONObject();
+        JSON_USER_PROPERTY.setOn(tweet, tweeter);
+        doShortCircuitProfileImageTest(tweet);
+    }
+    
+    @Test
+    public void testRetrieveProfileImage_NoImageUrl() throws Exception {
+        JSONObject tweeter = new JSONObject();
+        JSON_SCREEN_NAME_PROPERTY.setOn(tweeter, TEST_USER_SCREEN_NAME);
+        JSONObject tweet = new JSONObject();
+        JSON_USER_PROPERTY.setOn(tweet, tweeter);
+        doShortCircuitProfileImageTest(tweet);
+    }
+    
+    @Test
+    public void testRetrieveProfileImage_EmptyImageUrl() throws Exception {
+        JSONObject tweeter = new JSONObject();
+        JSON_SCREEN_NAME_PROPERTY.setOn(tweeter, TEST_USER_SCREEN_NAME);
+        JSON_PROFILE_IMAGE_URL_PROPERTY.setOn(tweeter, "");
+        JSONObject tweet = new JSONObject();
+        JSON_USER_PROPERTY.setOn(tweet, tweeter);
+        doShortCircuitProfileImageTest(tweet);
+    }
+    
+    @Test
+    public void testRetrieveProfileImage_WhitespaceImageUrl() throws Exception {
+        JSONObject tweeter = new JSONObject();
+        JSON_SCREEN_NAME_PROPERTY.setOn(tweeter, TEST_USER_SCREEN_NAME);
+        JSON_PROFILE_IMAGE_URL_PROPERTY.setOn(tweeter, "\n \t\t \n");
+        JSONObject tweet = new JSONObject();
+        JSON_USER_PROPERTY.setOn(tweet, tweeter);
+        doShortCircuitProfileImageTest(tweet);
+    }
+    
+    @Test
+    public void testRetrieveProfileImage_MalformedURLException() throws Exception {
+        doRetreiveProfileImageExceptionTest(MalformedURLException.class);
+    }
+    
+    @Test
+    public void testRetrieveProfileImage_IOException() throws Exception {
+        doRetreiveProfileImageExceptionTest(IOException.class);
+    }
+    
+    @Test
+    public void testRetrieveProfileImage() throws Exception {
+        JSONObject tweeter = new JSONObject();
+        JSON_SCREEN_NAME_PROPERTY.setOn(tweeter, TEST_USER_SCREEN_NAME);
+        JSON_PROFILE_IMAGE_URL_PROPERTY.setOn(tweeter, TEST_USER_PROFILE_IMAGE_URL);
+        JSONObject tweet = new JSONObject();
+        JSON_USER_PROPERTY.setOn(tweet, tweeter);
+        
+        byte[] testImageBytes = "My Image Content".getBytes(TWITTER_CHARSET);
+        ArtifactRowKey rowKey = mock(ArtifactRowKey.class);
+        String rowKeyStr = "testRowKey";
+        when(rowKey.toString()).thenReturn(rowKeyStr);
+        
+        when(urlStreamCreator.openUrlStream(TEST_USER_PROFILE_IMAGE_URL)).thenReturn(new ByteArrayInputStream(testImageBytes));
+        PowerMockito.mockStatic(ArtifactRowKey.class);
+        when(ArtifactRowKey.build(testImageBytes)).thenReturn(rowKey);
+        
+        ArtifactExtractedInfo expectedInfo = new ArtifactExtractedInfo()
+                .mimeType("image/png")
+                .rowKey(rowKeyStr)
+                .artifactType(ArtifactType.IMAGE.toString())
+                .title(TEST_USER_SCREEN_NAME + " Twitter Profile Picture")
+                .source("Twitter Profile Picture")
+                .process(TEST_PROCESS_ID)
+                .raw(testImageBytes);
+        
+        GraphVertex imageVertex = mock(GraphVertex.class);
+        String imageVertexId = "testImageVertexId";
+        when(imageVertex.getId()).thenReturn(imageVertexId);
+        when(artifactRepository.saveArtifact(expectedInfo, user)).thenReturn(imageVertex);
+        
+        String hasImageLabel = "testHasImage";
+        when(ontologyRepository.getDisplayNameForLabel(LabelName.HAS_IMAGE.toString(), user)).thenReturn(hasImageLabel);
+        
+        instance.retrieveProfileImage(TEST_PROCESS_ID, tweet, tweeterVertex);
+        
+        verify(tweeterVertex).setProperty(PropertyName.GLYPH_ICON.toString(), "/artifact/" + rowKeyStr + "/raw");
+        verify(graphRepository).save(tweeterVertex, user);
+        verify(auditRepository).auditEntityProperties(eq(AuditAction.UPDATE.toString()), eq(tweeterVertex),
+                eq(PropertyName.GLYPH_ICON.toString()), eq(TEST_PROCESS_ID), anyString(), eq(user));
+        verify(graphRepository).findOrAddRelationship(TWEETER_VERTEX_ID, imageVertexId, LabelName.HAS_IMAGE.toString(), user);
+        verify(auditRepository).auditRelationships(eq(AuditAction.CREATE.toString()), eq(tweeterVertex), eq(imageVertex),
+                eq(hasImageLabel), eq(TEST_PROCESS_ID), anyString(), eq(user));
+    }
+    
+    private void doRetreiveProfileImageExceptionTest(final Class<? extends Throwable> throwableClass) throws Exception {
+        String badUrl = "not a URL";
+        JSONObject tweeter = new JSONObject();
+        JSON_SCREEN_NAME_PROPERTY.setOn(tweeter, TEST_USER_SCREEN_NAME);
+        JSON_PROFILE_IMAGE_URL_PROPERTY.setOn(tweeter, badUrl);
+        JSONObject tweet = new JSONObject();
+        JSON_USER_PROPERTY.setOn(tweet, tweeter);
+        
+        when(urlStreamCreator.openUrlStream(badUrl)).thenThrow(throwableClass);
+        
+        instance.retrieveProfileImage(TEST_PROCESS_ID, tweet, tweeterVertex);
+        
+        verify(urlStreamCreator).openUrlStream(anyString());
+        verify(artifactRepository, never()).saveArtifact(any(ArtifactExtractedInfo.class), any(User.class));
+        verify(tweeterVertex, never()).setProperty(anyString(), any(User.class));
+        verify(graphRepository, never()).save(any(GraphVertex.class), any(User.class));
+        verify(graphRepository, never()).findOrAddRelationship(anyString(), anyString(), anyString(), any(User.class));
+        verify(ontologyRepository, never()).getDisplayNameForLabel(anyString(), any(User.class));
+        verify(auditRepository, never()).auditEntityProperties(anyString(), any(GraphVertex.class), anyString(), anyString(), anyString(),
+                any(User.class));
+        verify(auditRepository, never()).auditRelationships(anyString(), any(GraphVertex.class), any(GraphVertex.class), anyString(),
+                anyString(), anyString(), any(User.class));
+        verify(logger).warn(anyString(), eq(badUrl), eq(TEST_USER_SCREEN_NAME), any(throwableClass));
+    }
+    
     private void doShortCircuitTweetTest(final JSONObject input) {
         GraphVertex vertex = instance.parseTweet(TEST_PROCESS_ID, input);
         assertNull(vertex);
@@ -634,6 +786,22 @@ public class DefaultLumifyTwitterProcessorTest {
                 anyString(), any(User.class));
         verify(auditRepository, never()).auditRelationships(anyString(), any(GraphVertex.class), any(GraphVertex.class), anyString(),
                 anyString(), anyString(), any(User.class));
+    }
+    
+    private void doShortCircuitProfileImageTest(final JSONObject input) throws Exception {
+        instance.retrieveProfileImage(TEST_PROCESS_ID, input, tweeterVertex);
+        
+        verify(urlStreamCreator, never()).openUrlStream(anyString());
+        verify(artifactRepository, never()).saveArtifact(any(ArtifactExtractedInfo.class), any(User.class));
+        verify(tweeterVertex, never()).setProperty(anyString(), any(User.class));
+        verify(graphRepository, never()).save(any(GraphVertex.class), any(User.class));
+        verify(graphRepository, never()).findOrAddRelationship(anyString(), anyString(), anyString(), any(User.class));
+        verify(ontologyRepository, never()).getDisplayNameForLabel(anyString(), any(User.class));
+        verify(auditRepository, never()).auditEntityProperties(anyString(), any(GraphVertex.class), anyString(), anyString(), anyString(),
+                any(User.class));
+        verify(auditRepository, never()).auditRelationships(anyString(), any(GraphVertex.class), any(GraphVertex.class), anyString(),
+                anyString(), anyString(), any(User.class));
+        verify(logger, never()).warn(anyString(), any());
     }
     
     private JSONObject buildScreenNameOnlyUser() {

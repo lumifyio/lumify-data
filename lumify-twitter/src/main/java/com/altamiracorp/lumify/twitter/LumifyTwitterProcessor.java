@@ -59,4 +59,13 @@ public interface LumifyTwitterProcessor {
      */
     void extractEntities(final String processId, final JSONObject jsonTweet, final GraphVertex tweetVertex,
             final TwitterEntityType entityType);
+    
+    /**
+     * Retrieve the profile image for a Twitter User if it
+     * is configured and store it in the Lumify repository.
+     * @param processId the name of the process retrieving the profile image
+     * @param jsonTweet the Tweet JSON
+     * @param tweeterVertex the GraphVertex representing the Twitter User
+     */
+    void retrieveProfileImage(final String processId, final JSONObject jsonTweet, final GraphVertex tweeterVertex);
 }
