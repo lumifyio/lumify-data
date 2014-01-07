@@ -120,6 +120,18 @@ class accumulo(
     require => Exec["copy-example-accumulo-config"],
   }
 
+  file { "${configdir}/generic_logger.xml" :
+    ensure  => file,
+    source  => 'puppet:///modules/accumulo/generic_logger.xml',
+    require => Exec['copy-example-accumulo-config'],
+  }
+
+  file { "${configdir}/monitor_logger.xml" :
+    ensure  => file,
+    source  => 'puppet:///modules/accumulo/monitor_logger.xml',
+    require => Exec['copy-example-accumulo-config'],
+  }
+
   exec { 'change-accumulo-config-file-modes':
     command => '/bin/find ./* -type f -exec chmod 0644 {} \;',
     cwd     => $configdir,
