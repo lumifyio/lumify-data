@@ -27,11 +27,13 @@ import java.util.concurrent.LinkedBlockingQueue;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 
+import com.altamiracorp.lumify.storm.BaseLumifyJsonBolt;
+
 public class TwitterStreamSpout extends BaseRichSpout {
     private static final LumifyLogger LOGGER = LumifyLoggerFactory.getLogger(TwitterStreamSpout.class);
     private SpoutOutputCollector collector;
     private Client hbc;
-    private BlockingQueue<String> tweetsToProcess = new LinkedBlockingQueue<String>();
+    private final BlockingQueue<String> tweetsToProcess = new LinkedBlockingQueue<String>();
     private static List<String> TERMS = Lists.newArrayList();
     private static final String QUERY = "twitter.query";
 
@@ -42,7 +44,7 @@ public class TwitterStreamSpout extends BaseRichSpout {
 
     @Override
     public void declareOutputFields(OutputFieldsDeclarer outputFieldsDeclarer) {
-        outputFieldsDeclarer.declare(new Fields(FieldNames.FILE_NAME));
+        outputFieldsDeclarer.declare(new Fields(BaseLumifyJsonBolt.JSON_FIELD));
     }
 
     @Override
@@ -90,8 +92,6 @@ public class TwitterStreamSpout extends BaseRichSpout {
             collector.reportError(e);
         }
     }
-
-
 }
 
 

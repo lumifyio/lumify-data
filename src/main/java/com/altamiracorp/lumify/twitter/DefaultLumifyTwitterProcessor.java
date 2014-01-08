@@ -40,6 +40,7 @@ import com.altamiracorp.lumify.core.util.LumifyLogger;
 import com.altamiracorp.lumify.core.util.LumifyLoggerFactory;
 import com.google.common.collect.Lists;
 import com.google.inject.Inject;
+import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -140,9 +141,16 @@ public class DefaultLumifyTwitterProcessor extends BaseArtifactProcessor impleme
      * The URL Stream Creator.
      */
     private UrlStreamCreator urlStreamCreator;
+
+    @Override
+    public void queueTweet(final String queueName, final JSONObject tweet) {
+        if (queueName != null && !queueName.trim().isEmpty() && tweet != null) {
+            getWorkQueueRepository().pushOnQueue(queueName.trim(), tweet);
+        }
+    }
     
     @Override
-    public GraphVertex parseTweet(final String processId, final JSONObject jsonTweet) {
+    public GraphVertex parseTweet(final String processId, final JSONObject jsonTweet) throws Exception {
         // cache current User
         User user = getUser();
         
@@ -175,7 +183,8 @@ public class DefaultLumifyTwitterProcessor extends BaseArtifactProcessor impleme
         
         GraphVertex tweet = getArtifactRepository().saveArtifact(artifact, user);
         String tweetId = tweet.getId();
-        LOGGER.info("Saving tweet to Accumulo and as Graph Vertex: %s", tweetId);
+        LOGGER.info("Saved Tweet to Accumulo and as Graph Vertex: %s", tweetId);
+        getSearchProvider().add(tweet, new ByteArrayInputStream(tweetText.getBytes(TWITTER_CHARSET)));
         
         List<String> modifiedProps = setOptionalProps(tweet, jsonTweet, OPTIONAL_TWEET_PROPERTY_MAP);
         if (!modifiedProps.isEmpty()) {
@@ -335,6 +344,13 @@ public class DefaultLumifyTwitterProcessor extends BaseArtifactProcessor impleme
             } catch (IOException ioe) {
                 LOGGER.warn("Unable to retrieve Profile Photo [%s] for Twitter User: %s", imageUrl, screenName, ioe);
             }
+        }
+    }
+
+    @Override
+    public void finalizeTweetVertex(final String processId, final String tweetVertexId) {
+        if (tweetVertexId != null) {
+            getWorkQueueRepository().pushArtifactHighlight(tweetVertexId);
         }
     }
     

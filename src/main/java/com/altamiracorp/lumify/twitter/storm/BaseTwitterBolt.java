@@ -31,6 +31,23 @@ public abstract class BaseTwitterBolt extends BaseLumifyJsonBolt {
      */
     private LumifyTwitterProcessor twitterProcessor;
 
+    /**
+     * Create a new BaseTwitterBolt with the default missing and invalid JSON
+     * handling policies.
+     */
+    protected BaseTwitterBolt() {
+    }
+
+    /**
+     * Create a new BaseTwitterBolt with the provided missing and invalid JSON
+     * handling policies.
+     * @param missingPolicy the missing JSON policy
+     * @param invalidPolicy the invalid JSON policy
+     */
+    protected BaseTwitterBolt(final JsonHandlingPolicy missingPolicy, final JsonHandlingPolicy invalidPolicy) {
+        super(missingPolicy, invalidPolicy);
+    }
+
     protected final LumifyTwitterProcessor getTwitterProcessor() {
         return twitterProcessor;
     }
