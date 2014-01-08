@@ -7,7 +7,7 @@
 #	Python 2.6.6
 ######################################################################################################
 class storm(
-  $version = "0.9.0.1",
+  $version = "0.8.1",
   $user = "storm",
   $group = "storm",
   $installdir = "/opt",
@@ -29,7 +29,7 @@ class storm(
   $storm_supervisor_slots_ports = hiera('storm_supervisor_slots_ports')
   $storm_ui_port = hiera('storm_ui_port')
 
-  $downloadpath = "${tmpdir}/storm-${version}.tar.gz"
+  $downloadpath = "${tmpdir}/storm-${version}.zip"
   $extractdir = "${installdir}/storm-${version}"
 
   $make    = "/usr/bin/make"
@@ -89,11 +89,11 @@ class storm(
     require     => [ Macro::Git::Clone['jzmq-clone'], Exec['zeromq-build'] ],
   }
 
-  macro::download { "https://dl.dropboxusercontent.com/s/tqdpoif32gufapo/storm-${version}.tar.gz":
+  macro::download { "https://github.com/downloads/nathanmarz/storm/storm-${version}.zip":
     path    => $downloadpath,
     require => [Package['python'], Exec['jzmq-build']],
   } -> macro::extract { $downloadpath:
-    type    => 'tar.gz',
+    type    => 'zip',
     path    => $installdir,
     creates => $extractdir,
   }
@@ -109,6 +109,12 @@ class storm(
   file { "${extractdir}/conf/storm.yaml":
     ensure  => file,
     content => template("storm/storm.yaml.erb"),
+    require => Macro::Extract[$downloadpath],
+  }
+
+  file { "${extractdir}/log4j/storm.log.properties":
+    ensure  => file,
+    source  => 'puppet:///modules/storm/storm.log.properties',
     require => Macro::Extract[$downloadpath],
   }
 

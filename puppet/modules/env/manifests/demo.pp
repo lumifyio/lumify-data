@@ -11,7 +11,7 @@ class env::demo {
 
   include role::elasticsearch::pseudo
 
-  include ::kafka_rpm
+  include ::kafka
   include role::storm::master
   include role::storm::supervisor
 
