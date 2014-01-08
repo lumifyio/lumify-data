@@ -13,14 +13,17 @@ Lumify-Facebook is an closed source ingest example for the Lumify project. See t
 2. Add the following properties names and corresponding Facebook App keys to your ```/opt/lumify/config/configuration.properties:```
 
 ```
+#Facebook Specific
 facebook.appId=
 facebook.appSecret=
 facebook.accessToken=
+facebook.fileProcessDirectory=#directory where the files are to be processed
 # When querying for multiple phrases it must be a semi-colon separated list, e.g. twitter; face book; instagram
+facebook.tables=#tables to query 
 facebook.userPermissions=#information you are interested in about a user's profile
 facebook.locationPermissions=#information you are interested in about posts from a specified location
-facebook.longitude=#longitude of the interested location
 facebook.latitude=#latitude of the interested location
+facebook.longitude=#longitude of the interested location
 facebook.distance=#radius distance around the given location
 ```
 
@@ -45,44 +48,44 @@ Proceed if you are not using the Pre-built VM provided by [Lumify](https://lumif
 1.Sign In to [Facebook Developers site](https://developers.facebook.com/) using your Facebook credentials.
 <br/>
 <br/>
-![ScreenShot](https://github.com/altamiracorp/lumify-enterprise/raw/develop/lumify-facebook/docs/Screenshots/facebook_sign_in.png)
+![ScreenShot](https://raw.github.com/altamiracorp/lumify-all/master/lumify-facebook/docs/Screenshots/facebook_sign_in.png?token=1760800__eyJzY29wZSI6IlJhd0Jsb2I6YWx0YW1pcmFjb3JwL2x1bWlmeS1hbGwvbWFzdGVyL2x1bWlmeS1mYWNlYm9vay9kb2NzL1NjcmVlbnNob3RzL2ZhY2Vib29rX3NpZ25faW4ucG5nIiwiZXhwaXJlcyI6MTM4OTczNTQyN30%3D--20aed47ed9c61deb579f13385bf37559b3b008a6)
 <br/>
 <br/>
 2. In the top right corner under your Facebook Profile’s picture and name, click the **Register Now** button.
 <br/>
 <br/>
-![ScreenShot](https://github.com/altamiracorp/lumify-enterprise/raw/develop/lumify-facebook/docs/Screenshots/facebook_register_now.png)
+![ScreenShot](https://raw.github.com/altamiracorp/lumify-all/master/lumify-facebook/docs/Screenshots/facebook_register_now.png?token=1760800__eyJzY29wZSI6IlJhd0Jsb2I6YWx0YW1pcmFjb3JwL2x1bWlmeS1hbGwvbWFzdGVyL2x1bWlmeS1mYWNlYm9vay9kb2NzL1NjcmVlbnNob3RzL2ZhY2Vib29rX3JlZ2lzdGVyX25vdy5wbmciLCJleHBpcmVzIjoxMzg5NzM1MzY0fQ%3D%3D--5a0f31c229a95d73f677dee933734f36b261917a)
 <br/>
 <br/>
 3. Re-enter your Facebook Profile password and follow the prompts to properly register as a developer.
 <br/>
 <br/>
-![ScreenShot](https://github.com/altamiracorp/lumify-enterprise/raw/develop/lumify-facebook/docs/Screenshots/facebook_developer_popup.png)
+![ScreenShot](https://raw.github.com/altamiracorp/lumify-all/master/lumify-facebook/docs/Screenshots/facebook_developer_popup.png?token=1760800__eyJzY29wZSI6IlJhd0Jsb2I6YWx0YW1pcmFjb3JwL2x1bWlmeS1hbGwvbWFzdGVyL2x1bWlmeS1mYWNlYm9vay9kb2NzL1NjcmVlbnNob3RzL2ZhY2Vib29rX2RldmVsb3Blcl9wb3B1cC5wbmciLCJleHBpcmVzIjoxMzg5NzM1MzIwfQ%3D%3D--31b0344d96398783707c0689a567d77134e98f6b)
 <br/>
 <br/>
 4. Select **Create New App** and fill out the form.
 <br/>
 <br/>
-![ScreenShot](https://github.com/altamiracorp/lumify-enterprise/raw/develop/lumify-facebook/docs/Screenshots/facebook_create_new_app.png)
+![ScreenShot](https://raw.github.com/altamiracorp/lumify-all/master/lumify-facebook/docs/Screenshots/facebook_create_new_app.png?token=1760800__eyJzY29wZSI6IlJhd0Jsb2I6YWx0YW1pcmFjb3JwL2x1bWlmeS1hbGwvbWFzdGVyL2x1bWlmeS1mYWNlYm9vay9kb2NzL1NjcmVlbnNob3RzL2ZhY2Vib29rX2NyZWF0ZV9uZXdfYXBwLnBuZyIsImV4cGlyZXMiOjEzODk3MzUyNzV9--3bc2d7f17e76e448dc39bb9a4d006501764c453a)
 <br/>
 <br/>
 5. Once completed, the App ID and App Secret for the App will be shown.
 6. To generate you Access Token, click **Tools** and select **Graph Explorer**.
 <br/>
 <br/>
-![ScreenShot](https://github.com/altamiracorp/lumify-enterprise/raw/develop/lumify-facebook/docs/Screenshots/facebook_tools.png)
+![ScreenShot](https://raw.github.com/altamiracorp/lumify-all/master/lumify-facebook/docs/Screenshots/facebook_tools.png?token=1760800__eyJzY29wZSI6IlJhd0Jsb2I6YWx0YW1pcmFjb3JwL2x1bWlmeS1hbGwvbWFzdGVyL2x1bWlmeS1mYWNlYm9vay9kb2NzL1NjcmVlbnNob3RzL2ZhY2Vib29rX3Rvb2xzLnBuZyIsImV4cGlyZXMiOjEzODk3MzU0NDV9--c14b4eccbf72ef93a3fd10c98fe3856d0cef44a8)
 <br/>
 <br/>
 7. Select **FQL Query**
 <br/>
 <br/>
-![ScreenShot](https://github.com/altamiracorp/lumify-enterprise/raw/develop/lumify-facebook/docs/Screenshots/facebook_fql_selection.png)
+![ScreenShot](https://raw.github.com/altamiracorp/lumify-all/master/lumify-facebook/docs/Screenshots/facebook_fql_selection.png?token=1760800__eyJzY29wZSI6IlJhd0Jsb2I6YWx0YW1pcmFjb3JwL2x1bWlmeS1hbGwvbWFzdGVyL2x1bWlmeS1mYWNlYm9vay9kb2NzL1NjcmVlbnNob3RzL2ZhY2Vib29rX2ZxbF9zZWxlY3Rpb24ucG5nIiwiZXhwaXJlcyI6MTM4OTczNTM0MX0%3D--0587458fb426927f64f96a50915a5e6aed151afd)
 <br/>
 <br/>
 8. Click **Get Access Token** in the top right-hand corner and select the items you want access to then click **Get Access Token**.
 <br/>
 <br/>
-![ScreenShot](https://github.com/altamiracorp/lumify-enterprise/raw/develop/lumify-facebook/docs/Screenshots/facebook_access_token.png)
+![ScreenShot](https://raw.github.com/altamiracorp/lumify-all/master/lumify-facebook/docs/Screenshots/facebook_access_token.png?token=1760800__eyJzY29wZSI6IlJhd0Jsb2I6YWx0YW1pcmFjb3JwL2x1bWlmeS1hbGwvbWFzdGVyL2x1bWlmeS1mYWNlYm9vay9kb2NzL1NjcmVlbnNob3RzL2ZhY2Vib29rX2FjY2Vzc190b2tlbi5wbmciLCJleHBpcmVzIjoxMzg5NzM1MjAzfQ%3D%3D--137aada7e08bdbb620f0fd3d641d83b7f60ff56d)
 <br/>
 <br/>
 9. The Access Token should appear in the associated text box.
