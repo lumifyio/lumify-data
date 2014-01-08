@@ -13,8 +13,15 @@ class kafka_rpm(
 
   $zookeeper_nodes = hiera_hash('zookeeper_nodes')
   $kafka_consumer_group_id = hiera('kafka_consumer_group_id')
-  $kafka_host_ipaddress = hiera('kafka_host_ipaddress')
-  $kafka_jmx_port = hiera('kafka_jmx_port')
+  $kafka_host_ipaddresses = hiera_hash('kafka_host_ipaddresses')
+  $kafka_jmx_registry_port = hiera('kafka_jmx_registry_port')
+  $kafka_jmx_objects_port = hiera('kafka_jmx_objects_port')
+
+  if $interfaces =~ /eth1/ {
+    $kafka_host_ip = $ipaddress_eth1
+  } else {
+    $kafka_host_ip = $ipaddress_eth0
+  }
 
   $configdir = "${home}/config"
 
