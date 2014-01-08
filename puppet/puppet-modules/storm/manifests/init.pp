@@ -7,7 +7,7 @@
 #	Python 2.6.6
 ######################################################################################################
 class storm(
-  $version = "0.9.0.1",
+  $version = "0.8.1",
   $user = "storm",
   $group = "storm",
   $installdir = "/opt",
@@ -89,7 +89,7 @@ class storm(
     require     => [ Macro::Git::Clone['jzmq-clone'], Exec['zeromq-build'] ],
   }
 
-  macro::download { "https://github.com/nathanmarz/storm/archive/${version}.tar.gz":
+  macro::download { "https://github.com/downloads/nathanmarz/storm/storm-${version}.zip":
     path    => $downloadpath,
     require => [Package['python'], Exec['jzmq-build']],
   } -> macro::extract { $downloadpath:
