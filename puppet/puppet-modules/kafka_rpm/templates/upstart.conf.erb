@@ -3,7 +3,7 @@
 # Start and stop a kafka server
 author "Altamira Technologies"
 description "Controls a Kafka Server"
-env JMX_PORT=<%= @kafka_jmx_registry_port %>
+env JMX_PORT=<%= @kafka_jmx_port %>
 
 # This "start on" is not a mistake...
 # CentOS does not emit all of the standard events properly.
