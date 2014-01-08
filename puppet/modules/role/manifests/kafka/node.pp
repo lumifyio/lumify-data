@@ -1,3 +1,3 @@
 class role::kafka::node {
-  include ::kafka
+  include ::kafka_rpm
 }
