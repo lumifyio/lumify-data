@@ -70,7 +70,7 @@ function run_maven {
 }
 
 function bundle_init {
-  FILE_LIST="${FILE_LIST} aws/bin-ec2/setup_disks.sh update.sh run_puppet.sh init.sh setup_ssh.sh start_*.sh"
+  FILE_LIST="${FILE_LIST} aws/bin-ec2/setup_disks.sh update.sh run_puppet.sh init.sh setup_ssh.sh control.sh"
 }
 
 function bundle_puppet {
