@@ -27,6 +27,13 @@ import org.json.JSONObject;
  */
 public interface LumifyTwitterProcessor {
     /**
+     * Add the provided Tweet JSONObject to a processing queue.
+     * @param queueName the queue name
+     * @param tweet the Tweet JSON
+     */
+    void queueTweet(final String queueName, final JSONObject tweet);
+    
+    /**
      * Extract a Tweet artifact from the incoming JSON record
      * and stores it in the Lumify repository. This method
      * returns <code>null</code> if the Tweet did not contain
@@ -36,8 +43,9 @@ public interface LumifyTwitterProcessor {
      * @param jsonTweet the Tweet JSON
      * @return the GraphVertex representing the parsed Tweet or <code>null</code> if the Tweet
      * could not be processed
+     * @throws Exception if an error occurs during Tweet processing
      */
-    GraphVertex parseTweet(final String processId, final JSONObject jsonTweet);
+    GraphVertex parseTweet(final String processId, final JSONObject jsonTweet) throws Exception;
     
     /**
      * Extract the Twitter User from the incoming JSON record
@@ -68,4 +76,12 @@ public interface LumifyTwitterProcessor {
      * @param tweeterVertex the GraphVertex representing the Twitter User
      */
     void retrieveProfileImage(final String processId, final JSONObject jsonTweet, final GraphVertex tweeterVertex);
+    
+    /**
+     * Finalize processing of a Tweet artifact, performing any necessary actions for
+     * the GraphVertex once all other processes have completed.
+     * @param processId the name of the process finalizing the Tweet
+     * @param tweetVertexId the ID of the Tweet vertex
+     */
+    void finalizeTweetVertex(final String processId, final String tweetVertexId);
 }

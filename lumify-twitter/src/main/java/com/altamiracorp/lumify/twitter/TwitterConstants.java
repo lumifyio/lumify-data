@@ -114,6 +114,11 @@ public interface TwitterConstants {
     static final Charset TWITTER_CHARSET = Charset.forName("UTF-8");
     
     /**
+     * The Twitter Queue Name.
+     */
+    static final String TWITTER_QUEUE_NAME = "twitterStream";
+    
+    /**
      * The Twitter text property.
      */
     static final StringJsonProperty JSON_TEXT_PROPERTY = new StringJsonProperty("text");

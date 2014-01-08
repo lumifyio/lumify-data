@@ -16,6 +16,7 @@
 
 package com.altamiracorp.lumify.twitter;
 
+import static com.altamiracorp.lumify.storm.util.InputStreamContentMatcher.*;
 import static com.altamiracorp.lumify.twitter.TwitterConstants.*;
 import static org.junit.Assert.*;
 import static org.mockito.Mockito.*;
@@ -37,6 +38,7 @@ import com.altamiracorp.lumify.core.model.ontology.LabelName;
 import com.altamiracorp.lumify.core.model.ontology.OntologyRepository;
 import com.altamiracorp.lumify.core.model.ontology.PropertyName;
 import com.altamiracorp.lumify.core.model.ontology.VertexType;
+import com.altamiracorp.lumify.core.model.search.SearchProvider;
 import com.altamiracorp.lumify.core.model.termMention.TermMention;
 import com.altamiracorp.lumify.core.model.termMention.TermMentionMetadata;
 import com.altamiracorp.lumify.core.model.termMention.TermMentionRepository;
@@ -47,6 +49,7 @@ import com.altamiracorp.lumify.core.util.LumifyLogger;
 import com.thinkaurelius.titan.core.attribute.Geoshape;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.net.MalformedURLException;
 import java.util.Arrays;
 import java.util.Collections;
@@ -70,6 +73,7 @@ import org.powermock.reflect.Whitebox;
 @PrepareForTest({ ArtifactRowKey.class, TermRegexFinder.class, DefaultLumifyTwitterProcessor.class })
 public class DefaultLumifyTwitterProcessorTest {
     private static final String TEST_PROCESS_ID = "twitter-processor-test";
+    private static final String TEST_QUEUE_NAME = "testQueue";
     private static final String TEST_USER_SCREEN_NAME = "jota_2705";
     private static final String TEST_USER_NAME = "El grinder se vac\\u00edaa";
     private static final Integer TEST_USER_STATUS_COUNT = 3977;
@@ -86,6 +90,7 @@ public class DefaultLumifyTwitterProcessorTest {
     private static final Geoshape TEST_USER_COORDS = Geoshape.point(38.8951d, -77.0367d);
     private static final String TEST_TWEET_TEXT =
             "I'm at Target (2300 W. Ben White Blvd., S. Lamar Blvd., Austin) w\\/ 3 others http://t.co/eGSHZkXH #shopping";
+    private static final byte[] TEST_TWEET_TEXT_BYTES = TEST_TWEET_TEXT.getBytes(TWITTER_CHARSET);
     // "Thu Dec 19 22:07:04 +0000 2013"
     private static final Date TEST_TWEET_CREATED = new Date(1387490824000L);
     private static final Geoshape TEST_TWEET_COORDS = Geoshape.point(30.2500d, -97.7500d);
@@ -121,6 +126,8 @@ public class DefaultLumifyTwitterProcessorTest {
     private TermMentionRepository termMentionRepository;
     @Mock
     private WorkQueueRepository workQueueRepository;
+    @Mock
+    private SearchProvider searchProvider;
     @Mock
     private UrlStreamCreator urlStreamCreator;
     @Mock
@@ -175,6 +182,7 @@ public class DefaultLumifyTwitterProcessorTest {
         instance.setTermMentionRepository(termMentionRepository);
         instance.setWorkQueueRepository(workQueueRepository);
         instance.setUrlStreamCreator(urlStreamCreator);
+        instance.setSearchProvider(searchProvider);
         Whitebox.setInternalState(DefaultLumifyTwitterProcessor.class, logger);
         
         when(user.getModelUserContext()).thenReturn(modelUserContext);
@@ -194,24 +202,61 @@ public class DefaultLumifyTwitterProcessorTest {
     }
     
     @Test
-    public void testParseTweet_NullJSON() {
+    public void testQueueTweet_NullQueue() {
+        doShortCircuitQueueTweetTest(null, FULL_TWEET);
+    }
+    
+    @Test
+    public void testQueueTweet_EmptyQueue() {
+        doShortCircuitQueueTweetTest("", FULL_TWEET);
+    }
+    
+    @Test
+    public void testQueueTweet_WhitespaceQueue() {
+        doShortCircuitQueueTweetTest("\n \t\t \n", FULL_TWEET);
+    }
+    
+    @Test
+    public void testQueueTweet_NullTweet() {
+        doShortCircuitQueueTweetTest(TEST_QUEUE_NAME, null);
+    }
+    
+    @Test
+    public void testQueueTweet_TrimmedQueue() {
+        instance.queueTweet(TEST_QUEUE_NAME, FULL_TWEET);
+        verify(workQueueRepository).pushOnQueue(TEST_QUEUE_NAME, FULL_TWEET);
+    }
+    
+    @Test
+    public void testQueueTweet_UntrimmedQueue() {
+        instance.queueTweet("\n \t\t " + TEST_QUEUE_NAME + " \n", FULL_TWEET);
+        verify(workQueueRepository).pushOnQueue(TEST_QUEUE_NAME, FULL_TWEET);
+    }
+    
+    private void doShortCircuitQueueTweetTest(final String queueName, final JSONObject tweet) {
+        instance.queueTweet(queueName, tweet);
+        verify(workQueueRepository, never()).pushOnQueue(anyString(), any(JSONObject.class));
+    }
+    
+    @Test
+    public void testParseTweet_NullJSON() throws Exception {
         doShortCircuitTweetTest(null);
     }
     
     @Test
-    public void testParseTweet_NoText() {
+    public void testParseTweet_NoText() throws Exception {
         doShortCircuitTweetTest(new JSONObject());
     }
     
     @Test
-    public void testParseTweet_NoUser() {
+    public void testParseTweet_NoUser() throws Exception {
         JSONObject tweet = new JSONObject();
         JSON_TEXT_PROPERTY.setOn(tweet, TEST_TWEET_TEXT);
         doShortCircuitTweetTest(tweet);
     }
     
     @Test
-    public void testParseTweet_NoScreenName() {
+    public void testParseTweet_NoScreenName() throws Exception {
         JSONObject tweet = new JSONObject();
         JSON_TEXT_PROPERTY.setOn(tweet, TEST_TWEET_TEXT);
         JSON_USER_PROPERTY.setOn(tweet, new JSONObject());
@@ -219,7 +264,7 @@ public class DefaultLumifyTwitterProcessorTest {
     }
     
     @Test
-    public void testParseTweet_EmptyScreenName() {
+    public void testParseTweet_EmptyScreenName() throws Exception {
         JSONObject userJson = new JSONObject();
         JSON_SCREEN_NAME_PROPERTY.setOn(userJson, "");
         JSONObject tweet = new JSONObject();
@@ -229,7 +274,7 @@ public class DefaultLumifyTwitterProcessorTest {
     }
     
     @Test
-    public void testParseTweet_WhitespaceScreenName() {
+    public void testParseTweet_WhitespaceScreenName() throws Exception {
         JSONObject userJson = new JSONObject();
         JSON_SCREEN_NAME_PROPERTY.setOn(userJson, "\n \t\t \n");
         JSONObject tweet = new JSONObject();
@@ -239,7 +284,7 @@ public class DefaultLumifyTwitterProcessorTest {
     }
     
     @Test
-    public void testParseTweet_NoOptionalProperties() {
+    public void testParseTweet_NoOptionalProperties() throws Exception {
         JSONObject tweet = new JSONObject();
         JSON_TEXT_PROPERTY.setOn(tweet, TEST_TWEET_TEXT);
         JSON_USER_PROPERTY.setOn(tweet, buildScreenNameOnlyUser());
@@ -261,6 +306,38 @@ public class DefaultLumifyTwitterProcessorTest {
         
         GraphVertex vertex = instance.parseTweet(TEST_PROCESS_ID, tweet);
         
+        verify(searchProvider).add(eq(tweetVertex), argThat(containsBytes(TEST_TWEET_TEXT_BYTES)));
+        verify(graphRepository, never()).save(any(GraphVertex.class), any(User.class));
+        verify(auditRepository, never()).auditEntityProperties(anyString(), any(GraphVertex.class), anyString(), anyString(), anyString(),
+                any(User.class));
+        assertEquals(tweetVertex, vertex);
+    }
+    
+    @Test(expected=IOException.class)
+    public void testParseTweet_SearchProviderErrors() throws Exception {
+        JSONObject tweet = new JSONObject();
+        JSON_TEXT_PROPERTY.setOn(tweet, TEST_TWEET_TEXT);
+        JSON_USER_PROPERTY.setOn(tweet, buildScreenNameOnlyUser());
+        
+        byte[] jsonBytes = tweet.toString().getBytes(TWITTER_CHARSET);
+        String rowKey = ArtifactRowKey.build(jsonBytes).toString();
+        ArtifactExtractedInfo expectedArtifactInfo = new ArtifactExtractedInfo()
+                .text(TEST_TWEET_TEXT)
+                .raw(jsonBytes)
+                .mimeType("text/plain")
+                .rowKey(rowKey)
+                .artifactType(ArtifactType.DOCUMENT.toString())
+                .title(TEST_TWEET_TEXT)
+                .author(TEST_USER_SCREEN_NAME)
+                .source("Twitter")
+                .process(TEST_PROCESS_ID);
+        
+        when(artifactRepository.saveArtifact(expectedArtifactInfo, user)).thenReturn(tweetVertex);
+        doThrow(IOException.class).when(searchProvider).add(eq(tweetVertex), argThat(containsBytes(TEST_TWEET_TEXT_BYTES)));
+        
+        GraphVertex vertex = instance.parseTweet(TEST_PROCESS_ID, tweet);
+        
+        verify(searchProvider).add(eq(tweetVertex), argThat(containsBytes(TEST_TWEET_TEXT_BYTES)));
         verify(graphRepository, never()).save(any(GraphVertex.class), any(User.class));
         verify(auditRepository, never()).auditEntityProperties(anyString(), any(GraphVertex.class), anyString(), anyString(), anyString(),
                 any(User.class));
@@ -268,7 +345,7 @@ public class DefaultLumifyTwitterProcessorTest {
     }
     
     @Test
-    public void testParseTweet_SomeOptionalProperties() {
+    public void testParseTweet_SomeOptionalProperties() throws Exception {
         JSONObject tweet = new JSONObject();
         JSON_TEXT_PROPERTY.setOn(tweet, TEST_TWEET_TEXT);
         JSON_CREATED_AT_PROPERTY.setOn(tweet, TEST_TWEET_CREATED);
@@ -294,6 +371,7 @@ public class DefaultLumifyTwitterProcessorTest {
         
         GraphVertex vertex = instance.parseTweet(TEST_PROCESS_ID, tweet);
         
+        verify(searchProvider).add(eq(tweetVertex), argThat(containsBytes(TEST_TWEET_TEXT_BYTES)));
         verify(tweetVertex).setProperty(PropertyName.GEO_LOCATION.toString(), TEST_TWEET_COORDS);
         verify(tweetVertex).setProperty(LUMIFY_FAVORITE_COUNT_PROPERTY, TEST_TWEET_FAVORITE_COUNT);
         verify(graphRepository).save(tweetVertex, user);
@@ -305,7 +383,7 @@ public class DefaultLumifyTwitterProcessorTest {
     }
     
     @Test
-    public void testParseTweet_AllOptionalProperties() {
+    public void testParseTweet_AllOptionalProperties() throws Exception {
         String rowKey = ArtifactRowKey.build(FULL_TWEET_BYTES).toString();
         ArtifactExtractedInfo expectedArtifactInfo = new ArtifactExtractedInfo()
                 .text(TEST_TWEET_TEXT)
@@ -323,6 +401,7 @@ public class DefaultLumifyTwitterProcessorTest {
         
         GraphVertex vertex = instance.parseTweet(TEST_PROCESS_ID, FULL_TWEET);
         
+        verify(searchProvider).add(eq(tweetVertex), argThat(containsBytes(TEST_TWEET_TEXT_BYTES)));
         verify(tweetVertex).setProperty(PropertyName.GEO_LOCATION.toString(), TEST_TWEET_COORDS);
         verify(tweetVertex).setProperty(LUMIFY_FAVORITE_COUNT_PROPERTY, TEST_TWEET_FAVORITE_COUNT);
         verify(tweetVertex).setProperty(LUMIFY_RETWEET_COUNT_PROPERTY, TEST_TWEET_RETWEET_COUNT);
@@ -688,6 +767,18 @@ public class DefaultLumifyTwitterProcessorTest {
                 eq(hasImageLabel), eq(TEST_PROCESS_ID), anyString(), eq(user));
     }
     
+    @Test
+    public void testFinalizeTweetVertex_NullId() {
+        instance.finalizeTweetVertex(TEST_PROCESS_ID, null);
+        verify(workQueueRepository, never()).pushArtifactHighlight(anyString());
+    }
+    
+    @Test
+    public void testFinalizeTweetVertex() {
+        instance.finalizeTweetVertex(TEST_PROCESS_ID, TWEET_VERTEX_ID);
+        verify(workQueueRepository).pushArtifactHighlight(TWEET_VERTEX_ID);
+    }
+    
     private void doRetreiveProfileImageExceptionTest(final Class<? extends Throwable> throwableClass) throws Exception {
         String badUrl = "not a URL";
         JSONObject tweeter = new JSONObject();
@@ -713,11 +804,12 @@ public class DefaultLumifyTwitterProcessorTest {
         verify(logger).warn(anyString(), eq(badUrl), eq(TEST_USER_SCREEN_NAME), any(throwableClass));
     }
     
-    private void doShortCircuitTweetTest(final JSONObject input) {
+    private void doShortCircuitTweetTest(final JSONObject input) throws Exception {
         GraphVertex vertex = instance.parseTweet(TEST_PROCESS_ID, input);
         assertNull(vertex);
         verify(artifactRepository, never()).saveArtifact(any(ArtifactExtractedInfo.class), any(User.class));
         verify(graphRepository, never()).save(any(GraphVertex.class), any(User.class));
+        verify(searchProvider, never()).add(any(GraphVertex.class), any(InputStream.class));
         verify(auditRepository, never()).auditEntityProperties(anyString(), any(GraphVertex.class), anyString(), anyString(), anyString(),
                 any(User.class));
     }
