@@ -21,6 +21,11 @@
         <atc:property atc:name="displayType">document</atc:property>
         <rdfs:subClassOf rdf:resource="http://altamiracorp.com/ontology/entity"/>
     </owl:Class>
+    <owl:DatatypeProperty rdf:about="publishedDate">
+        <rdfs:label xml:lang="en">published date</rdfs:label>
+        <rdfs:domain rdf:resource="#document"/>
+        <rdfs:range rdf:resource="http://altamiracorp.com/datatype/date"/>
+    </owl:DatatypeProperty>
     
 <!-- Concept: Image -->
 	<owl:Class rdf:about="image">
@@ -30,6 +35,11 @@
         <atc:property atc:name="displayType">image</atc:property>
         <rdfs:subClassOf rdf:resource="http://altamiracorp.com/ontology/entity"/>
     </owl:Class>
+    <owl:DatatypeProperty rdf:about="publishedDate">
+        <rdfs:label xml:lang="en">published date</rdfs:label>
+        <rdfs:domain rdf:resource="#image"/>
+        <rdfs:range rdf:resource="http://altamiracorp.com/datatype/date"/>
+    </owl:DatatypeProperty>
     
 <!-- Concept: Video --> 
 	<owl:Class rdf:about="video">
@@ -39,6 +49,11 @@
         <atc:property atc:name="displayType">video</atc:property>
         <rdfs:subClassOf rdf:resource="http://altamiracorp.com/ontology/entity"/>
     </owl:Class>
+    <owl:DatatypeProperty rdf:about="publishedDate">
+        <rdfs:label xml:lang="en">published date</rdfs:label>
+        <rdfs:domain rdf:resource="#video"/>
+        <rdfs:range rdf:resource="http://altamiracorp.com/datatype/date"/>
+    </owl:DatatypeProperty>
     
 <!-- Concept: person -->
     
