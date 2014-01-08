@@ -74,6 +74,7 @@ public class FacebookPost {
         artifactExtractedInfo.setDate(time);
         artifactExtractedInfo.setProcess(PROCESS);
         if (message.length() == 0) {
+            //TODO: perform the query for the image and create the artifact/vertex and connect
             artifactExtractedInfo.setTitle("Facebook Image Post");
         } else if (message.length() > 140) {
             String shortTitle = message.substring(0, 137) + "...";
