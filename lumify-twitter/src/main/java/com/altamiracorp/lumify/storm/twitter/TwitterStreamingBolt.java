@@ -5,13 +5,12 @@ import backtype.storm.tuple.Fields;
 import backtype.storm.tuple.Tuple;
 import com.altamiracorp.lumify.core.ingest.ArtifactExtractedInfo;
 import com.altamiracorp.lumify.core.model.artifact.ArtifactRowKey;
-import com.altamiracorp.lumify.core.model.artifact.ArtifactType;
 import com.altamiracorp.lumify.core.model.audit.AuditAction;
 import com.altamiracorp.lumify.core.model.graph.GraphGeoLocation;
 import com.altamiracorp.lumify.core.model.graph.GraphVertex;
 import com.altamiracorp.lumify.core.model.graph.InMemoryGraphVertex;
 import com.altamiracorp.lumify.core.model.ontology.Concept;
-import com.altamiracorp.lumify.core.model.ontology.VertexType;
+import com.altamiracorp.lumify.core.model.ontology.DisplayType;
 import com.altamiracorp.lumify.core.model.search.SearchProvider;
 import com.altamiracorp.lumify.core.user.User;
 import com.altamiracorp.lumify.core.util.LumifyLogger;
@@ -132,7 +131,7 @@ public class TwitterStreamingBolt extends BaseLumifyBolt {
         artifactExtractedInfo.setRaw(tweetJson.toString().getBytes(TWITTER_CHARSET));
         artifactExtractedInfo.setMimeType(TWEET_ARTIFACT_MIME_TYPE);
         artifactExtractedInfo.setRowKey(rowKey);
-        artifactExtractedInfo.setArtifactType(ArtifactType.DOCUMENT.toString());
+        artifactExtractedInfo.setConceptType(TWITTER_CONCEPT);
         artifactExtractedInfo.setTitle(tweetText);
         artifactExtractedInfo.setAuthor(tweeter);
         artifactExtractedInfo.setSource(TWITTER_SOURCE);
@@ -183,7 +182,7 @@ public class TwitterStreamingBolt extends BaseLumifyBolt {
         JSONObject tweeterJson = outputTuple.getUserJSON();
         String tweeter = tweeterJson.getString(SCREEN_NAME_PROPERTY).toLowerCase();
         boolean newVertex = false;
-        GraphVertex tweeterVertex = graphRepository.findVertexByTitleAndType(tweeter, VertexType.ENTITY, user);
+        GraphVertex tweeterVertex = graphRepository.findVertexByExactTitle(tweeter, user);
         if (tweeterVertex == null) {
             newVertex = true;
             tweeterVertex = new InMemoryGraphVertex();
@@ -191,13 +190,11 @@ public class TwitterStreamingBolt extends BaseLumifyBolt {
 
         List<String> modifiedProperties = Lists.newArrayList(
                 TITLE.toString(),
-                TYPE.toString(),
-                SUBTYPE.toString()
+                CONCEPT_TYPE.toString()
         );
 
         tweeterVertex.setProperty(TITLE, tweeter);
-        tweeterVertex.setProperty(TYPE, VertexType.ENTITY.toString());
-        tweeterVertex.setProperty(SUBTYPE, handleConcept.getId());
+        tweeterVertex.setProperty(CONCEPT_TYPE, handleConcept.getId());
 
         String displayName = tweeterJson.optString(TWITTER_DISPLAY_NAME_PROPERTY, null);
         if (displayName != null && !displayName.trim().isEmpty()) {

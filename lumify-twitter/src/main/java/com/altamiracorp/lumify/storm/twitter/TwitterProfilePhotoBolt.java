@@ -20,7 +20,6 @@ import backtype.storm.tuple.Tuple;
 import com.altamiracorp.lumify.core.ingest.ArtifactExtractedInfo;
 import com.altamiracorp.lumify.core.model.artifact.Artifact;
 import com.altamiracorp.lumify.core.model.artifact.ArtifactRowKey;
-import com.altamiracorp.lumify.core.model.artifact.ArtifactType;
 import com.altamiracorp.lumify.core.model.audit.AuditAction;
 import com.altamiracorp.lumify.core.model.graph.GraphVertex;
 import com.altamiracorp.lumify.core.model.ontology.LabelName;
@@ -111,7 +110,7 @@ public class TwitterProfilePhotoBolt extends BaseTwitterForkBolt {
                 ArtifactExtractedInfo artifactInfo = new ArtifactExtractedInfo();
                 artifactInfo.setMimeType(PROFILE_IMAGE_MIME_TYPE);
                 artifactInfo.setRowKey(rowKey);
-                artifactInfo.setArtifactType(ArtifactType.IMAGE.toString());
+                artifactInfo.setConceptType(TWEETER_PROFILE_IMAGE_CONCEPT);
                 artifactInfo.setTitle(String.format(IMAGE_ARTIFACT_TITLE_FMT, tweeter.getString(SCREEN_NAME_PROPERTY)));
                 artifactInfo.setSource(IMAGE_ARTIFACT_SOURCE);
                 artifactInfo.setProcess(PROCESS);

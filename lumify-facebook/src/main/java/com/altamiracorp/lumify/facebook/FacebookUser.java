@@ -3,7 +3,6 @@ package com.altamiracorp.lumify.facebook;
 import com.altamiracorp.lumify.core.ingest.ArtifactExtractedInfo;
 import com.altamiracorp.lumify.core.model.artifact.Artifact;
 import com.altamiracorp.lumify.core.model.artifact.ArtifactRowKey;
-import com.altamiracorp.lumify.core.model.artifact.ArtifactType;
 import com.altamiracorp.lumify.core.model.audit.AuditAction;
 import com.altamiracorp.lumify.core.model.audit.AuditRepository;
 import com.altamiracorp.lumify.core.model.graph.GraphRepository;
@@ -44,6 +43,7 @@ public class FacebookUser {
     private static final String USERNAME = "username";
     private static final String PROFILE_ID = "profileId";
     private static final String COORDS = "coords";
+    private static final String FACEBOOK_PROFILE_IMAGE = "facebookProfileImage";
     private static final LumifyLogger LOGGER = LumifyLoggerFactory.getLogger(FacebookBolt.class);
     private static final String PROCESS = FacebookUser.class.getName();
     private FacebookBolt facebookBolt = new FacebookBolt();
@@ -56,9 +56,9 @@ public class FacebookUser {
         Long name_uid = userJson.getLong(UID);
         String username = userJson.getString(USERNAME);
         Concept emailConcept = ontologyRepository.getConceptByName(EMAIL_ADDRESS, user);
-        GraphVertex userVertex = graphRepository.findVertexByTitleAndType(name_uid.toString(), VertexType.ENTITY, user);
+        GraphVertex userVertex = graphRepository.findVertexByExactTitle(name_uid.toString(), user);
         if (userVertex == null) {
-            userVertex = graphRepository.findVertexByTitleAndType(name, VertexType.ENTITY, user);
+            userVertex = graphRepository.findVertexByExactTitle(name, user);
             if (userVertex == null) {
                 LOGGER.error("Could not find user in system, with given profile_id.");
                 throw new RuntimeException();
@@ -68,7 +68,7 @@ public class FacebookUser {
             }
         }
         List<String> modifiedProperties = Lists.newArrayList
-                (PropertyName.TITLE.toString(), PropertyName.TYPE.toString(), PropertyName.SUBTYPE.toString(), PropertyName.DISPLAY_NAME.toString(), PROFILE_ID);
+                (PropertyName.TITLE.toString(), PropertyName.CONCEPT_TYPE.toString(), PropertyName.DISPLAY_NAME.toString(), PROFILE_ID);
 
 
         userVertex.setProperty(PropertyName.DISPLAY_NAME, username);
@@ -85,12 +85,11 @@ public class FacebookUser {
 
         if (userJson.has(EMAIL) && !userJson.getString(EMAIL).equals(JSONObject.NULL)) {
             String email = userJson.getString(EMAIL);
-            GraphVertex emailVertex = graphRepository.findVertexByPropertyAndType(EMAIL_ADDRESS, email, VertexType.ENTITY, user);
+            GraphVertex emailVertex = graphRepository.findVertexByProperty(EMAIL_ADDRESS, email, user);
             if (emailVertex == null) {
                 emailVertex = new InMemoryGraphVertex();
                 emailVertex.setProperty(PropertyName.TITLE, email);
-                emailVertex.setProperty(PropertyName.TYPE, VertexType.ENTITY.toString());
-                emailConcept.setProperty(PropertyName.SUBTYPE, emailConcept.getId());
+                emailConcept.setProperty(PropertyName.CONCEPT_TYPE, emailConcept.getId());
                 graphRepository.save(emailVertex, user);
                 auditRepository.auditEntity(AuditAction.CREATE.toString(), emailVertex.getId(), userVertex.getId(), email, emailConcept.getId(), PROCESS, "", user);
                 auditRepository.auditEntityProperties(AuditAction.UPDATE.toString(), emailVertex, PropertyName.TITLE.toString(), PROCESS, "", user);
@@ -141,7 +140,7 @@ public class FacebookUser {
             ArtifactExtractedInfo artifactExtractedInfo = new ArtifactExtractedInfo();
             artifactExtractedInfo.setMimeType("image/png");
             artifactExtractedInfo.setRowKey(rowKey);
-            artifactExtractedInfo.setArtifactType(ArtifactType.IMAGE.toString());
+            artifactExtractedInfo.setConceptType(FACEBOOK_PROFILE_IMAGE);
             artifactExtractedInfo.setTitle(facebookPictureTitle);
             artifactExtractedInfo.setSource(facebookPictureSource);
             artifactExtractedInfo.setProcess(PROCESS);
