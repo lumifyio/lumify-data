@@ -3,7 +3,6 @@ package com.altamiracorp.lumify.facebook;
 import com.altamiracorp.lumify.core.ingest.ArtifactExtractedInfo;
 import com.altamiracorp.lumify.core.model.artifact.Artifact;
 import com.altamiracorp.lumify.core.model.artifact.ArtifactRowKey;
-import com.altamiracorp.lumify.core.model.artifact.ArtifactType;
 import com.altamiracorp.lumify.core.model.audit.AuditAction;
 import com.altamiracorp.lumify.core.model.audit.AuditRepository;
 import com.altamiracorp.lumify.core.model.graph.GraphRepository;
@@ -12,7 +11,6 @@ import com.altamiracorp.lumify.core.model.graph.InMemoryGraphVertex;
 import com.altamiracorp.lumify.core.model.ontology.Concept;
 import com.altamiracorp.lumify.core.model.ontology.OntologyRepository;
 import com.altamiracorp.lumify.core.model.ontology.PropertyName;
-import com.altamiracorp.lumify.core.model.ontology.VertexType;
 import com.altamiracorp.lumify.core.user.User;
 import com.altamiracorp.lumify.core.util.HdfsLimitOutputStream;
 import com.altamiracorp.lumify.core.util.LumifyLogger;
@@ -32,6 +30,7 @@ public class FacebookPost {
     private static final String POSTED_RELATIONSHIP = "postPostedByProfile";
     private static final String MENTIONED_RELATIONSHIP = "postMentionedProfile";
     private static final String FACEBOOK = "Facebook";
+    private static final String FACEBOOK_POST = "post";
     private static final String MESSAGE = "message";
     private static final String AUTHOR_UID = "author_uid";
     private static final String FACEBOOK_PROFILE = "facebookProfile";
@@ -69,7 +68,7 @@ public class FacebookPost {
         artifactExtractedInfo.setRaw(post.toString().getBytes());
         artifactExtractedInfo.setMimeType("text/plain");
         artifactExtractedInfo.setRowKey(rowKey);
-        artifactExtractedInfo.setArtifactType(ArtifactType.DOCUMENT.toString());
+        artifactExtractedInfo.setConceptType(FACEBOOK_POST);
         artifactExtractedInfo.setAuthor(author_uid);
         artifactExtractedInfo.setDate(time);
         artifactExtractedInfo.setProcess(PROCESS);
@@ -96,18 +95,17 @@ public class FacebookPost {
         List<String> modifiedProperties = new ArrayList<String>();
 
         //create entities for each of the ids tagged or author and the relationships
-        GraphVertex authorVertex = graphRepository.findVertexByPropertyAndType(PROFILE_ID, author_uid, VertexType.ENTITY, user);
+        GraphVertex authorVertex = graphRepository.findVertexByProperty(PROFILE_ID, author_uid, user);
         if (authorVertex == null) {
             authorVertex = new InMemoryGraphVertex();
             authorVertex.setProperty(PROFILE_ID, author_uid);
             authorVertex.setProperty(PropertyName.TITLE.toString(), author_uid);
-            authorVertex.setProperty(PropertyName.TYPE.toString(), VertexType.ENTITY.toString());
-            authorVertex.setProperty(PropertyName.SUBTYPE.toString(), profileConceptId);
+            authorVertex.setProperty(PropertyName.CONCEPT_TYPE.toString(), profileConceptId);
             graphRepository.save(authorVertex, user);
             graphRepository.commit();
             auditRepository.auditEntity(AuditAction.CREATE.toString(), authorVertex.getId(), posting.getId(), profileConceptId, author_uid, PROCESS, "", user);
             auditRepository.auditEntityProperties(AuditAction.UPDATE.toString(), authorVertex, PROFILE_ID, PROCESS, "", user);
-            auditRepository.auditEntityProperties(AuditAction.UPDATE.toString(), authorVertex, PropertyName.TYPE.toString(), PROCESS, "", user);
+            auditRepository.auditEntityProperties(AuditAction.UPDATE.toString(), authorVertex, PropertyName.CONCEPT_TYPE.toString(), PROCESS, "", user);
         }
         graphRepository.saveRelationship(authorVertex.getId(), posting.getId(), POSTED_RELATIONSHIP, user);
         String postedRelationshipLabelDisplayName = ontologyRepository.getDisplayNameForLabel(POSTED_RELATIONSHIP, user);
@@ -116,18 +114,17 @@ public class FacebookPost {
             Iterator tagged = post.getJSONObject(TAGGEED_UIDS).keys();
             while (tagged.hasNext()) {
                 String next = tagged.next().toString();
-                GraphVertex taggedVertex = graphRepository.findVertexByPropertyAndType(PROFILE_ID, next, VertexType.ENTITY, user);
+                GraphVertex taggedVertex = graphRepository.findVertexByProperty(PROFILE_ID, next, user);
                 if (taggedVertex == null) {
                     taggedVertex = new InMemoryGraphVertex();
                     taggedVertex.setProperty(PROFILE_ID, next);
                     taggedVertex.setProperty(PropertyName.TITLE.toString(), next);
-                    taggedVertex.setProperty(PropertyName.TYPE.toString(), VertexType.ENTITY.toString());
-                    taggedVertex.setProperty(PropertyName.SUBTYPE.toString(), profileConceptId);
+                    taggedVertex.setProperty(PropertyName.CONCEPT_TYPE.toString(), profileConceptId);
                     graphRepository.save(taggedVertex, user);
                     graphRepository.commit();
                     auditRepository.auditEntity(AuditAction.CREATE.toString(), taggedVertex.getId(), posting.getId(), profileConceptId, next, PROCESS, "", user);
                     auditRepository.auditEntityProperties(AuditAction.UPDATE.toString(), taggedVertex, PROFILE_ID, PROCESS, "", user);
-                    auditRepository.auditEntityProperties(AuditAction.UPDATE.toString(), taggedVertex, PropertyName.TYPE.toString(), PROCESS, "", user);
+                    auditRepository.auditEntityProperties(AuditAction.UPDATE.toString(), taggedVertex, PropertyName.CONCEPT_TYPE.toString(), PROCESS, "", user);
                 }
                 graphRepository.saveRelationship(posting.getId(), taggedVertex.getId(), MENTIONED_RELATIONSHIP, user);
                 String mentionedRelationshipLabelDisplayName = ontologyRepository.getDisplayNameForLabel(MENTIONED_RELATIONSHIP, user);

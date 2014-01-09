@@ -1,7 +1,6 @@
 package com.altamiracorp.lumify.search;
 
 import com.altamiracorp.lumify.core.model.search.ArtifactSearchResult;
-import com.altamiracorp.lumify.core.model.artifact.ArtifactType;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -25,7 +24,7 @@ public class ArtifactSearchResultTest {
 
     @Before
     public void setUp() throws Exception {
-        asr = new ArtifactSearchResult(sampleRowKey, sampleSubject, sampleDate, sampleSource, ArtifactType.DOCUMENT, graphVertexId);
+        asr = new ArtifactSearchResult(sampleRowKey, sampleSubject, sampleDate, sampleSource, graphVertexId);
     }
 
     @Test

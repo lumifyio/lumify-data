@@ -22,7 +22,6 @@ import com.altamiracorp.lumify.core.model.audit.AuditAction;
 import com.altamiracorp.lumify.core.model.graph.GraphVertex;
 import com.altamiracorp.lumify.core.model.graph.InMemoryGraphVertex;
 import com.altamiracorp.lumify.core.model.ontology.Concept;
-import com.altamiracorp.lumify.core.model.ontology.VertexType;
 import com.altamiracorp.lumify.core.model.termMention.TermMention;
 import com.altamiracorp.lumify.core.user.User;
 import com.altamiracorp.lumify.core.util.LumifyLogger;
@@ -73,13 +72,13 @@ public abstract class BaseTwitterEntityCreationBolt extends BaseTwitterForkBolt 
             GraphVertex conceptVertex = graphRepository.findVertex(conceptId, user);
             GraphVertex tweetVertex = graphRepository.findVertex(tweetVertexId, user);
             List<TermMention> termMentions = TermRegexFinder.find(tweetVertexId, conceptVertex, tweetText, termRegex);
-            List<String> modifiedProps = Lists.newArrayList(TITLE.toString(), ROW_KEY.toString(), TYPE.toString(), SUBTYPE.toString());
+            List<String> modifiedProps = Lists.newArrayList(TITLE.toString(), ROW_KEY.toString(), CONCEPT_TYPE.toString());
 
             for (TermMention mention : termMentions) {
                 String sign = mention.getMetadata().getSign().toLowerCase();
                 String rowKey = mention.getRowKey().toString();
 
-                GraphVertex termVertex = graphRepository.findVertexByTitleAndType(sign, VertexType.ENTITY, user);
+                GraphVertex termVertex = graphRepository.findVertexByExactTitle(sign, user);
 
                 boolean newVertex = false;
                 if (termVertex == null) {
@@ -88,8 +87,7 @@ public abstract class BaseTwitterEntityCreationBolt extends BaseTwitterForkBolt 
                 }
                 termVertex.setProperty(TITLE, sign);
                 termVertex.setProperty(ROW_KEY, rowKey);
-                termVertex.setProperty(TYPE, VertexType.ENTITY.toString());
-                termVertex.setProperty(SUBTYPE, conceptId);
+                termVertex.setProperty(CONCEPT_TYPE, conceptId);
                 graphRepository.save(termVertex, getUser());
                 String termId = termVertex.getId();
 
