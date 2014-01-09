@@ -10,7 +10,10 @@ import com.altamiracorp.lumify.core.ingest.term.extraction.TermExtractionWorker;
 import com.altamiracorp.lumify.core.model.audit.AuditAction;
 import com.altamiracorp.lumify.core.model.graph.GraphVertex;
 import com.altamiracorp.lumify.core.model.graph.InMemoryGraphVertex;
-import com.altamiracorp.lumify.core.model.ontology.*;
+import com.altamiracorp.lumify.core.model.ontology.Concept;
+import com.altamiracorp.lumify.core.model.ontology.LabelName;
+import com.altamiracorp.lumify.core.model.ontology.OntologyRepository;
+import com.altamiracorp.lumify.core.model.ontology.PropertyName;
 import com.altamiracorp.lumify.core.model.termMention.TermMention;
 import com.altamiracorp.lumify.core.model.termMention.TermMentionRepository;
 import com.altamiracorp.lumify.core.model.termMention.TermMentionRowKey;
@@ -115,9 +118,10 @@ public class TermExtractionBolt extends BaseTextProcessingBolt {
 
             Concept concept = ontologyRepository.getConceptByName(termMention.getOntologyClassUri(), getUser());
             if (concept != null) {
-                termMentionModel.getMetadata().setConceptGraphVertexId(concept.getId());
+                termMentionModel.getMetadata().setConceptGraphVertexId(concept.getId().toString());
             } else {
                 LOGGER.error("Could not find ontology graph vertex '%s'", termMention.getOntologyClassUri());
+                continue;
             }
 
             if (termMention.isResolved()) {
@@ -146,7 +150,7 @@ public class TermExtractionBolt extends BaseTextProcessingBolt {
                 String resolvedEntityGraphVertexId = graphRepository.saveVertex(vertex, getUser());
 
                 if (newVertex) {
-                    auditRepository.auditEntity(AuditAction.CREATE.toString(), vertex.getId(), artifactGraphVertexId, title, concept.getId(), termMention.getProcess(), "", getUser());
+                    auditRepository.auditEntity(AuditAction.CREATE.toString(), vertex.getId(), artifactGraphVertexId, title, concept.getId().toString(), termMention.getProcess(), "", getUser());
                 }
 
                 for (String property : modifiedProperties) {

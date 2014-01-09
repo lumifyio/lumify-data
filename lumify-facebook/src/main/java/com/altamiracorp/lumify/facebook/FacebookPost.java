@@ -17,6 +17,7 @@ import com.altamiracorp.lumify.core.util.LumifyLogger;
 import com.altamiracorp.lumify.core.util.LumifyLoggerFactory;
 import com.thinkaurelius.titan.core.attribute.Geoshape;
 import org.json.JSONObject;
+
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.Iterator;
@@ -62,7 +63,7 @@ public class FacebookPost {
         if (textOut.hasExceededSizeLimit()) {
             artifactExtractedInfo.setTextHdfsPath(textOut.getHdfsPath().toString());
         } else {
-            artifactExtractedInfo.setText(new String (textOut.getSmall()));
+            artifactExtractedInfo.setText(new String(textOut.getSmall()));
         }
         artifactExtractedInfo.setSource(FACEBOOK);
         artifactExtractedInfo.setRaw(post.toString().getBytes());
@@ -86,12 +87,12 @@ public class FacebookPost {
         return artifactExtractedInfo;
     }
 
-    protected GraphVertex processPostVertex (JSONObject post, GraphVertex posting, GraphRepository graphRepository, AuditRepository auditRepository, OntologyRepository ontologyRepository, User user) throws Exception {
+    protected GraphVertex processPostVertex(JSONObject post, GraphVertex posting, GraphRepository graphRepository, AuditRepository auditRepository, OntologyRepository ontologyRepository, User user) throws Exception {
         Long name_uid = post.getLong(AUTHOR_UID);
         String author_uid = name_uid.toString();
         LOGGER.info("Saving Facebook post to accumulo and as graph vertex: ", posting.getId());
         Concept profileConcept = ontologyRepository.getConceptByName(FACEBOOK_PROFILE, user);
-        String profileConceptId = profileConcept.getId();
+        String profileConceptId = profileConcept.getId().toString();
         List<String> modifiedProperties = new ArrayList<String>();
 
         //create entities for each of the ids tagged or author and the relationships

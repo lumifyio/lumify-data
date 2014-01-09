@@ -64,7 +64,7 @@ public abstract class BaseTwitterEntityCreationBolt extends BaseTwitterForkBolt 
         if (tweetText != null && !tweetText.trim().isEmpty()) {
             User user = getUser();
             Concept concept = ontologyRepository.getConceptByName(getConceptName(), user);
-            String conceptId = concept.getId();
+            String conceptId = concept.getId().toString();
             String termRegex = getTermRegex();
             String relationshipLabel = getRelationshipLabel();
             String relationshipDisplayName = ontologyRepository.getDisplayNameForLabel(relationshipLabel, user);
