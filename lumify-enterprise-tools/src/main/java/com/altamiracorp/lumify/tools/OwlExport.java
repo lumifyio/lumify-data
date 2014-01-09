@@ -146,23 +146,23 @@ public class OwlExport extends CommandLineBase {
         classElem.setAttributeNS(NS_RDF.getURI(), "rdf:about", concept.getTitle());
         classElem.appendChild(createLabelElement(doc, concept.getDisplayName()));
 
-        for (String propertyName : concept.getPropertyKeys()) {
-            if (propertyName.equals(PropertyName.ONTOLOGY_TITLE.toString())) {
+        for (com.altamiracorp.securegraph.Property property : concept.getVertex().getProperties()) {
+            if (property.getName().equals(PropertyName.ONTOLOGY_TITLE.toString())) {
                 continue;
             }
-            if (propertyName.equals(PropertyName.DISPLAY_NAME.toString())) {
+            if (property.getName().equals(PropertyName.DISPLAY_NAME.toString())) {
                 continue;
             }
-            if (propertyName.equals(PropertyName.CONCEPT_TYPE.toString())) {
+            if (property.getName().equals(PropertyName.CONCEPT_TYPE.toString())) {
                 continue;
             }
-            classElem.appendChild(createPropertyElement(doc, propertyName, concept.getProperty(propertyName)));
+            classElem.appendChild(createPropertyElement(doc, property.getName(), property.getValue().toString()));
         }
         if (parentConcept != null) {
             classElem.appendChild(createSubClassOfElement(doc, parentConcept));
         }
 
-        List<Property> properties = ontologyRepository.getPropertiesByConceptIdNoRecursion(concept.getId(), getUser());
+        List<Property> properties = ontologyRepository.getPropertiesByConceptIdNoRecursion(concept.getId().toString(), getUser());
         for (Property property : properties) {
             elems.add(createDatatypePropertyElement(doc, property, concept));
         }
