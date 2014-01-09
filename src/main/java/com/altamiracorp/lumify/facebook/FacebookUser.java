@@ -8,7 +8,10 @@ import com.altamiracorp.lumify.core.model.audit.AuditRepository;
 import com.altamiracorp.lumify.core.model.graph.GraphRepository;
 import com.altamiracorp.lumify.core.model.graph.GraphVertex;
 import com.altamiracorp.lumify.core.model.graph.InMemoryGraphVertex;
-import com.altamiracorp.lumify.core.model.ontology.*;
+import com.altamiracorp.lumify.core.model.ontology.Concept;
+import com.altamiracorp.lumify.core.model.ontology.LabelName;
+import com.altamiracorp.lumify.core.model.ontology.OntologyRepository;
+import com.altamiracorp.lumify.core.model.ontology.PropertyName;
 import com.altamiracorp.lumify.core.user.User;
 import com.altamiracorp.lumify.core.util.LumifyLogger;
 import com.altamiracorp.lumify.core.util.LumifyLoggerFactory;
@@ -18,6 +21,7 @@ import org.apache.commons.io.IOUtils;
 import org.apache.hadoop.fs.FSDataOutputStream;
 import org.apache.hadoop.fs.Path;
 import org.json.JSONObject;
+
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -89,9 +93,9 @@ public class FacebookUser {
             if (emailVertex == null) {
                 emailVertex = new InMemoryGraphVertex();
                 emailVertex.setProperty(PropertyName.TITLE, email);
-                emailConcept.setProperty(PropertyName.CONCEPT_TYPE, emailConcept.getId());
+                emailVertex.setProperty(PropertyName.CONCEPT_TYPE, emailConcept.getId());
                 graphRepository.save(emailVertex, user);
-                auditRepository.auditEntity(AuditAction.CREATE.toString(), emailVertex.getId(), userVertex.getId(), email, emailConcept.getId(), PROCESS, "", user);
+                auditRepository.auditEntity(AuditAction.CREATE.toString(), emailVertex.getId(), userVertex.getId(), email, emailConcept.getId().toString(), PROCESS, "", user);
                 auditRepository.auditEntityProperties(AuditAction.UPDATE.toString(), emailVertex, PropertyName.TITLE.toString(), PROCESS, "", user);
 
             }
@@ -127,7 +131,7 @@ public class FacebookUser {
     public ArtifactExtractedInfo createProfilePhotoArtifact(JSONObject userJson, GraphVertex userVertex) {
         ByteArrayOutputStream os = new ByteArrayOutputStream();
         String picUrl = userJson.get(PIC).toString();
-        String facebookPictureTitle= userJson.getString(NAME) + " Facebook Profile Picture";
+        String facebookPictureTitle = userJson.getString(NAME) + " Facebook Profile Picture";
         String facebookPictureSource = "Facebook profile picture";
         try {
             URL url = new URL(picUrl);
@@ -156,7 +160,7 @@ public class FacebookUser {
             } else {
                 artifactExtractedInfo.setRaw(raw);
             }
-            return  artifactExtractedInfo;
+            return artifactExtractedInfo;
         } catch (IOException e) {
             LOGGER.warn("Failed to create image for vertex: %s", userVertex.getId());
             new IOException(e);
@@ -164,7 +168,7 @@ public class FacebookUser {
         return null;
     }
 
-    protected void createProfilePhotoVertex (GraphVertex picture, GraphVertex userVertex, GraphRepository graphRepository, AuditRepository auditRepository, User user) {
+    protected void createProfilePhotoVertex(GraphVertex picture, GraphVertex userVertex, GraphRepository graphRepository, AuditRepository auditRepository, User user) {
         List<String> modifiedProperties = new ArrayList<String>();
         List<GraphVertex> postings = graphRepository.getRelatedVertices(userVertex.getId(), user);
         userVertex.setProperty(PropertyName.GLYPH_ICON.toString(), "/artifact/" + picture.getProperty(PropertyName.ROW_KEY).toString() + "/raw");
@@ -177,7 +181,7 @@ public class FacebookUser {
 //        return modifiedProperties;
     }
 
-    public void setFacebookBolt (FacebookBolt bolt) {
+    public void setFacebookBolt(FacebookBolt bolt) {
         this.facebookBolt = bolt;
     }
 }
