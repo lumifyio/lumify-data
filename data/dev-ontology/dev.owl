@@ -6,13 +6,6 @@
         <owl:versionInfo xml:lang="en">Version 3.8</owl:versionInfo>
     </owl:Ontology>
     
-<!-- Concept: Raw --> 
-	 <owl:Class rdf:about="raw">
-        <rdfs:label xml:lang="en">Raw</rdfs:label>
-        <atc:property atc:name="_color">rgb(28, 137, 28)</atc:property>
-        <rdfs:subClassOf rdf:resource="http://altamiracorp.com/ontology/entity"/>
-    </owl:Class>
-    
 <!-- Concept: Document -->
     <owl:Class rdf:about="document">
         <rdfs:label xml:lang="en">Document</rdfs:label>
