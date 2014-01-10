@@ -26,47 +26,19 @@ import java.nio.charset.Charset;
  */
 public interface TwitterConstants {
     /**
-     * The name of the Tuple field containing the tweet text.
+     * The Tweet Concept name.
      */
-    static final String TWEET_TEXT_FIELD = "tweet-text";
-    
-    /**
-     * The name of the Tuple field containing the Vertex ID of the
-     * processed Tweet.
-     */
-    static final String TWEET_VERTEX_ID_FIELD = "tweet-vertex-id";
-    
-    /**
-     * The name of the Tuple field containing the title property of
-     * the Tweet vertex.
-     */
-    static final String TWEET_VERTEX_TITLE_FIELD = "tweet-vertex-title";
-    
-    /**
-     * The name of the Tuple field containing the Vertex ID of the processed
-     * Twitter user.
-     */
-    static final String TWITTER_USER_VERTEX_ID_FIELD = "tweeter-vertex-id";
-    
-    /**
-     * The name of the Tuple field containing the Twitter user JSONObject.
-     */
-    static final String TWITTER_USER_JSON_FIELD = "tweeter-json";
-    
-    /**
-     * The name of the Tuple field containing the bolt ID.
-     */
-    static final String TWITTER_BOLT_ID_FIELD = "bolt-id";
-    
-    /**
-     * The Twitter Date format string.
-     */
-    static final String TWITTER_DATE_FORMAT_STR = "EEE MMM dd HH:mm:ss ZZZZZ yyyy";
+    static final String CONCEPT_TWEET = "tweet";
     
     /**
      * The Twitter Handle (user) concept name.
      */
     static final String CONCEPT_TWITTER_HANDLE = "twitterHandle";
+    
+    /**
+     * The Twitter Profile Image concept name.
+     */
+    static final String CONCEPT_TWITTER_PROFILE_IMAGE = "tweeterProfileImage";
     
     /**
      * The Twitter Mention concept name.
@@ -102,11 +74,6 @@ public interface TwitterConstants {
      * The Tweet URL relationship label.
      */
     static final String TWEET_URL_RELATIONSHIP = "tweetHasURL";
-    
-    /**
-     * The Twitter user screen name property.
-     */
-    static final String SCREEN_NAME_PROPERTY = "screen_name";
     
     /**
      * The Twitter Character Set.

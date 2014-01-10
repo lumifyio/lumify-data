@@ -27,7 +27,6 @@ import com.altamiracorp.lumify.core.ingest.ArtifactExtractedInfo;
 import com.altamiracorp.lumify.core.ingest.term.extraction.TermRegexFinder;
 import com.altamiracorp.lumify.core.model.artifact.ArtifactRepository;
 import com.altamiracorp.lumify.core.model.artifact.ArtifactRowKey;
-import com.altamiracorp.lumify.core.model.artifact.ArtifactType;
 import com.altamiracorp.lumify.core.model.audit.AuditAction;
 import com.altamiracorp.lumify.core.model.audit.AuditRepository;
 import com.altamiracorp.lumify.core.model.graph.GraphRepository;
@@ -37,8 +36,6 @@ import com.altamiracorp.lumify.core.model.ontology.Concept;
 import com.altamiracorp.lumify.core.model.ontology.LabelName;
 import com.altamiracorp.lumify.core.model.ontology.OntologyRepository;
 import com.altamiracorp.lumify.core.model.ontology.PropertyName;
-import com.altamiracorp.lumify.core.model.ontology.VertexType;
-import com.altamiracorp.lumify.core.model.search.SearchProvider;
 import com.altamiracorp.lumify.core.model.termMention.TermMention;
 import com.altamiracorp.lumify.core.model.termMention.TermMentionMetadata;
 import com.altamiracorp.lumify.core.model.termMention.TermMentionRepository;
@@ -127,8 +124,6 @@ public class DefaultLumifyTwitterProcessorTest {
     @Mock
     private WorkQueueRepository workQueueRepository;
     @Mock
-    private SearchProvider searchProvider;
-    @Mock
     private UrlStreamCreator urlStreamCreator;
     @Mock
     private ModelUserContext modelUserContext;
@@ -182,7 +177,6 @@ public class DefaultLumifyTwitterProcessorTest {
         instance.setTermMentionRepository(termMentionRepository);
         instance.setWorkQueueRepository(workQueueRepository);
         instance.setUrlStreamCreator(urlStreamCreator);
-        instance.setSearchProvider(searchProvider);
         Whitebox.setInternalState(DefaultLumifyTwitterProcessor.class, logger);
         
         when(user.getModelUserContext()).thenReturn(modelUserContext);
@@ -296,7 +290,7 @@ public class DefaultLumifyTwitterProcessorTest {
                 .raw(jsonBytes)
                 .mimeType("text/plain")
                 .rowKey(rowKey)
-                .artifactType(ArtifactType.DOCUMENT.toString())
+                .conceptType(CONCEPT_TWEET)
                 .title(TEST_TWEET_TEXT)
                 .author(TEST_USER_SCREEN_NAME)
                 .source("Twitter")
@@ -306,38 +300,6 @@ public class DefaultLumifyTwitterProcessorTest {
         
         GraphVertex vertex = instance.parseTweet(TEST_PROCESS_ID, tweet);
         
-        verify(searchProvider).add(eq(tweetVertex), argThat(containsBytes(TEST_TWEET_TEXT_BYTES)));
-        verify(graphRepository, never()).save(any(GraphVertex.class), any(User.class));
-        verify(auditRepository, never()).auditEntityProperties(anyString(), any(GraphVertex.class), anyString(), anyString(), anyString(),
-                any(User.class));
-        assertEquals(tweetVertex, vertex);
-    }
-    
-    @Test(expected=IOException.class)
-    public void testParseTweet_SearchProviderErrors() throws Exception {
-        JSONObject tweet = new JSONObject();
-        JSON_TEXT_PROPERTY.setOn(tweet, TEST_TWEET_TEXT);
-        JSON_USER_PROPERTY.setOn(tweet, buildScreenNameOnlyUser());
-        
-        byte[] jsonBytes = tweet.toString().getBytes(TWITTER_CHARSET);
-        String rowKey = ArtifactRowKey.build(jsonBytes).toString();
-        ArtifactExtractedInfo expectedArtifactInfo = new ArtifactExtractedInfo()
-                .text(TEST_TWEET_TEXT)
-                .raw(jsonBytes)
-                .mimeType("text/plain")
-                .rowKey(rowKey)
-                .artifactType(ArtifactType.DOCUMENT.toString())
-                .title(TEST_TWEET_TEXT)
-                .author(TEST_USER_SCREEN_NAME)
-                .source("Twitter")
-                .process(TEST_PROCESS_ID);
-        
-        when(artifactRepository.saveArtifact(expectedArtifactInfo, user)).thenReturn(tweetVertex);
-        doThrow(IOException.class).when(searchProvider).add(eq(tweetVertex), argThat(containsBytes(TEST_TWEET_TEXT_BYTES)));
-        
-        GraphVertex vertex = instance.parseTweet(TEST_PROCESS_ID, tweet);
-        
-        verify(searchProvider).add(eq(tweetVertex), argThat(containsBytes(TEST_TWEET_TEXT_BYTES)));
         verify(graphRepository, never()).save(any(GraphVertex.class), any(User.class));
         verify(auditRepository, never()).auditEntityProperties(anyString(), any(GraphVertex.class), anyString(), anyString(), anyString(),
                 any(User.class));
@@ -360,7 +322,7 @@ public class DefaultLumifyTwitterProcessorTest {
                 .raw(jsonBytes)
                 .mimeType("text/plain")
                 .rowKey(rowKey)
-                .artifactType(ArtifactType.DOCUMENT.toString())
+                .conceptType(CONCEPT_TWEET)
                 .title(TEST_TWEET_TEXT)
                 .author(TEST_USER_SCREEN_NAME)
                 .source("Twitter")
@@ -371,7 +333,6 @@ public class DefaultLumifyTwitterProcessorTest {
         
         GraphVertex vertex = instance.parseTweet(TEST_PROCESS_ID, tweet);
         
-        verify(searchProvider).add(eq(tweetVertex), argThat(containsBytes(TEST_TWEET_TEXT_BYTES)));
         verify(tweetVertex).setProperty(PropertyName.GEO_LOCATION.toString(), TEST_TWEET_COORDS);
         verify(tweetVertex).setProperty(LUMIFY_FAVORITE_COUNT_PROPERTY, TEST_TWEET_FAVORITE_COUNT);
         verify(graphRepository).save(tweetVertex, user);
@@ -390,7 +351,7 @@ public class DefaultLumifyTwitterProcessorTest {
                 .raw(FULL_TWEET_BYTES)
                 .mimeType("text/plain")
                 .rowKey(rowKey)
-                .artifactType(ArtifactType.DOCUMENT.toString())
+                .conceptType(CONCEPT_TWEET)
                 .title(TEST_TWEET_TEXT)
                 .author(TEST_USER_SCREEN_NAME)
                 .source("Twitter")
@@ -401,7 +362,6 @@ public class DefaultLumifyTwitterProcessorTest {
         
         GraphVertex vertex = instance.parseTweet(TEST_PROCESS_ID, FULL_TWEET);
         
-        verify(searchProvider).add(eq(tweetVertex), argThat(containsBytes(TEST_TWEET_TEXT_BYTES)));
         verify(tweetVertex).setProperty(PropertyName.GEO_LOCATION.toString(), TEST_TWEET_COORDS);
         verify(tweetVertex).setProperty(LUMIFY_FAVORITE_COUNT_PROPERTY, TEST_TWEET_FAVORITE_COUNT);
         verify(tweetVertex).setProperty(LUMIFY_RETWEET_COUNT_PROPERTY, TEST_TWEET_RETWEET_COUNT);
@@ -512,7 +472,7 @@ public class DefaultLumifyTwitterProcessorTest {
         JSONObject tweet = new JSONObject();
         JSON_USER_PROPERTY.setOn(tweet, buildScreenNameOnlyUser());
         
-        when(graphRepository.findVertexByTitleAndType(TEST_USER_SCREEN_NAME, VertexType.ENTITY, user)).thenReturn(null);
+        when(graphRepository.findVertexByExactTitle(TEST_USER_SCREEN_NAME, user)).thenReturn(null);
         
         InMemoryGraphVertex newUser = mock(InMemoryGraphVertex.class);
         String newUserId = "newUserId";
@@ -591,9 +551,9 @@ public class DefaultLumifyTwitterProcessorTest {
         when(newTerm.getId()).thenReturn(newTermId);
         
         // sign1 is an existing term with a new mention
-        when(graphRepository.findVertexByTitleAndType(sign1, VertexType.ENTITY, user)).thenReturn(existingTerm);
+        when(graphRepository.findVertexByExactTitle(sign1, user)).thenReturn(existingTerm);
         // sign2 is a new term
-        when(graphRepository.findVertexByTitleAndType(sign2, VertexType.ENTITY, user)).thenReturn(null);
+        when(graphRepository.findVertexByExactTitle(sign2, user)).thenReturn(null);
         
         PowerMockito.mockStatic(TermRegexFinder.class);
         when(TermRegexFinder.find(TWEET_VERTEX_ID, handleConceptVertex, TEST_TWEET_TEXT, TEST_ENTITY_TYPE.getTermRegex())).
@@ -605,8 +565,7 @@ public class DefaultLumifyTwitterProcessorTest {
         // verify existing term is updated with new mention
         verify(existingTerm).setProperty(PropertyName.TITLE, sign1);
         verify(existingTerm).setProperty(PropertyName.ROW_KEY, key1);
-        verify(existingTerm).setProperty(PropertyName.TYPE, VertexType.ENTITY.toString());
-        verify(existingTerm).setProperty(PropertyName.SUBTYPE, HANDLE_CONCEPT_ID);
+        verify(existingTerm).setProperty(PropertyName.CONCEPT_TYPE, HANDLE_CONCEPT_ID);
         verify(graphRepository).save(existingTerm, user);
         verify(auditRepository, never()).auditEntity(eq(AuditAction.CREATE.toString()), eq(existingTermId), eq(TWEET_VERTEX_ID),
                 eq(sign1), eq(HANDLE_CONCEPT_ID), eq(TEST_PROCESS_ID), anyString(), eq(user));
@@ -615,9 +574,7 @@ public class DefaultLumifyTwitterProcessorTest {
         verify(auditRepository).auditEntityProperties(eq(AuditAction.UPDATE.toString()), eq(existingTerm),
                 eq(PropertyName.ROW_KEY.toString()), eq(TEST_PROCESS_ID), anyString(), eq(user));
         verify(auditRepository).auditEntityProperties(eq(AuditAction.UPDATE.toString()), eq(existingTerm),
-                eq(PropertyName.TYPE.toString()), eq(TEST_PROCESS_ID), anyString(), eq(user));
-        verify(auditRepository).auditEntityProperties(eq(AuditAction.UPDATE.toString()), eq(existingTerm),
-                eq(PropertyName.SUBTYPE.toString()), eq(TEST_PROCESS_ID), anyString(), eq(user));
+                eq(PropertyName.CONCEPT_TYPE.toString()), eq(TEST_PROCESS_ID), anyString(), eq(user));
         verify(md1).setGraphVertexId(existingTermId);
         verify(termMentionRepository).save(mention1, modelUserContext);
         verify(graphRepository).saveRelationship(TWEET_VERTEX_ID, existingTermId, TEST_ENTITY_TYPE.getRelationshipLabel(), user);
@@ -627,8 +584,7 @@ public class DefaultLumifyTwitterProcessorTest {
         // verify new term is created
         verify(newTerm).setProperty(PropertyName.TITLE, sign2);
         verify(newTerm).setProperty(PropertyName.ROW_KEY, key2);
-        verify(newTerm).setProperty(PropertyName.TYPE, VertexType.ENTITY.toString());
-        verify(newTerm).setProperty(PropertyName.SUBTYPE, HANDLE_CONCEPT_ID);
+        verify(newTerm).setProperty(PropertyName.CONCEPT_TYPE, HANDLE_CONCEPT_ID);
         verify(graphRepository).save(newTerm, user);
         verify(auditRepository).auditEntity(eq(AuditAction.CREATE.toString()), eq(newTermId), eq(TWEET_VERTEX_ID),
                 eq(sign2), eq(HANDLE_CONCEPT_ID), eq(TEST_PROCESS_ID), anyString(), eq(user));
@@ -637,9 +593,7 @@ public class DefaultLumifyTwitterProcessorTest {
         verify(auditRepository).auditEntityProperties(eq(AuditAction.UPDATE.toString()), eq(newTerm),
                 eq(PropertyName.ROW_KEY.toString()), eq(TEST_PROCESS_ID), anyString(), eq(user));
         verify(auditRepository).auditEntityProperties(eq(AuditAction.UPDATE.toString()), eq(newTerm),
-                eq(PropertyName.TYPE.toString()), eq(TEST_PROCESS_ID), anyString(), eq(user));
-        verify(auditRepository).auditEntityProperties(eq(AuditAction.UPDATE.toString()), eq(newTerm),
-                eq(PropertyName.SUBTYPE.toString()), eq(TEST_PROCESS_ID), anyString(), eq(user));
+                eq(PropertyName.CONCEPT_TYPE.toString()), eq(TEST_PROCESS_ID), anyString(), eq(user));
         verify(md2).setGraphVertexId(newTermId);
         verify(termMentionRepository).save(mention2, modelUserContext);
         verify(graphRepository).saveRelationship(TWEET_VERTEX_ID, newTermId, TEST_ENTITY_TYPE.getRelationshipLabel(), user);
@@ -742,7 +696,7 @@ public class DefaultLumifyTwitterProcessorTest {
         ArtifactExtractedInfo expectedInfo = new ArtifactExtractedInfo()
                 .mimeType("image/png")
                 .rowKey(rowKeyStr)
-                .artifactType(ArtifactType.IMAGE.toString())
+                .conceptType(CONCEPT_TWITTER_PROFILE_IMAGE)
                 .title(TEST_USER_SCREEN_NAME + " Twitter Profile Picture")
                 .source("Twitter Profile Picture")
                 .process(TEST_PROCESS_ID)
@@ -809,7 +763,6 @@ public class DefaultLumifyTwitterProcessorTest {
         assertNull(vertex);
         verify(artifactRepository, never()).saveArtifact(any(ArtifactExtractedInfo.class), any(User.class));
         verify(graphRepository, never()).save(any(GraphVertex.class), any(User.class));
-        verify(searchProvider, never()).add(any(GraphVertex.class), any(InputStream.class));
         verify(auditRepository, never()).auditEntityProperties(anyString(), any(GraphVertex.class), anyString(), anyString(), anyString(),
                 any(User.class));
     }
@@ -831,22 +784,18 @@ public class DefaultLumifyTwitterProcessorTest {
     }
     
     private void doSimpleUserTest(final JSONObject input, final GraphVertex mockVertex, final boolean vertexExists) {
-        when(graphRepository.findVertexByTitleAndType(TEST_USER_SCREEN_NAME, VertexType.ENTITY, user)).
-                thenReturn(vertexExists ? mockVertex : null);
+        when(graphRepository.findVertexByExactTitle(TEST_USER_SCREEN_NAME, user)).thenReturn(vertexExists ? mockVertex : null);
         
         GraphVertex vertex = instance.parseTwitterUser(TEST_PROCESS_ID, input, tweetVertex);
         
         assertEquals(mockVertex, vertex);
         verify(mockVertex).setProperty(PropertyName.TITLE, TEST_USER_SCREEN_NAME);
-        verify(mockVertex).setProperty(PropertyName.TYPE, VertexType.ENTITY.toString());
-        verify(mockVertex).setProperty(PropertyName.SUBTYPE, HANDLE_CONCEPT_ID);
+        verify(mockVertex).setProperty(PropertyName.CONCEPT_TYPE, HANDLE_CONCEPT_ID);
         verify(graphRepository).save(mockVertex, user);
         verify(auditRepository).auditEntityProperties(eq(AuditAction.UPDATE.toString()), eq(mockVertex),
                 eq(PropertyName.TITLE.toString()), eq(TEST_PROCESS_ID), anyString(), eq(user));
         verify(auditRepository).auditEntityProperties(eq(AuditAction.UPDATE.toString()), eq(mockVertex),
-                eq(PropertyName.TYPE.toString()), eq(TEST_PROCESS_ID), anyString(), eq(user));
-        verify(auditRepository).auditEntityProperties(eq(AuditAction.UPDATE.toString()), eq(mockVertex),
-                eq(PropertyName.SUBTYPE.toString()), eq(TEST_PROCESS_ID), anyString(), eq(user));
+                eq(PropertyName.CONCEPT_TYPE.toString()), eq(TEST_PROCESS_ID), anyString(), eq(user));
         verify(graphRepository).saveRelationship(mockVertex.getId(), TWEET_VERTEX_ID, TWEETED_RELATIONSHIP,
                 user);
         verify(auditRepository).auditRelationships(eq(AuditAction.CREATE.toString()), eq(mockVertex), eq(tweetVertex),
@@ -868,7 +817,7 @@ public class DefaultLumifyTwitterProcessorTest {
     }
     
     private void doNoTermVerifies() {
-        verify(graphRepository, never()).findVertexByTitleAndType(anyString(), any(VertexType.class), any(User.class));
+        verify(graphRepository, never()).findVertexByExactTitle(anyString(), any(User.class));
         verify(graphRepository, never()).save(any(GraphVertex.class), any(User.class));
         verify(graphRepository, never()).saveRelationship(anyString(), anyString(), anyString(), any(User.class));
         verify(termMentionRepository, never()).save(any(TermMention.class), any(ModelUserContext.class));
