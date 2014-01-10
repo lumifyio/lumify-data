@@ -178,11 +178,11 @@ public class TwitterStreamingBoltTest extends BaseTwitterBoltTest<TwitterStreami
 //        when(hashtagConceptVertex.getProperty(PropertyName.DISPLAY_NAME)).thenReturn("");
 //
 //        GraphVertex shopping = mock(GraphVertex.class);
-//        when(graphRepository.findVertexByTitleAndType("shopping", VertexType.ENTITY, systemUser)).thenReturn(shopping);
+//        when(graphRepository.findVertexByTitleAndType("shopping", VertexType.TYPE_ENTITY, systemUser)).thenReturn(shopping);
 //        when(shopping.getId()).thenReturn("");
 //
 //        GraphVertex url = mock(GraphVertex.class);
-//        when(graphRepository.findVertexByTitleAndType("http://t.co/egshzkxh", VertexType.ENTITY, systemUser)).thenReturn(url);
+//        when(graphRepository.findVertexByTitleAndType("http://t.co/egshzkxh", VertexType.TYPE_ENTITY, systemUser)).thenReturn(url);
 //        when(url.getId()).thenReturn("");
 
         testBolt.safeExecute(tuple);
