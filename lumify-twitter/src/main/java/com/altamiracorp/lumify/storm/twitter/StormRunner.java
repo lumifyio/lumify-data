@@ -4,11 +4,9 @@ import backtype.storm.Config;
 import backtype.storm.generated.StormTopology;
 import backtype.storm.topology.BoltDeclarer;
 import backtype.storm.topology.TopologyBuilder;
-import com.altamiracorp.lumify.core.bootstrap.InjectHelper;
 import com.altamiracorp.lumify.storm.BaseFileSystemSpout;
 import com.altamiracorp.lumify.storm.HdfsFileSystemSpout;
 import com.altamiracorp.lumify.storm.StormRunnerBase;
-import com.altamiracorp.lumify.twitter.LumifyTwitterProcessor;
 import com.altamiracorp.lumify.twitter.TwitterConstants;
 import com.altamiracorp.lumify.twitter.TwitterEntityType;
 import com.altamiracorp.lumify.twitter.storm.TweetEntityExtractionBolt;
@@ -16,7 +14,6 @@ import com.altamiracorp.lumify.twitter.storm.TweetKafkaSpout;
 import com.altamiracorp.lumify.twitter.storm.TweetQueueOutputBolt;
 import com.altamiracorp.lumify.twitter.storm.TwitterProfilePhotoBolt;
 import com.altamiracorp.lumify.twitter.storm.TwitterUserParsingBolt;
-import com.google.common.base.Preconditions;
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.OptionBuilder;
 import org.apache.commons.cli.Options;
@@ -41,11 +38,6 @@ public class StormRunner extends StormRunnerBase {
      * The Twitter file processing bolt name.
      */
     private static final String FILE_PROC_BOLT_NAME = "twitterFileProcBolt";
-
-    /**
-     * The Tweet processing bolt name.
-     */
-    private static final String TWEET_PROC_BOLT_NAME = "tweetProcBolt";
 
     private static final String KAFKA_SPOUT_NAME = "twitterKafkaReadSpout";
     private static final String KAFKA_BOLT_NAME = "twitterKafkaQueueBolt";
@@ -171,9 +163,7 @@ public class StormRunner extends StormRunnerBase {
         TopologyBuilder builder = new TopologyBuilder();
 
         builder.setSpout(KAFKA_SPOUT_NAME,
-                new TweetKafkaSpout(getConfiguration(), TwitterConstants.TWITTER_QUEUE_NAME, getQueueStartOffsetTime()), parallelismHint);
-//        builder.setBolt(TWEET_PROC_BOLT_NAME, new TweetParsingBolt(), parallelismHint)
-//                .shuffleGrouping(KAFKA_SPOUT_NAME);
+                new TweetKafkaSpout(getConfiguration(), TwitterConstants.TWITTER_QUEUE_NAME, getQueueStartOffsetTime()));
         builder.setBolt(USER_BOLT_NAME, new TwitterUserParsingBolt(), parallelismHint)
                 .shuffleGrouping(KAFKA_SPOUT_NAME);
         builder.setBolt(PROFILE_PHOTO_BOLT_NAME, new TwitterProfilePhotoBolt(), parallelismHint)
