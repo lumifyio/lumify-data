@@ -3,7 +3,7 @@ package com.altamiracorp.lumify.storm.term.extraction;
 import backtype.storm.task.OutputCollector;
 import backtype.storm.task.TopologyContext;
 import backtype.storm.tuple.Tuple;
-import com.altamiracorp.lumify.core.InjectHelper;
+import com.altamiracorp.lumify.core.bootstrap.InjectHelper;
 import com.altamiracorp.lumify.core.ingest.term.extraction.TermExtractionAdditionalWorkData;
 import com.altamiracorp.lumify.core.ingest.term.extraction.TermExtractionResult;
 import com.altamiracorp.lumify.core.ingest.term.extraction.TermExtractionWorker;
