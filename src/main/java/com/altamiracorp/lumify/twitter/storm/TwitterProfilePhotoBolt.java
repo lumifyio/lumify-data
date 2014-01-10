@@ -40,7 +40,7 @@ public class TwitterProfilePhotoBolt extends BaseTwitterBolt {
     protected void processJson(final JSONObject json, final Tuple input) throws Exception {
         GraphVertex tweeterVertex = (GraphVertex) input.getValueByField(TwitterStormConstants.TWITTER_USER_VERTEX_FIELD);
         if (tweeterVertex != null) {
-            getTwitterProcessor().retrieveProfileImage(getCachedClassName(), json, tweeterVertex);
+            getTwitterProcessor().retrieveProfileImage(getProcessId(), json, tweeterVertex);
         }
     }
 

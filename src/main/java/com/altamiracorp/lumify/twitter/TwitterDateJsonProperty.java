@@ -28,7 +28,7 @@ import java.util.Date;
  * A JSON property whose String value is formatted as a Twitter
  * timestamp: <code>EEE MMM dd HH:mm:ss ZZZZZ yyyy</code>.
  */
-public class TwitterDateJsonProperty extends JsonProperty<Date, String> {
+public class TwitterDateJsonProperty extends JsonProperty<Long, String> {
     /**
      * The class logger.
      */
@@ -63,9 +63,10 @@ public class TwitterDateJsonProperty extends JsonProperty<Date, String> {
     }
 
     @Override
-    protected Date fromJSON(final String jsonValue) {
+    protected Long fromJSON(final String jsonValue) {
         try {
-            return TWITTER_DATE_FORMAT.get().parse(jsonValue);
+            Date date = TWITTER_DATE_FORMAT.get().parse(jsonValue);
+            return date != null ? date.getTime() : null;
         } catch (ParseException pe) {
             LOGGER.trace("Error parsing Twitter date from value: %s", jsonValue, pe);
             return null;
@@ -73,7 +74,7 @@ public class TwitterDateJsonProperty extends JsonProperty<Date, String> {
     }
 
     @Override
-    protected String toJSON(final Date value) {
-        return value != null ? TWITTER_DATE_FORMAT.get().format(value) : null;
+    protected String toJSON(final Long value) {
+        return value != null ? TWITTER_DATE_FORMAT.get().format(new Date(value)) : null;
     }
 }

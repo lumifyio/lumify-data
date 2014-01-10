@@ -55,7 +55,7 @@ public class TweetEntityExtractionBolt extends BaseTwitterBolt {
     @Override
     protected void processJson(final JSONObject json, final Tuple input) throws Exception {
         GraphVertex tweetVertex = (GraphVertex) input.getValueByField(TwitterStormConstants.TWEET_VERTEX_FIELD);
-        getTwitterProcessor().extractEntities(getCachedClassName(), json, tweetVertex, entityType);
+        getTwitterProcessor().extractEntities(getProcessId(), json, tweetVertex, entityType);
     }
 
     @Override

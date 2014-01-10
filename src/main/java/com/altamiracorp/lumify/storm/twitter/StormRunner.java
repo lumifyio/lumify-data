@@ -4,17 +4,19 @@ import backtype.storm.Config;
 import backtype.storm.generated.StormTopology;
 import backtype.storm.topology.BoltDeclarer;
 import backtype.storm.topology.TopologyBuilder;
+import com.altamiracorp.lumify.core.bootstrap.InjectHelper;
 import com.altamiracorp.lumify.storm.BaseFileSystemSpout;
 import com.altamiracorp.lumify.storm.HdfsFileSystemSpout;
 import com.altamiracorp.lumify.storm.StormRunnerBase;
+import com.altamiracorp.lumify.twitter.LumifyTwitterProcessor;
 import com.altamiracorp.lumify.twitter.TwitterConstants;
 import com.altamiracorp.lumify.twitter.TwitterEntityType;
 import com.altamiracorp.lumify.twitter.storm.TweetEntityExtractionBolt;
 import com.altamiracorp.lumify.twitter.storm.TweetKafkaSpout;
-import com.altamiracorp.lumify.twitter.storm.TweetParsingBolt;
 import com.altamiracorp.lumify.twitter.storm.TweetQueueOutputBolt;
 import com.altamiracorp.lumify.twitter.storm.TwitterProfilePhotoBolt;
 import com.altamiracorp.lumify.twitter.storm.TwitterUserParsingBolt;
+import com.google.common.base.Preconditions;
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.OptionBuilder;
 import org.apache.commons.cli.Options;
@@ -170,18 +172,18 @@ public class StormRunner extends StormRunnerBase {
 
         builder.setSpout(KAFKA_SPOUT_NAME,
                 new TweetKafkaSpout(getConfiguration(), TwitterConstants.TWITTER_QUEUE_NAME, getQueueStartOffsetTime()), parallelismHint);
-        builder.setBolt(TWEET_PROC_BOLT_NAME, new TweetParsingBolt(), parallelismHint)
-                .shuffleGrouping(KAFKA_SPOUT_NAME);
+//        builder.setBolt(TWEET_PROC_BOLT_NAME, new TweetParsingBolt(), parallelismHint)
+//                .shuffleGrouping(KAFKA_SPOUT_NAME);
         builder.setBolt(USER_BOLT_NAME, new TwitterUserParsingBolt(), parallelismHint)
-                .shuffleGrouping(TWEET_PROC_BOLT_NAME);
+                .shuffleGrouping(KAFKA_SPOUT_NAME);
         builder.setBolt(PROFILE_PHOTO_BOLT_NAME, new TwitterProfilePhotoBolt(), parallelismHint)
                 .shuffleGrouping(USER_BOLT_NAME);
         builder.setBolt(MENTION_BOLT_NAME, new TweetEntityExtractionBolt(TwitterEntityType.MENTION), parallelismHint)
-                .shuffleGrouping(TWEET_PROC_BOLT_NAME);
+                .shuffleGrouping(KAFKA_SPOUT_NAME);
         builder.setBolt(HASHTAG_BOLT_NAME, new TweetEntityExtractionBolt(TwitterEntityType.HASHTAG), parallelismHint)
-                .shuffleGrouping(TWEET_PROC_BOLT_NAME);
+                .shuffleGrouping(KAFKA_SPOUT_NAME);
         builder.setBolt(URL_BOLT_NAME, new TweetEntityExtractionBolt(TwitterEntityType.URL), parallelismHint)
-                .shuffleGrouping(TWEET_PROC_BOLT_NAME);
+                .shuffleGrouping(KAFKA_SPOUT_NAME);
         
         BoltDeclarer queueBolt = builder.setBolt(KAFKA_BOLT_NAME, new TweetQueueOutputBolt(TwitterConstants.TWITTER_QUEUE_NAME),
                 parallelismHint);

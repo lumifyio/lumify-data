@@ -18,7 +18,6 @@ package com.altamiracorp.lumify.twitter.storm;
 
 import backtype.storm.topology.OutputFieldsDeclarer;
 import backtype.storm.tuple.Tuple;
-import com.altamiracorp.lumify.twitter.storm.BaseTwitterBolt;
 import org.json.JSONObject;
 
 /**

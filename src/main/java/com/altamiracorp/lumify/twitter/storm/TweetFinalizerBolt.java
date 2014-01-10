@@ -41,7 +41,7 @@ public class TweetFinalizerBolt extends BaseTwitterBolt {
     protected void processJson(final JSONObject json, final Tuple input) throws Exception {
         GraphVertex tweetVertex = (GraphVertex) input.getValueByField(TwitterStormConstants.TWEET_VERTEX_FIELD);
         if (tweetVertex != null) {
-            getTwitterProcessor().finalizeTweetVertex(getCachedClassName(), tweetVertex.getId());
+            getTwitterProcessor().finalizeTweetVertex(getProcessId(), tweetVertex.getId());
         }
     }
 

@@ -52,7 +52,7 @@ public class TwitterUserParsingBolt extends BaseTwitterBolt {
     protected void processJson(final JSONObject json, final Tuple input) throws Exception {
         GraphVertex tweetVertex = (GraphVertex) input.getValueByField(TwitterStormConstants.TWEET_VERTEX_FIELD);
         // extract the Twitter User from the JSON object and create the Lumify entity
-        GraphVertex userVertex = getTwitterProcessor().parseTwitterUser(getCachedClassName(), json, tweetVertex);
+        GraphVertex userVertex = getTwitterProcessor().parseTwitterUser(getProcessId(), json, tweetVertex);
         // if the Twitter User was successfully parsed, emit the JSON object and userVertex
         // to downstream bolts
         if (userVertex != null) {
