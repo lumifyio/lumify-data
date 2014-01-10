@@ -1,4 +1,4 @@
-package com.altamiracorp.lumify.storm.twitter;
+package com.altamiracorp.lumify.twitter.storm;
 
 import backtype.storm.Config;
 import backtype.storm.generated.StormTopology;

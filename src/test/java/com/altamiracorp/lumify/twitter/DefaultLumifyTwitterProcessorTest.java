@@ -16,7 +16,6 @@
 
 package com.altamiracorp.lumify.twitter;
 
-import static com.altamiracorp.lumify.storm.util.InputStreamContentMatcher.*;
 import static com.altamiracorp.lumify.twitter.TwitterConstants.*;
 import static org.junit.Assert.*;
 import static org.mockito.Mockito.*;
@@ -46,7 +45,6 @@ import com.altamiracorp.lumify.core.util.LumifyLogger;
 import com.thinkaurelius.titan.core.attribute.Geoshape;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
-import java.io.InputStream;
 import java.net.MalformedURLException;
 import java.util.Arrays;
 import java.util.Collections;
