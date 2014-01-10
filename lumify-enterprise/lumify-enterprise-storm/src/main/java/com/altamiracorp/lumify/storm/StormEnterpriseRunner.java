@@ -129,8 +129,11 @@ public class StormEnterpriseRunner extends StormRunnerBase {
         String queueName = "image";
         builder.setSpout(queueName, new HdfsFileSystemSpout("/image"), 1)
                 .setMaxTaskParallelism(1);
+        builder.setSpout("userEnterpriseImageSpout", new LumifyKafkaSpout(getConfiguration(), WorkQueueRepository.USER_IMAGE_QUEUE_NAME, getQueueStartOffsetTime()), 1)
+                .setMaxTaskParallelism(1);
         builder.setBolt(queueName + "-bolt", new ImageBolt(), parallelismHint)
-                .shuffleGrouping(queueName);
+                .shuffleGrouping(queueName)
+                .shuffleGrouping("userEnterpriseImageSpout");
     }
 
     private void createVideoTopology(TopologyBuilder builder, int parallelismHint) {
