@@ -1,4 +1,3 @@
-com.altamiracorp.lumify.storm.term.extraction.SearchWorker
 com.altamiracorp.lumify.storm.term.extraction.OpenNlpMaximumEntropyEntityExtractorWorker
 com.altamiracorp.lumify.storm.term.extraction.OpenNlpDictionaryEntityExtractorWorker
 com.altamiracorp.lumify.storm.term.extraction.KnownEntityExtractorWorker

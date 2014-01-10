@@ -2,16 +2,14 @@ package com.altamiracorp.lumify.tools;
 
 import com.altamiracorp.bigtable.model.ModelSession;
 import com.altamiracorp.lumify.core.cmdline.CommandLineBase;
-import com.altamiracorp.lumify.core.model.GraphSession;
-import com.altamiracorp.lumify.core.model.search.SearchProvider;
 import com.altamiracorp.lumify.core.util.ModelUtil;
+import com.altamiracorp.securegraph.Graph;
 import com.google.inject.Inject;
 import org.apache.commons.cli.CommandLine;
 
 public class FormatLumify extends CommandLineBase {
     private ModelSession modelSession;
-    private SearchProvider searchProvider;
-    private GraphSession graphSession;
+    private Graph graph;
 
     public static void main(String[] args) throws Exception {
         int res = new FormatLumify().run(args);
@@ -23,8 +21,7 @@ public class FormatLumify extends CommandLineBase {
     @Override
     protected int run(CommandLine cmd) throws Exception {
         ModelUtil.deleteTables(modelSession, getUser());
-        searchProvider.deleteIndex(getUser());
-        graphSession.deleteSearchIndex(getUser());
+        graph.delete(getUser());
         return 0;
     }
 
@@ -34,12 +31,7 @@ public class FormatLumify extends CommandLineBase {
     }
 
     @Inject
-    public void setSearchProvider(SearchProvider searchProvider) {
-        this.searchProvider = searchProvider;
-    }
-
-    @Inject
-    public void setGraphSession(GraphSession graphSession) {
-        this.graphSession = graphSession;
+    public void setGraph(Graph graph) {
+        this.graph = graph;
     }
 }

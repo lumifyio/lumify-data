@@ -82,7 +82,7 @@ public class TermExtractionBolt extends BaseTextProcessingBolt {
 
         InputStream textIn = getInputStream(artifactGraphVertex);
         TermExtractionAdditionalWorkData termExtractionAdditionalWorkData = new TermExtractionAdditionalWorkData();
-        termExtractionAdditionalWorkData.setGraphVertex(artifactGraphVertex);
+        termExtractionAdditionalWorkData.setVertex(artifactGraphVertex);
 
         List<ThreadedTeeInputStreamWorker.WorkResult<TermExtractionResult>> termExtractionResults = termExtractionStreamProcess.doWork(textIn, termExtractionAdditionalWorkData);
         TermExtractionResult termExtractionResult = new TermExtractionResult();
