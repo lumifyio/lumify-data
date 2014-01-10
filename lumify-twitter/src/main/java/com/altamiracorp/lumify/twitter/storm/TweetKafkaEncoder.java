@@ -17,10 +17,13 @@
 package com.altamiracorp.lumify.twitter.storm;
 
 import backtype.storm.tuple.Fields;
+import com.altamiracorp.lumify.core.model.graph.GraphVertex;
 import com.altamiracorp.lumify.model.KafkaJsonEncoder;
 import com.altamiracorp.lumify.storm.BaseLumifyJsonBolt;
 import com.altamiracorp.lumify.twitter.LumifyTwitterProcessor;
+import com.altamiracorp.lumify.twitter.TwitterConstants;
 import com.google.inject.Inject;
+import java.util.Arrays;
 import java.util.List;
 import org.json.JSONObject;
 
@@ -42,16 +45,14 @@ public class TweetKafkaEncoder extends KafkaJsonEncoder {
 
     @Override
     public List<Object> deserialize(byte[] ser) {
-        List<Object> values = super.deserialize(ser);
-        if (values.get(0) instanceof JSONObject) {
-            JSONObject tweetJson = (JSONObject) values.get(0);
-            try {
-                values.add(twitterProcessor.parseTweet(EXTRA, tweetJson));
-            } catch (Exception e) {
-                throw new RuntimeException("Unable to parse tweet.", e);
-            }
+        try {
+            String jsonStr = new String(ser, TwitterConstants.TWITTER_CHARSET);
+            JSONObject tweetJson = new JSONObject(jsonStr);
+            GraphVertex tweetVertex = twitterProcessor.parseTweet(getClass().getName(), tweetJson);
+            return Arrays.asList(jsonStr, tweetVertex);
+        } catch (Exception ex) {
+            throw new RuntimeException("Error parsing tweet from queue.", ex);
         }
-        return values;
     }
 
     @Override
@@ -61,6 +62,6 @@ public class TweetKafkaEncoder extends KafkaJsonEncoder {
     
     @Inject
     public void setTwitterProcessor(final LumifyTwitterProcessor proc) {
-        twitterProcessor = proc;
+        this.twitterProcessor = proc;
     }
 }

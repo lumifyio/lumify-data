@@ -18,6 +18,7 @@ package com.altamiracorp.lumify.twitter.storm;
 
 import backtype.storm.spout.SpoutOutputCollector;
 import backtype.storm.task.TopologyContext;
+import com.altamiracorp.lumify.core.bootstrap.InjectHelper;
 import com.altamiracorp.lumify.core.config.Configuration;
 import com.altamiracorp.lumify.core.model.graph.GraphVertex;
 import com.altamiracorp.lumify.storm.LumifyKafkaSpout;
@@ -47,6 +48,7 @@ public class TweetKafkaSpout extends LumifyKafkaSpout {
         super(configuration, queueName, new TweetKafkaEncoder(), startOffsetTime);
     }
 
+    
     @Override
     public void fail(final Object messageId) {
         if (messageId instanceof TweetMessageId) {
@@ -69,8 +71,9 @@ public class TweetKafkaSpout extends LumifyKafkaSpout {
     @Override
     public void open(Map conf, TopologyContext topologyContext, SpoutOutputCollector collector) {
         super.open(conf, topologyContext, new TweetSpoutOutputCollector(collector));
+        InjectHelper.inject(this);
+        InjectHelper.inject(getScheme());
     }
-    
     
     @Inject
     public void setTwitterProcessor(final LumifyTwitterProcessor proc) {

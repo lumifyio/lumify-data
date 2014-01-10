@@ -155,7 +155,7 @@ public class DefaultLumifyTwitterProcessor extends BaseArtifactProcessor impleme
         User user = getUser();
         
         String tweetText = JSON_TEXT_PROPERTY.getFrom(jsonTweet);
-        Date tweetCreatedAt = JSON_CREATED_AT_PROPERTY.getFrom(jsonTweet);
+        Long tweetCreatedAt = JSON_CREATED_AT_PROPERTY.getFrom(jsonTweet);
         String tweeterScreenName = JSON_SCREEN_NAME_PROPERTY.getFrom(JSON_USER_PROPERTY.getFrom(jsonTweet));
         
         // at minimum, the tweet text and user screen name must be set or this object cannot be
@@ -178,7 +178,7 @@ public class DefaultLumifyTwitterProcessor extends BaseArtifactProcessor impleme
                 .source(TWITTER_SOURCE)
                 .process(processId);
         if (tweetCreatedAt != null) {
-            artifact.setDate(tweetCreatedAt);
+            artifact.setDate(new Date(tweetCreatedAt));
         }
         
         GraphVertex tweet = getArtifactRepository().saveArtifact(artifact, user);

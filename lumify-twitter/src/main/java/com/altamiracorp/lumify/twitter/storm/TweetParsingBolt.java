@@ -46,7 +46,7 @@ public class TweetParsingBolt extends BaseTwitterBolt {
     @Override
     protected void processJson(final JSONObject json, final Tuple input) throws Exception {
         // extract the Tweet from the JSON object and create the Lumify artifacts
-        GraphVertex tweetVertex = getTwitterProcessor().parseTweet(getCachedClassName(), json);
+        GraphVertex tweetVertex = getTwitterProcessor().parseTweet(getProcessId(), json);
         // if the Tweet was successfully parsed, emit the JSON object and tweetVertex
         // to downstream bolts
         if (tweetVertex != null) {
