@@ -23,7 +23,6 @@ import com.altamiracorp.lumify.core.ingest.BaseArtifactProcessor;
 import com.altamiracorp.lumify.core.ingest.term.extraction.TermRegexFinder;
 import com.altamiracorp.lumify.core.json.JsonProperty;
 import com.altamiracorp.lumify.core.model.artifact.ArtifactRowKey;
-import com.altamiracorp.lumify.core.model.artifact.ArtifactType;
 import com.altamiracorp.lumify.core.model.audit.AuditAction;
 import com.altamiracorp.lumify.core.model.audit.AuditRepository;
 import com.altamiracorp.lumify.core.model.graph.GraphRepository;
@@ -33,14 +32,12 @@ import com.altamiracorp.lumify.core.model.ontology.Concept;
 import com.altamiracorp.lumify.core.model.ontology.LabelName;
 import com.altamiracorp.lumify.core.model.ontology.OntologyRepository;
 import com.altamiracorp.lumify.core.model.ontology.PropertyName;
-import com.altamiracorp.lumify.core.model.ontology.VertexType;
 import com.altamiracorp.lumify.core.model.termMention.TermMention;
 import com.altamiracorp.lumify.core.user.User;
 import com.altamiracorp.lumify.core.util.LumifyLogger;
 import com.altamiracorp.lumify.core.util.LumifyLoggerFactory;
 import com.google.common.collect.Lists;
 import com.google.inject.Inject;
-import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -133,8 +130,7 @@ public class DefaultLumifyTwitterProcessor extends BaseArtifactProcessor impleme
     private static final List<String> ENTITY_MODIFIED_PROPERTIES = Arrays.asList(
             PropertyName.TITLE.toString(),
             PropertyName.ROW_KEY.toString(),
-            PropertyName.TYPE.toString(),
-            PropertyName.SUBTYPE.toString()
+            PropertyName.CONCEPT_TYPE.toString()
     );
     
     /**
@@ -172,7 +168,7 @@ public class DefaultLumifyTwitterProcessor extends BaseArtifactProcessor impleme
                 .raw(jsonBytes)
                 .mimeType(TWEET_ARTIFACT_MIME_TYPE)
                 .rowKey(rowKey)
-                .artifactType(ArtifactType.DOCUMENT.toString())
+                .conceptType(CONCEPT_TWEET)
                 .title(tweetText)
                 .author(tweeterScreenName)
                 .source(TWITTER_SOURCE)
@@ -184,7 +180,6 @@ public class DefaultLumifyTwitterProcessor extends BaseArtifactProcessor impleme
         GraphVertex tweet = getArtifactRepository().saveArtifact(artifact, user);
         String tweetId = tweet.getId();
         LOGGER.info("Saved Tweet to Accumulo and as Graph Vertex: %s", tweetId);
-        getSearchProvider().add(tweet, new ByteArrayInputStream(tweetText.getBytes(TWITTER_CHARSET)));
         
         List<String> modifiedProps = setOptionalProps(tweet, jsonTweet, OPTIONAL_TWEET_PROPERTY_MAP);
         if (!modifiedProps.isEmpty()) {
@@ -211,19 +206,17 @@ public class DefaultLumifyTwitterProcessor extends BaseArtifactProcessor impleme
         GraphRepository graphRepo = getGraphRepository();
         
         Concept handleConcept = getOntologyRepository().getConceptByName(CONCEPT_TWITTER_HANDLE, lumifyUser);
-        GraphVertex userVertex = graphRepo.findVertexByTitleAndType(screenName, VertexType.ENTITY, lumifyUser);
+        GraphVertex userVertex = graphRepo.findVertexByExactTitle(screenName, lumifyUser);
         if (userVertex == null) {
             userVertex = new InMemoryGraphVertex();
         }
         
         List<String> modifiedProps = Lists.newArrayList(
                 PropertyName.TITLE.toString(),
-                PropertyName.TYPE.toString(),
-                PropertyName.SUBTYPE.toString()
+                PropertyName.CONCEPT_TYPE.toString()
         );
         userVertex.setProperty(PropertyName.TITLE, screenName);
-        userVertex.setProperty(PropertyName.TYPE, VertexType.ENTITY.toString());
-        userVertex.setProperty(PropertyName.SUBTYPE, handleConcept.getId());
+        userVertex.setProperty(PropertyName.CONCEPT_TYPE, handleConcept.getId());
         
         modifiedProps.addAll(setOptionalProps(userVertex, jsonUser, OPTIONAL_USER_PROPERTY_MAP));
         
@@ -264,7 +257,7 @@ public class DefaultLumifyTwitterProcessor extends BaseArtifactProcessor impleme
                 String sign = mention.getMetadata().getSign().toLowerCase();
                 String rowKey = mention.getRowKey().toString();
                 
-                GraphVertex termVertex = graphRepo.findVertexByTitleAndType(sign, VertexType.ENTITY, user);
+                GraphVertex termVertex = graphRepo.findVertexByExactTitle(sign, user);
                 boolean newVertex = false;
                 if (termVertex == null) {
                     termVertex = new InMemoryGraphVertex();
@@ -272,11 +265,10 @@ public class DefaultLumifyTwitterProcessor extends BaseArtifactProcessor impleme
                 }
                 termVertex.setProperty(PropertyName.TITLE, sign);
                 termVertex.setProperty(PropertyName.ROW_KEY, rowKey);
-                termVertex.setProperty(PropertyName.TYPE, VertexType.ENTITY.toString());
-                termVertex.setProperty(PropertyName.SUBTYPE, conceptId);
-                String termId = termVertex.getId();
+                termVertex.setProperty(PropertyName.CONCEPT_TYPE, conceptId);
                 
                 graphRepo.save(termVertex, user);
+                String termId = termVertex.getId();
                 if (newVertex) {
                     auditRepo.auditEntity(AuditAction.CREATE.toString(), termId, tweetVertex.getId(),
                             sign, conceptId, processId, "", user);
@@ -317,7 +309,7 @@ public class DefaultLumifyTwitterProcessor extends BaseArtifactProcessor impleme
                 ArtifactExtractedInfo artifactInfo = new ArtifactExtractedInfo()
                         .mimeType(PROFILE_IMAGE_MIME_TYPE)
                         .rowKey(rowKey)
-                        .artifactType(ArtifactType.IMAGE.toString())
+                        .conceptType(CONCEPT_TWITTER_PROFILE_IMAGE)
                         .title(String.format(IMAGE_ARTIFACT_TITLE_FMT, screenName))
                         .source(IMAGE_ARTIFACT_SOURCE)
                         .process(processId)
