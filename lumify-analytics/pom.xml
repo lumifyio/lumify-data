@@ -50,10 +50,6 @@
             <artifactId>lumify-model-kafka</artifactId>
         </dependency>
         <dependency>
-            <groupId>com.altamiracorp.lumify</groupId>
-            <artifactId>lumify-model-titan</artifactId>
-        </dependency>
-        <dependency>
             <groupId>com.googlecode.libphonenumber</groupId>
             <artifactId>libphonenumber</artifactId>
         </dependency>
