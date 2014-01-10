@@ -4,7 +4,7 @@ import com.altamiracorp.lumify.core.ingest.AdditionalArtifactWorkData;
 import com.altamiracorp.lumify.core.ingest.ArtifactExtractedInfo;
 import com.altamiracorp.lumify.core.ingest.TextExtractionWorkerPrepareData;
 import com.altamiracorp.lumify.core.ingest.video.VideoTextExtractionWorker;
-import com.altamiracorp.lumify.core.model.artifact.ArtifactType;
+import com.altamiracorp.lumify.core.model.ontology.DisplayType;
 import com.altamiracorp.lumify.core.util.*;
 import com.google.inject.Inject;
 
@@ -54,7 +54,7 @@ public class VideoWebMEncodingWorker extends ThreadedTeeInputStreamWorker<Artifa
         ArtifactExtractedInfo info = new ArtifactExtractedInfo();
         checkNotNull(out.getHdfsPath(), "hdfs path of output stream not correct");
         info.setWebMHdfsFilePath(out.getHdfsPath().toString());
-        info.setArtifactType(ArtifactType.VIDEO.toString());
+        info.setConceptType(DisplayType.VIDEO.toString());
         LOGGER.debug("Finished [VideoWebMEncodingWorker]: %s", data.getFileName());
         return info;
     }

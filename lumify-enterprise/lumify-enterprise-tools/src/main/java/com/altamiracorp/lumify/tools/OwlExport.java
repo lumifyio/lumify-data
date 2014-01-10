@@ -153,7 +153,7 @@ public class OwlExport extends CommandLineBase {
             if (propertyName.equals(PropertyName.DISPLAY_NAME.toString())) {
                 continue;
             }
-            if (propertyName.equals(PropertyName.TYPE.toString())) {
+            if (propertyName.equals(PropertyName.CONCEPT_TYPE.toString())) {
                 continue;
             }
             classElem.appendChild(createPropertyElement(doc, propertyName, concept.getProperty(propertyName)));

@@ -1,7 +1,8 @@
 package com.altamiracorp.lumify.textExtraction;
 
 import com.altamiracorp.lumify.core.ingest.ArtifactExtractedInfo;
-import com.altamiracorp.lumify.core.model.artifact.ArtifactType;
+import com.altamiracorp.lumify.core.model.ontology.DisplayType;
+import com.altamiracorp.lumify.core.model.ontology.OntologyRepository;
 import com.altamiracorp.lumify.core.util.LumifyLogger;
 import com.altamiracorp.lumify.core.util.LumifyLoggerFactory;
 import com.altamiracorp.lumify.textExtraction.util.GenericDateExtractor;
@@ -57,6 +58,7 @@ public class TikaTextExtractor {
     private List<String> retrievalTimestampKeys;
     private List<String> customFlickrMetadataKeys;
     private List<String> authorKeys;
+    private OntologyRepository ontologyRepository;
 
     @Inject
     public TikaTextExtractor() {
@@ -133,7 +135,8 @@ public class TikaTextExtractor {
                 LOGGER.warn("Image returned invalid custom metadata");
             }
         }
-        result.setArtifactType(ArtifactType.DOCUMENT.toString());
+
+        result.setConceptType(DisplayType.DOCUMENT.toString());
         return result;
     }
 
@@ -228,5 +231,10 @@ public class TikaTextExtractor {
             }
         }
         return trimmedText.toString().replaceAll("\\n{3,}", "\n\n");
+    }
+
+    @Inject
+    public void setOntologyRepository (OntologyRepository ontologyRepository) {
+        this.ontologyRepository = ontologyRepository;
     }
 }

@@ -8,7 +8,6 @@ import com.altamiracorp.lumify.core.model.graph.InMemoryGraphVertex;
 import com.altamiracorp.lumify.core.model.ontology.Concept;
 import com.altamiracorp.lumify.core.model.ontology.OntologyRepository;
 import com.altamiracorp.lumify.core.model.ontology.PropertyName;
-import com.altamiracorp.lumify.core.model.ontology.VertexType;
 import com.altamiracorp.lumify.core.model.search.SearchProvider;
 import com.altamiracorp.lumify.core.user.SystemUser;
 import org.json.JSONObject;
@@ -102,8 +101,8 @@ public class FacebookPostTest {
     @Test
     public void testProcessPostVertex () throws Exception {
         facebookPost = new FacebookPost();
-        when(graphRepository.findVertexByPropertyAndType("profileId", "12345", VertexType.ENTITY, systemUser)).thenReturn(authorVertex);
-        when(graphRepository.findVertexByPropertyAndType("profileId", "67890", VertexType.ENTITY, systemUser)).thenReturn(taggedVertex);
+        when(graphRepository.findVertexByProperty("profileId", "12345", systemUser)).thenReturn(authorVertex);
+        when(graphRepository.findVertexByProperty("profileId", "67890", systemUser)).thenReturn(taggedVertex);
 
         doAnswer(new Answer() {
             @Override
@@ -132,14 +131,14 @@ public class FacebookPostTest {
 
         verify(graphRepository, times(1)).save(any(GraphVertex.class), eq(systemUser));
         verify(graphRepository, times(2)).saveRelationship(anyString(), anyString(), anyString(), eq(systemUser));
-        verify(graphRepository, times(2)).findVertexByPropertyAndType(eq("profileId"), anyString(), eq(VertexType.ENTITY), eq(systemUser));
+        verify(graphRepository, times(2)).findVertexByProperty(eq("profileId"), anyString(), eq(systemUser));
     }
 
     @Test
     public void testProcessPostUserVertices () throws Exception {
         facebookPost = new FacebookPost();
-        when(graphRepository.findVertexByPropertyAndType("profileId", "12345", VertexType.ENTITY, systemUser)).thenReturn(null);
-        when(graphRepository.findVertexByPropertyAndType("profileId", "67890", VertexType.ENTITY, systemUser)).thenReturn(null);
+        when(graphRepository.findVertexByProperty("profileId", "12345", systemUser)).thenReturn(null);
+        when(graphRepository.findVertexByProperty("profileId", "67890", systemUser)).thenReturn(null);
         when(graphRepository.save(postVertex, systemUser)).thenReturn("");
         when(graphRepository.save(authorVertex, systemUser)).thenReturn("");
         when(graphRepository.save(taggedVertex, systemUser)).thenReturn("");
@@ -156,7 +155,7 @@ public class FacebookPostTest {
 
         verify(graphRepository, times(3)).save(any(GraphVertex.class), eq(systemUser));
         verify(graphRepository, times(2)).saveRelationship(anyString(), anyString(), anyString(), eq(systemUser));
-        verify(graphRepository, times(2)).findVertexByPropertyAndType(eq("profileId"), anyString(), eq(VertexType.ENTITY), eq(systemUser));
+        verify(graphRepository, times(2)).findVertexByProperty(eq("profileId"), anyString(), eq(systemUser));
     }
 
     private void setNormalPostObject() {

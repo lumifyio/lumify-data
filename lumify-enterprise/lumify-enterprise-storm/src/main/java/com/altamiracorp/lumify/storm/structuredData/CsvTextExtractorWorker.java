@@ -5,7 +5,7 @@ import com.altamiracorp.lumify.core.ingest.ArtifactExtractedInfo;
 import com.altamiracorp.lumify.core.ingest.TextExtractionWorkerPrepareData;
 import com.altamiracorp.lumify.core.ingest.structuredData.StructuredDataExtractionWorker;
 import com.altamiracorp.lumify.core.model.artifact.Artifact;
-import com.altamiracorp.lumify.core.model.artifact.ArtifactType;
+import com.altamiracorp.lumify.core.model.ontology.DisplayType;
 import com.altamiracorp.lumify.core.util.HdfsLimitOutputStream;
 import com.altamiracorp.lumify.core.util.LumifyLogger;
 import com.altamiracorp.lumify.core.util.LumifyLoggerFactory;
@@ -66,7 +66,7 @@ public class CsvTextExtractorWorker
             info.setTitle(mappingJson.get(MappingProperties.SUBJECT).toString());
         }
         info.setMappingJson(mappingJson);
-        info.setArtifactType(ArtifactType.DOCUMENT.toString());
+        info.setConceptType(DisplayType.DOCUMENT.toString());
         LOGGER.debug("Finished [CsvTextExtractorWorker]: %s", data.getFileName());
         return info;
     }
