@@ -237,8 +237,22 @@ function _all_status {
   _storm_status
 }
 
+function _run {
+  local pattern=$1
+  local command_and_args="${@:2}"
+
+  echo ${command_and_args}
+
+  for host in $(awk "/${pattern}/ {print \$1}" ${HOSTS_FILE}); do
+    echo ${host}
+    echo "${command_and_args}" | ssh ${SSH_OPTS} ${host} bash -s
+  done
+}
+
 function _usage {
   echo "$0 <hosts file> first|start|stop|restart|status [component name]"
+  local z=$(echo "$0" | tr '[:print:]' ' ')
+  echo "$z              run <pattern> <command and args>"
   echo "where the optional component name is one of the following:"
   awk '/function.*_start/ && ! /all/ {print $2}' $0 | sed -e 's/^_/    /' -e 's/_start//'
 }
@@ -284,6 +298,15 @@ case "$2" in
       _$3_status
     else
       _all_status
+    fi
+    ;;
+  run)
+    if [ $# -lt 4 ]; then
+      echo "ERROR: the 'run' action requires a pattern and the desired command and args"
+      _usage
+      exit -3
+    else
+      _run $3 "${@:4}"
     fi
     ;;
   *)

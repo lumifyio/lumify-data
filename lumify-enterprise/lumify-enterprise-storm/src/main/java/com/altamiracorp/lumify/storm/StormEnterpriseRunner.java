@@ -129,8 +129,11 @@ public class StormEnterpriseRunner extends StormRunnerBase {
         String queueName = "image";
         builder.setSpout(queueName, new HdfsFileSystemSpout("/image"), 1)
                 .setMaxTaskParallelism(1);
+        builder.setSpout("userEnterpriseImageSpout", createWorkQueueRepositorySpout(WorkQueueRepository.USER_IMAGE_QUEUE_NAME), 1)
+                .setMaxTaskParallelism(1);
         builder.setBolt(queueName + "-bolt", new ImageBolt(), parallelismHint)
-                .shuffleGrouping(queueName);
+                .shuffleGrouping(queueName)
+                .shuffleGrouping("userEnterpriseImageSpout");
     }
 
     private void createVideoTopology(TopologyBuilder builder, int parallelismHint) {
@@ -143,7 +146,7 @@ public class StormEnterpriseRunner extends StormRunnerBase {
 
     private void createDocumentTopology(TopologyBuilder builder, int parallelismHint) {
         String queueName = "document";
-        builder.setSpout(queueName, new LumifyKafkaSpout(getConfiguration(), WorkQueueRepository.DOCUMENT_QUEUE_NAME, getQueueStartOffsetTime()), 1)
+        builder.setSpout(queueName, createWorkQueueRepositorySpout(WorkQueueRepository.DOCUMENT_QUEUE_NAME), 1)
                 .setMaxTaskParallelism(1);
         builder.setSpout(queueName + "-hdfs", new HdfsFileSystemSpout("/document"), 1)
                 .setMaxTaskParallelism(1);
@@ -161,14 +164,14 @@ public class StormEnterpriseRunner extends StormRunnerBase {
     }
 
     private void createTextTopology(TopologyBuilder builder, int parallelismHint) {
-        builder.setSpout("text", new LumifyKafkaSpout(getConfiguration(), WorkQueueRepository.TEXT_QUEUE_NAME, getQueueStartOffsetTime()), 1)
+        builder.setSpout("text", createWorkQueueRepositorySpout(WorkQueueRepository.TEXT_QUEUE_NAME), 1)
                 .setMaxTaskParallelism(1);
         builder.setBolt("textTermExtractionBolt", new TermExtractionBolt(), parallelismHint)
                 .shuffleGrouping("text");
     }
 
     private void createProcessedVideoTopology(TopologyBuilder builder, int parallelismHint) {
-        builder.setSpout("processedVideoSpout", new LumifyKafkaSpout(getConfiguration(), WorkQueueRepository.PROCESSED_VIDEO_QUEUE_NAME, getQueueStartOffsetTime()), 1)
+        builder.setSpout("processedVideoSpout", createWorkQueueRepositorySpout(WorkQueueRepository.PROCESSED_VIDEO_QUEUE_NAME), 1)
                 .setMaxTaskParallelism(1);
         builder.setBolt("processedVideoBolt", new VideoPreviewBolt(), parallelismHint)
                 .shuffleGrouping("processedVideoSpout");

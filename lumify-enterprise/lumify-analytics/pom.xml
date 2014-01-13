@@ -51,6 +51,10 @@
         </dependency>
         <dependency>
             <groupId>com.altamiracorp.lumify</groupId>
+            <artifactId>lumify-model-accumulo-queue</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.altamiracorp.lumify</groupId>
             <artifactId>lumify-model-titan</artifactId>
         </dependency>
         <dependency>

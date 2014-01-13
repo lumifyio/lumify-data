@@ -52,6 +52,7 @@ function create_topic {
 
 function create_topics {
   create_topic document
+  create_topic userImage
   create_topic text
   create_topic term
   create_topic artifactHighlight

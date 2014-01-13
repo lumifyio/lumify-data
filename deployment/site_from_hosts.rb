@@ -9,7 +9,7 @@ MAP = {
   /kafka\d{2}/        => ['include env::cluster::kafka_node'],
   /node\d{2}/         => ['include env::cluster::node'],
   /zk\d{2}/           => ['include env::cluster::zookeeper_server'],
-  'www'               => ['include env::cluster::webserver']
+  /www(\d{2})?/       => ['include env::cluster::webserver']
 }
 
 puts <<-EOM

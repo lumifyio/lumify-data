@@ -72,11 +72,12 @@ function stage_jobtracker {
 }
 
 function stage_www {
-  heading 'stage artifacts on the webserver'
-  local www_host=$(awk '/www/ {print $1}' ${HOSTS_FILE})
-  scp ${SSH_OPTS} *.xml \
-                  *.war \
-                  ${www_host}:
+  heading 'stage artifacts on the webserver(s)'
+  for www_host in $(awk '/www/ {print $1}' ${HOSTS_FILE}); do
+    scp ${SSH_OPTS} *.xml \
+                    *.war \
+                    ${www_host}:
+  done
 }
 
 function stage_stormmaster {
