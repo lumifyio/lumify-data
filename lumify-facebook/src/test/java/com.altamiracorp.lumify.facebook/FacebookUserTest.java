@@ -215,7 +215,7 @@ public class FacebookUserTest {
         when(graphRepository.getRelatedVertices(profileUser.getId(), systemUser)).thenReturn(list);
         when(graphRepository.save(profileUser, systemUser)).thenReturn("");
         when(graphRepository.findOrAddRelationship(profileUser.getId(), picVertex.getId(), "hasImage", systemUser)).thenReturn(profileAndPicRelationship);
-        when(picVertex.getProperty(PropertyName.ROW_KEY)).thenReturn("1234567890");
+        when(picVertex.getId()).thenReturn("1234567890");
         when(postVertex.getProperty(PropertyName.TITLE)).thenReturn("Facebook Test Post");
 
         facebookUser.createProfilePhotoVertex(picVertex, profileUser, graphRepository, auditRepository, systemUser);
