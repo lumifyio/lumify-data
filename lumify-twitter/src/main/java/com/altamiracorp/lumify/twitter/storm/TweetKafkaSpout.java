@@ -116,6 +116,11 @@ public class TweetKafkaSpout extends LumifyKafkaSpout {
         }
 
         @Override
+        public String toString() {
+            return String.format("{vtxId:%s}{msgId:%s}", tweetVertexId, originalId);
+        }
+        
+        @Override
         public int hashCode() {
             int hash = 7;
             hash = 29 * hash + (this.tweetVertexId != null ? this.tweetVertexId.hashCode() : 0);

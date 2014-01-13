@@ -8,7 +8,6 @@ import backtype.storm.tuple.Fields;
 import backtype.storm.tuple.Values;
 import com.altamiracorp.lumify.core.util.LumifyLogger;
 import com.altamiracorp.lumify.core.util.LumifyLoggerFactory;
-import com.altamiracorp.lumify.storm.FieldNames;
 import com.google.common.collect.Lists;
 import com.twitter.hbc.ClientBuilder;
 import com.twitter.hbc.core.Client;
@@ -28,6 +27,8 @@ import java.util.concurrent.LinkedBlockingQueue;
 import static com.google.common.base.Preconditions.checkNotNull;
 
 import com.altamiracorp.lumify.storm.BaseLumifyJsonBolt;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 public class TwitterStreamSpout extends BaseRichSpout {
     private static final LumifyLogger LOGGER = LumifyLoggerFactory.getLogger(TwitterStreamSpout.class);
@@ -36,6 +37,7 @@ public class TwitterStreamSpout extends BaseRichSpout {
     private final BlockingQueue<String> tweetsToProcess = new LinkedBlockingQueue<String>();
     private static List<String> TERMS = Lists.newArrayList();
     private static final String QUERY = "twitter.query";
+    private static final Pattern TWEET_ID_PATTERN = Pattern.compile("\"id_str\"\\s*:\\s*\"(\\d+)\"");
 
     private static final String CONSUMER_KEY = "twitter.consumerKey";
     private static final String CONSUMER_SECRET = "twitter.consumerSecret";
@@ -86,8 +88,13 @@ public class TwitterStreamSpout extends BaseRichSpout {
     public void nextTuple() {
         try {
             String tweet = tweetsToProcess.take();
+            String tweetId = null;
+            Matcher m = TWEET_ID_PATTERN.matcher(tweet);
+            if (m.find()) {
+                tweetId = m.group(1);
+            }
             LOGGER.debug("received tweet to process: %s", tweet);
-            collector.emit(new Values(tweet));
+            collector.emit(new Values(tweet), tweetId);
         } catch (InterruptedException e) {
             collector.reportError(e);
         }
