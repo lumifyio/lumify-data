@@ -130,7 +130,7 @@ public class TwitterProfilePhotoBolt extends BaseTwitterForkBolt {
 
                 LOGGER.debug("Saving tweeter profile picture to accumulo and as graph vertex: %s", imageId);
 
-                tweeterVertex.setProperty(GLYPH_ICON.toString(), String.format(GLYPH_ICON_FMT, rowKey));
+                tweeterVertex.setProperty(GLYPH_ICON.toString(), String.format(GLYPH_ICON_FMT, imageId));
                 graphRepository.save(tweeterVertex, user);
                 auditRepository.auditEntityProperties(AuditAction.UPDATE.toString(), tweeterVertex, PropertyName.GLYPH_ICON.toString(), PROCESS, "", user);
 
