@@ -21,7 +21,7 @@ import backtype.storm.task.TopologyContext;
 import com.altamiracorp.lumify.core.bootstrap.InjectHelper;
 import com.altamiracorp.lumify.core.config.Configuration;
 import com.altamiracorp.lumify.core.model.graph.GraphVertex;
-import com.altamiracorp.lumify.storm.LumifyKafkaSpout;
+import com.altamiracorp.lumify.model.LumifyKafkaSpout;
 import com.altamiracorp.lumify.twitter.LumifyTwitterProcessor;
 import com.google.inject.Inject;
 import java.util.List;
