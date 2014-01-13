@@ -57,6 +57,6 @@ hiera['jetty_key_store_password'] = 'OBF:1v2j1uum1xtv1zej1zer1xtn1uvk1v1v'
 hiera['jetty_trust_store_path'] = '/opt/lumify/config/jetty.jks'
 hiera['jetty_trust_store_password'] = 'OBF:1v2j1uum1xtv1zej1zer1xtn1uvk1v1v'
 hiera['jetty_client_auth'] = 'false'
-hiera['authentication_provider'] = 'com.altamiracorp.lumify.web.DevBasicAuthenticationProvider'
+hiera['authentication_provider'] = 'com.altamiracorp.lumify.web.UsernameOnlyAuthenticationProvider'
 
 puts YAML.dump(hiera)
