@@ -6,10 +6,11 @@
         <owl:versionInfo xml:lang="en">Version 3.8</owl:versionInfo>
     </owl:Ontology>
     
-<!-- Concept: Raw --> 
-	 <owl:Class rdf:about="raw">
+<!-- Concept: Raw -->
+    <owl:Class rdf:about="raw">
         <rdfs:label xml:lang="en">Raw</rdfs:label>
         <atc:property atc:name="_color">rgb(28, 137, 28)</atc:property>
+        <atc:property atc:name="glyphIconFileName">artifact.png</atc:property>
         <rdfs:subClassOf rdf:resource="http://altamiracorp.com/ontology/entity"/>
     </owl:Class>
     
@@ -19,7 +20,7 @@
         <atc:property atc:name="_color">rgb(28, 137, 28)</atc:property>
         <atc:property atc:name="glyphIconFileName">artifact.png</atc:property>
         <atc:property atc:name="displayType">document</atc:property>
-        <rdfs:subClassOf rdf:resource="http://altamiracorp.com/ontology/entity"/>
+        <rdfs:subClassOf rdf:resource="http://altamiracorp.com/ontology/raw"/>
     </owl:Class>
     <owl:DatatypeProperty rdf:about="publishedDate">
         <rdfs:label xml:lang="en">published date</rdfs:label>
@@ -38,7 +39,7 @@
         <atc:property atc:name="_color">rgb(176, 87, 53)</atc:property>
         <atc:property atc:name="glyphIconFileName">artifact.png</atc:property>
         <atc:property atc:name="displayType">image</atc:property>
-        <rdfs:subClassOf rdf:resource="http://altamiracorp.com/ontology/entity"/>
+        <rdfs:subClassOf rdf:resource="http://altamiracorp.com/ontology/raw"/>
     </owl:Class>
     <owl:DatatypeProperty rdf:about="source">
         <rdfs:label xml:lang="en">source</rdfs:label>
@@ -57,7 +58,7 @@
         <atc:property atc:name="_color">rgb(149, 138, 218)</atc:property>
         <atc:property atc:name="glyphIconFileName">artifact.png</atc:property>
         <atc:property atc:name="displayType">video</atc:property>
-        <rdfs:subClassOf rdf:resource="http://altamiracorp.com/ontology/entity"/>
+        <rdfs:subClassOf rdf:resource="http://altamiracorp.com/ontology/raw"/>
     </owl:Class>
     <owl:DatatypeProperty rdf:about="source">
         <rdfs:label xml:lang="en">source</rdfs:label>
