@@ -167,7 +167,7 @@ public class FacebookUser {
     protected void createProfilePhotoVertex (GraphVertex picture, GraphVertex userVertex, GraphRepository graphRepository, AuditRepository auditRepository, User user) {
         List<String> modifiedProperties = new ArrayList<String>();
         List<GraphVertex> postings = graphRepository.getRelatedVertices(userVertex.getId(), user);
-        userVertex.setProperty(PropertyName.GLYPH_ICON.toString(), "/artifact/" + picture.getProperty(PropertyName.ROW_KEY).toString() + "/raw");
+        userVertex.setProperty(PropertyName.GLYPH_ICON.toString(), "/artifact/" + picture.getId() + "/raw");
         modifiedProperties.add(PropertyName.GLYPH_ICON.toString());
         String labelDisplay = LabelName.HAS_IMAGE.toString();
         graphRepository.save(userVertex, user);
