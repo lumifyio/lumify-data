@@ -11,6 +11,7 @@
     <owl:Class rdf:about="tweet">
         <rdfs:label xml:lang="en">Tweet</rdfs:label>
         <atc:property atc:name="glyphIconFileName">artifact.png</atc:property>
+		<atc:property atc:name="displayType">document</atc:property>
         <rdfs:subClassOf rdf:resource="http://altamiracorp.com/ontology/entity"/>
     </owl:Class>
     <owl:DatatypeProperty rdf:about="retweetCount">
@@ -611,16 +612,6 @@
         <owl:ObjectProperty rdf:about="personAuthoredTweet">
         <rdfs:label xml:lang="en">authored</rdfs:label>
         <rdfs:domain rdf:resource="#person"/>
-        <rdfs:range rdf:resource="#tweet"/>
-    </owl:ObjectProperty>
-    <owl:ObjectProperty rdf:about="organizationAuthored">
-        <rdfs:label xml:lang="en">authored</rdfs:label>
-        <rdfs:domain rdf:resource="#organization"/>
-        <rdfs:range rdf:resource="#tweet"/>
-    </owl:ObjectProperty>
-    <owl:ObjectProperty rdf:about="organizationPublished">
-        <rdfs:label xml:lang="en">published</rdfs:label>
-        <rdfs:domain rdf:resource="#organization"/>
         <rdfs:range rdf:resource="#tweet"/>
     </owl:ObjectProperty>
     
