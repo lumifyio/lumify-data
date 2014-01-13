@@ -110,7 +110,7 @@ public class TikaTextExtractor {
         textOut.write(text.getBytes());
 
         result.setDate(extractDate(metadata));
-        String title = extractTextField(metadata, subjectKeys);
+        String title = extractTextField(metadata, subjectKeys).replaceAll(",", " ");
         if (title != null && title.length() > 0) {
             result.setTitle(title);
         }
