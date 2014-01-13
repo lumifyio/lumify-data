@@ -710,7 +710,7 @@ public class DefaultLumifyTwitterProcessorTest {
         
         instance.retrieveProfileImage(TEST_PROCESS_ID, tweet, tweeterVertex);
         
-        verify(tweeterVertex).setProperty(PropertyName.GLYPH_ICON.toString(), "/artifact/" + rowKeyStr + "/raw");
+        verify(tweeterVertex).setProperty(PropertyName.GLYPH_ICON.toString(), "/artifact/" + imageVertexId + "/raw");
         verify(graphRepository).save(tweeterVertex, user);
         verify(auditRepository).auditEntityProperties(eq(AuditAction.UPDATE.toString()), eq(tweeterVertex),
                 eq(PropertyName.GLYPH_ICON.toString()), eq(TEST_PROCESS_ID), anyString(), eq(user));
