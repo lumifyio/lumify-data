@@ -101,6 +101,15 @@
             <artifactId>hbc-core</artifactId>
             <version>${twitter.hbc.version}</version>
         </dependency>
+        
+        <!-- Test Dependencies -->
+        <dependency>
+            <groupId>com.altamiracorp.lumify</groupId>
+            <artifactId>lumify-storm</artifactId>
+            <version>${lumify.version}</version>
+            <type>test-jar</type>
+            <scope>test</scope>
+        </dependency>
     </dependencies>
 
     <build>
