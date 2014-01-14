@@ -71,17 +71,17 @@
             </dependency>
             <dependency>
                 <groupId>com.altamiracorp.lumify</groupId>
+                <artifactId>lumify-model-bigtable-queue</artifactId>
+                <version>${lumify.public.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.altamiracorp.lumify</groupId>
                 <artifactId>lumify-model-elasticsearch</artifactId>
                 <version>${lumify.public.version}</version>
             </dependency>
             <dependency>
                 <groupId>com.altamiracorp.lumify</groupId>
                 <artifactId>lumify-model-kafka</artifactId>
-                <version>${lumify.public.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>com.altamiracorp.lumify</groupId>
-                <artifactId>lumify-model-accumulo-queue</artifactId>
                 <version>${lumify.public.version}</version>
             </dependency>
             <dependency>
