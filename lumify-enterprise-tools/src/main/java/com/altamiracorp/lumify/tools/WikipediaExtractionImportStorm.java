@@ -1,5 +1,6 @@
 package com.altamiracorp.lumify.tools;
 
+import com.altamiracorp.bigtable.model.FlushFlag;
 import com.altamiracorp.lumify.core.cmdline.CommandLineBase;
 import com.altamiracorp.lumify.core.model.workQueue.WorkQueueRepository;
 import com.altamiracorp.lumify.core.util.LumifyLogger;
@@ -87,12 +88,13 @@ public class WikipediaExtractionImportStorm extends CommandLineBase {
                     json.put("title", lineData.title);
                     json.put("source", "Wikipedia");
                     json.put("raw", lineData.body);
-                    workQueueRepository.pushOnQueue(outQueue, json);
+                    workQueueRepository.pushOnQueue(outQueue, FlushFlag.NO_FLUSH, json);
                 } catch (Exception ex) {
                     LOGGER.error("Could not process line: " + line, ex);
                 }
             }
             printProgress(lineNumber);
+            workQueueRepository.flush();
         } finally {
             reader.close();
         }
