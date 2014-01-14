@@ -145,7 +145,7 @@ public class StormRunner extends StormRunnerBase {
             String rootProp = (String) conf.get(HDFS_ROOT_PATH_PROPERTY);
             String subDirProp = (String) conf.get(HDFS_TWEET_SUBDIR_PROPERTY);
             hdfsDataRoot = rootProp != null ? rootProp.trim() : DEFAULT_HDFS_DATA_ROOT;
-            hdfsTweetSubdir = (subDirProp != null && !subDirProp.trim().isEmpty()) ? subDirProp.trim() : DEFAULT_HDFS_TWEET_SUBDIR;
+            hdfsTweetSubdir = subDirProp != null && !subDirProp.trim().isEmpty() ? subDirProp.trim() : DEFAULT_HDFS_TWEET_SUBDIR;
             if (!hdfsTweetSubdir.startsWith("/")) {
                 hdfsTweetSubdir = "/" + hdfsTweetSubdir;
             }

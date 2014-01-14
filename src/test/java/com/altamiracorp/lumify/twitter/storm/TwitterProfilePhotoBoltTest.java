@@ -22,8 +22,6 @@ import backtype.storm.topology.OutputFieldsDeclarer;
 import backtype.storm.tuple.Fields;
 import backtype.storm.tuple.Tuple;
 import com.altamiracorp.lumify.core.model.graph.GraphVertex;
-import java.util.Arrays;
-import java.util.List;
 import org.json.JSONObject;
 import org.junit.Test;
 import org.junit.runner.RunWith;

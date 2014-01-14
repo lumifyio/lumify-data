@@ -17,21 +17,13 @@
 package com.altamiracorp.lumify.twitter;
 
 import com.altamiracorp.lumify.core.json.JsonProperty;
-import com.altamiracorp.lumify.core.util.LumifyLogger;
-import com.altamiracorp.lumify.core.util.LumifyLoggerFactory;
 import com.thinkaurelius.titan.core.attribute.Geoshape;
 import org.json.JSONArray;
-import org.json.JSONException;
 
 /**
  * A Twitter JSON property whose value is a Geo-coordinate array.
  */
 public class TwitterGeoPointJsonProperty extends JsonProperty<Geoshape, JSONArray> {
-    /**
-     * The class logger.
-     */
-    private static final LumifyLogger LOGGER = LumifyLoggerFactory.getLogger(TwitterGeoPointJsonProperty.class);
-    
     /**
      * The latitude index.
      */
@@ -45,7 +37,7 @@ public class TwitterGeoPointJsonProperty extends JsonProperty<Geoshape, JSONArra
     /**
      * The default value to indicate latitude or longitude has not been set or cannot be parsed.
      */
-    private static final double NO_COORDINATE = Double.NaN;
+    private static final double NO_COORDINATE = -999.0d;
     
     /**
      * Create a new TwitterGeoPointJsonProperty.
@@ -59,7 +51,7 @@ public class TwitterGeoPointJsonProperty extends JsonProperty<Geoshape, JSONArra
     protected Geoshape fromJSON(final JSONArray jsonValue) {
         double latitude = jsonValue.optDouble(LATITUDE, NO_COORDINATE);
         double longitude = jsonValue.optDouble(LONGITUDE, NO_COORDINATE);
-        return (latitude != NO_COORDINATE && longitude != NO_COORDINATE) ? Geoshape.point(latitude, longitude) : null;
+        return latitude != NO_COORDINATE && longitude != NO_COORDINATE ? Geoshape.point(latitude, longitude) : null;
     }
 
     @Override

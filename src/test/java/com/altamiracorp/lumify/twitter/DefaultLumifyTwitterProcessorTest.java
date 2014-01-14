@@ -87,7 +87,6 @@ public class DefaultLumifyTwitterProcessorTest {
     private static final Geoshape TEST_USER_COORDS = Geoshape.point(38.8951d, -77.0367d);
     private static final String TEST_TWEET_TEXT =
             "I'm at Target (2300 W. Ben White Blvd., S. Lamar Blvd., Austin) w\\/ 3 others http://t.co/eGSHZkXH #shopping";
-    private static final byte[] TEST_TWEET_TEXT_BYTES = TEST_TWEET_TEXT.getBytes(TWITTER_CHARSET);
     // "Thu Dec 19 22:07:04 +0000 2013"
     private static final Long TEST_TWEET_CREATED = 1387490824000L;
     private static final Geoshape TEST_TWEET_COORDS = Geoshape.point(30.2500d, -97.7500d);
