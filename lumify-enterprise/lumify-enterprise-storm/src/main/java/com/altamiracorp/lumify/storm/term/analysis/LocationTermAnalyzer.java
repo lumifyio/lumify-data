@@ -7,7 +7,7 @@ import com.altamiracorp.lumify.core.model.geoNames.GeoNameRepository;
 import com.altamiracorp.lumify.core.model.graph.GraphRepository;
 import com.altamiracorp.lumify.core.model.graph.GraphVertex;
 import com.altamiracorp.lumify.core.model.ontology.PropertyName;
-import com.altamiracorp.lumify.core.model.termMention.TermMention;
+import com.altamiracorp.lumify.core.model.termMention.TermMentionModel;
 import com.altamiracorp.lumify.core.model.termMention.TermMentionMetadata;
 import com.altamiracorp.lumify.core.model.termMention.TermMentionRepository;
 import com.altamiracorp.lumify.core.user.User;
@@ -45,16 +45,16 @@ public class LocationTermAnalyzer {
         termRepository = termRepo;
     }
 
-    public TermMention analyzeTermData(final TermMentionWithGraphVertex data, final User user) {
+    public TermMentionModel analyzeTermData(final TermMentionWithGraphVertex data, final User user) {
         checkNotNull(data);
         checkNotNull(data.getTermMention());
         checkNotNull(data.getTermMention().getMetadata());
         checkNotNull(user);
 
-        final TermMention termMention = data.getTermMention();
+        final TermMentionModel termMention = data.getTermMention();
 
         LOGGER.info("Analyzing term: %s", termMention.getMetadata().getSign());
-        TermMention updatedTerm;
+        TermMentionModel updatedTerm;
         if (simpleTermLocationExtractor.isPostalCode(termMention)) {
             LOGGER.info("Analyzing postal code for term: %s", termMention.getRowKey().toString());
             updatedTerm = simpleTermLocationExtractor.getTermWithPostalCodeLookup(geoNamePostalCodeRepository, termMention, user);
@@ -72,7 +72,7 @@ public class LocationTermAnalyzer {
         return null;
     }
 
-    private void updateGraphVertex(final TermMention termMention, final GraphVertex vertex, final User user) {
+    private void updateGraphVertex(final TermMentionModel termMention, final GraphVertex vertex, final User user) {
         final TermMentionMetadata termMetadata = termMention.getMetadata();
 
         if (vertex != null) {

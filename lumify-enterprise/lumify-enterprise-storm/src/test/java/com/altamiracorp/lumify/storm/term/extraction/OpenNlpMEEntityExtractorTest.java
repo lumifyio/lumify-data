@@ -17,6 +17,7 @@ import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
 import com.altamiracorp.lumify.core.ingest.term.extraction.TermExtractionResult;
+import com.altamiracorp.lumify.core.ingest.term.extraction.TermMention;
 import com.altamiracorp.lumify.core.user.User;
 
 @RunWith(MockitoJUnitRunner.class)
@@ -47,23 +48,23 @@ public class OpenNlpMEEntityExtractorTest {
     @Test
     public void testEntityExtraction() throws Exception {
         TermExtractionResult results = extractor.extract(new ByteArrayInputStream(text.getBytes()));
-        HashMap<String, TermExtractionResult.TermMention> extractedTerms = new HashMap<String, TermExtractionResult.TermMention>();
-        for (TermExtractionResult.TermMention term : results.getTermMentions()) {
+        HashMap<String, TermMention> extractedTerms = new HashMap<String, TermMention>();
+        for (TermMention term : results.getTermMentions()) {
             extractedTerms.put(term.getSign() + "-" + term.getOntologyClassUri(), term);
         }
         assertTrue("A person wasn't found", extractedTerms.containsKey("Bob Robertson-person"));
-        TermExtractionResult.TermMention bobRobertsonMentions = extractedTerms.get("Bob Robertson-person");
+        TermMention bobRobertsonMentions = extractedTerms.get("Bob Robertson-person");
         assertEquals(31, bobRobertsonMentions.getStart());
         assertEquals(44, bobRobertsonMentions.getEnd());
 
 
         assertTrue("A location wasn't found", extractedTerms.containsKey("Benghazi-location"));
-        TermExtractionResult.TermMention benghaziMentions = extractedTerms.get("Benghazi-location");
+        TermMention benghaziMentions = extractedTerms.get("Benghazi-location");
         assertEquals(189, benghaziMentions.getStart());
         assertEquals(197, benghaziMentions.getEnd());
 
         assertTrue("An organization wasn't found", extractedTerms.containsKey("CNN-organization"));
-        TermExtractionResult.TermMention cnnMentions = extractedTerms.get("CNN-organization");
+        TermMention cnnMentions = extractedTerms.get("CNN-organization");
         assertEquals(151, cnnMentions.getStart());
         assertEquals(154, cnnMentions.getEnd());
     }

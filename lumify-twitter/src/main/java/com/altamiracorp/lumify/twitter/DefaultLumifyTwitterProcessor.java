@@ -32,7 +32,7 @@ import com.altamiracorp.lumify.core.model.ontology.Concept;
 import com.altamiracorp.lumify.core.model.ontology.LabelName;
 import com.altamiracorp.lumify.core.model.ontology.OntologyRepository;
 import com.altamiracorp.lumify.core.model.ontology.PropertyName;
-import com.altamiracorp.lumify.core.model.termMention.TermMention;
+import com.altamiracorp.lumify.core.model.termMention.TermMentionModel;
 import com.altamiracorp.lumify.core.user.User;
 import com.altamiracorp.lumify.core.util.LumifyLogger;
 import com.altamiracorp.lumify.core.util.LumifyLoggerFactory;
@@ -252,8 +252,8 @@ public class DefaultLumifyTwitterProcessor extends BaseArtifactProcessor impleme
             String relLabel = entityType.getRelationshipLabel();
             String relDispName = ontRepo.getDisplayNameForLabel(relLabel, user);
             
-            List<TermMention> mentions = TermRegexFinder.find(tweetId, conceptVertex, tweetText, entityType.getTermRegex());
-            for (TermMention mention : mentions) {
+            List<TermMentionModel> mentions = TermRegexFinder.find(tweetId, conceptVertex, tweetText, entityType.getTermRegex());
+            for (TermMentionModel mention : mentions) {
                 String sign = mention.getMetadata().getSign().toLowerCase();
                 String rowKey = mention.getRowKey().toString();
                 
