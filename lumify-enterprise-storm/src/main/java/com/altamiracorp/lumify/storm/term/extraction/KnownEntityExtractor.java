@@ -1,6 +1,7 @@
 package com.altamiracorp.lumify.storm.term.extraction;
 
 import com.altamiracorp.lumify.core.ingest.term.extraction.TermExtractionResult;
+import com.altamiracorp.lumify.core.ingest.term.extraction.TermMention;
 import com.altamiracorp.lumify.core.user.User;
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.io.IOUtils;
@@ -24,7 +25,7 @@ public class KnownEntityExtractor {
 
     private static final String PATH_PREFIX_CONFIG = "termextraction.knownEntities.pathPrefix";
     private static final String DEFAULT_PATH_PREFIX = "hdfs://";
-    private AhoCorasick tree = new AhoCorasick();
+    private final AhoCorasick tree = new AhoCorasick();
 
     public void prepare(Configuration configuration, User user) throws IOException {
         pathPrefix = configuration.get(PATH_PREFIX_CONFIG, DEFAULT_PATH_PREFIX);
@@ -42,13 +43,19 @@ public class KnownEntityExtractor {
         return termExtractionResult;
     }
 
-    private TermExtractionResult.TermMention outputResultToTermMention(OutputResult searchResult) {
+    private TermMention outputResultToTermMention(OutputResult searchResult) {
         Match match = (Match) searchResult.getOutput();
         int start = searchResult.getStartIndex();
         int end = searchResult.getLastIndex();
-        TermExtractionResult.TermMention result = new TermExtractionResult.TermMention(start, end, match.getEntityTitle(), match.getConceptTitle(), true, null, null, true);
-        result.setProcess(this.getClass().getName());
-        return result;
+        return new TermMention.Builder()
+                .start(start)
+                .end(end)
+                .sign(match.getEntityTitle())
+                .ontologyClassUri(match.getConceptTitle())
+                .resolved(true)
+                .useExisting(true)
+                .process(getClass().getName())
+                .build();
     }
 
     private void loadDictionaries() throws IOException {

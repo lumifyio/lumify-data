@@ -1,9 +1,19 @@
 package com.altamiracorp.lumify.storm.term.extraction;
 
+import static com.google.common.base.Preconditions.checkNotNull;
+
 import com.altamiracorp.lumify.core.ingest.term.extraction.TermExtractionResult;
+import com.altamiracorp.lumify.core.ingest.term.extraction.TermMention;
 import com.altamiracorp.lumify.core.user.User;
 import com.altamiracorp.lumify.core.util.LumifyLogger;
 import com.altamiracorp.lumify.core.util.LumifyLoggerFactory;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.net.URI;
+import java.net.URISyntaxException;
+import java.util.ArrayList;
+import java.util.List;
 import opennlp.tools.namefind.TokenNameFinder;
 import opennlp.tools.tokenize.Tokenizer;
 import opennlp.tools.tokenize.TokenizerME;
@@ -14,16 +24,6 @@ import opennlp.tools.util.Span;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.Path;
-
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.net.URI;
-import java.net.URISyntaxException;
-import java.util.ArrayList;
-import java.util.List;
-
-import static com.google.common.base.Preconditions.checkNotNull;
 
 public abstract class OpenNlpEntityExtractor {
     private static final LumifyLogger LOGGER = LumifyLoggerFactory.getLogger(OpenNlpEntityExtractor.class);
@@ -55,7 +55,7 @@ public abstract class OpenNlpEntityExtractor {
 
         LOGGER.debug("Processing artifact content stream");
         while ((line = untokenizedLineStream.read()) != null) {
-            ArrayList<TermExtractionResult.TermMention> newTermMenitons = processLine(line, charOffset);
+            ArrayList<TermMention> newTermMenitons = processLine(line, charOffset);
             termExtractionResult.addAllTermMentions(newTermMenitons);
             charOffset += line.length() + NEW_LINE_CHARACTER_LENGTH;
         }
@@ -66,14 +66,14 @@ public abstract class OpenNlpEntityExtractor {
         return termExtractionResult;
     }
 
-    private ArrayList<TermExtractionResult.TermMention> processLine(String line, int charOffset) {
-        ArrayList<TermExtractionResult.TermMention> termMentions = new ArrayList<TermExtractionResult.TermMention>();
+    private ArrayList<TermMention> processLine(String line, int charOffset) {
+        ArrayList<TermMention> termMentions = new ArrayList<TermMention>();
         String tokenList[] = tokenizer.tokenize(line);
         Span[] tokenListPositions = tokenizer.tokenizePos(line);
         for (TokenNameFinder finder : finders) {
             Span[] foundSpans = finder.find(tokenList);
             for (Span span : foundSpans) {
-                TermExtractionResult.TermMention termMention = createTermMention(charOffset, span, tokenList, tokenListPositions);
+                TermMention termMention = createTermMention(charOffset, span, tokenList, tokenListPositions);
                 termMentions.add(termMention);
             }
             finder.clearAdaptiveData();
@@ -81,11 +81,19 @@ public abstract class OpenNlpEntityExtractor {
         return termMentions;
     }
 
-    private TermExtractionResult.TermMention createTermMention(int charOffset, Span foundName, String[] tokens, Span[] tokenListPositions) {
+    private TermMention createTermMention(int charOffset, Span foundName, String[] tokens, Span[] tokenListPositions) {
         String name = Span.spansToStrings(new Span[]{foundName}, tokens)[0];
         int start = charOffset + tokenListPositions[foundName.getStart()].getStart();
         int end = charOffset + tokenListPositions[foundName.getEnd() - 1].getEnd();
-        return new TermExtractionResult.TermMention(start, end, name, foundName.getType(), false, null, null, true);
+        return new TermMention.Builder()
+                .start(start)
+                .end(end)
+                .sign(name)
+                .ontologyClassUri(foundName.getType())
+                .resolved(false)
+                .useExisting(true)
+                .process(getClass().getName())
+                .build();
     }
 
     protected abstract List<TokenNameFinder> loadFinders(String pathPrefix, FileSystem fs) throws IOException;

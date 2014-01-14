@@ -1,18 +1,18 @@
 package com.altamiracorp.lumify.storm.term.extraction;
 
 import com.altamiracorp.lumify.core.model.graph.GraphVertex;
-import com.altamiracorp.lumify.core.model.termMention.TermMention;
+import com.altamiracorp.lumify.core.model.termMention.TermMentionModel;
 
 public class TermMentionWithGraphVertex {
-    private final TermMention termMention;
+    private final TermMentionModel termMention;
     private final GraphVertex graphVertex;
 
-    public TermMentionWithGraphVertex(TermMention termMention, GraphVertex graphVertex) {
+    public TermMentionWithGraphVertex(TermMentionModel termMention, GraphVertex graphVertex) {
         this.termMention = termMention;
         this.graphVertex = graphVertex;
     }
 
-    public TermMention getTermMention() {
+    public TermMentionModel getTermMention() {
         return termMention;
     }
 
