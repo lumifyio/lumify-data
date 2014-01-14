@@ -218,13 +218,13 @@ public class DefaultLumifyTwitterProcessorTest {
     @Test
     public void testQueueTweet_TrimmedQueue() {
         instance.queueTweet(TEST_QUEUE_NAME, FULL_TWEET);
-        verify(workQueueRepository).pushOnQueue(TEST_QUEUE_NAME, eq(FlushFlag.DEFAULT), FULL_TWEET);
+        verify(workQueueRepository).pushOnQueue(eq(TEST_QUEUE_NAME), eq(FlushFlag.DEFAULT), eq(FULL_TWEET));
     }
 
     @Test
     public void testQueueTweet_UntrimmedQueue() {
         instance.queueTweet("\n \t\t " + TEST_QUEUE_NAME + " \n", FULL_TWEET);
-        verify(workQueueRepository).pushOnQueue(TEST_QUEUE_NAME, eq(FlushFlag.DEFAULT), FULL_TWEET);
+        verify(workQueueRepository).pushOnQueue(eq(TEST_QUEUE_NAME), eq(FlushFlag.DEFAULT), eq(FULL_TWEET));
     }
 
     private void doShortCircuitQueueTweetTest(final String queueName, final JSONObject tweet) {
