@@ -15,6 +15,8 @@ import java.io.InputStream;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
+import com.altamiracorp.lumify.core.ingest.term.extraction.TermMention;
+
 @RunWith(MockitoJUnitRunner.class)
 public class KnownEntityExtractorTest {
     private KnownEntityExtractor extractor;
@@ -39,7 +41,7 @@ public class KnownEntityExtractorTest {
         InputStream in = getClass().getResourceAsStream("bffls.txt");
         TermExtractionResult result = extractor.extract(in);
         assertEquals(3, result.getTermMentions().size());
-        for (TermExtractionResult.TermMention termMention : result.getTermMentions()) {
+        for (TermMention termMention : result.getTermMentions()) {
             assertTrue(termMention.isResolved());
             assertEquals("person", termMention.getOntologyClassUri());
             assertEquals("Joe Ferner", termMention.getSign());

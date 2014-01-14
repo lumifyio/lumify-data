@@ -1,6 +1,10 @@
 package com.altamiracorp.lumify.storm.term.extraction;
 
+import static com.google.common.base.Preconditions.checkNotNull;
+
 import com.altamiracorp.lumify.core.ingest.term.extraction.TermExtractionResult;
+import com.altamiracorp.lumify.core.ingest.term.extraction.TermMention;
+import com.altamiracorp.lumify.core.ingest.term.extraction.TermRelationship;
 import com.altamiracorp.lumify.core.model.artifact.Artifact;
 import com.altamiracorp.lumify.core.model.artifact.ArtifactRepository;
 import com.altamiracorp.lumify.core.model.graph.GraphVertex;
@@ -12,22 +16,23 @@ import com.altamiracorp.lumify.storm.structuredData.MappingProperties;
 import com.altamiracorp.lumify.util.LineReader;
 import com.google.inject.Inject;
 import com.thinkaurelius.titan.core.attribute.Geoshape;
+import java.io.IOException;
+import java.io.StringReader;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import org.json.JSONArray;
 import org.json.JSONObject;
 import org.supercsv.io.CsvListReader;
 import org.supercsv.prefs.CsvPreference;
 
-import java.io.IOException;
-import java.io.StringReader;
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
-import java.util.*;
-
-import static com.google.common.base.Preconditions.checkNotNull;
-
 public class CsvEntityExtractor {
     private static final LumifyLogger LOGGER = LumifyLoggerFactory.getLogger(CsvEntityExtractor.class);
-    private Map<String, SimpleDateFormat> dateFormatCache = new HashMap<String, SimpleDateFormat>();
+    private final Map<String, SimpleDateFormat> dateFormatCache = new HashMap<String, SimpleDateFormat>();
     private ArtifactRepository artifactRepository;
 
     public TermExtractionResult extract(GraphVertex graphVertex, User user) throws IOException, ParseException {
@@ -69,13 +74,13 @@ public class CsvEntityExtractor {
 
 
     private void processLine(TermExtractionResult termExtractionResult, int offset, List<String> columns, JSONObject mappingJson) throws ParseException {
-        List<TermExtractionResult.TermMention> termMentions = getTermsWithGraphVertices(offset, columns, mappingJson);
+        List<TermMention> termMentions = getTermsWithGraphVertices(offset, columns, mappingJson);
         termExtractionResult.addAllTermMentions(termMentions);
         termExtractionResult.addAllRelationships(getRelationships(termMentions, mappingJson));
     }
 
-    private List<TermExtractionResult.Relationship> getRelationships(List<TermExtractionResult.TermMention> termMentions, JSONObject mappingJson) {
-        List<TermExtractionResult.Relationship> relationships = new ArrayList<TermExtractionResult.Relationship>();
+    private List<TermRelationship> getRelationships(List<TermMention> termMentions, JSONObject mappingJson) {
+        List<TermRelationship> relationships = new ArrayList<TermRelationship>();
         JSONArray mappingColumnsJson = (JSONArray) mappingJson.get("columns");
         for (int columnIndex = 0; columnIndex < mappingColumnsJson.length(); columnIndex++) {
             JSONObject columnMappingJson = mappingColumnsJson.getJSONObject(columnIndex);
@@ -85,18 +90,19 @@ public class CsvEntityExtractor {
                     JSONObject relationshipJson = relationshipsJson.getJSONObject(relationshipIndex);
                     int targetIndex = relationshipJson.getInt("target");
                     String label = relationshipJson.getString("label");
-                    TermExtractionResult.TermMention sourceTermMention = termMentions.get(columnIndex);
-                    TermExtractionResult.TermMention destTermMention = termMentions.get(targetIndex);
-                    relationships.add(new TermExtractionResult.Relationship(sourceTermMention, destTermMention, label));
+                    TermMention sourceTermMention = termMentions.get(columnIndex);
+                    TermMention destTermMention = termMentions.get(targetIndex);
+                    relationships.add(new TermRelationship(sourceTermMention, destTermMention, label));
                 }
             }
         }
         return relationships;
     }
 
-    private List<TermExtractionResult.TermMention> getTermsWithGraphVertices(int offset, List<String> columns, JSONObject mappingJson) throws ParseException {
-        List<TermExtractionResult.TermMention> termMentions = new ArrayList<TermExtractionResult.TermMention>();
+    private List<TermMention> getTermsWithGraphVertices(int offset, List<String> columns, JSONObject mappingJson) throws ParseException {
+        List<TermMention> termMentions = new ArrayList<TermMention>();
         JSONArray mappingColumnsJson = (JSONArray) mappingJson.get(MappingProperties.COLUMNS);
+        String process = getClass().getName();
         for (int i = 0; i < columns.size(); i++) {
             JSONObject columnMappingJson = mappingColumnsJson.getJSONObject(i);
             String sign = columns.get(i);
@@ -123,9 +129,16 @@ public class CsvEntityExtractor {
                     }
                 }
 
-                TermExtractionResult.TermMention termMention = new TermExtractionResult.TermMention(offset, offset + sign.length(), sign, ontologyClassUri, true, properties, null, useExisting);
-                termMention.setProcess(this.getClass().getName());
-                termMentions.add(termMention);
+                termMentions.add(new TermMention.Builder()
+                        .start(offset)
+                        .end(offset + sign.length())
+                        .sign(sign)
+                        .ontologyClassUri(ontologyClassUri)
+                        .resolved(true)
+                        .properties(properties)
+                        .useExisting(useExisting)
+                        .process(process)
+                        .build());
             } else {
                 termMentions.add(null);
             }

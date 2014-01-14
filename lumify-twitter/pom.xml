@@ -10,7 +10,15 @@
     </parent>
     <artifactId>lumify-twitter</artifactId>
     <name>Lumify Twitter</name>
-
+    <description>
+        This project adds ingest capabilities for Twitter JSON-formatted Tweet
+        objects (https://dev.twitter.com/docs/platform-objects/tweets) to the
+        Lumify system.  It contains Storm topologies for streaming Tweets
+        matching configurable query criteria or reading previously captured
+        JSON from a file in HDFS, writing the captured JSON to a Lumify queue
+        and a topology for processing the JSON found on the queue and generating
+        Lumify Artifacts, Entities and Relationships.
+    </description>
     <scm>
         <url>https://github.com/altamiracorp/lumify-twitter</url>
         <connection>scm:git:git://github.com:altamiracorp/lumify-twitter.git</connection>
@@ -52,7 +60,7 @@
                             <descriptor>src/main/assembly/descriptor.xml</descriptor>
                             <archive>
                                 <manifest>
-                                    <mainClass>com.altamiracorp.lumify.storm.twitter.StormRunner</mainClass>
+                                    <mainClass>com.altamiracorp.lumify.twiiter.storm.StormRunner</mainClass>
                                 </manifest>
                             </archive>
                         </configuration>

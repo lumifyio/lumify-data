@@ -23,6 +23,7 @@ import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
 import com.altamiracorp.lumify.core.ingest.term.extraction.TermExtractionResult;
+import com.altamiracorp.lumify.core.ingest.term.extraction.TermMention;
 import com.altamiracorp.lumify.core.user.User;
 
 @RunWith(MockitoJUnitRunner.class)
@@ -60,7 +61,7 @@ public class OpenNlpDictionaryEntityExtractorTest {
         TermExtractionResult results = extractor.extract(new ByteArrayInputStream(text.getBytes()));
         assertEquals(3, results.getTermMentions().size());
         ArrayList<String> signs = new ArrayList<String>();
-        for (TermExtractionResult.TermMention term : results.getTermMentions()) {
+        for (TermMention term : results.getTermMentions()) {
             signs.add(term.getSign());
         }
 
@@ -73,7 +74,7 @@ public class OpenNlpDictionaryEntityExtractorTest {
     public void testEntityExtractionSetsMentionRelativeToArtifactNotSentence() throws Exception {
         TermExtractionResult results = extractor.extract(new ByteArrayInputStream(text.getBytes()));
         boolean found = false;
-        for (TermExtractionResult.TermMention term : results.getTermMentions()) {
+        for (TermMention term : results.getTermMentions()) {
             if (term.getSign().equals("Bob Robertson")) {
                 found = true;
                 assertEquals(63, term.getStart());

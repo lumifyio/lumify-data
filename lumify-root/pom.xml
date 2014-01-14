@@ -629,7 +629,7 @@
                         <enableRulesSummary>true</enableRulesSummary>
                         <excludes>**/generated/*.java</excludes>
                         <failsOnError>false</failsOnError>
-                        <includeTestSourceDirectory>true</includeTestSourceDirectory>
+                        <includeTestSourceDirectory>false</includeTestSourceDirectory>
                     </configuration>
                     <executions>
                         <execution>
@@ -824,7 +824,7 @@
                                     <enableRulesSummary>true</enableRulesSummary>
                                     <excludes>**/generated/*.java</excludes>
                                     <failsOnError>false</failsOnError>
-                                    <includeTestSourceDirectory>true</includeTestSourceDirectory>
+                                    <includeTestSourceDirectory>false</includeTestSourceDirectory>
                                 </configuration>
                             </plugin>
                             <plugin>

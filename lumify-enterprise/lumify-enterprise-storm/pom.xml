@@ -110,6 +110,10 @@
             <artifactId>lumify-storm</artifactId>
         </dependency>
         <dependency>
+            <groupId>com.bericotech</groupId>
+            <artifactId>clavin</artifactId>
+        </dependency>
+        <dependency>
             <groupId>com.codahale.metrics</groupId>
             <artifactId>metrics-core</artifactId>
         </dependency>

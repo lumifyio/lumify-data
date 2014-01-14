@@ -24,6 +24,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
+import static com.altamiracorp.lumify.core.util.CollectionUtil.toList;
+
 public class VideoPreviewBolt extends BaseLumifyBolt {
     private static final LumifyLogger LOGGER = LumifyLoggerFactory.getLogger(VideoPreviewBolt.class);
     private VideoFrameRepository videoFrameRepository;
@@ -45,7 +47,7 @@ public class VideoPreviewBolt extends BaseLumifyBolt {
         LOGGER.info("[VideoPreviewBolt] Generating video preview for %s", artifactRowKey);
 
         try {
-            List<VideoFrame> videoFrames = videoFrameRepository.findAllByArtifactRowKey(artifactRowKey, getUser());
+            Iterable<VideoFrame> videoFrames = videoFrameRepository.findAllByArtifactRowKey(artifactRowKey, getUser());
             List<VideoFrame> videoFramesForPreview = getFramesForPreview(videoFrames);
             for (VideoFrame v : videoFramesForPreview) {
                 LOGGER.info(v.getRowKey().toString());
@@ -89,7 +91,9 @@ public class VideoPreviewBolt extends BaseLumifyBolt {
         return previewImage;
     }
 
-    private List<VideoFrame> getFramesForPreview(List<VideoFrame> videoFrames) {
+    private List<VideoFrame> getFramesForPreview(Iterable<VideoFrame> videoFramesIterable) {
+        List<VideoFrame> videoFrames = toList(videoFramesIterable);
+
         ArrayList<VideoFrame> results = new ArrayList<VideoFrame>();
         double skip = (double) videoFrames.size() / (double) ArtifactRepository.FRAMES_PER_PREVIEW;
         for (double i = 0; i < videoFrames.size(); i += skip) {

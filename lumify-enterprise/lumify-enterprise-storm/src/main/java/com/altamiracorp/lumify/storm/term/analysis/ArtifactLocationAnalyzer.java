@@ -5,7 +5,7 @@ import com.altamiracorp.lumify.core.model.audit.AuditRepository;
 import com.altamiracorp.lumify.core.model.graph.GraphRepository;
 import com.altamiracorp.lumify.core.model.graph.GraphVertex;
 import com.altamiracorp.lumify.core.model.ontology.PropertyName;
-import com.altamiracorp.lumify.core.model.termMention.TermMention;
+import com.altamiracorp.lumify.core.model.termMention.TermMentionModel;
 import com.altamiracorp.lumify.core.model.termMention.TermMentionMetadata;
 import com.altamiracorp.lumify.core.user.User;
 import com.altamiracorp.lumify.core.util.LumifyLogger;
@@ -32,13 +32,13 @@ public class ArtifactLocationAnalyzer {
         auditRepository = auditRepo;
     }
 
-    public void analyzeLocation(final GraphVertex vertex, final List<TermMention> termMentions, final User user) {
+    public void analyzeLocation(final GraphVertex vertex, final List<TermMentionModel> termMentions, final User user) {
         checkNotNull(vertex);
         checkNotNull(termMentions);
         checkNotNull(user);
 
-        TermMention largest = null;
-        for (TermMention termMention : termMentions) {
+        TermMentionModel largest = null;
+        for (TermMentionModel termMention : termMentions) {
             TermMentionMetadata termMentionMetadata = termMention.getMetadata();
             if (termMentionMetadata != null && termMentionMetadata.getGeoLocation() != null) {
                 if (largest == null) {
@@ -56,7 +56,7 @@ public class ArtifactLocationAnalyzer {
         }
     }
 
-    private void updateGraphVertex(final TermMention mention, final GraphVertex vertex, final User user) {
+    private void updateGraphVertex(final TermMentionModel mention, final GraphVertex vertex, final User user) {
         final TermMentionMetadata termMetadata = mention.getMetadata();
         boolean vertexUpdated = false;
         final String geolocationTitle = termMetadata.getGeoLocationTitle();

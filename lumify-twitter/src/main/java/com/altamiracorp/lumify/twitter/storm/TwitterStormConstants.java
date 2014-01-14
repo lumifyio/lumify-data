@@ -23,10 +23,10 @@ public interface TwitterStormConstants {
     /**
      * The Tweet vertex field.
      */
-    static final String TWEET_VERTEX_FIELD = "tweetVertex";
+    String TWEET_VERTEX_FIELD = "tweetVertex";
     
     /**
      * The Twitter User (tweeter) vertex field.
      */
-    static final String TWITTER_USER_VERTEX_FIELD = "tweeterVertex";
+    String TWITTER_USER_VERTEX_FIELD = "tweeterVertex";
 }
