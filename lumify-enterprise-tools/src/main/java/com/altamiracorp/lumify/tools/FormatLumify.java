@@ -21,7 +21,8 @@ public class FormatLumify extends CommandLineBase {
     @Override
     protected int run(CommandLine cmd) throws Exception {
         ModelUtil.deleteTables(modelSession, getUser());
-        graph.delete(getUser());
+        // TODO provide a way to delete the graph and it's search index
+        // graph.delete(getUser());
         return 0;
     }
 
