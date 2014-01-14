@@ -1,6 +1,7 @@
 package com.altamiracorp.lumify.storm.term.extraction;
 
 import com.altamiracorp.lumify.core.ingest.term.extraction.TermExtractionResult;
+import com.altamiracorp.lumify.core.ingest.term.extraction.TermMention;
 import com.altamiracorp.lumify.core.user.User;
 import com.altamiracorp.lumify.core.util.LumifyLogger;
 import com.altamiracorp.lumify.core.util.LumifyLoggerFactory;
@@ -54,11 +55,19 @@ public class PhoneNumberExtractor {
         return termExtractionResult;
     }
 
-    private TermExtractionResult.TermMention createTerm(final PhoneNumberMatch phoneNumber) {
+    private TermMention createTerm(final PhoneNumberMatch phoneNumber) {
         final String formattedNumber = phoneNumberUtil.format(phoneNumber.number(), PhoneNumberUtil.PhoneNumberFormat.E164);
         int start = phoneNumber.start();
         int end = phoneNumber.end();
-
-        return new TermExtractionResult.TermMention(start, end, formattedNumber, ENTITY_TYPE, false, null, null, true);
+        
+        return new TermMention.Builder()
+                .start(start)
+                .end(end)
+                .sign(formattedNumber)
+                .ontologyClassUri(ENTITY_TYPE)
+                .resolved(false)
+                .useExisting(true)
+                .process(getClass().getName())
+                .build();
     }
 }

@@ -5,7 +5,7 @@ import com.altamiracorp.lumify.core.model.geoNames.GeoNamePostalCodeRepository;
 import com.altamiracorp.lumify.core.model.geoNames.GeoNameRepository;
 import com.altamiracorp.lumify.core.model.graph.GraphRepository;
 import com.altamiracorp.lumify.core.model.graph.GraphVertex;
-import com.altamiracorp.lumify.core.model.termMention.TermMention;
+import com.altamiracorp.lumify.core.model.termMention.TermMentionModel;
 import com.altamiracorp.lumify.core.model.termMention.TermMentionMetadata;
 import com.altamiracorp.lumify.core.model.termMention.TermMentionRepository;
 import com.altamiracorp.lumify.core.model.termMention.TermMentionRowKey;
@@ -41,7 +41,7 @@ public class LocationTermAnalyzerTest {
     @Mock
     private User user;
     @Mock
-    private TermMention termMention;
+    private TermMentionModel termMention;
     @Mock
     private GraphVertex vertex;
     private TermMentionMetadata metadata;

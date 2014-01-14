@@ -20,7 +20,8 @@ import org.mockito.runners.MockitoJUnitRunner;
 
 import com.altamiracorp.bigtable.model.user.ModelUserContext;
 import com.altamiracorp.lumify.core.ingest.term.extraction.TermExtractionResult;
-import com.altamiracorp.lumify.core.ingest.term.extraction.TermExtractionResult.TermMention;
+import com.altamiracorp.lumify.core.ingest.term.extraction.TermMention;
+import com.altamiracorp.lumify.core.ingest.term.extraction.TermRelationship;
 import com.altamiracorp.lumify.core.model.artifact.Artifact;
 import com.altamiracorp.lumify.core.model.artifact.ArtifactMetadata;
 import com.altamiracorp.lumify.core.model.artifact.ArtifactRepository;
@@ -77,7 +78,7 @@ public class CsvEntityExtractorTest {
         assertEquals("20147", mention2.getSign());
 
         assertEquals(result.getRelationships().size(), 1);
-        TermExtractionResult.Relationship relationship = result.getRelationships().get(0);
+        TermRelationship relationship = result.getRelationships().get(0);
         assertEquals(relationship.getSourceTermMention(), mention1);
         assertEquals(relationship.getDestTermMention(), mention2);
         assertEquals("personLivesAtLocation", relationship.getLabel());
