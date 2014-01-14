@@ -2,7 +2,7 @@ package com.altamiracorp.lumify.location;
 
 import com.altamiracorp.lumify.core.user.User;
 import com.altamiracorp.lumify.core.model.geoNames.*;
-import com.altamiracorp.lumify.core.model.termMention.TermMention;
+import com.altamiracorp.lumify.core.model.termMention.TermMentionModel;
 import com.google.inject.Inject;
 
 import java.util.regex.Pattern;
@@ -19,7 +19,7 @@ public class SimpleTermLocationExtractor {
         this.geoNameCountryInfoRepository = geoNameCountryInfoRepository;
     }
 
-    public TermMention getTermWithLocationLookup(GeoNameRepository geoNameRepository, TermMention termMention, User user) {
+    public TermMentionModel getTermWithLocationLookup(GeoNameRepository geoNameRepository, TermMentionModel termMention, User user) {
         String sign = termMention.getMetadata().getSign();
         GeoName geoName = geoNameRepository.findBestMatch(sign, user);
         if (geoName == null) {
@@ -33,7 +33,7 @@ public class SimpleTermLocationExtractor {
                 geoName.getMetadata().getPopulation());
     }
 
-    public TermMention getTermWithPostalCodeLookup(GeoNamePostalCodeRepository geoNamePostalCodeRepository, TermMention termMention, User user) {
+    public TermMentionModel getTermWithPostalCodeLookup(GeoNamePostalCodeRepository geoNamePostalCodeRepository, TermMentionModel termMention, User user) {
         //we are assuming all US zip codes at this point!
         String zip = termMention.getMetadata().getSign().length() == 5 ? termMention.getMetadata().getSign() : termMention.getMetadata().getSign().substring(0, 5);
         GeoNamePostalCode postalCode = geoNamePostalCodeRepository.findByUSZipCode(zip, user);
@@ -47,7 +47,7 @@ public class SimpleTermLocationExtractor {
                 POSTAL_CODE_POPULATION);
     }
 
-    private TermMention populateTermMentions(TermMention term, Double latitude, Double longitude, String title, Long population) {
+    private TermMentionModel populateTermMentions(TermMentionModel term, Double latitude, Double longitude, String title, Long population) {
         term.getMetadata().setGeoLocation(latitude, longitude);
         term.getMetadata().setGeoLocationTitle(title);
         term.getMetadata().setGeoLocationPopulation(population);
@@ -81,7 +81,7 @@ public class SimpleTermLocationExtractor {
         return sb.toString();
     }
 
-    public boolean isPostalCode(TermMention termMention) {
+    public boolean isPostalCode(TermMentionModel termMention) {
         return isPostalCode(termMention.getMetadata().getSign());
     }
 

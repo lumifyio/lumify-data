@@ -1,6 +1,7 @@
 package com.altamiracorp.lumify.storm.term.extraction;
 
 import com.altamiracorp.lumify.core.ingest.term.extraction.TermExtractionResult;
+import com.altamiracorp.lumify.core.ingest.term.extraction.TermMention;
 import com.altamiracorp.lumify.core.user.User;
 import com.altamiracorp.lumify.core.util.LumifyLogger;
 import com.altamiracorp.lumify.core.util.LumifyLoggerFactory;
@@ -62,11 +63,19 @@ public class RegexEntityExtractor {
         return termExtractionResult;
     }
 
-    private TermExtractionResult.TermMention createTerm(final Matcher matched) {
+    private TermMention createTerm(final Matcher matched) {
         final String patternGroup = matched.group();
         int start = matched.start();
         int end = matched.end();
-
-        return new TermExtractionResult.TermMention(start, end, patternGroup, entityType, false, null, null, true);
+        
+        return new TermMention.Builder()
+                .start(start)
+                .end(end)
+                .sign(patternGroup)
+                .ontologyClassUri(entityType)
+                .resolved(false)
+                .useExisting(true)
+                .process(getClass().getName())
+                .build();
     }
 }

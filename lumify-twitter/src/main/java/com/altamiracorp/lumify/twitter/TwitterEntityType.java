@@ -24,9 +24,9 @@ import static com.altamiracorp.lumify.twitter.TwitterConstants.*;
  * An Entity that can be extracted from a Tweet.
  */
 public enum TwitterEntityType {
-    MENTION(CONCEPT_TWITTER_MENTION, "(@(\\\\w+))", TWEET_MENTION_RELATIONSHIP),
-    HASHTAG(CONCEPT_TWITTER_HASHTAG, "(#(\\\\w+))", TWEET_HASHTAG_RELATIONSHIP),
-    URL(CONCEPT_TWITTER_URL, "((https?://[^\\\\s]+))", TWEET_URL_RELATIONSHIP);
+    MENTION(CONCEPT_TWITTER_MENTION, "(@(\\w+))", TWEET_MENTION_RELATIONSHIP),
+    HASHTAG(CONCEPT_TWITTER_HASHTAG, "(#(\\w+))", TWEET_HASHTAG_RELATIONSHIP),
+    URL(CONCEPT_TWITTER_URL, "((https?://[^\\s]+))", TWEET_URL_RELATIONSHIP);
     
     /**
      * The Concept name for this Entity.

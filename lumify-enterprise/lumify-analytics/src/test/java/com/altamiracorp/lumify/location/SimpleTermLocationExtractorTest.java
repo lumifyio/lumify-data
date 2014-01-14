@@ -6,7 +6,7 @@ import com.altamiracorp.lumify.core.model.geoNames.GeoName;
 import com.altamiracorp.lumify.core.model.geoNames.GeoNameAdmin1CodeRepository;
 import com.altamiracorp.lumify.core.model.geoNames.GeoNameCountryInfoRepository;
 import com.altamiracorp.lumify.core.model.geoNames.GeoNameRepository;
-import com.altamiracorp.lumify.core.model.termMention.TermMention;
+import com.altamiracorp.lumify.core.model.termMention.TermMentionModel;
 import com.altamiracorp.lumify.core.model.workspace.WorkspaceRepository;
 import com.altamiracorp.lumify.core.util.ModelUtil;
 import org.junit.Before;
@@ -47,7 +47,7 @@ public class SimpleTermLocationExtractorTest {
     @Test
     public void testLookupReturnsHighestPopulation() throws Exception {
         SimpleTermLocationExtractor simpleTermLocationExtractor = new SimpleTermLocationExtractor(geoNameAdmin1CodeRepository, geoNameCountryInfoRepository);
-        TermMention termIn = new TermMention();
+        TermMentionModel termIn = new TermMentionModel();
         termIn.getMetadata().setSign("baltimore");
 
         GeoName geoName = new GeoName("baltimore", "1");
@@ -56,7 +56,7 @@ public class SimpleTermLocationExtractorTest {
                 .setLongitude(-61.1)
                 .setPopulation(200L);
         Mockito.when(geoNameRepository.findBestMatch("baltimore", user)).thenReturn(geoName);
-        TermMention termOut = simpleTermLocationExtractor.getTermWithLocationLookup(geoNameRepository, termIn, user);
+        TermMentionModel termOut = simpleTermLocationExtractor.getTermWithLocationLookup(geoNameRepository, termIn, user);
         assertNotNull(termOut);
         assertEquals("POINT(87.1,-61.1)", termOut.getMetadata().getGeoLocation());
     }
