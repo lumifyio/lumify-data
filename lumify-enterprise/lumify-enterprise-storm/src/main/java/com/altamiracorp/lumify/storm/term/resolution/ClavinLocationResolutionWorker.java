@@ -124,9 +124,9 @@ public class ClavinLocationResolutionWorker implements TermResolutionWorker {
     @Override
     public TermExtractionResult resolveTerms(TermExtractionResult termExtractionResult) throws Exception {
         List<LocationOccurrence> locationOccurrences = getLocationOccurrencesFromTermMentions(termExtractionResult.getTermMentions());
-        LOGGER.debug("Found %d Locations in %d terms.", locationOccurrences.size(), termExtractionResult.getTermMentions().size());
+        LOGGER.info("Found %d Locations in %d terms.", locationOccurrences.size(), termExtractionResult.getTermMentions().size());
         List<ResolvedLocation> resolvedLocationNames = resolver.resolveLocations(locationOccurrences, fuzzy);
-        LOGGER.debug("Resolved %d Locations", resolvedLocationNames.size());
+        LOGGER.info("Resolved %d Locations", resolvedLocationNames.size());
 
         Map<Integer, ResolvedLocation> resolvedLocationOffsetMap = new HashMap<Integer, ResolvedLocation>();
         for (ResolvedLocation resolvedLocation : resolvedLocationNames) {
