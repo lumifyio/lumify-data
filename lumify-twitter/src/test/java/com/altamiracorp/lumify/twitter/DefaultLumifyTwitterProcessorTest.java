@@ -21,6 +21,7 @@ import static org.junit.Assert.*;
 import static org.mockito.Mockito.*;
 import static org.mockito.Matchers.*;
 
+import com.altamiracorp.bigtable.model.FlushFlag;
 import com.altamiracorp.bigtable.model.user.ModelUserContext;
 import com.altamiracorp.lumify.core.ingest.ArtifactExtractedInfo;
 import com.altamiracorp.lumify.core.ingest.term.extraction.TermRegexFinder;
@@ -216,18 +217,18 @@ public class DefaultLumifyTwitterProcessorTest {
     @Test
     public void testQueueTweet_TrimmedQueue() {
         instance.queueTweet(TEST_QUEUE_NAME, FULL_TWEET);
-        verify(workQueueRepository).pushOnQueue(TEST_QUEUE_NAME, FULL_TWEET);
+        verify(workQueueRepository).pushOnQueue(TEST_QUEUE_NAME, FlushFlag.DEFAULT, FULL_TWEET);
     }
     
     @Test
     public void testQueueTweet_UntrimmedQueue() {
         instance.queueTweet("\n \t\t " + TEST_QUEUE_NAME + " \n", FULL_TWEET);
-        verify(workQueueRepository).pushOnQueue(TEST_QUEUE_NAME, FULL_TWEET);
+        verify(workQueueRepository).pushOnQueue(TEST_QUEUE_NAME, FlushFlag.DEFAULT, FULL_TWEET);
     }
     
     private void doShortCircuitQueueTweetTest(final String queueName, final JSONObject tweet) {
         instance.queueTweet(queueName, tweet);
-        verify(workQueueRepository, never()).pushOnQueue(anyString(), any(JSONObject.class));
+        verify(workQueueRepository, never()).pushOnQueue(anyString(), FlushFlag.DEFAULT, any(JSONObject.class));
     }
     
     @Test

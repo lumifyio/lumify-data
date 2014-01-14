@@ -18,6 +18,7 @@ package com.altamiracorp.lumify.twitter;
 
 import static com.altamiracorp.lumify.twitter.TwitterConstants.*;
 
+import com.altamiracorp.bigtable.model.FlushFlag;
 import com.altamiracorp.lumify.core.ingest.ArtifactExtractedInfo;
 import com.altamiracorp.lumify.core.ingest.BaseArtifactProcessor;
 import com.altamiracorp.lumify.core.ingest.term.extraction.TermRegexFinder;
@@ -138,7 +139,7 @@ public class DefaultLumifyTwitterProcessor extends BaseArtifactProcessor impleme
     @Override
     public void queueTweet(final String queueName, final JSONObject tweet) {
         if (queueName != null && !queueName.trim().isEmpty() && tweet != null) {
-            getWorkQueueRepository().pushOnQueue(queueName.trim(), tweet);
+            getWorkQueueRepository().pushOnQueue(queueName.trim(), FlushFlag.DEFAULT, tweet);
         }
     }
     
