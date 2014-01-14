@@ -41,6 +41,11 @@ public class ClavinLocationResolutionWorker implements TermResolutionWorker {
     private static final String TARGET_ONTOLOGY_URI = "location";
     
     /**
+     * The Clavin disabled configuration key.
+     */
+    public static final String CLAVIN_DISABLED = "clavin.disabled";
+    
+    /**
      * The Clavin index directory configuration key.
      */
     public static final String CLAVIN_INDEX_DIRECTORY = "clavin.indexDirectory";
@@ -75,6 +80,7 @@ public class ClavinLocationResolutionWorker implements TermResolutionWorker {
      */
     private static final boolean DEFAULT_FUZZY_MATCHING = true;
     
+    private boolean disabled;
     private File indexDirectory;
     private LuceneLocationResolver resolver;
     private boolean fuzzy;
@@ -85,6 +91,12 @@ public class ClavinLocationResolutionWorker implements TermResolutionWorker {
         Configuration config = new Configuration(conf);
         
         LOGGER.info("Configuring Clavin Location Resolution.");
+        disabled = Boolean.parseBoolean(config.get(CLAVIN_DISABLED));
+        if (disabled) {
+            LOGGER.info("Clavin disabled. Initialization stopped.");
+            return;
+        }
+        
         String idxDirPath = config.get(CLAVIN_INDEX_DIRECTORY, null);
         if (idxDirPath == null || idxDirPath.trim().isEmpty()) {
             throw new IllegalArgumentException(String.format("%s must be configured.", CLAVIN_INDEX_DIRECTORY));
@@ -123,6 +135,10 @@ public class ClavinLocationResolutionWorker implements TermResolutionWorker {
 
     @Override
     public TermExtractionResult resolveTerms(TermExtractionResult termExtractionResult) throws Exception {
+        if (disabled) {
+            LOGGER.info("Clavin disabled. Processing cancelled.");
+            return termExtractionResult;
+        }
         List<LocationOccurrence> locationOccurrences = getLocationOccurrencesFromTermMentions(termExtractionResult.getTermMentions());
         LOGGER.info("Found %d Locations in %d terms.", locationOccurrences.size(), termExtractionResult.getTermMentions().size());
         List<ResolvedLocation> resolvedLocationNames = resolver.resolveLocations(locationOccurrences, fuzzy);
