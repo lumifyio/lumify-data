@@ -28,10 +28,7 @@ import com.altamiracorp.lumify.core.model.audit.AuditRepository;
 import com.altamiracorp.lumify.core.model.graph.GraphRepository;
 import com.altamiracorp.lumify.core.model.graph.GraphVertex;
 import com.altamiracorp.lumify.core.model.graph.InMemoryGraphVertex;
-import com.altamiracorp.lumify.core.model.ontology.Concept;
-import com.altamiracorp.lumify.core.model.ontology.LabelName;
-import com.altamiracorp.lumify.core.model.ontology.OntologyRepository;
-import com.altamiracorp.lumify.core.model.ontology.PropertyName;
+import com.altamiracorp.lumify.core.model.ontology.*;
 import com.altamiracorp.lumify.core.model.termMention.TermMention;
 import com.altamiracorp.lumify.core.user.User;
 import com.altamiracorp.lumify.core.util.LumifyLogger;
@@ -322,15 +319,19 @@ public class DefaultLumifyTwitterProcessor extends BaseArtifactProcessor impleme
                 GraphVertex imageVertex = getArtifactRepository().saveArtifact(artifactInfo, user);
 
                 LOGGER.debug("Saved Twitter User [%s] Profile Photo to Accumulo and as graph vertex: %s", screenName, imageVertex.getId());
+                String labelDisplay = getOntologyRepository().getDisplayNameForLabel(LabelName.HAS_IMAGE.toString(), user);
+                auditRepo.auditRelationships(AuditAction.CREATE.toString(), tweeterVertex, imageVertex, labelDisplay, processId, "", user);
 
                 tweeterVertex.setProperty(PropertyName.GLYPH_ICON.toString(), String.format(GLYPH_ICON_FMT, imageVertex.getId()));
+                imageVertex.setProperty(PropertyName.GLYPH_ICON.toString(), String.format(GLYPH_ICON_FMT, imageVertex.getId()));
                 graphRepo.save(tweeterVertex, user);
+                graphRepo.save(imageVertex, user);
                 auditRepo.auditEntityProperties(AuditAction.UPDATE.toString(), tweeterVertex, PropertyName.GLYPH_ICON.toString(),
                         processId, "", user);
+                auditRepo.auditEntityProperties(AuditAction.UPDATE.toString(), imageVertex, PropertyName.GLYPH_ICON.toString(),
+                        processId, "", user);
 
-                String labelDisplay = getOntologyRepository().getDisplayNameForLabel(LabelName.HAS_IMAGE.toString(), user);
                 graphRepo.findOrAddRelationship(tweeterVertex.getId(), imageVertex.getId(), LabelName.HAS_IMAGE.toString(), user);
-                auditRepo.auditRelationships(AuditAction.CREATE.toString(), tweeterVertex, imageVertex, labelDisplay, processId, "", user);
             } catch (MalformedURLException mue) {
                 LOGGER.warn("Invalid Profile Photo URL [%s] for Twitter User: %s", imageUrl, screenName, mue);
             } catch (IOException ioe) {
