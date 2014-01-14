@@ -32,8 +32,8 @@ public class SimpleClavinOntologyMapper implements ClavinOntologyMapper {
     private static final String STATE = "state";
     
     @Override
-    public String getOntologyClassUri(final ResolvedLocation location) {
-        String uri = null;
+    public String getOntologyClassUri(final ResolvedLocation location, final String defaultValue) {
+        String uri = defaultValue;
         if (location.geoname.featureClass == FeatureClass.P)
             uri = CITY;
         else if (location.geoname.featureClass == FeatureClass.A) {
