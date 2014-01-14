@@ -164,17 +164,21 @@ public class FacebookUser {
         return null;
     }
 
-    protected void createProfilePhotoVertex (GraphVertex picture, GraphVertex userVertex, GraphRepository graphRepository, AuditRepository auditRepository, User user) {
+    protected void createProfilePhotoVertex (GraphVertex pictureVertex, GraphVertex userVertex, GraphRepository graphRepository, AuditRepository auditRepository, User user) {
         List<String> modifiedProperties = new ArrayList<String>();
-        List<GraphVertex> postings = graphRepository.getRelatedVertices(userVertex.getId(), user);
-        userVertex.setProperty(PropertyName.GLYPH_ICON.toString(), "/artifact/" + picture.getId() + "/raw");
+        userVertex.setProperty(PropertyName.GLYPH_ICON.toString(), "/artifact/" + pictureVertex.getId() + "/raw");
+        pictureVertex.setProperty(PropertyName.GLYPH_ICON.toString(), "/artifact/" + pictureVertex.getId() + "/raw");
         modifiedProperties.add(PropertyName.GLYPH_ICON.toString());
         String labelDisplay = LabelName.HAS_IMAGE.toString();
         graphRepository.save(userVertex, user);
-        graphRepository.findOrAddRelationship(userVertex.getId(), picture.getId(), labelDisplay, user);
-        auditRepository.auditRelationships(AuditAction.CREATE.toString(), userVertex, picture, labelDisplay, PROCESS, "", user);
-        LOGGER.info("Saving Facebook picture to accumulo and as graph vertex: %s", picture.getId());
-//        return modifiedProperties;
+        graphRepository.save(pictureVertex, user);
+        graphRepository.findOrAddRelationship(userVertex.getId(), pictureVertex.getId(), labelDisplay, user);
+        auditRepository.auditEntityProperties(AuditAction.UPDATE.toString(), userVertex, PropertyName.GLYPH_ICON.toString(),
+                PROCESS, "", user);
+        auditRepository.auditEntityProperties(AuditAction.UPDATE.toString(), pictureVertex, PropertyName.GLYPH_ICON.toString(),
+                PROCESS, "", user);
+        auditRepository.auditRelationships(AuditAction.CREATE.toString(), userVertex, pictureVertex, labelDisplay, PROCESS, "", user);
+        LOGGER.info("Saving Facebook picture to accumulo and as graph vertex: %s", pictureVertex.getId());
     }
 
     public void setFacebookBolt (FacebookBolt bolt) {
