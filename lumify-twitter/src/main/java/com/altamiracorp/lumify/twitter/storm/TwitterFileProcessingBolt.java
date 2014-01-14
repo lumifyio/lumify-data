@@ -23,14 +23,14 @@ import com.altamiracorp.lumify.core.util.LumifyLogger;
 import com.altamiracorp.lumify.core.util.LumifyLoggerFactory;
 import com.altamiracorp.lumify.storm.BaseFileProcessingBolt;
 import com.altamiracorp.lumify.storm.file.FileMetadata;
-import org.codehaus.plexus.util.FileUtils;
-
+import com.altamiracorp.lumify.twitter.TwitterConstants;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.util.regex.Pattern;
 import java.util.zip.GZIPInputStream;
+import org.codehaus.plexus.util.FileUtils;
 
 /**
  * This bolt outputs each line of an input file it receives as
@@ -85,7 +85,7 @@ public class TwitterFileProcessingBolt extends BaseFileProcessingBolt {
             if (filenameNoDate.endsWith(GZIP_EXTENSION)) {
                 is = new GZIPInputStream(is);
             }
-            BufferedReader reader = new BufferedReader(new InputStreamReader(is));
+            BufferedReader reader = new BufferedReader(new InputStreamReader(is, TwitterConstants.TWITTER_CHARSET));
             try {
                 String tweetJson = reader.readLine();
                 // only process this file if the first line appears to be a JSON string

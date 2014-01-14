@@ -137,7 +137,7 @@ public class TweetKafkaSpout extends LumifyKafkaSpout {
                 return false;
             }
             final TweetMessageId other = (TweetMessageId) obj;
-            if ((this.tweetVertexId == null) ? (other.tweetVertexId != null) : !this.tweetVertexId.equals(other.tweetVertexId)) {
+            if (this.tweetVertexId == null ? other.tweetVertexId != null : !this.tweetVertexId.equals(other.tweetVertexId)) {
                 return false;
             }
             if (this.originalId != other.originalId && (this.originalId == null || !this.originalId.equals(other.originalId))) {
@@ -214,7 +214,7 @@ public class TweetKafkaSpout extends LumifyKafkaSpout {
         private Object wrapMessageId(final List<Object> tuple, final Object messageId) {
             try {
                 GraphVertex vertex = (GraphVertex) tuple.get(TweetKafkaEncoder.TWEET_VERTEX_IDX);
-                return new TweetMessageId((vertex != null ? vertex.getId() : null), messageId);
+                return new TweetMessageId(vertex != null ? vertex.getId() : null, messageId);
             } catch (IndexOutOfBoundsException unused) {
                 return messageId;
             } catch (ClassCastException unused) {
