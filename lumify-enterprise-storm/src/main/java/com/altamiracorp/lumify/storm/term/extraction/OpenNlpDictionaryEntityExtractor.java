@@ -31,7 +31,7 @@ public class OpenNlpDictionaryEntityExtractor extends OpenNlpEntityExtractor {
 
     private Map<String, Dictionary> getDictionaries() {
         Map<String, Dictionary> dictionaries = new HashMap<String, Dictionary>();
-        List<DictionaryEntry> entries = dictionaryEntryRepository.findAll(getUser().getModelUserContext());
+        Iterable<DictionaryEntry> entries = dictionaryEntryRepository.findAll(getUser().getModelUserContext());
         for (DictionaryEntry entry : entries) {
 
             if (!dictionaries.containsKey(entry.getMetadata().getConcept())) {
