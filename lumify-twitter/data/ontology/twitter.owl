@@ -24,6 +24,16 @@
         <rdfs:domain rdf:resource="#tweet"/>
         <rdfs:range rdf:resource="http://altamiracorp.com/datatype/double"/>
     </owl:DatatypeProperty>
+    <owl:DatatypeProperty rdf:about="publishedDate">
+        <rdfs:label xml:lang="en">published date</rdfs:label>
+        <rdfs:domain rdf:resource="#tweet"/>
+        <rdfs:range rdf:resource="http://altamiracorp.com/datatype/date"/>
+    </owl:DatatypeProperty>
+    <owl:DatatypeProperty rdf:about="source">
+        <rdfs:label xml:lang="en">source</rdfs:label>
+        <rdfs:domain rdf:resource="#tweet"/>
+        <rdfs:range rdf:resource="http://altamiracorp.com/datatype/string"/>
+    </owl:DatatypeProperty>
 
 <!-- Concept: person -->
     
@@ -123,7 +133,7 @@
 	<owl:Class rdf:about="tweeterProfileImage">
         <rdfs:label xml:lang="en">Tweeter Profile Image</rdfs:label>
         <atc:property atc:name="_color">rgb(223, 185, 31)</atc:property>
-        <rdfs:subClassOf rdf:resource="http://altamiracorp.com/ontology/person"/>
+        <rdfs:subClassOf rdf:resource="http://altamiracorp.com/ontology/tweet"/>
     </owl:Class>
 
 <!-- Concept: phone number -->
@@ -323,6 +333,16 @@
         <rdfs:label xml:lang="en">knows</rdfs:label>
         <rdfs:domain rdf:resource="#person"/>
         <rdfs:range rdf:resource="#person"/>
+    </owl:ObjectProperty>
+    <owl:ObjectProperty rdf:about="containsImageOf">
+        <rdfs:label xml:lang="en">contains image of</rdfs:label>
+        <rdfs:domain rdf:resource="#tweeterProfileImage"/>
+        <rdfs:range rdf:resource="#entity"/>
+    </owl:ObjectProperty>
+    <owl:ObjectProperty rdf:about="hasImage">
+        <rdfs:label xml:lang="en">has image</rdfs:label>
+        <rdfs:domain rdf:resource="#entity"/>
+        <rdfs:range rdf:resource="#tweeterProfileImage"/>
     </owl:ObjectProperty>
     <owl:ObjectProperty rdf:about="personWorksAtCompany">
         <rdfs:label xml:lang="en">works at</rdfs:label>
