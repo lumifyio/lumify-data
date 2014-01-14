@@ -12,6 +12,8 @@ import com.altamiracorp.lumify.core.ingest.term.extraction.TermMention;
 import com.altamiracorp.lumify.core.ingest.term.extraction.TermResolutionWorker;
 import com.altamiracorp.lumify.core.model.ontology.PropertyName;
 import com.altamiracorp.lumify.core.user.User;
+import com.altamiracorp.lumify.core.util.LumifyLogger;
+import com.altamiracorp.lumify.core.util.LumifyLoggerFactory;
 import com.bericotech.clavin.extractor.LocationOccurrence;
 import com.bericotech.clavin.resolver.LuceneLocationResolver;
 import com.bericotech.clavin.resolver.ResolvedLocation;
@@ -28,6 +30,11 @@ import java.util.Map;
  * identification of location entities.
  */
 public class ClavinLocationResolutionWorker implements TermResolutionWorker {
+    /**
+     * The class logger.
+     */
+    private static final LumifyLogger LOGGER = LumifyLoggerFactory.getLogger(ClavinLocationResolutionWorker.class);
+    
     /**
      * TODO: Don't hard-code this
      */
@@ -77,10 +84,12 @@ public class ClavinLocationResolutionWorker implements TermResolutionWorker {
     public void prepare(Map conf, User user) throws Exception {
         Configuration config = new Configuration(conf);
         
+        LOGGER.info("Configuring Clavin Location Resolution.");
         String idxDirPath = config.get(CLAVIN_INDEX_DIRECTORY, null);
         if (idxDirPath == null || idxDirPath.trim().isEmpty()) {
             throw new IllegalArgumentException(String.format("%s must be configured.", CLAVIN_INDEX_DIRECTORY));
         }
+        LOGGER.debug("Configuring Clavin index [%s]: %s", CLAVIN_INDEX_DIRECTORY, idxDirPath);
         indexDirectory = new File(idxDirPath);
         if (!indexDirectory.exists() || !indexDirectory.isDirectory()) {
             throw new IllegalArgumentException(String.format("Clavin index cannot be found at configured (%s) location: %s",
@@ -89,10 +98,12 @@ public class ClavinLocationResolutionWorker implements TermResolutionWorker {
         
         int maxHitDepth = config.getInt(CLAVIN_MAX_HIT_DEPTH);
         if (maxHitDepth < 1) {
+            LOGGER.debug("Found %s of %d. Using default: %d", CLAVIN_MAX_HIT_DEPTH, maxHitDepth, DEFAULT_MAX_HIT_DEPTH);
             maxHitDepth = DEFAULT_MAX_HIT_DEPTH;
         }
         int maxContentWindow = config.getInt(CLAVIN_MAX_CONTENT_WINDOW);
         if (maxContentWindow < 1) {
+            LOGGER.debug("Found %s of %d. Using default: %d", CLAVIN_MAX_CONTENT_WINDOW, maxContentWindow, DEFAULT_MAX_CONTENT_WINDOW);
             maxContentWindow = DEFAULT_MAX_CONTENT_WINDOW;
         }
         String fuzzyStr = config.get(CLAVIN_USE_FUZZY_MATCHING, null);
@@ -102,7 +113,9 @@ public class ClavinLocationResolutionWorker implements TermResolutionWorker {
         if (fuzzyStr != null && Boolean.TRUE.toString().equalsIgnoreCase(fuzzyStr) ||
                 Boolean.FALSE.toString().equalsIgnoreCase(fuzzyStr)) {
             fuzzy = Boolean.parseBoolean(fuzzyStr);
+            LOGGER.debug("Found %s: %s. fuzzy=%s", CLAVIN_USE_FUZZY_MATCHING, fuzzyStr, fuzzy);
         } else {
+            LOGGER.debug("%s not configured. Using default: %s", CLAVIN_USE_FUZZY_MATCHING, DEFAULT_FUZZY_MATCHING);
             fuzzy = DEFAULT_FUZZY_MATCHING;
         }
         resolver = new LuceneLocationResolver(indexDirectory, maxHitDepth, maxContentWindow);
@@ -111,7 +124,9 @@ public class ClavinLocationResolutionWorker implements TermResolutionWorker {
     @Override
     public TermExtractionResult resolveTerms(TermExtractionResult termExtractionResult) throws Exception {
         List<LocationOccurrence> locationOccurrences = getLocationOccurrencesFromTermMentions(termExtractionResult.getTermMentions());
+        LOGGER.debug("Found %d Locations in %d terms.", locationOccurrences.size(), termExtractionResult.getTermMentions().size());
         List<ResolvedLocation> resolvedLocationNames = resolver.resolveLocations(locationOccurrences, fuzzy);
+        LOGGER.debug("Resolved %d Locations", resolvedLocationNames.size());
 
         Map<Integer, ResolvedLocation> resolvedLocationOffsetMap = new HashMap<Integer, ResolvedLocation>();
         for (ResolvedLocation resolvedLocation : resolvedLocationNames) {
@@ -121,18 +136,23 @@ public class ClavinLocationResolutionWorker implements TermResolutionWorker {
 
         Map<TermMention, TermMention> updateMap = new HashMap<TermMention, TermMention>();
         ResolvedLocation loc;
+        String processId = getClass().getName();
+        TermMention resolvedMention;
         for (TermMention termMention : termExtractionResult.getTermMentions()) {
             loc = resolvedLocationOffsetMap.get(termMention.getStart());
             if (TARGET_ONTOLOGY_URI.equalsIgnoreCase(termMention.getOntologyClassUri()) && loc != null) {
-                updateMap.put(termMention, new TermMention.Builder(termMention)
+                resolvedMention = new TermMention.Builder(termMention)
                         .resolved(true)
-                        .useExisting(false)
+                        .useExisting(true)
                         .sign(toSign(loc))
-                        .ontologyClassUri(ontologyMapper.getOntologyClassUri(loc))
+                        .ontologyClassUri(ontologyMapper.getOntologyClassUri(loc, termMention.getOntologyClassUri()))
                         .setProperty(PropertyName.GEO_LOCATION.toString(),
                                 Geoshape.point(loc.geoname.latitude, loc.geoname.longitude))
                         .setProperty(PropertyName.GEO_LOCATION_DESCRIPTION.toString(), termMention.getSign())
-                        .build());
+                        .process(processId)
+                        .build();
+                updateMap.put(termMention, resolvedMention);
+                LOGGER.debug("Replacing original location [%s] with resolved location [%s]", termMention, resolvedMention);
             }
         }
         for (Map.Entry<TermMention, TermMention> update : updateMap.entrySet()) {
