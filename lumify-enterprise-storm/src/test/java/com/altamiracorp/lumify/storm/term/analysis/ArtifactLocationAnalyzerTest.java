@@ -4,7 +4,7 @@ import com.altamiracorp.lumify.core.model.audit.AuditRepository;
 import com.altamiracorp.lumify.core.model.graph.GraphRepository;
 import com.altamiracorp.lumify.core.model.graph.GraphVertex;
 import com.altamiracorp.lumify.core.model.ontology.PropertyName;
-import com.altamiracorp.lumify.core.model.termMention.TermMention;
+import com.altamiracorp.lumify.core.model.termMention.TermMentionModel;
 import com.altamiracorp.lumify.core.model.termMention.TermMentionMetadata;
 import com.altamiracorp.lumify.core.user.User;
 import com.thinkaurelius.titan.core.attribute.Geoshape;
@@ -37,13 +37,13 @@ public class ArtifactLocationAnalyzerTest {
     @Mock
     TermMentionMetadata mockMetadata;
     @Mock
-    TermMention mention;
+    TermMentionModel mention;
 
-    List<TermMention> mentions;
+    List<TermMentionModel> mentions;
 
     @Before
     public void setup() {
-        mentions = new ArrayList<TermMention>();
+        mentions = new ArrayList<TermMentionModel>();
         analyzer = new ArtifactLocationAnalyzer(graphRepository, auditRepository);
     }
 
@@ -58,17 +58,17 @@ public class ArtifactLocationAnalyzerTest {
         metadataWithTitle.setGeoLocation(33.0, 77.0);
         metadataWithTitle.setGeoLocationPopulation(100L);
         metadataWithTitle.setGeoLocationTitle("Test");
-        TermMention mentionWithTitle = mock(TermMention.class);
+        TermMentionModel mentionWithTitle = mock(TermMentionModel.class);
         when(mentionWithTitle.getMetadata()).thenReturn(metadataWithTitle);
 
         TermMentionMetadata metadataWithLowPop = new TermMentionMetadata();
         metadataWithLowPop.setGeoLocation(22.0, 32.0);
         metadataWithLowPop.setGeoLocationPopulation(80L);
-        TermMention mentionWithLowPop = mock(TermMention.class);
+        TermMentionModel mentionWithLowPop = mock(TermMentionModel.class);
         when(mentionWithLowPop.getMetadata()).thenReturn(metadataWithLowPop);
 
         TermMentionMetadata emptyMetadata = new TermMentionMetadata();
-        TermMention emptyMention = mock(TermMention.class);
+        TermMentionModel emptyMention = mock(TermMentionModel.class);
         when(emptyMention.getMetadata()).thenReturn(emptyMetadata);
 
         mentions.add(mention);
