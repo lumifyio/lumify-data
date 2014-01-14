@@ -35,7 +35,7 @@ import com.altamiracorp.lumify.core.model.ontology.Concept;
 import com.altamiracorp.lumify.core.model.ontology.LabelName;
 import com.altamiracorp.lumify.core.model.ontology.OntologyRepository;
 import com.altamiracorp.lumify.core.model.ontology.PropertyName;
-import com.altamiracorp.lumify.core.model.termMention.TermMention;
+import com.altamiracorp.lumify.core.model.termMention.TermMentionModel;
 import com.altamiracorp.lumify.core.model.termMention.TermMentionMetadata;
 import com.altamiracorp.lumify.core.model.termMention.TermMentionRepository;
 import com.altamiracorp.lumify.core.model.termMention.TermMentionRowKey;
@@ -520,8 +520,8 @@ public class DefaultLumifyTwitterProcessorTest {
     
     @Test
     public void testExtractEntities_EntitiesFound() throws Exception {
-        TermMention mention1 = mock(TermMention.class, "mention1");
-        TermMention mention2 = mock(TermMention.class, "mention2");
+        TermMentionModel mention1 = mock(TermMentionModel.class, "mention1");
+        TermMentionModel mention2 = mock(TermMentionModel.class, "mention2");
         TermMentionMetadata md1 = mock(TermMentionMetadata.class, "md1");
         TermMentionMetadata md2 = mock(TermMentionMetadata.class, "md2");
         TermMentionRowKey rk1 = mock(TermMentionRowKey.class, "rk1");
@@ -818,7 +818,7 @@ public class DefaultLumifyTwitterProcessorTest {
         verify(graphRepository, never()).findVertexByExactTitle(anyString(), any(User.class));
         verify(graphRepository, never()).save(any(GraphVertex.class), any(User.class));
         verify(graphRepository, never()).saveRelationship(anyString(), anyString(), anyString(), any(User.class));
-        verify(termMentionRepository, never()).save(any(TermMention.class), any(ModelUserContext.class));
+        verify(termMentionRepository, never()).save(any(TermMentionModel.class), any(ModelUserContext.class));
         verify(auditRepository, never()).auditEntity(anyString(), anyString(), anyString(), anyString(), anyString(), anyString(),
                 anyString(), any(User.class));
         verify(auditRepository, never()).auditEntityProperties(anyString(), any(GraphVertex.class), anyString(), anyString(),
