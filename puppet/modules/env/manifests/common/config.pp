@@ -25,6 +25,7 @@ class env::common::config {
   $kafka_host_ipaddresses = hiera_hash('kafka_host_ipaddresses')
   $storm_supervisor_slots_ports = hiera_array('storm_supervisor_slots_ports')
   $authentication_provider = hiera('authentication_provider')
+  $clavin_index_dir = hiera('clavin_index_dir')
   file { '/opt/lumify/config/configuration.properties' :
     ensure => file,
     content => template('env/cluster/configuration.properties.erb'),
