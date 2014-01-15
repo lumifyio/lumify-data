@@ -15,7 +15,6 @@ import org.json.JSONObject;
 import org.apache.hadoop.fs.FileSystem;
 import java.io.ByteArrayInputStream;
 import java.io.InputStream;
-import java.util.List;
 
 public class FacebookBolt extends BaseLumifyBolt {
     private static final LumifyLogger LOGGER = LumifyLoggerFactory.getLogger(FacebookBolt.class);
@@ -44,7 +43,7 @@ public class FacebookBolt extends BaseLumifyBolt {
             FacebookPost facebookPost = new FacebookPost();
             ArtifactExtractedInfo postExtractedInfo = facebookPost.processPostArtifact(jsonObject);
             setSavedArtifact(postExtractedInfo);
-            GraphVertex post = facebookPost.processPostVertex(jsonObject, savedArtifact, graphRepository, auditRepository, ontologyRepository, getUser());
+            GraphVertex post = facebookPost.processPostVertex(jsonObject, savedArtifact, graph, auditRepository, ontologyRepository, getUser());
             InputStream in = new ByteArrayInputStream(jsonObject.getString(MESSAGE).getBytes());
             searchProvider.add(post, in);
             workQueueRepository.pushArtifactHighlight(post.getId());
@@ -52,11 +51,11 @@ public class FacebookBolt extends BaseLumifyBolt {
             name = jsonObject.getString(USERNAME);
             LOGGER.info("Facebook tuple is a user: %s", name);
             FacebookUser facebookUser = new FacebookUser();
-            GraphVertex userVertex = facebookUser.process(jsonObject, graphRepository, auditRepository, ontologyRepository, getUser());
+            GraphVertex userVertex = facebookUser.process(jsonObject, graph, auditRepository, ontologyRepository, getUser());
             if (userVertex.getProperty(PropertyName.GLYPH_ICON) == null) {
                 ArtifactExtractedInfo profilePicExtractedInfo = facebookUser.createProfilePhotoArtifact(jsonObject, userVertex);
                 setSavedArtifact(profilePicExtractedInfo);
-                facebookUser.createProfilePhotoVertex(savedArtifact, userVertex, graphRepository, auditRepository, getUser());
+                facebookUser.createProfilePhotoVertex(savedArtifact, userVertex, graph, auditRepository, getUser());
             }
         }
     }

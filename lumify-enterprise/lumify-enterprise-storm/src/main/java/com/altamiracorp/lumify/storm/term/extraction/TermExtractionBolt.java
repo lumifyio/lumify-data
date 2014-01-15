@@ -64,7 +64,7 @@ public class TermExtractionBolt extends BaseTextProcessingBolt {
     protected void safeExecute(Tuple input) throws Exception {
         JSONObject json = getJsonFromTuple(input);
         String graphVertexId = json.getString("graphVertexId");
-        GraphVertex artifactGraphVertex = graphRepository.findVertex(graphVertexId, getUser());
+        GraphVertex artifactGraphVertex = graph.findVertex(graphVertexId, getUser());
         runTextExtractions(artifactGraphVertex);
     }
 
@@ -103,7 +103,7 @@ public class TermExtractionBolt extends BaseTextProcessingBolt {
     private List<TermMentionWithGraphVertex> saveTermExtractions(String artifactGraphVertexId, TermExtractionResult termExtractionResult) {
         List<TermMention> termMentions = termExtractionResult.getTermMentions();
         List<TermMentionWithGraphVertex> results = new ArrayList<TermMentionWithGraphVertex>();
-        GraphVertex artifactVertex = graphRepository.findVertex(artifactGraphVertexId, getUser());
+        GraphVertex artifactVertex = graph.findVertex(artifactGraphVertexId, getUser());
         for (TermMention termMention : termMentions) {
             LOGGER.debug("Saving term mention '%s':%s (%d:%d)", termMention.getSign(), termMention.getOntologyClassUri(), termMention.getStart(), termMention.getEnd());
             List<String> modifiedProperties = new ArrayList<String>();
@@ -124,7 +124,7 @@ public class TermExtractionBolt extends BaseTextProcessingBolt {
 
             if (termMention.isResolved()) {
                 String title = termMention.getSign();
-                vertex = graphRepository.findVertexByExactTitle(title, getUser());
+                vertex = graph.findVertexByExactTitle(title, getUser());
                 if (!termMention.getUseExisting() || vertex == null) {
                     vertex = new InMemoryGraphVertex();
                     newVertex = true;
@@ -145,7 +145,7 @@ public class TermExtractionBolt extends BaseTextProcessingBolt {
                     }
                 }
 
-                String resolvedEntityGraphVertexId = graphRepository.saveVertex(vertex, getUser());
+                String resolvedEntityGraphVertexId = graph.saveVertex(vertex, getUser());
 
                 if (newVertex) {
                     auditRepository.auditEntity(AuditAction.CREATE.toString(), vertex.getId(), artifactGraphVertexId, title, concept.getId().toString(), termMention.getProcess(), "", getUser());
@@ -155,7 +155,7 @@ public class TermExtractionBolt extends BaseTextProcessingBolt {
                     auditRepository.auditEntityProperties(AuditAction.UPDATE.toString(), vertex, property, termMention.getProcess(), "", getUser());
                 }
 
-                graphRepository.saveRelationship(artifactGraphVertexId, resolvedEntityGraphVertexId, LabelName.HAS_ENTITY, getUser());
+                graph.saveRelationship(artifactGraphVertexId, resolvedEntityGraphVertexId, LabelName.HAS_ENTITY, getUser());
 
                 String labelDisplayName = ontologyRepository.getDisplayNameForLabel(LabelName.HAS_ENTITY.toString(), getUser());
                 auditRepository.auditRelationships(AuditAction.CREATE.toString(), artifactVertex, vertex, labelDisplayName, termMention.getProcess(), "", getUser());
@@ -178,7 +178,7 @@ public class TermExtractionBolt extends BaseTextProcessingBolt {
             checkNotNull(destTermMentionsWithGraphVertex, "dest was not found for " + relationship.getDestTermMention());
             checkNotNull(destTermMentionsWithGraphVertex.getGraphVertex(), "dest vertex was not found for " + relationship.getDestTermMention());
             String label = relationship.getLabel();
-            graphRepository.saveRelationship(
+            graph.saveRelationship(
                     sourceTermMentionsWithGraphVertex.getGraphVertex().getId(),
                     destTermMentionsWithGraphVertex.getGraphVertex().getId(),
                     label,
