@@ -15,6 +15,7 @@ import com.altamiracorp.lumify.core.user.User;
 import com.altamiracorp.lumify.core.util.LumifyLogger;
 import com.altamiracorp.lumify.core.util.LumifyLoggerFactory;
 import com.bericotech.clavin.extractor.LocationOccurrence;
+import com.bericotech.clavin.gazetteer.GeoName;
 import com.bericotech.clavin.resolver.LuceneLocationResolver;
 import com.bericotech.clavin.resolver.ResolvedLocation;
 import com.google.inject.Inject;
@@ -147,7 +148,7 @@ public class ClavinLocationResolutionWorker implements TermResolutionWorker {
         Map<Integer, ResolvedLocation> resolvedLocationOffsetMap = new HashMap<Integer, ResolvedLocation>();
         for (ResolvedLocation resolvedLocation : resolvedLocationNames) {
             // assumes start/end positions are real, i.e., unique start positions for each extracted term
-            resolvedLocationOffsetMap.put(resolvedLocation.location.position, resolvedLocation);
+            resolvedLocationOffsetMap.put(resolvedLocation.getLocation().getPosition(), resolvedLocation);
         }
 
         Map<TermMention, TermMention> updateMap = new HashMap<TermMention, TermMention>();
@@ -163,7 +164,7 @@ public class ClavinLocationResolutionWorker implements TermResolutionWorker {
                         .sign(toSign(loc))
                         .ontologyClassUri(ontologyMapper.getOntologyClassUri(loc, termMention.getOntologyClassUri()))
                         .setProperty(PropertyName.GEO_LOCATION.toString(),
-                                Geoshape.point(loc.geoname.latitude, loc.geoname.longitude))
+                                Geoshape.point(loc.getGeoname().getLatitude(), loc.getGeoname().getLongitude()))
                         .setProperty(PropertyName.GEO_LOCATION_DESCRIPTION.toString(), termMention.getSign())
                         .process(processId)
                         .build();
@@ -179,7 +180,8 @@ public class ClavinLocationResolutionWorker implements TermResolutionWorker {
     }
 
     private String toSign(final ResolvedLocation location) {
-        return String.format("%s (%s, %s)", location.geoname.name, location.geoname.primaryCountryCode, location.geoname.admin1Code);
+        GeoName geoname = location.getGeoname();
+        return String.format("%s (%s, %s)", geoname.getName(), geoname.getPrimaryCountryCode(), geoname.getAdmin1Code());
     }
     
     @Inject
