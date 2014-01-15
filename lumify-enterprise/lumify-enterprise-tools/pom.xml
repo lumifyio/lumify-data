@@ -80,8 +80,7 @@
 
         <dependency>
             <groupId>com.altamiracorp.jmxui</groupId>
-            <artifactId>jmx-ui</artifactId>
-            <version>1.0-SNAPSHOT</version>
+            <artifactId>jmx-ui-core</artifactId>
         </dependency>
     </dependencies>
 
