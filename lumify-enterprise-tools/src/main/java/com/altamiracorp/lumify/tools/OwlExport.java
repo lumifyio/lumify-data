@@ -118,8 +118,8 @@ public class OwlExport extends CommandLineBase {
         List<Node> elems = new ArrayList<Node>();
         elems.add(createObjectPropertyElement(doc, relationship));
 
-        List<Property> properties = ontologyRepository.getPropertiesByRelationship(relationship.getTitle(), getUser());
-        for (Property property : properties) {
+        List<OntologyProperty> properties = ontologyRepository.getPropertiesByRelationship(relationship.getTitle(), getUser());
+        for (OntologyProperty property : properties) {
             elems.add(createDatatypePropertyElement(doc, property, relationship));
         }
 
@@ -162,8 +162,8 @@ public class OwlExport extends CommandLineBase {
             classElem.appendChild(createSubClassOfElement(doc, parentConcept));
         }
 
-        List<Property> properties = ontologyRepository.getPropertiesByConceptIdNoRecursion(concept.getId().toString(), getUser());
-        for (Property property : properties) {
+        List<OntologyProperty> properties = ontologyRepository.getPropertiesByConceptIdNoRecursion(concept.getId().toString(), getUser());
+        for (OntologyProperty property : properties) {
             elems.add(createDatatypePropertyElement(doc, property, concept));
         }
 
@@ -175,7 +175,7 @@ public class OwlExport extends CommandLineBase {
         return elems;
     }
 
-    private Element createDatatypePropertyElement(Document doc, Property property, Concept concept) {
+    private Element createDatatypePropertyElement(Document doc, OntologyProperty property, Concept concept) {
         Element elem = doc.createElementNS(NS_OWL.getURI(), "owl:DatatypeProperty");
         elem.setAttributeNS(NS_RDF.getURI(), "rdf:about", property.getTitle());
         elem.appendChild(createLabelElement(doc, property.getDisplayName()));
@@ -184,7 +184,7 @@ public class OwlExport extends CommandLineBase {
         return elem;
     }
 
-    private Element createDatatypePropertyElement(Document doc, Property property, Relationship relationship) {
+    private Element createDatatypePropertyElement(Document doc, OntologyProperty property, Relationship relationship) {
         Element elem = doc.createElementNS(NS_OWL.getURI(), "owl:DatatypeProperty");
         elem.setAttributeNS(NS_RDF.getURI(), "rdf:about", property.getTitle());
         elem.appendChild(createLabelElement(doc, property.getDisplayName()));
