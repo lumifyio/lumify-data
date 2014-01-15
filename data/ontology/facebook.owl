@@ -5,7 +5,7 @@
     <owl:Ontology rdf:about="">
         <owl:versionInfo xml:lang="en">Version 3.8</owl:versionInfo>
     </owl:Ontology>
-    
+
 <!-- Concept: post -->
 
     <owl:Class rdf:about="post">
@@ -35,8 +35,15 @@
         <rdfs:range rdf:resource="http://altamiracorp.com/datatype/string"/>
     </owl:DatatypeProperty>
 
+<!-- Concept: Facebook Post Image -->
+	<owl:Class rdf:about="facebookPostImage">
+        <rdfs:label xml:lang="en">Facebook Post Image</rdfs:label>
+        <atc:property atc:name="_color">rgb(70, 97, 159)</atc:property>
+        <rdfs:subClassOf rdf:resource="http://altamiracorp.com/ontology/post"/>
+    </owl:Class>
+
 <!-- Concept: person -->
-    
+
     <owl:Class rdf:about="person">
         <rdfs:label xml:lang="en">Person</rdfs:label>
         <atc:property atc:name="_color">rgb(28, 137, 28)</atc:property>
@@ -63,7 +70,7 @@
         <rdfs:domain rdf:resource="#person"/>
         <rdfs:range rdf:resource="http://altamiracorp.com/datatype/string"/>
     </owl:DatatypeProperty>
-    
+
 
 
     <!-- Concept: facebook profile -->
@@ -104,7 +111,7 @@
 	<owl:Class rdf:about="facebookProfileImage">
         <rdfs:label xml:lang="en">Facebook Profile Image</rdfs:label>
         <atc:property atc:name="_color">rgb(70, 97, 159)</atc:property>
-        <rdfs:subClassOf rdf:resource="http://altamiracorp.com/ontology/tweet"/>
+        <rdfs:subClassOf rdf:resource="http://altamiracorp.com/ontology/entity"/>
     </owl:Class>
 
 <!-- Concept: contact -->
@@ -328,6 +335,16 @@
     	<rdfs:label xml:lang="en">has image</rdfs:label>
         <rdfs:domain rdf:resource="#entity"/>
         <rdfs:range rdf:resource="#facebookProfileImage"/>
+    </owl:ObjectProperty>
+    <owl:ObjectProperty rdf:about="containsImageOf">
+    	<rdfs:label xml:lang="en">contains image of</rdfs:label>
+        <rdfs:domain rdf:resource="#facebookPostImage"/>
+        <rdfs:range rdf:resource="#entity"/>
+    </owl:ObjectProperty>
+    <owl:ObjectProperty rdf:about="hasImage">
+    	<rdfs:label xml:lang="en">has image</rdfs:label>
+        <rdfs:domain rdf:resource="#entity"/>
+        <rdfs:range rdf:resource="#facebookPostImage"/>
     </owl:ObjectProperty>
     <owl:ObjectProperty rdf:about="personKnowsPerson">
         <rdfs:label xml:lang="en">knows</rdfs:label>
