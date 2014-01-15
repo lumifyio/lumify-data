@@ -52,3 +52,7 @@ objectdetection.classifier.face.path=hdfs:///lumify/config/opencv/haarcascade_fr
 # Term extraction
 termextraction.opennlp.pathPrefix=/lumify/config/opennlp/
 termextraction.knownEntities.pathPrefix=/lumify/config/knownEntities/
+
+# CLAVIN
+clavin.disabled=<%= @clavin_index_dir ? 'false' : 'true' %>
+clavin.indexDirectory=<%= @clavin_index_dir %>

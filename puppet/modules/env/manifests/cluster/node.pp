@@ -2,6 +2,7 @@ class env::cluster::node {
   include hadoop_slave
   include accumulo_node
   include elasticsearch_node
+  include clavin
   include storm_supervisor
 
   file { '/etc/yum.repos.d/lumify.repo' :

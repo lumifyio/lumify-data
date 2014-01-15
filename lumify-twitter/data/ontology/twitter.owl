@@ -133,7 +133,7 @@
 	<owl:Class rdf:about="tweeterProfileImage">
         <rdfs:label xml:lang="en">Tweeter Profile Image</rdfs:label>
         <atc:property atc:name="_color">rgb(223, 185, 31)</atc:property>
-        <rdfs:subClassOf rdf:resource="http://altamiracorp.com/ontology/tweet"/>
+        <rdfs:subClassOf rdf:resource="http://altamiracorp.com/ontology/entity"/>
     </owl:Class>
 
 <!-- Concept: phone number -->
