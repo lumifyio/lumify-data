@@ -20,9 +20,9 @@ import backtype.storm.spout.SpoutOutputCollector;
 import backtype.storm.task.TopologyContext;
 import com.altamiracorp.lumify.core.bootstrap.InjectHelper;
 import com.altamiracorp.lumify.core.config.Configuration;
-import com.altamiracorp.lumify.core.model.graph.GraphVertex;
 import com.altamiracorp.lumify.model.LumifyKafkaSpout;
 import com.altamiracorp.lumify.twitter.LumifyTwitterProcessor;
+import com.altamiracorp.securegraph.Vertex;
 import com.google.inject.Inject;
 import java.util.List;
 import java.util.Map;
@@ -213,8 +213,8 @@ public class TweetKafkaSpout extends LumifyKafkaSpout {
         
         private Object wrapMessageId(final List<Object> tuple, final Object messageId) {
             try {
-                GraphVertex vertex = (GraphVertex) tuple.get(TweetKafkaEncoder.TWEET_VERTEX_IDX);
-                return new TweetMessageId(vertex != null ? vertex.getId() : null, messageId);
+                Vertex vertex = (Vertex) tuple.get(TweetKafkaEncoder.TWEET_VERTEX_IDX);
+                return new TweetMessageId(vertex != null ? vertex.getId().toString() : null, messageId);
             } catch (IndexOutOfBoundsException unused) {
                 return messageId;
             } catch (ClassCastException unused) {
