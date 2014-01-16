@@ -21,10 +21,11 @@ import static org.mockito.Mockito.*;
 
 import backtype.storm.topology.OutputFieldsDeclarer;
 import backtype.storm.tuple.Tuple;
-import com.altamiracorp.lumify.core.model.graph.GraphVertex;
 import com.altamiracorp.lumify.storm.BaseLumifyJsonBolt;
 import java.util.Arrays;
 import java.util.List;
+
+import com.altamiracorp.securegraph.Vertex;
 import org.json.JSONObject;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -60,7 +61,7 @@ public class TweetParsingBoltTest extends BaseTwitterBoltTest<TweetParsingBolt> 
     @Test
     public void testProcessJson_WithUser() throws Exception {
         Tuple tuple = mock(Tuple.class);
-        GraphVertex tweetVertex = mock(GraphVertex.class);
+        Vertex tweetVertex = mock(Vertex.class);
         JSONObject json = mock(JSONObject.class);
         String jsonStr = "{\"foo\": \"bar\"}";
 
