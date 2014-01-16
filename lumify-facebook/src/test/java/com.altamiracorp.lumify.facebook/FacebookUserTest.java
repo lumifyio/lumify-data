@@ -77,8 +77,8 @@ public class FacebookUserTest {
 //        setFullUserObject();
 //    }
 //
-//    @Test
-//    public void testNormalUserProcess () throws Exception {
+    @Test
+    public void testNormalUserProcess () throws Exception {
 //        facebookUser = new FacebookUser();
 //        when(graph.findVertexByExactTitle("12345", systemUser)).thenReturn(profileUser);
 //        when(graph.findVertexByProperty("email", "facebookTest@lumify.io", systemUser)).thenReturn(emailVertex);
@@ -93,7 +93,7 @@ public class FacebookUserTest {
 //        verify(graph, times(2)).save(any(Vertex.class), eq(systemUser));
 //        verify(profileUser, times(2)).setProperty(any(PropertyName.class), anyString());
 //        verify(profileUser, times(1)).setProperty(anyString(), anyString());
-//    }
+    }
 //    @Test
 //    public void testFullUserProcess () throws Exception {
 //        facebookUser = new FacebookUser();
