@@ -16,7 +16,7 @@
 
 package com.altamiracorp.lumify.twitter;
 
-import com.altamiracorp.lumify.core.model.graph.GraphVertex;
+import com.altamiracorp.securegraph.Vertex;
 import org.json.JSONObject;
 
 /**
@@ -41,31 +41,31 @@ public interface LumifyTwitterProcessor {
      * system.
      * @param processId the name of the process parsing the tweet
      * @param jsonTweet the Tweet JSON
-     * @return the GraphVertex representing the parsed Tweet or <code>null</code> if the Tweet
+     * @return the Vertex representing the parsed Tweet or <code>null</code> if the Tweet
      * could not be processed
      * @throws Exception if an error occurs during Tweet processing
      */
-    GraphVertex parseTweet(final String processId, final JSONObject jsonTweet) throws Exception;
+    Vertex parseTweet(final String processId, final JSONObject jsonTweet) throws Exception;
     
     /**
      * Extract the Twitter User from the incoming JSON record
      * and store it in the Lumify repository.
      * @param processId the name of the process parsing the twitter user
      * @param jsonTweet the Tweet JSON
-     * @param tweetVertex the GraphVertex representing the Tweet
-     * @return the GraphVertex representing the parsed Twitter User
+     * @param tweetVertex the Vertex representing the Tweet
+     * @return the Vertex representing the parsed Twitter User
      */
-    GraphVertex parseTwitterUser(final String processId, final JSONObject jsonTweet, final GraphVertex tweetVertex);
+    Vertex parseTwitterUser(final String processId, final JSONObject jsonTweet, final Vertex tweetVertex);
     
     /**
      * Extract the Entities found in the incoming tweet and establish
      * their relationships with the source Tweet.
      * @param processId the name of the process parsing the entities
      * @param jsonTweet the Tweet JSON
-     * @param tweetVertex the GraphVertex representing the Tweet
+     * @param tweetVertex the Vertex representing the Tweet
      * @param entityType the type of Entity to extract
      */
-    void extractEntities(final String processId, final JSONObject jsonTweet, final GraphVertex tweetVertex,
+    void extractEntities(final String processId, final JSONObject jsonTweet, final Vertex tweetVertex,
             final TwitterEntityType entityType);
     
     /**
@@ -73,13 +73,13 @@ public interface LumifyTwitterProcessor {
      * is configured and store it in the Lumify repository.
      * @param processId the name of the process retrieving the profile image
      * @param jsonTweet the Tweet JSON
-     * @param tweeterVertex the GraphVertex representing the Twitter User
+     * @param tweeterVertex the Vertex representing the Twitter User
      */
-    void retrieveProfileImage(final String processId, final JSONObject jsonTweet, final GraphVertex tweeterVertex);
+    void retrieveProfileImage(final String processId, final JSONObject jsonTweet, final Vertex tweeterVertex);
     
     /**
      * Finalize processing of a Tweet artifact, performing any necessary actions for
-     * the GraphVertex once all other processes have completed.
+     * the Vertex once all other processes have completed.
      * @param processId the name of the process finalizing the Tweet
      * @param tweetVertexId the ID of the Tweet vertex
      */
