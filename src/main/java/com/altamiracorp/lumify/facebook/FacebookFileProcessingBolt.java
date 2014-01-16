@@ -5,37 +5,31 @@ import backtype.storm.task.OutputCollector;
 import backtype.storm.tuple.Tuple;
 import backtype.storm.tuple.Values;
 import com.altamiracorp.lumify.core.ingest.ArtifactExtractedInfo;
-import com.altamiracorp.lumify.core.model.graph.GraphVertex;
-import com.altamiracorp.lumify.core.model.ontology.PropertyName;
-import com.altamiracorp.lumify.core.model.search.SearchProvider;
 import com.altamiracorp.lumify.core.user.User;
 import com.altamiracorp.lumify.core.util.LumifyLogger;
 import com.altamiracorp.lumify.core.util.LumifyLoggerFactory;
 import com.altamiracorp.lumify.storm.BaseFileProcessingBolt;
-import com.altamiracorp.lumify.storm.BaseLumifyBolt;
 import com.altamiracorp.lumify.storm.file.FileMetadata;
+import com.altamiracorp.securegraph.Vertex;
 import com.google.inject.Inject;
-import org.codehaus.plexus.util.FileUtils;
-import org.json.JSONObject;
 import org.apache.hadoop.fs.FileSystem;
+import org.codehaus.plexus.util.FileUtils;
 
-import java.io.*;
-import java.util.List;
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.util.regex.Pattern;
 import java.util.zip.GZIPInputStream;
 
 public class FacebookFileProcessingBolt extends BaseFileProcessingBolt {
     private static final LumifyLogger LOGGER = LumifyLoggerFactory.getLogger(FacebookFileProcessingBolt.class);
     private static final String PROCESS = FacebookFileProcessingBolt.class.getName();
-    private SearchProvider searchProvider;
     private static FileSystem fileSystem;
-    private static GraphVertex savedArtifact;
+    private static Vertex savedArtifact;
     private static final Pattern JSON_OBJECT = Pattern.compile("^\\s*\\{.*\\}\\s*$");
     private static final String GZIP_EXTENSION = ".gz";
     private static OutputCollector collector;
-
-
-
 
     @Override
     public void safeExecute(Tuple input) throws Exception {
@@ -102,11 +96,6 @@ public class FacebookFileProcessingBolt extends BaseFileProcessingBolt {
         }
     }
 
-    @Inject
-    public void setSearchProvider(SearchProvider searchProvider) {
-        this.searchProvider = searchProvider;
-    }
-
     public FileSystem getFileSystem() {
         return fileSystem;
     }
@@ -126,9 +115,11 @@ public class FacebookFileProcessingBolt extends BaseFileProcessingBolt {
     private void setSavedArtifact(ArtifactExtractedInfo artifactExtractedInfo) {
         this.savedArtifact = saveArtifact(artifactExtractedInfo);
     }
+
     private void setCollector() {
         this.collector = getCollector();
     }
+
     public void setCollector(OutputCollector outputCollector) {
         this.collector = outputCollector;
     }
