@@ -3,6 +3,7 @@ package com.altamiracorp.lumify.storm.term.extraction;
 import backtype.storm.task.OutputCollector;
 import backtype.storm.task.TopologyContext;
 import backtype.storm.tuple.Tuple;
+import com.altamiracorp.bigtable.model.FlushFlag;
 import com.altamiracorp.lumify.core.bootstrap.InjectHelper;
 import com.altamiracorp.lumify.core.ingest.term.extraction.*;
 import com.altamiracorp.lumify.core.model.audit.AuditAction;
@@ -163,9 +164,10 @@ public class TermExtractionBolt extends BaseTextProcessingBolt {
                 termMentionModel.getMetadata().setGraphVertexId(resolvedEntityGraphVertexId);
             }
 
-            termMentionRepository.save(termMentionModel, getUser().getModelUserContext());
+            termMentionRepository.save(termMentionModel, FlushFlag.NO_FLUSH, getUser().getModelUserContext());
             results.add(new TermMentionWithGraphVertex(termMentionModel, vertex));
         }
+        termMentionRepository.flush();
         return results;
     }
 
