@@ -16,12 +16,11 @@
 
 package com.altamiracorp.lumify.twitter.storm;
 
-import static com.altamiracorp.lumify.storm.BaseLumifyJsonBolt.JSON_FIELD;
 
 import backtype.storm.topology.OutputFieldsDeclarer;
 import backtype.storm.tuple.Fields;
 import backtype.storm.tuple.Tuple;
-import com.altamiracorp.lumify.core.model.graph.GraphVertex;
+import com.altamiracorp.securegraph.Vertex;
 import org.json.JSONObject;
 
 /**
@@ -32,14 +31,14 @@ import org.json.JSONObject;
  * a Lumify Entity for the Twitter user and links it to the Tweet.  The original
  * JSON and the GraphVertex representing the Twitter user are sent as a new Tuple
  * to downstream Bolts.
- * 
+ * <p/>
  * <h2>Input Tuple:</h2>
  * <table>
  * <tr><th>Field</th><th>Type</th><th>Value</th></tr>
  * <tr><td>json</td><td>String</td><td>serialized Tweet JSON object</td></tr>
  * <tr><td>tweetVertex</td><td>GraphVertex</td><td>the Lumify GraphVertex for the Tweet artifact</td></tr>
  * </table>
- * 
+ * <p/>
  * <h2>Output Tuple:</h2>
  * <table>
  * <tr><th>Field</th><th>Type</th><th>Value</th></tr>
@@ -50,9 +49,9 @@ import org.json.JSONObject;
 public class TwitterUserParsingBolt extends BaseTwitterBolt {
     @Override
     protected void processJson(final JSONObject json, final Tuple input) throws Exception {
-        GraphVertex tweetVertex = (GraphVertex) input.getValueByField(TwitterStormConstants.TWEET_VERTEX_FIELD);
+        Vertex tweetVertex = (Vertex) input.getValueByField(TwitterStormConstants.TWEET_VERTEX_FIELD);
         // extract the Twitter User from the JSON object and create the Lumify entity
-        GraphVertex userVertex = getTwitterProcessor().parseTwitterUser(getProcessId(), json, tweetVertex);
+        Vertex userVertex = getTwitterProcessor().parseTwitterUser(getProcessId(), json, tweetVertex);
         // if the Twitter User was successfully parsed, emit the JSON object and userVertex
         // to downstream bolts
         if (userVertex != null) {

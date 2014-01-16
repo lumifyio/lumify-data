@@ -18,8 +18,8 @@ package com.altamiracorp.lumify.twitter.storm;
 
 import backtype.storm.topology.OutputFieldsDeclarer;
 import backtype.storm.tuple.Tuple;
-import com.altamiracorp.lumify.core.model.graph.GraphVertex;
 import com.altamiracorp.lumify.twitter.TwitterEntityType;
+import com.altamiracorp.securegraph.Vertex;
 import org.json.JSONObject;
 
 /**
@@ -54,7 +54,7 @@ public class TweetEntityExtractionBolt extends BaseTwitterBolt {
     
     @Override
     protected void processJson(final JSONObject json, final Tuple input) throws Exception {
-        GraphVertex tweetVertex = (GraphVertex) input.getValueByField(TwitterStormConstants.TWEET_VERTEX_FIELD);
+        Vertex tweetVertex = (Vertex) input.getValueByField(TwitterStormConstants.TWEET_VERTEX_FIELD);
         getTwitterProcessor().extractEntities(getProcessId(), json, tweetVertex, entityType);
     }
 

@@ -17,11 +17,11 @@
 package com.altamiracorp.lumify.twitter.storm;
 
 import backtype.storm.tuple.Fields;
-import com.altamiracorp.lumify.core.model.graph.GraphVertex;
 import com.altamiracorp.lumify.model.KafkaJsonEncoder;
 import com.altamiracorp.lumify.storm.BaseLumifyJsonBolt;
 import com.altamiracorp.lumify.twitter.LumifyTwitterProcessor;
 import com.altamiracorp.lumify.twitter.TwitterConstants;
+import com.altamiracorp.securegraph.Vertex;
 import com.google.inject.Inject;
 import java.util.Arrays;
 import java.util.List;
@@ -48,7 +48,7 @@ public class TweetKafkaEncoder extends KafkaJsonEncoder {
         try {
             String jsonStr = new String(ser, TwitterConstants.TWITTER_CHARSET);
             JSONObject tweetJson = new JSONObject(jsonStr);
-            GraphVertex tweetVertex = twitterProcessor.parseTweet(getClass().getName(), tweetJson);
+            Vertex tweetVertex = twitterProcessor.parseTweet(getClass().getName(), tweetJson);
             return Arrays.asList(jsonStr, tweetVertex);
         } catch (Exception ex) {
             throw new RuntimeException("Error parsing tweet from queue.", ex);
