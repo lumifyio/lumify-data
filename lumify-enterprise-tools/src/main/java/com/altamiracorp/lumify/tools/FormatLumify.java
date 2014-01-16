@@ -7,6 +7,10 @@ import com.altamiracorp.lumify.core.util.ModelUtil;
 import com.altamiracorp.securegraph.Graph;
 import com.google.inject.Inject;
 import org.apache.commons.cli.CommandLine;
+import org.elasticsearch.action.admin.indices.delete.DeleteIndexRequest;
+import org.elasticsearch.action.admin.indices.delete.DeleteIndexResponse;
+import org.elasticsearch.client.transport.TransportClient;
+import org.elasticsearch.common.transport.InetSocketTransportAddress;
 
 public class FormatLumify extends CommandLineBase {
     private ModelSession modelSession;
@@ -26,6 +30,19 @@ public class FormatLumify extends CommandLineBase {
         workQueueRepository.format();
         // TODO provide a way to delete the graph and it's search index
         // graph.delete(getUser());
+
+        // TODO refactor to secure graph
+        String ES_INDEX = "securegraph";
+        TransportClient client = new TransportClient();
+        for (String esLocation : new String[]{"192.168.33.10:9300"}) {
+            String[] locationSocket = esLocation.split(":");
+            client.addTransportAddress(new InetSocketTransportAddress(locationSocket[0], Integer.parseInt(locationSocket[1])));
+        }
+        DeleteIndexResponse response = client.admin().indices().delete(new DeleteIndexRequest(ES_INDEX)).actionGet();
+        if (!response.isAcknowledged()) {
+            LOGGER.error("Failed to delete elastic search index named %s", ES_INDEX);
+        }
+
         return 0;
     }
 
