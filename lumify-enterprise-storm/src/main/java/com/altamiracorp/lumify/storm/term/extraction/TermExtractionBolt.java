@@ -1,19 +1,11 @@
 package com.altamiracorp.lumify.storm.term.extraction;
 
-import static com.google.common.base.Preconditions.checkNotNull;
-import static com.google.common.base.Preconditions.checkState;
-
 import backtype.storm.task.OutputCollector;
 import backtype.storm.task.TopologyContext;
 import backtype.storm.tuple.Tuple;
+import com.altamiracorp.bigtable.model.FlushFlag;
 import com.altamiracorp.lumify.core.bootstrap.InjectHelper;
-import com.altamiracorp.lumify.core.ingest.term.extraction.TermExtractionAdditionalWorkData;
-import com.altamiracorp.lumify.core.ingest.term.extraction.TermExtractionResult;
-import com.altamiracorp.lumify.core.ingest.term.extraction.TermExtractionWorker;
-import com.altamiracorp.lumify.core.ingest.term.extraction.TermMention;
-import com.altamiracorp.lumify.core.ingest.term.extraction.TermRelationship;
-import com.altamiracorp.lumify.core.ingest.term.extraction.TermResolutionWorker;
-import com.altamiracorp.lumify.core.ingest.term.extraction.TermWorker;
+import com.altamiracorp.lumify.core.ingest.term.extraction.*;
 import com.altamiracorp.lumify.core.model.audit.AuditAction;
 import com.altamiracorp.lumify.core.model.graph.GraphVertex;
 import com.altamiracorp.lumify.core.model.graph.InMemoryGraphVertex;
@@ -28,13 +20,13 @@ import com.altamiracorp.lumify.core.util.ThreadedInputStreamProcess;
 import com.altamiracorp.lumify.core.util.ThreadedTeeInputStreamWorker;
 import com.altamiracorp.lumify.storm.BaseTextProcessingBolt;
 import com.google.common.collect.Lists;
-import java.io.InputStream;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.List;
-import java.util.Map;
-import java.util.ServiceLoader;
 import org.json.JSONObject;
+
+import java.io.InputStream;
+import java.util.*;
+
+import static com.google.common.base.Preconditions.checkNotNull;
+import static com.google.common.base.Preconditions.checkState;
 
 public class TermExtractionBolt extends BaseTextProcessingBolt {
     private static final LumifyLogger LOGGER = LumifyLoggerFactory.getLogger(TermExtractionBolt.class);
@@ -48,13 +40,13 @@ public class TermExtractionBolt extends BaseTextProcessingBolt {
         try {
             List<TermExtractionWorker> extractors = loadWorkers(stormConf, TermExtractionWorker.class);
             termExtractionStreamProcess = new TermExtractionProcess("termExtractionBoltWorker", extractors);
-            
+
             termResolvers = loadWorkers(stormConf, TermResolutionWorker.class);
         } catch (Exception ex) {
             collector.reportError(ex);
         }
     }
-    
+
     private <T extends TermWorker> List<T> loadWorkers(final Map stormConf, final Class<T> clazz) throws Exception {
         List<T> workers = Lists.newArrayList();
 
@@ -68,7 +60,7 @@ public class TermExtractionBolt extends BaseTextProcessingBolt {
 
         return workers;
     }
-    
+
     @Override
     protected void safeExecute(Tuple input) throws Exception {
         JSONObject json = getJsonFromTuple(input);
@@ -88,12 +80,12 @@ public class TermExtractionBolt extends BaseTextProcessingBolt {
         List<ThreadedTeeInputStreamWorker.WorkResult<TermExtractionResult>> termExtractionResults = termExtractionStreamProcess.doWork(textIn, termExtractionAdditionalWorkData);
         TermExtractionResult termExtractionResult = new TermExtractionResult();
         mergeTextExtractedInfos(termExtractionResult, termExtractionResults);
-        
+
         // run all resolution processes on the merged results
         for (TermResolutionWorker resolver : termResolvers) {
             termExtractionResult = resolver.resolveTerms(termExtractionResult);
         }
-        
+
         List<TermMentionWithGraphVertex> termMentionsWithGraphVertices = saveTermExtractions(artifactGraphVertex.getId(), termExtractionResult);
         saveRelationships(termExtractionResult.getRelationships(), termMentionsWithGraphVertices);
 
@@ -171,9 +163,10 @@ public class TermExtractionBolt extends BaseTextProcessingBolt {
                 termMentionModel.getMetadata().setGraphVertexId(resolvedEntityGraphVertexId);
             }
 
-            termMentionRepository.save(termMentionModel, getUser().getModelUserContext());
+            termMentionRepository.save(termMentionModel, FlushFlag.NO_FLUSH, getUser().getModelUserContext());
             results.add(new TermMentionWithGraphVertex(termMentionModel, vertex));
         }
+        termMentionRepository.flush();
         return results;
     }
 
@@ -211,11 +204,11 @@ public class TermExtractionBolt extends BaseTextProcessingBolt {
         termExtractionStreamProcess.stop();
         super.cleanup();
     }
-    
+
     private static class TermExtractionProcess extends ThreadedInputStreamProcess<TermExtractionResult, TermExtractionAdditionalWorkData> {
         public TermExtractionProcess(final String threadNamePrefix,
-                final Collection<? extends ThreadedTeeInputStreamWorker<TermExtractionResult, TermExtractionAdditionalWorkData>>
-                        workersCollection) {
+                                     final Collection<? extends ThreadedTeeInputStreamWorker<TermExtractionResult, TermExtractionAdditionalWorkData>>
+                                             workersCollection) {
             super(threadNamePrefix, workersCollection);
         }
     }
