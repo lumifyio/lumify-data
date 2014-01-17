@@ -88,13 +88,13 @@ public class OwlExport extends CommandLineBase {
 
         rootElem.appendChild(createVersionElement(doc));
 
-        Concept rootConcept = ontologyRepository.getRootConcept(getUser());
+        Concept rootConcept = ontologyRepository.getRootConcept();
         List<Node> nodes = createConceptElements(doc, rootConcept, null);
         for (Node e : nodes) {
             rootElem.appendChild(e);
         }
 
-        List<Relationship> relationships = ontologyRepository.getRelationshipLabels(getUser());
+        Iterable<Relationship> relationships = ontologyRepository.getRelationshipLabels();
         for (Relationship relationship : relationships) {
             nodes = createRelationshipElements(doc, relationship);
             for (Node e : nodes) {
@@ -118,7 +118,7 @@ public class OwlExport extends CommandLineBase {
         List<Node> elems = new ArrayList<Node>();
         elems.add(createObjectPropertyElement(doc, relationship));
 
-        List<OntologyProperty> properties = ontologyRepository.getPropertiesByRelationship(relationship.getTitle(), getUser());
+        List<OntologyProperty> properties = ontologyRepository.getPropertiesByRelationship(relationship.getTitle());
         for (OntologyProperty property : properties) {
             elems.add(createDatatypePropertyElement(doc, property, relationship));
         }
@@ -162,12 +162,12 @@ public class OwlExport extends CommandLineBase {
             classElem.appendChild(createSubClassOfElement(doc, parentConcept));
         }
 
-        List<OntologyProperty> properties = ontologyRepository.getPropertiesByConceptIdNoRecursion(concept.getId().toString(), getUser());
+        List<OntologyProperty> properties = ontologyRepository.getPropertiesByConceptIdNoRecursion(concept.getId().toString());
         for (OntologyProperty property : properties) {
             elems.add(createDatatypePropertyElement(doc, property, concept));
         }
 
-        List<Concept> childConcepts = ontologyRepository.getChildConcepts(concept, getUser());
+        List<Concept> childConcepts = ontologyRepository.getChildConcepts(concept);
         for (Concept childConcept : childConcepts) {
             elems.addAll(createConceptElements(doc, childConcept, concept));
         }

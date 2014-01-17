@@ -59,7 +59,7 @@ public class FacebookUser {
         String name = userJson.getString(NAME);
         Long name_uid = userJson.getLong(UID);
         String username = userJson.getString(USERNAME);
-        Concept emailConcept = ontologyRepository.getConceptByName(EMAIL_ADDRESS, user);
+        Concept emailConcept = ontologyRepository.getConceptByName(EMAIL_ADDRESS);
 
         Vertex userVertex;
         Iterator<Vertex> verticesIterator = graph.query(user.getAuthorizations()).has(PropertyName.TITLE.toString(), name_uid.toString()).vertices().iterator();

@@ -203,7 +203,7 @@ public class DefaultLumifyTwitterProcessor extends BaseArtifactProcessor impleme
         User lumifyUser = getUser();
         Graph graph = getGraph();
         
-        Concept handleConcept = getOntologyRepository().getConceptByName(CONCEPT_TWITTER_HANDLE, lumifyUser);
+        Concept handleConcept = getOntologyRepository().getConceptByName(CONCEPT_TWITTER_HANDLE);
 
         Vertex userVertex = null;
         Iterator<Vertex> userIterator = graph.query(lumifyUser.getAuthorizations()).has(PropertyName.TITLE.toString(), screenName).vertices().iterator();
@@ -230,7 +230,7 @@ public class DefaultLumifyTwitterProcessor extends BaseArtifactProcessor impleme
         
         // create the relationship between the user and their tweet
         graph.addEdge(tweetVertex, userVertex, TWEETED_RELATIONSHIP, visibility);
-        String labelDispName = getOntologyRepository().getDisplayNameForLabel(TWEETED_RELATIONSHIP, lumifyUser);
+        String labelDispName = getOntologyRepository().getDisplayNameForLabel(TWEETED_RELATIONSHIP);
         auditRepo.auditRelationships(AuditAction.CREATE.toString(), userVertex, tweetVertex, labelDispName, processId, "", lumifyUser);
         
         return userVertex;
@@ -250,11 +250,11 @@ public class DefaultLumifyTwitterProcessor extends BaseArtifactProcessor impleme
             OntologyRepository ontRepo = getOntologyRepository();
             AuditRepository auditRepo = getAuditRepository();
             
-            Concept concept = ontRepo.getConceptByName(entityType.getConceptName(), user);
+            Concept concept = ontRepo.getConceptByName(entityType.getConceptName());
             String conceptId = concept.getId().toString();
             Vertex conceptVertex = graph.getVertex(conceptId, user.getAuthorizations());
             String relLabel = entityType.getRelationshipLabel();
-            String relDispName = ontRepo.getDisplayNameForLabel(relLabel, user);
+            String relDispName = ontRepo.getDisplayNameForLabel(relLabel);
             
             List<TermMentionModel> mentions = TermRegexFinder.find(tweetId, conceptVertex, tweetText, entityType.getTermRegex());
             for (TermMentionModel mention : mentions) {
@@ -331,7 +331,7 @@ public class DefaultLumifyTwitterProcessor extends BaseArtifactProcessor impleme
                 Vertex imageVertex = getArtifactRepository().saveArtifact(artifactInfo, user);
 
                 LOGGER.debug("Saved Twitter User [%s] Profile Photo to Accumulo and as graph vertex: %s", screenName, imageVertex.getId());
-                String labelDisplay = getOntologyRepository().getDisplayNameForLabel(LabelName.HAS_IMAGE.toString(), user);
+                String labelDisplay = getOntologyRepository().getDisplayNameForLabel(LabelName.HAS_IMAGE.toString());
                 auditRepo.auditRelationships(AuditAction.CREATE.toString(), tweeterVertex, imageVertex, labelDisplay, processId, "", user);
 
                 tweeterVertex.setProperty(PropertyName.GLYPH_ICON.toString(), String.format(GLYPH_ICON_FMT, imageVertex.getId()), visibility);
