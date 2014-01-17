@@ -1,8 +1,4 @@
-class env::cluster::accumulo_master inherits env::cluster::base {
-  package { 'hadoop-zookeeper' :
-    ensure => present,
-  }
-
+class env::cluster::accumulo_master inherits accumulo_base {
   include my_fw
   class { 'accumulo::fw::master' :
     stage => 'first',

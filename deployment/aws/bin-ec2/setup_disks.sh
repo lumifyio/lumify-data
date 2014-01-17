@@ -114,7 +114,7 @@ function _ebs {
         echo "creating logical volume '${LV_NAME}'..."
         lvcreate --extents 100%FREE --name ${LV_NAME} ${VG_NAME}
         _format /dev/mapper/${VG_NAME}-${LV_NAME} ${label_prefix}-ebs
-        _mount ${label_prefix}-ebs /data
+        _mount ${label_prefix}-ebs /data0
       else
         echo "adding partition to volume group '${VG_NAME}': ${ebs_disk}1..."
         vgextend ${VG_NAME} ${ebs_disk}1
