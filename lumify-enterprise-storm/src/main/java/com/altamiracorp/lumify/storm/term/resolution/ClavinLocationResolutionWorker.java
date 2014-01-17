@@ -166,6 +166,7 @@ public class ClavinLocationResolutionWorker implements TermResolutionWorker {
                         .setProperty(PropertyName.GEO_LOCATION.toString(),
                                 Geoshape.point(loc.getGeoname().getLatitude(), loc.getGeoname().getLongitude()))
                         .setProperty(PropertyName.GEO_LOCATION_DESCRIPTION.toString(), termMention.getSign())
+                        .setProperty(PropertyName.SOURCE.toString(), "CLAVIN")
                         .process(processId)
                         .build();
                 updateMap.put(termMention, resolvedMention);
