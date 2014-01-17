@@ -31,7 +31,7 @@ public class FormatLumify extends CommandLineBase {
         // TODO provide a way to delete the graph and it's search index
         // graph.delete(getUser());
 
-        // TODO refactor to secure graph
+        // TODO refactor to config file info. But since this is only for development this is low priority
         String ES_INDEX = "securegraph";
         TransportClient client = new TransportClient();
         for (String esLocation : new String[]{"192.168.33.10:9300"}) {
