@@ -1,7 +1,6 @@
 package com.altamiracorp.lumify.demoaccountweb.routes;
 
 import com.altamiracorp.lumify.demoaccountweb.security.AuthenticationProvider;
-import com.altamiracorp.lumify.demoaccountweb.security.UserRepository;
 import com.altamiracorp.miniweb.HandlerChain;
 import com.google.inject.Inject;
 
@@ -9,13 +8,11 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 public class CreateToken extends BaseRequestHandler {
-    private final UserRepository userRepository;
     private final AuthenticationProvider authenticationProvider;
 
     @Inject
-    public CreateToken(AuthenticationProvider authenticationProvider, UserRepository userRepository) {
+    public CreateToken(AuthenticationProvider authenticationProvider) {
         this.authenticationProvider = authenticationProvider;
-        this.userRepository = userRepository;
     }
 
     @Override
