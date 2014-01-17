@@ -16,22 +16,14 @@
 
 package com.altamiracorp.lumify.twitter;
 
-import com.altamiracorp.bigtable.model.FlushFlag;
 import com.altamiracorp.bigtable.model.user.ModelUserContext;
-import com.altamiracorp.lumify.core.ingest.ArtifactExtractedInfo;
 import com.altamiracorp.lumify.core.ingest.term.extraction.TermRegexFinder;
 import com.altamiracorp.lumify.core.model.artifact.ArtifactRepository;
 import com.altamiracorp.lumify.core.model.artifact.ArtifactRowKey;
-import com.altamiracorp.lumify.core.model.audit.AuditAction;
 import com.altamiracorp.lumify.core.model.audit.AuditRepository;
 import com.altamiracorp.lumify.core.model.ontology.Concept;
-import com.altamiracorp.lumify.core.model.ontology.LabelName;
 import com.altamiracorp.lumify.core.model.ontology.OntologyRepository;
-import com.altamiracorp.lumify.core.model.ontology.PropertyName;
-import com.altamiracorp.lumify.core.model.termMention.TermMentionMetadata;
-import com.altamiracorp.lumify.core.model.termMention.TermMentionModel;
 import com.altamiracorp.lumify.core.model.termMention.TermMentionRepository;
-import com.altamiracorp.lumify.core.model.termMention.TermMentionRowKey;
 import com.altamiracorp.lumify.core.model.workQueue.WorkQueueRepository;
 import com.altamiracorp.lumify.core.user.User;
 import com.altamiracorp.lumify.core.util.LumifyLogger;
@@ -41,21 +33,11 @@ import com.altamiracorp.securegraph.type.GeoPoint;
 import org.json.JSONObject;
 import org.junit.Before;
 import org.junit.BeforeClass;
-import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
-import org.powermock.api.mockito.PowerMockito;
 import org.powermock.core.classloader.annotations.PrepareForTest;
 import org.powermock.modules.junit4.PowerMockRunner;
 import org.powermock.reflect.Whitebox;
-
-import java.io.ByteArrayInputStream;
-import java.io.IOException;
-import java.net.MalformedURLException;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.Date;
-import java.util.regex.Pattern;
 
 import static com.altamiracorp.lumify.twitter.TwitterConstants.*;
 import static org.junit.Assert.assertEquals;
@@ -178,11 +160,11 @@ public class DefaultLumifyTwitterProcessorTest {
         Whitebox.setInternalState(DefaultLumifyTwitterProcessor.class, logger);
 
         when(user.getModelUserContext()).thenReturn(modelUserContext);
-        when(ontologyRepository.getConceptByName(CONCEPT_TWITTER_HANDLE, user)).thenReturn(handleConcept);
-        when(ontologyRepository.getConceptByName(CONCEPT_TWITTER_URL, user)).thenReturn(urlConcept);
-        when(ontologyRepository.getConceptByName(CONCEPT_TWITTER_HASHTAG, user)).thenReturn(hashtagConcept);
-        when(ontologyRepository.getDisplayNameForLabel(TWEETED_RELATIONSHIP, user)).thenReturn(TWEETED_RELATIONSHIP_LABEL);
-        when(ontologyRepository.getDisplayNameForLabel(TwitterEntityType.MENTION.getRelationshipLabel(), user)).
+        when(ontologyRepository.getConceptByName(CONCEPT_TWITTER_HANDLE)).thenReturn(handleConcept);
+        when(ontologyRepository.getConceptByName(CONCEPT_TWITTER_URL)).thenReturn(urlConcept);
+        when(ontologyRepository.getConceptByName(CONCEPT_TWITTER_HASHTAG)).thenReturn(hashtagConcept);
+        when(ontologyRepository.getDisplayNameForLabel(TWEETED_RELATIONSHIP)).thenReturn(TWEETED_RELATIONSHIP_LABEL);
+        when(ontologyRepository.getDisplayNameForLabel(TwitterEntityType.MENTION.getRelationshipLabel())).
                 thenReturn(MENTION_RELATIONSIHP_LABEL);
         when(graph.getVertex(HANDLE_CONCEPT_ID, user.getAuthorizations())).thenReturn(handleConceptVertex);
         when(artifactRepository.findByRowKey(anyString(), any(ModelUserContext.class))).thenReturn(null);
