@@ -5,7 +5,7 @@ When integrating CLAVIN you must edit the configuration.properties to properly i
 ### Building the CLAVIN index
 1. Clone the source code:
 
-    `$ git clone https://github.com/altamiracorp/CLAVIN -b stable/1/1/x`
+    `$ git clone https://github.com/altamiracorp/CLAVIN -b stable/1.1.x`
 
 2. Move into the CLAVIN directory:
 
