@@ -1,7 +1,7 @@
 package com.altamiracorp.lumify.web.routes.artifact;
 
-import com.altamiracorp.lumify.core.model.artifact.ArtifactRepository;
 import com.altamiracorp.lumify.core.model.artifactThumbnails.ArtifactThumbnailRepository;
+import com.altamiracorp.lumify.core.model.ontology.PropertyName;
 import com.altamiracorp.lumify.core.user.User;
 import com.altamiracorp.lumify.core.util.LumifyLogger;
 import com.altamiracorp.lumify.core.util.LumifyLoggerFactory;
@@ -10,6 +10,7 @@ import com.altamiracorp.miniweb.HandlerChain;
 import com.altamiracorp.miniweb.utils.UrlUtils;
 import com.altamiracorp.securegraph.Graph;
 import com.altamiracorp.securegraph.Vertex;
+import com.altamiracorp.securegraph.property.StreamingPropertyValue;
 import com.google.inject.Inject;
 import org.apache.commons.io.IOUtils;
 
@@ -63,7 +64,13 @@ public class ArtifactVideoPreviewImage extends BaseRequestHandler {
             }
         }
 
-        InputStream in = artifactRepository.getVideoPreviewImage(artifactRowKey);
+        StreamingPropertyValue videoPreviewImageValue = (StreamingPropertyValue) artifactVertex.getPropertyValue(PropertyName.VIDEO_PREVIEW_IMAGE.toString(), 0);
+        if (videoPreviewImageValue == null) {
+            response.sendError(HttpServletResponse.SC_NOT_FOUND);
+            chain.next(request, response);
+            return;
+        }
+        InputStream in = videoPreviewImageValue.getInputStream(user.getAuthorizations());
         try {
             if (widthStr != null) {
                 LOGGER.info("Cache miss for: %s (video-preview) %d x %d", artifactVertex.getId().toString(), boundaryDims[0], boundaryDims[1]);

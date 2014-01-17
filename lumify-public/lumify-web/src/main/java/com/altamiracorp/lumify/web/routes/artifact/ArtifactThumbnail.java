@@ -1,6 +1,7 @@
 package com.altamiracorp.lumify.web.routes.artifact;
 
 import com.altamiracorp.lumify.core.model.artifactThumbnails.ArtifactThumbnailRepository;
+import com.altamiracorp.lumify.core.model.ontology.PropertyName;
 import com.altamiracorp.lumify.core.user.User;
 import com.altamiracorp.lumify.core.util.LumifyLogger;
 import com.altamiracorp.lumify.core.util.LumifyLoggerFactory;
@@ -9,6 +10,7 @@ import com.altamiracorp.miniweb.HandlerChain;
 import com.altamiracorp.miniweb.utils.UrlUtils;
 import com.altamiracorp.securegraph.Graph;
 import com.altamiracorp.securegraph.Vertex;
+import com.altamiracorp.securegraph.property.StreamingPropertyValue;
 import com.google.inject.Inject;
 
 import javax.servlet.ServletOutputStream;
@@ -70,7 +72,14 @@ public class ArtifactThumbnail extends BaseRequestHandler {
         }
 
         LOGGER.info("Cache miss for: %s (raw) %d x %d", artifactVertex.getId().toString(), boundaryDims[0], boundaryDims[1]);
-        InputStream in = artifactRepository.getRaw(artifact, vertex, user);
+        StreamingPropertyValue rawPropertyValue = (StreamingPropertyValue) artifactVertex.getPropertyValue(PropertyName.RAW.toString(), 0);
+        if (rawPropertyValue == null) {
+            response.sendError(HttpServletResponse.SC_NOT_FOUND);
+            chain.next(request, response);
+            return;
+        }
+
+        InputStream in = rawPropertyValue.getInputStream(user.getAuthorizations());
         try {
             thumbnail = artifactThumbnailRepository.createThumbnail(artifactVertex.getId(), "raw", in, boundaryDims, user);
 

@@ -1,6 +1,7 @@
 package com.altamiracorp.lumify.web.routes.artifact;
 
 import com.altamiracorp.lumify.core.model.artifactThumbnails.ArtifactThumbnailRepository;
+import com.altamiracorp.lumify.core.model.ontology.PropertyName;
 import com.altamiracorp.lumify.core.user.User;
 import com.altamiracorp.lumify.core.util.LumifyLogger;
 import com.altamiracorp.lumify.core.util.LumifyLoggerFactory;
@@ -9,6 +10,7 @@ import com.altamiracorp.miniweb.HandlerChain;
 import com.altamiracorp.miniweb.utils.UrlUtils;
 import com.altamiracorp.securegraph.Graph;
 import com.altamiracorp.securegraph.Vertex;
+import com.altamiracorp.securegraph.property.StreamingPropertyValue;
 import com.google.inject.Inject;
 import org.apache.commons.io.IOUtils;
 
@@ -59,7 +61,14 @@ public class ArtifactPosterFrame extends BaseRequestHandler {
             }
         }
 
-        InputStream in = artifactRepository.getRawPosterFrame(artifactRowKey.toString());
+        StreamingPropertyValue rawPosterFrameValue = (StreamingPropertyValue) artifactVertex.getPropertyValue(PropertyName.RAW_POSTER_FRAME.toString(), 0);
+        if (rawPosterFrameValue == null) {
+            LOGGER.warn("Could not find raw poster from for artifact: %s", artifactVertex.getId().toString());
+            response.sendError(HttpServletResponse.SC_NOT_FOUND);
+            chain.next(request, response);
+            return;
+        }
+        InputStream in = rawPosterFrameValue.getInputStream(user.getAuthorizations());
         try {
             if (widthStr != null) {
                 LOGGER.info("Cache miss for: %s (poster-frame) %d x %d", graphVertexId, boundaryDims[0], boundaryDims[1]);
