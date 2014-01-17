@@ -13,11 +13,11 @@ public enum PropertyName {
     GLYPH_ICON("_glyphIcon"),
     MAP_GLYPH_ICON("_mapGlyphIcon"),
     COLOR("_color"),
-    SOURCE("source"),
+    SOURCE("_source"),
     PROCESS("_process"),
     START_DATE("startDate"),
     END_DATE("endDate"),
-    RELATIONSHIP_TYPE("relationshipType"),
+    RELATIONSHIP_TYPE("_relationshipType"),
     PUBLISHED_DATE("publishedDate"),
     CREATE_DATE("_createDate"),
     FILE_NAME("_fileName"),
@@ -29,8 +29,9 @@ public enum PropertyName {
     RAW_POSTER_FRAME("_rawPosterFrame"),
     DETECTED_OBJECTS("_detectedObjects"),
     MIME_TYPE("_mimeType"),
-    VIDEO_PREVIEW_IMAGE("videoPreviewImage"),
-    HIGHLIGHTED_TEXT("highlightedText"),
+    VIDEO_PREVIEW_IMAGE("_videoPreviewImage"),
+    TEXT("_text"),
+    HIGHLIGHTED_TEXT("_highlightedText"),
     AUTHOR("author");
 
     private final String text;

@@ -11,8 +11,6 @@ import com.altamiracorp.lumify.core.bootstrap.LumifyBootstrap;
 import com.altamiracorp.lumify.core.config.ConfigurationHelper;
 import com.altamiracorp.lumify.core.ingest.ArtifactExtractedInfo;
 import com.altamiracorp.lumify.core.metrics.JmxMetricsManager;
-import com.altamiracorp.lumify.core.model.artifact.Artifact;
-import com.altamiracorp.lumify.core.model.artifact.ArtifactRepository;
 import com.altamiracorp.lumify.core.model.audit.AuditRepository;
 import com.altamiracorp.lumify.core.model.ontology.OntologyRepository;
 import com.altamiracorp.lumify.core.model.termMention.TermMentionRepository;
@@ -65,7 +63,6 @@ public abstract class BaseLumifyBolt extends BaseRichBolt {
     }
 
     private OutputCollector collector;
-    protected ArtifactRepository artifactRepository;
     protected OntologyRepository ontologyRepository;
     private FileSystem hdfsFileSystem;
     protected Graph graph;
@@ -268,11 +265,6 @@ public abstract class BaseLumifyBolt extends BaseRichBolt {
 
     protected User getUser() {
         return user;
-    }
-
-    @Inject
-    public void setArtifactRepository(ArtifactRepository artifactRepository) {
-        this.artifactRepository = artifactRepository;
     }
 
     @Inject

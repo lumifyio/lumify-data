@@ -91,11 +91,11 @@ public abstract class BaseArtifactProcessingBolt extends BaseFileProcessingBolt 
         } else if (isArchive(fileName)) {
             archiveTempDir = extractArchive(fileMetadata);
             File primaryFile = getPrimaryFileFromArchive(archiveTempDir);
-            in = getInputStream(primaryFile.getAbsolutePath(), artifactExtractedInfo);
+            in = openFile(primaryFile.getAbsolutePath());
             fileMetadata.setPrimaryFileFromArchive(primaryFile);
             fileMetadata.setMimeType(getContentTypeExtractor().extract(new FileInputStream(primaryFile), FilenameUtils.getExtension(primaryFile.getAbsoluteFile().toString())));
         } else {
-            in = getInputStream(fileMetadata.getFileName(), artifactExtractedInfo);
+            in = openFile(fileMetadata.getFileName());
         }
         if (fileMetadata.getTitle() != null) {
             artifactExtractedInfo.setTitle(fileMetadata.getTitle());

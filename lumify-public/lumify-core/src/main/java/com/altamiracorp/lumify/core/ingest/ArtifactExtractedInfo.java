@@ -24,7 +24,6 @@ public class ArtifactExtractedInfo {
     private static final String DATE = "date";
     private static final String TEXT_HDFS_PATH = "textHdfsPath";
     private static final String ONTOLOGY_CLASS_URI = "ontologyClassUri";
-    private static final String RAW_HDFS_PATH = "rawHdfsPath";
     private static final String RAW = "raw";
     private static final String TEXT_ROW_KEY = "textRowKey";
     private static final String MP4_HDFS_PATH = "mp4HdfsPath";
@@ -203,24 +202,6 @@ public class ArtifactExtractedInfo {
     
     public String getOntologyClassUri() {
         return (String) properties.get(ONTOLOGY_CLASS_URI);
-    }
-
-    public void setRawHdfsPath(String rawHdfsPath) {
-        set(RAW_HDFS_PATH, rawHdfsPath);
-    }
-
-    /**
-     * Builder pattern for rawHdfsPath property.
-     * @param rawHdfsPath the rawHdfsPath
-     * @return this
-     */
-    public ArtifactExtractedInfo rawHdfsPath(final String rawHdfsPath) {
-        setRawHdfsPath(rawHdfsPath);
-        return this;
-    }
-    
-    public String getRawHdfsPath() {
-        return (String) properties.get(RAW_HDFS_PATH);
     }
 
     public void setRaw(byte[] raw) {
