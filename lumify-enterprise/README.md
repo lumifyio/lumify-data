@@ -20,3 +20,5 @@ There are 3 [Vagrant](http://www.vagrantup.com/) VMs:
 To use gremlin shell, download, uncompress, and set TITAN_HOME to the following directory:
 
 - [titan](http://bits.lumify.io.s3.amazonaws.com/tmp/titan-hbase-0.3.2.zip)
+
+To use CLAVIN follow the [instructions](https://github.com/altamiracorp/lumify-all/bloe/master/docs/clavin-setup.md)
