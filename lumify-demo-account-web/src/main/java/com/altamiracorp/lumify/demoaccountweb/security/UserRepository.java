@@ -1,4 +1,4 @@
-package com.altamiracorp.demoaccountweb.security;
+package com.altamiracorp.lumify.demoaccountweb.security;
 
 public abstract class UserRepository {
     public abstract User validateUser(String username, String password);

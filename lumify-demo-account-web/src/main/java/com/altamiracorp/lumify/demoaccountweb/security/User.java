@@ -1,4 +1,4 @@
-package com.altamiracorp.demoaccountweb.security;
+package com.altamiracorp.lumify.demoaccountweb.security;
 
 import com.altamiracorp.bigtable.model.user.ModelUserContext;
 import org.json.JSONObject;

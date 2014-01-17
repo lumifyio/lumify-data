@@ -1,4 +1,4 @@
-package com.altamiracorp.demoaccountweb;
+package com.altamiracorp.lumify.demoaccountweb;
 
 import com.altamiracorp.miniweb.App;
 import com.altamiracorp.miniweb.Handler;

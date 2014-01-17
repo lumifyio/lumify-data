@@ -1,7 +1,6 @@
-package com.altamiracorp.demoaccountweb.routes;
+package com.altamiracorp.lumify.demoaccountweb.routes;
 
 import com.altamiracorp.miniweb.HandlerChain;
-import com.google.inject.Inject;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;

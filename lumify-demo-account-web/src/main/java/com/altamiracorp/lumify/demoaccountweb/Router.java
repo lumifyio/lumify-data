@@ -1,10 +1,10 @@
-package com.altamiracorp.demoaccountweb;
+package com.altamiracorp.lumify.demoaccountweb;
 
-import com.altamiracorp.demoaccountweb.routes.CreateAccount;
-import com.altamiracorp.demoaccountweb.routes.CreateAccountForm;
-import com.altamiracorp.demoaccountweb.routes.CreateToken;
-import com.altamiracorp.demoaccountweb.security.AuthenticationProvider;
-import com.altamiracorp.demoaccountweb.util.SimpleTemplateFileHandler;
+import com.altamiracorp.lumify.demoaccountweb.routes.CreateAccount;
+import com.altamiracorp.lumify.demoaccountweb.routes.CreateAccountForm;
+import com.altamiracorp.lumify.demoaccountweb.routes.CreateToken;
+import com.altamiracorp.lumify.demoaccountweb.security.AuthenticationProvider;
+import com.altamiracorp.lumify.demoaccountweb.util.SimpleTemplateFileHandler;
 import com.altamiracorp.miniweb.Handler;
 import com.google.inject.Injector;
 

@@ -1,4 +1,4 @@
-package com.altamiracorp.demoaccountweb.routes;
+package com.altamiracorp.lumify.demoaccountweb.routes;
 
 import com.altamiracorp.miniweb.Handler;
 import org.json.JSONObject;

@@ -1,4 +1,4 @@
-package com.altamiracorp.demoaccountweb.util;
+package com.altamiracorp.lumify.demoaccountweb.util;
 
 public class StringEscapeUtils {
     /**

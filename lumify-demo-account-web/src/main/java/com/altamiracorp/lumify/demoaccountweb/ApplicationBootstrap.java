@@ -1,8 +1,8 @@
-package com.altamiracorp.demoaccountweb;
+package com.altamiracorp.lumify.demoaccountweb;
 
 import com.altamiracorp.bigtable.model.ModelSession;
-import com.altamiracorp.demoaccountweb.security.AuthenticationProvider;
-import com.altamiracorp.demoaccountweb.security.UserRepository;
+import com.altamiracorp.lumify.demoaccountweb.security.AuthenticationProvider;
+import com.altamiracorp.lumify.demoaccountweb.security.UserRepository;
 import com.google.inject.AbstractModule;
 import com.google.inject.Guice;
 import com.google.inject.Injector;

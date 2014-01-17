@@ -1,18 +1,21 @@
-package com.altamiracorp.demoaccountweb.routes;
+package com.altamiracorp.lumify.demoaccountweb.routes;
 
-import com.altamiracorp.demoaccountweb.security.AuthenticationProvider;
+import com.altamiracorp.lumify.demoaccountweb.security.AuthenticationProvider;
+import com.altamiracorp.lumify.demoaccountweb.security.UserRepository;
 import com.altamiracorp.miniweb.HandlerChain;
 import com.google.inject.Inject;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-public class CreateAccountForm extends BaseRequestHandler {
+public class CreateToken extends BaseRequestHandler {
+    private final UserRepository userRepository;
     private final AuthenticationProvider authenticationProvider;
 
     @Inject
-    public CreateAccountForm(AuthenticationProvider authenticationProvider) {
+    public CreateToken(AuthenticationProvider authenticationProvider, UserRepository userRepository) {
         this.authenticationProvider = authenticationProvider;
+        this.userRepository = userRepository;
     }
 
     @Override
