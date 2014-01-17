@@ -114,7 +114,7 @@ public class TermExtractionBolt extends BaseTextProcessingBolt {
             termMentionModel.getMetadata().setSign(termMention.getSign());
             termMentionModel.getMetadata().setOntologyClassUri(termMention.getOntologyClassUri());
 
-            Concept concept = ontologyRepository.getConceptByName(termMention.getOntologyClassUri(), getUser());
+            Concept concept = ontologyRepository.getConceptByName(termMention.getOntologyClassUri());
             if (concept != null) {
                 termMentionModel.getMetadata().setConceptGraphVertexId(concept.getId().toString());
             } else {
@@ -159,7 +159,7 @@ public class TermExtractionBolt extends BaseTextProcessingBolt {
 
                 graph.addEdge(artifactGraphVertex, vertex, LabelName.HAS_ENTITY.toString(), new Visibility(""));
 
-                String labelDisplayName = ontologyRepository.getDisplayNameForLabel(LabelName.HAS_ENTITY.toString(), getUser());
+                String labelDisplayName = ontologyRepository.getDisplayNameForLabel(LabelName.HAS_ENTITY.toString());
                 auditRepository.auditRelationships(AuditAction.CREATE.toString(), artifactGraphVertex, vertex, labelDisplayName, termMention.getProcess(), "", getUser());
 
                 termMentionModel.getMetadata().setVertexId(vertex.getId().toString());
