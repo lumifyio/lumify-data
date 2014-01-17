@@ -93,7 +93,7 @@ public class FacebookPost {
         Long name_uid = post.getLong(AUTHOR_UID);
         String author_uid = name_uid.toString();
         LOGGER.info("Saving Facebook post to accumulo and as graph vertex: ", posting.getId());
-        Concept profileConcept = ontologyRepository.getConceptByName(FACEBOOK_PROFILE, user);
+        Concept profileConcept = ontologyRepository.getConceptByName(FACEBOOK_PROFILE);
         String profileConceptId = profileConcept.getId().toString();
         List<String> modifiedProperties = new ArrayList<String>();
 
@@ -114,7 +114,7 @@ public class FacebookPost {
             authorVertex = verticesIterator.next();
         }
         graph.addEdge(authorVertex, posting, POSTED_RELATIONSHIP, visibility);
-        String postedRelationshipLabelDisplayName = ontologyRepository.getDisplayNameForLabel(POSTED_RELATIONSHIP, user);
+        String postedRelationshipLabelDisplayName = ontologyRepository.getDisplayNameForLabel(POSTED_RELATIONSHIP);
         auditRepository.auditRelationships(AuditAction.CREATE.toString(), posting, authorVertex, postedRelationshipLabelDisplayName, PROCESS, "", user);
         if (post.get(TAGGEED_UIDS) instanceof JSONObject) {
             Iterator tagged = post.getJSONObject(TAGGEED_UIDS).keys();
@@ -135,7 +135,7 @@ public class FacebookPost {
                     taggedVertex = taggedUidIterator.next();
                 }
                 graph.addEdge(posting, taggedVertex, MENTIONED_RELATIONSHIP, visibility);
-                String mentionedRelationshipLabelDisplayName = ontologyRepository.getDisplayNameForLabel(MENTIONED_RELATIONSHIP, user);
+                String mentionedRelationshipLabelDisplayName = ontologyRepository.getDisplayNameForLabel(MENTIONED_RELATIONSHIP);
                 auditRepository.auditRelationships(AuditAction.CREATE.toString(), posting, taggedVertex, mentionedRelationshipLabelDisplayName, PROCESS, "", user);
             }
         }
