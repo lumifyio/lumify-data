@@ -1,7 +1,6 @@
 package com.altamiracorp.lumify.demoaccountweb;
 
 import com.altamiracorp.bigtable.model.ModelSession;
-import com.altamiracorp.lumify.demoaccountweb.security.AuthenticationProvider;
 import com.google.inject.AbstractModule;
 import com.google.inject.Guice;
 import com.google.inject.Injector;
@@ -21,7 +20,6 @@ import java.util.Properties;
 
 public class ApplicationBootstrap extends AbstractModule implements ServletContextListener {
     private static final Logger LOGGER = LoggerFactory.getLogger(ApplicationBootstrap.class);
-    public static final String CONFIG_AUTHENTICATION_PROVIDER = "AuthenticationProvider";
     public static final String CONFIG_MODEL_SESSION = "ModelSession";
     private ServletContext context;
 
@@ -48,12 +46,7 @@ public class ApplicationBootstrap extends AbstractModule implements ServletConte
 
     @Override
     protected void configure() {
-        bind(AuthenticationProvider.class).to(getAuthenticationProviderClass());
         bind(ModelSession.class).toInstance(createModelSession());
-    }
-
-    private Class<AuthenticationProvider> getAuthenticationProviderClass() {
-        return getClassFromConfig(CONFIG_AUTHENTICATION_PROVIDER);
     }
 
     private ModelSession createModelSession() {

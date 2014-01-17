@@ -1,9 +1,7 @@
 package com.altamiracorp.lumify.demoaccountweb;
 
 import com.altamiracorp.lumify.demoaccountweb.routes.CreateAccount;
-import com.altamiracorp.lumify.demoaccountweb.routes.CreateAccountForm;
 import com.altamiracorp.lumify.demoaccountweb.routes.CreateToken;
-import com.altamiracorp.lumify.demoaccountweb.security.AuthenticationProvider;
 import com.altamiracorp.lumify.demoaccountweb.util.SimpleTemplateFileHandler;
 import com.altamiracorp.miniweb.Handler;
 import com.google.inject.Injector;
@@ -26,14 +24,15 @@ public class Router extends HttpServlet {
 
         final Injector injector = (Injector) config.getServletContext().getAttribute(Injector.class.getName());
 
-        AuthenticationProvider authenticatorInstance = injector.getInstance(AuthenticationProvider.class);
-        Class<? extends Handler> authenticator = authenticatorInstance.getClass();
-
         app = new WebApp(config, injector);
         app.get("/index.html", new SimpleTemplateFileHandler());
         app.post("/create-token", CreateToken.class);
-        app.get("/create-account", CreateAccountForm.class);
+        app.get("/token-created.html", new SimpleTemplateFileHandler());
+
+        app.get("/create-account.html", new SimpleTemplateFileHandler());
+
         app.post("/create-account", CreateAccount.class);
+        app.get("/account-created.html", new SimpleTemplateFileHandler());
     }
 
     @Override

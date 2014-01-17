@@ -11,4 +11,5 @@ public abstract class BaseRequestHandler implements Handler {
         response.setContentType("application/json");
         response.getWriter().write(json.toString());
     }
+
 }
