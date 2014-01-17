@@ -112,6 +112,7 @@ function _accumulo_start {
     local ready='no'
     while [ "${ready}" != 'yes' ]; do
       echo "ssh to $(_accumulomaster) and as the accumulo user run: /usr/lib/accumulo/bin/accumulo init"
+      echo '  while there also run the accumulo shell and run the following: setauths -u root -s "ontology"'
       echo "then type 'yes' and press return"
       read ready
     done
