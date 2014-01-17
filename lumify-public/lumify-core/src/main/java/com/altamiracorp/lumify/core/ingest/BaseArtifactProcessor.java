@@ -16,7 +16,6 @@
 
 package com.altamiracorp.lumify.core.ingest;
 
-import com.altamiracorp.lumify.core.model.artifact.ArtifactRepository;
 import com.altamiracorp.lumify.core.model.audit.AuditRepository;
 import com.altamiracorp.lumify.core.model.ontology.OntologyRepository;
 import com.altamiracorp.lumify.core.model.termMention.TermMentionRepository;
@@ -36,11 +35,6 @@ public abstract class BaseArtifactProcessor {
      * The User this processor is executing as.
      */
     private User user;
-
-    /**
-     * The Artifact Repository.
-     */
-    private ArtifactRepository artifactRepository;
 
     /**
      * The Ontology Repository.
@@ -66,15 +60,6 @@ public abstract class BaseArtifactProcessor {
      * The Work Queue Repository.
      */
     private WorkQueueRepository workQueueRepository;
-
-    protected final ArtifactRepository getArtifactRepository() {
-        return artifactRepository;
-    }
-
-    @Inject
-    public final void setArtifactRepository(final ArtifactRepository artifactRepository) {
-        this.artifactRepository = artifactRepository;
-    }
 
     protected final OntologyRepository getOntologyRepository() {
         return ontologyRepository;

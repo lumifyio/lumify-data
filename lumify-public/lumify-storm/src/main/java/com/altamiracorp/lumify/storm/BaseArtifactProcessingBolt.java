@@ -137,14 +137,15 @@ public abstract class BaseArtifactProcessingBolt extends BaseFileProcessingBolt 
             String newTextPath = moveTempPosterFrameFile(artifactExtractedInfo.getPosterFrameHdfsPath(), artifactExtractedInfo.getRowKey());
             artifactExtractedInfo.setPosterFrameHdfsPath(newTextPath);
         }
-        if (artifactExtractedInfo.getVideoFrames() != null) {
-            saveVideoFrames(new ArtifactRowKey(artifactExtractedInfo.getRowKey()), artifactExtractedInfo.getVideoFrames());
-        }
         if (artifactExtractedInfo.getProcess() == null) {
             artifactExtractedInfo.setProcess("");
         }
 
         Vertex graphVertex = saveArtifact(artifactExtractedInfo);
+
+        if (artifactExtractedInfo.getVideoFrames() != null) {
+            saveVideoFrames(graphVertex.getId(), artifactExtractedInfo.getVideoFrames());
+        }
 
         if (archiveTempDir != null) {
             FileUtils.deleteDirectory(archiveTempDir);
@@ -158,16 +159,16 @@ public abstract class BaseArtifactProcessingBolt extends BaseFileProcessingBolt 
         throw new RuntimeException("Not implemented for class " + getClass());
     }
 
-    private void saveVideoFrames(ArtifactRowKey artifactRowKey, List<ArtifactExtractedInfo.VideoFrame> videoFrames) throws IOException {
+    private void saveVideoFrames(Object artifactVertexId, List<ArtifactExtractedInfo.VideoFrame> videoFrames) throws IOException {
         for (ArtifactExtractedInfo.VideoFrame videoFrame : videoFrames) {
-            saveVideoFrame(artifactRowKey, videoFrame);
+            saveVideoFrame(artifactVertexId, videoFrame);
         }
     }
 
-    private void saveVideoFrame(ArtifactRowKey artifactRowKey, ArtifactExtractedInfo.VideoFrame videoFrame) throws IOException {
+    private void saveVideoFrame(Object artifactVertexId, ArtifactExtractedInfo.VideoFrame videoFrame) throws IOException {
         InputStream in = getHdfsFileSystem().open(new Path(videoFrame.getHdfsPath()));
         try {
-            videoFrameRepository.saveVideoFrame(artifactRowKey, in, videoFrame.getFrameStartTime(), getUser());
+            videoFrameRepository.saveVideoFrame(artifactVertexId, in, videoFrame.getFrameStartTime(), getUser());
         } finally {
             in.close();
         }

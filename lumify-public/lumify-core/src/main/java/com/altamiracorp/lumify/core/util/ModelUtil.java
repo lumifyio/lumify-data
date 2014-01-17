@@ -1,7 +1,6 @@
 package com.altamiracorp.lumify.core.util;
 
 import com.altamiracorp.bigtable.model.ModelSession;
-import com.altamiracorp.lumify.core.model.artifact.Artifact;
 import com.altamiracorp.lumify.core.model.artifactThumbnails.ArtifactThumbnail;
 import com.altamiracorp.lumify.core.model.audit.Audit;
 import com.altamiracorp.lumify.core.model.dictionary.DictionaryEntry;
@@ -18,7 +17,6 @@ import java.util.List;
 public class ModelUtil {
 
     private static final List<String> tables = Arrays.asList(
-            Artifact.TABLE_NAME,
             ArtifactThumbnail.TABLE_NAME,
             Workspace.TABLE_NAME,
             TermMentionModel.TABLE_NAME,
