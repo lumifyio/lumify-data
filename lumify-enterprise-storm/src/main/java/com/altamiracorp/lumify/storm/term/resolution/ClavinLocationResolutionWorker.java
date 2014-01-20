@@ -79,7 +79,7 @@ public class ClavinLocationResolutionWorker implements TermResolutionWorker {
     /**
      * The default fuzzy matching.
      */
-    private static final boolean DEFAULT_FUZZY_MATCHING = true;
+    private static final boolean DEFAULT_FUZZY_MATCHING = false;
 
     private boolean disabled;
     private File indexDirectory;
