@@ -26,13 +26,16 @@ public enum PropertyName {
     RAW("_raw"),
     VIDEO("_video"),
     VIDEO_SIZE("_videoSize"),
+    VIDEO_DURATION("_videoDuration"),
+    VIDEO_TRANSCRIPT("_videoTranscript"),
     RAW_POSTER_FRAME("_rawPosterFrame"),
     DETECTED_OBJECTS("_detectedObjects"),
     MIME_TYPE("_mimeType"),
     VIDEO_PREVIEW_IMAGE("_videoPreviewImage"),
     TEXT("_text"),
     HIGHLIGHTED_TEXT("_highlightedText"),
-    AUTHOR("author");
+    AUTHOR("author"),
+    MAPPING_JSON("_mappingJson");
 
     private final String text;
 

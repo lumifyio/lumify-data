@@ -23,7 +23,6 @@ import com.altamiracorp.lumify.core.ingest.ArtifactExtractedInfo;
 import com.altamiracorp.lumify.core.ingest.BaseArtifactProcessor;
 import com.altamiracorp.lumify.core.ingest.term.extraction.TermRegexFinder;
 import com.altamiracorp.lumify.core.json.JsonProperty;
-import com.altamiracorp.lumify.core.model.artifact.ArtifactRowKey;
 import com.altamiracorp.lumify.core.model.audit.AuditAction;
 import com.altamiracorp.lumify.core.model.audit.AuditRepository;
 import com.altamiracorp.lumify.core.model.ontology.Concept;

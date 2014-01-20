@@ -8,8 +8,6 @@ import com.altamiracorp.lumify.core.ingest.AdditionalArtifactWorkData;
 import com.altamiracorp.lumify.core.ingest.ArtifactExtractedInfo;
 import com.altamiracorp.lumify.core.ingest.TextExtractionWorker;
 import com.altamiracorp.lumify.core.ingest.TextExtractionWorkerPrepareData;
-import com.altamiracorp.lumify.core.model.artifact.Artifact;
-import com.altamiracorp.lumify.core.model.artifact.ArtifactRowKey;
 import com.altamiracorp.lumify.core.model.videoFrames.VideoFrameRepository;
 import com.altamiracorp.lumify.core.util.LumifyLogger;
 import com.altamiracorp.lumify.core.util.LumifyLoggerFactory;
@@ -109,7 +107,7 @@ public abstract class BaseArtifactProcessingBolt extends BaseFileProcessingBolt 
 
         runWorkers(in, fileMetadata, artifactExtractedInfo, archiveTempDir);
 
-        if (rawSize > Artifact.MAX_SIZE_OF_INLINE_FILE) {
+        if (rawSize > ArtifactExtractedInfo.MAX_SIZE_OF_INLINE_FILE) {
             String newRawArtifactHdfsPath = moveRawFile(fileMetadata.getFileName(), artifactExtractedInfo.getRowKey(), fileMetadata.getRaw());
             artifactExtractedInfo.setRawHdfsPath(newRawArtifactHdfsPath);
         } else {
