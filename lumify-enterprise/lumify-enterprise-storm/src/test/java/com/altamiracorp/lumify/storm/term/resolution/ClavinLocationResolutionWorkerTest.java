@@ -43,11 +43,11 @@ import org.powermock.reflect.Whitebox;
 public class ClavinLocationResolutionWorkerTest {
     private static final String TEST_IDX_PATH = "/test/index";
     private static final int DEFAULT_MAX_HIT_DEPTH;
-    private static final int DEFAULT_MAX_CONTENT_WINDOW;
+    private static final int DEFAULT_MAX_CONTEXT_WINDOW;
     private static final boolean DEFAULT_FUZZY_MATCHING;
     static {
         DEFAULT_MAX_HIT_DEPTH = Whitebox.getInternalState(ClavinLocationResolutionWorker.class, "DEFAULT_MAX_HIT_DEPTH");
-        DEFAULT_MAX_CONTENT_WINDOW = Whitebox.getInternalState(ClavinLocationResolutionWorker.class, "DEFAULT_MAX_CONTENT_WINDOW");
+        DEFAULT_MAX_CONTEXT_WINDOW = Whitebox.getInternalState(ClavinLocationResolutionWorker.class, "DEFAULT_MAX_CONTEXT_WINDOW");
         DEFAULT_FUZZY_MATCHING = Whitebox.getInternalState(ClavinLocationResolutionWorker.class, "DEFAULT_FUZZY_MATCHING");
     }
 
@@ -59,8 +59,8 @@ public class ClavinLocationResolutionWorkerTest {
         return genConfigMap(null, idxPath, null, null, null);
     }
 
-    private static Map<String, String> genIntPropMap(final String maxHitDepth, final String maxContentWindow) {
-        return genConfigMap(null, TEST_IDX_PATH, maxHitDepth, maxContentWindow, null);
+    private static Map<String, String> genIntPropMap(final String maxHitDepth, final String maxContextWindow) {
+        return genConfigMap(null, TEST_IDX_PATH, maxHitDepth, maxContextWindow, null);
     }
 
     private static Map<String, String> genFuzzyMap(final String fuzzy) {
@@ -68,12 +68,12 @@ public class ClavinLocationResolutionWorkerTest {
     }
 
     private static Map<String, String> genConfigMap(final String disabled, final String idxPath, final String maxHitDepth,
-            final String maxContentWindow, final String fuzzy) {
+            final String maxContextWindow, final String fuzzy) {
         Map<String, String> config = new HashMap<String, String>();
         config.put(CLAVIN_DISABLED, disabled);
         config.put(CLAVIN_INDEX_DIRECTORY, idxPath);
         config.put(CLAVIN_MAX_HIT_DEPTH, maxHitDepth);
-        config.put(CLAVIN_MAX_CONTENT_WINDOW, maxContentWindow);
+        config.put(CLAVIN_MAX_CONTEXT_WINDOW, maxContextWindow);
         config.put(CLAVIN_USE_FUZZY_MATCHING, fuzzy);
         return config;
     }
@@ -358,27 +358,27 @@ public class ClavinLocationResolutionWorkerTest {
     }
 
     private void doPrepareTest(final Map<String, String> config) throws Exception {
-        doPrepareTest(config, DEFAULT_MAX_HIT_DEPTH, DEFAULT_MAX_CONTENT_WINDOW, DEFAULT_FUZZY_MATCHING);
+        doPrepareTest(config, DEFAULT_MAX_HIT_DEPTH, DEFAULT_MAX_CONTEXT_WINDOW, DEFAULT_FUZZY_MATCHING);
     }
 
-    private void doPrepareTest(final int expectedHitDepth, final int expectedContentWindow)
+    private void doPrepareTest(final int expectedHitDepth, final int expectedContextWindow)
             throws Exception {
-        doPrepareTest(genIntPropMap(""+expectedHitDepth, ""+expectedContentWindow), expectedHitDepth, expectedContentWindow,
+        doPrepareTest(genIntPropMap(""+expectedHitDepth, ""+expectedContextWindow), expectedHitDepth, expectedContextWindow,
                 DEFAULT_FUZZY_MATCHING);
     }
 
     private void doPrepareTest(final Map<String, String> config, final boolean expectedFuzzy) throws Exception {
-        doPrepareTest(config, DEFAULT_MAX_HIT_DEPTH, DEFAULT_MAX_CONTENT_WINDOW, expectedFuzzy);
+        doPrepareTest(config, DEFAULT_MAX_HIT_DEPTH, DEFAULT_MAX_CONTEXT_WINDOW, expectedFuzzy);
     }
 
-    private void doPrepareTest(final Map<String, String> config, final int expectedHitDepth, final int expectedContentWindow,
+    private void doPrepareTest(final Map<String, String> config, final int expectedHitDepth, final int expectedContextWindow,
             final boolean expectedFuzzy) throws Exception {
         when(indexDirectory.exists()).thenReturn(true);
         when(indexDirectory.isDirectory()).thenReturn(true);
 
         instance.prepare(config, user);
 
-        PowerMockito.verifyNew(LuceneLocationResolver.class).withArguments(indexDirectory, expectedHitDepth, expectedContentWindow);
+        PowerMockito.verifyNew(LuceneLocationResolver.class).withArguments(indexDirectory, expectedHitDepth, expectedContextWindow);
         assertEquals(expectedFuzzy, Whitebox.getInternalState(instance, "fuzzy"));
     }
 
