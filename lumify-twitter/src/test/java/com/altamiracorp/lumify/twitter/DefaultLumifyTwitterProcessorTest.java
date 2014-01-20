@@ -18,8 +18,6 @@ package com.altamiracorp.lumify.twitter;
 
 import com.altamiracorp.bigtable.model.user.ModelUserContext;
 import com.altamiracorp.lumify.core.ingest.term.extraction.TermRegexFinder;
-import com.altamiracorp.lumify.core.model.artifact.ArtifactRepository;
-import com.altamiracorp.lumify.core.model.artifact.ArtifactRowKey;
 import com.altamiracorp.lumify.core.model.audit.AuditRepository;
 import com.altamiracorp.lumify.core.model.ontology.Concept;
 import com.altamiracorp.lumify.core.model.ontology.OntologyRepository;
@@ -40,15 +38,13 @@ import org.powermock.modules.junit4.PowerMockRunner;
 import org.powermock.reflect.Whitebox;
 
 import static com.altamiracorp.lumify.twitter.TwitterConstants.*;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNull;
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.when;
 
 /**
  * Abstract base class for testing Twitter bolts.
  */
 @RunWith(PowerMockRunner.class)
-@PrepareForTest({ArtifactRowKey.class, TermRegexFinder.class, DefaultLumifyTwitterProcessor.class})
+@PrepareForTest({TermRegexFinder.class, DefaultLumifyTwitterProcessor.class})
 public class DefaultLumifyTwitterProcessorTest {
     private static final String TEST_PROCESS_ID = "twitter-processor-test";
     private static final String TEST_QUEUE_NAME = "testQueue";
@@ -95,8 +91,6 @@ public class DefaultLumifyTwitterProcessorTest {
     private User user;
     @Mock
     private OntologyRepository ontologyRepository;
-    @Mock
-    private ArtifactRepository artifactRepository;
     @Mock
     private Graph graph;
     @Mock
@@ -150,7 +144,6 @@ public class DefaultLumifyTwitterProcessorTest {
     public void setup() throws Exception {
         instance = new DefaultLumifyTwitterProcessor();
         instance.setOntologyRepository(ontologyRepository);
-        instance.setArtifactRepository(artifactRepository);
         instance.setGraph(graph);
         instance.setAuditRepository(auditRepository);
         instance.setUser(user);
@@ -167,7 +160,6 @@ public class DefaultLumifyTwitterProcessorTest {
         when(ontologyRepository.getDisplayNameForLabel(TwitterEntityType.MENTION.getRelationshipLabel())).
                 thenReturn(MENTION_RELATIONSIHP_LABEL);
         when(graph.getVertex(HANDLE_CONCEPT_ID, user.getAuthorizations())).thenReturn(handleConceptVertex);
-        when(artifactRepository.findByRowKey(anyString(), any(ModelUserContext.class))).thenReturn(null);
         when(tweetVertex.getId()).thenReturn(TWEET_VERTEX_ID);
         when(tweeterVertex.getId()).thenReturn(TWEETER_VERTEX_ID);
         when(handleConcept.getId()).thenReturn(HANDLE_CONCEPT_ID);

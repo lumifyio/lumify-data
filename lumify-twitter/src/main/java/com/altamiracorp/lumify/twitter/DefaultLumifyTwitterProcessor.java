@@ -17,7 +17,6 @@
 package com.altamiracorp.lumify.twitter;
 
 import com.altamiracorp.bigtable.model.FlushFlag;
-import com.altamiracorp.lumify.core.ingest.ArtifactExtractedInfo;
 import com.altamiracorp.lumify.core.ingest.BaseArtifactProcessor;
 import com.altamiracorp.lumify.core.ingest.term.extraction.TermRegexFinder;
 import com.altamiracorp.lumify.core.json.JsonProperty;
@@ -162,8 +161,7 @@ public class DefaultLumifyTwitterProcessor extends BaseArtifactProcessor impleme
         byte[] jsonBytes = jsonTweet.toString().getBytes(TWITTER_CHARSET);
         String rowKey = RowKeyHelper.buildSHA256KeyString(jsonBytes);
 
-        ElementMutation<Vertex> artifact = findOrPrepareArtifactVertex(rowKey);
-        artifact
+        ElementMutation<Vertex> artifact = findOrPrepareArtifactVertex(rowKey)
                 .setProperty(PropertyName.MIME_TYPE.toString(), TWEET_ARTIFACT_MIME_TYPE, visibility)
                 .setProperty(PropertyName.CONCEPT_TYPE.toString(), CONCEPT_TWEET, visibility)
                 .setProperty(PropertyName.TITLE.toString(), tweetText, visibility)
@@ -320,20 +318,18 @@ public class DefaultLumifyTwitterProcessor extends BaseArtifactProcessor impleme
                 byte[] rawImg = imgOut.toByteArray();
                 String rowKey = RowKeyHelper.buildSHA256KeyString(rawImg);
 
-                ArtifactExtractedInfo artifactInfo = new ArtifactExtractedInfo()
-                        .mimeType(PROFILE_IMAGE_MIME_TYPE)
-                        .rowKey(rowKey)
-                        .conceptType(CONCEPT_TWITTER_PROFILE_IMAGE)
-                        .title(String.format(IMAGE_ARTIFACT_TITLE_FMT, screenName))
-                        .source(IMAGE_ARTIFACT_SOURCE)
-                        .process(processId)
-                        .raw(rawImg);
-
                 User user = getUser();
                 Graph graph = getGraph();
                 AuditRepository auditRepo = getAuditRepository();
 
-                Vertex imageVertex = getArtifactRepository().saveArtifact(artifactInfo, user);
+                ElementMutation<Vertex> imageBuilder = findOrPrepareArtifactVertex(rowKey)
+                        .setProperty(PropertyName.MIME_TYPE.toString(), PROFILE_IMAGE_MIME_TYPE, visibility)
+                        .setProperty(PropertyName.CONCEPT_TYPE.toString(), CONCEPT_TWITTER_PROFILE_IMAGE, visibility)
+                        .setProperty(PropertyName.TITLE.toString(), String.format(IMAGE_ARTIFACT_TITLE_FMT, screenName), visibility)
+                        .setProperty(PropertyName.SOURCE.toString(), IMAGE_ARTIFACT_SOURCE, visibility)
+                        .setProperty(PropertyName.PROCESS.toString(), processId, visibility)
+                        .setProperty(PropertyName.RAW.toString(), new StreamingPropertyValue(new ByteArrayInputStream(rawImg), byte[].class), visibility);
+                Vertex imageVertex = imageBuilder.save();
 
                 LOGGER.debug("Saved Twitter User [%s] Profile Photo to Accumulo and as graph vertex: %s", screenName, imageVertex.getId());
                 String labelDisplay = getOntologyRepository().getDisplayNameForLabel(LabelName.HAS_IMAGE.toString());
