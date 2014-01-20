@@ -2,8 +2,6 @@ package com.altamiracorp.lumify.textExtraction;
 
 import com.altamiracorp.bigtable.model.MockSession;
 import com.altamiracorp.lumify.core.ingest.ArtifactExtractedInfo;
-import com.altamiracorp.lumify.core.model.artifact.Artifact;
-import com.altamiracorp.lumify.core.model.artifact.ArtifactRepository;
 import com.altamiracorp.lumify.core.user.User;
 import com.altamiracorp.lumify.core.util.ModelUtil;
 import com.altamiracorp.securegraph.Vertex;
@@ -32,9 +30,6 @@ public class TikaTextExtractorTest {
 
     @Mock
     private Vertex vertex;
-
-    @Mock
-    private ArtifactRepository artifactRepository;
 
     OutputStream textOut;
 
@@ -102,8 +97,6 @@ public class TikaTextExtractorTest {
         data += "</html>";
 
         TikaTextExtractor textExtractor = new TikaTextExtractor();
-        Artifact artifact = new Artifact();
-        when(artifactRepository.getRaw(eq(artifact), eq(vertex), eq(user))).thenReturn(new ByteArrayInputStream(data.getBytes()));
         ArtifactExtractedInfo info = textExtractor.extract(new ByteArrayInputStream(data.getBytes()), "text/plain", textOut);
         info.setText(textOut.toString());
         assertEquals("Test Title", info.getTitle());

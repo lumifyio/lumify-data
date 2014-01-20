@@ -2,7 +2,6 @@ package com.altamiracorp.lumify.storm.image;
 
 import com.altamiracorp.lumify.core.ingest.AdditionalArtifactWorkData;
 import com.altamiracorp.lumify.core.ingest.ArtifactExtractedInfo;
-import com.altamiracorp.lumify.core.model.artifact.Artifact;
 import com.altamiracorp.lumify.core.util.HdfsLimitOutputStream;
 import com.altamiracorp.lumify.core.util.LumifyLogger;
 import com.altamiracorp.lumify.core.util.LumifyLoggerFactory;

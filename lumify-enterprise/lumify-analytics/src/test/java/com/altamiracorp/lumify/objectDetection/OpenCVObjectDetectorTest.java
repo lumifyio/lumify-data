@@ -1,7 +1,6 @@
 package com.altamiracorp.lumify.objectDetection;
 
 import com.altamiracorp.lumify.core.ingest.ArtifactDetectedObject;
-import com.altamiracorp.lumify.core.model.artifact.ArtifactRepository;
 import com.altamiracorp.lumify.core.model.videoFrames.VideoFrameRepository;
 import org.junit.Before;
 import org.junit.Test;
@@ -22,9 +21,6 @@ public class OpenCVObjectDetectorTest {
 
     private static final String TEST_IMAGE = "cnn.jpg";
     private static final String CLASSIFIER = "haarcascade_frontalface_alt.xml";
-
-    @Mock
-    ArtifactRepository artifactRepository;
 
     @Mock
     VideoFrameRepository videoFrameRepository;

@@ -1,8 +1,6 @@
 package com.altamiracorp.lumify.facebook;
 
 import com.altamiracorp.lumify.core.ingest.ArtifactExtractedInfo;
-import com.altamiracorp.lumify.core.model.artifact.Artifact;
-import com.altamiracorp.lumify.core.model.artifact.ArtifactRowKey;
 import com.altamiracorp.lumify.core.model.audit.AuditAction;
 import com.altamiracorp.lumify.core.model.audit.AuditRepository;
 import com.altamiracorp.lumify.core.model.ontology.Concept;
@@ -12,12 +10,11 @@ import com.altamiracorp.lumify.core.model.ontology.PropertyName;
 import com.altamiracorp.lumify.core.user.User;
 import com.altamiracorp.lumify.core.util.LumifyLogger;
 import com.altamiracorp.lumify.core.util.LumifyLoggerFactory;
+import com.altamiracorp.lumify.core.util.RowKeyHelper;
 import com.altamiracorp.securegraph.*;
 import com.altamiracorp.securegraph.type.GeoPoint;
 import com.beust.jcommander.internal.Lists;
 import org.apache.commons.io.IOUtils;
-import org.apache.hadoop.fs.FSDataOutputStream;
-import org.apache.hadoop.fs.Path;
 import org.json.JSONObject;
 
 import java.io.ByteArrayOutputStream;
@@ -147,8 +144,7 @@ public class FacebookUser {
             InputStream is = url.openStream();
             IOUtils.copy(is, os);
             byte[] raw = os.toByteArray();
-            ArtifactRowKey build = ArtifactRowKey.build(raw);
-            String rowKey = build.toString();
+            String rowKey = RowKeyHelper.buildSHA256KeyString(raw);
 
             ArtifactExtractedInfo artifactExtractedInfo = new ArtifactExtractedInfo();
             artifactExtractedInfo.setMimeType("image/png");
@@ -157,18 +153,7 @@ public class FacebookUser {
             artifactExtractedInfo.setTitle(facebookPictureTitle);
             artifactExtractedInfo.setSource(facebookPictureSource);
             artifactExtractedInfo.setProcess(PROCESS);
-            if (raw.length > Artifact.MAX_SIZE_OF_INLINE_FILE) {
-                String path = "/lumify/artifacts/raw/" + rowKey;
-                FSDataOutputStream rawFile = facebookBolt.getFileSystem().create(new Path(path));
-                try {
-                    rawFile.write(raw);
-                } finally {
-                    rawFile.close();
-                }
-                artifactExtractedInfo.setRawHdfsPath(path);
-            } else {
-                artifactExtractedInfo.setRaw(raw);
-            }
+            artifactExtractedInfo.setRaw(raw);
             return artifactExtractedInfo;
         } catch (IOException e) {
             LOGGER.warn("Failed to create image for vertex: %s", userVertex.getId());

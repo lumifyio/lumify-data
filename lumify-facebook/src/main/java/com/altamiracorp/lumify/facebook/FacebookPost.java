@@ -1,8 +1,6 @@
 package com.altamiracorp.lumify.facebook;
 
 import com.altamiracorp.lumify.core.ingest.ArtifactExtractedInfo;
-import com.altamiracorp.lumify.core.model.artifact.Artifact;
-import com.altamiracorp.lumify.core.model.artifact.ArtifactRowKey;
 import com.altamiracorp.lumify.core.model.audit.AuditAction;
 import com.altamiracorp.lumify.core.model.audit.AuditRepository;
 import com.altamiracorp.lumify.core.model.ontology.Concept;
@@ -12,6 +10,7 @@ import com.altamiracorp.lumify.core.user.User;
 import com.altamiracorp.lumify.core.util.HdfsLimitOutputStream;
 import com.altamiracorp.lumify.core.util.LumifyLogger;
 import com.altamiracorp.lumify.core.util.LumifyLoggerFactory;
+import com.altamiracorp.lumify.core.util.RowKeyHelper;
 import com.altamiracorp.securegraph.Graph;
 import com.altamiracorp.securegraph.Vertex;
 import com.altamiracorp.securegraph.Visibility;
@@ -47,24 +46,10 @@ public class FacebookPost {
         String author_uid = name_uid.toString();
         Date time = new Date(post.getLong(TIMESTAMP) * 1000);
         //use extracted information
-        ArtifactRowKey build = ArtifactRowKey.build(post.toString().getBytes());
-        String rowKey = build.toString();
-
-        HdfsLimitOutputStream textOut = new HdfsLimitOutputStream(facebookBolt.getFileSystem(), Artifact.MAX_SIZE_OF_INLINE_FILE);
-        try {
-            if (message != null) {
-                textOut.write(message.getBytes());
-            }
-        } finally {
-            textOut.close();
-        }
+        String rowKey = RowKeyHelper.buildSHA256KeyString(post.toString().getBytes());
 
         ArtifactExtractedInfo artifactExtractedInfo = new ArtifactExtractedInfo();
-        if (textOut.hasExceededSizeLimit()) {
-            artifactExtractedInfo.setTextHdfsPath(textOut.getHdfsPath().toString());
-        } else {
-            artifactExtractedInfo.setText(new String(textOut.getSmall()));
-        }
+        artifactExtractedInfo.setText(message);
         artifactExtractedInfo.setSource(FACEBOOK);
         artifactExtractedInfo.setRaw(post.toString().getBytes());
         artifactExtractedInfo.setMimeType("text/plain");
