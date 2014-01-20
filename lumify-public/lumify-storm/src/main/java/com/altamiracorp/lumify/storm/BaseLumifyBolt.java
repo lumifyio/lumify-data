@@ -10,6 +10,7 @@ import com.altamiracorp.lumify.core.bootstrap.InjectHelper;
 import com.altamiracorp.lumify.core.bootstrap.LumifyBootstrap;
 import com.altamiracorp.lumify.core.config.ConfigurationHelper;
 import com.altamiracorp.lumify.core.ingest.ArtifactExtractedInfo;
+import com.altamiracorp.lumify.core.ingest.BaseArtifactProcessor;
 import com.altamiracorp.lumify.core.metrics.JmxMetricsManager;
 import com.altamiracorp.lumify.core.model.audit.AuditRepository;
 import com.altamiracorp.lumify.core.model.ontology.OntologyRepository;
@@ -204,32 +205,11 @@ public abstract class BaseLumifyBolt extends BaseRichBolt {
             artifactExtractedInfo.setSource(artifactExtractedInfo.getUrl());
         }
 
-        ElementMutation<Vertex> vertexMutation = findOrPrepareVertex(artifactExtractedInfo);
+        ElementMutation<Vertex> vertexMutation = BaseArtifactProcessor.findOrPrepareArtifactVertex(graph, user, artifactExtractedInfo.getRowKey());
         updateMutationWithArtifactExtractedInfo(vertexMutation, artifactExtractedInfo);
         Vertex vertex = vertexMutation.save();
         graph.flush();
         // TODO remove temp files artifactExtractedInfo.getTextHdfsPath() and artifactExtractedInfo.getRawHdfsPath()
-        return vertex;
-    }
-
-    private ElementMutation<Vertex> findOrPrepareVertex(ArtifactExtractedInfo artifactExtractedInfo) {
-        ElementMutation<Vertex> vertex;
-        String rowKey = artifactExtractedInfo.getRowKey();
-        Iterator<Vertex> existingVertices = graph.query(user.getAuthorizations())
-                .has(PropertyName.ROW_KEY.toString(), rowKey)
-                .vertices()
-                .iterator();
-        if (existingVertices.hasNext()) {
-            vertex = existingVertices.next().prepareMutation();
-            if (existingVertices.hasNext()) {
-                throw new RuntimeException("Found multiple vertex matches for " + rowKey);
-            }
-        } else {
-            Visibility visibility = new Visibility("");
-            vertex = graph.prepareVertex(visibility)
-                    .setProperty(PropertyName.CREATE_DATE.toString(), new Date(), visibility)
-                    .setProperty(PropertyName.ROW_KEY.toString(), rowKey, visibility);
-        }
         return vertex;
     }
 
