@@ -229,6 +229,7 @@ public abstract class BaseLumifyBolt extends BaseRichBolt {
             } else {
                 rawStreamingPropertyValue = new StreamingPropertyValue(openFile(artifactExtractedInfo.getRawHdfsPath()), byte[].class);
             }
+            rawStreamingPropertyValue.searchIndex(false);
             artifact.setProperty(PropertyName.RAW.toString(), rawStreamingPropertyValue, visibility);
         }
 
@@ -248,9 +249,9 @@ public abstract class BaseLumifyBolt extends BaseRichBolt {
         if (artifactExtractedInfo.getText() != null || artifactExtractedInfo.getTextHdfsPath() != null) {
             StreamingPropertyValue textStreamingPropertyValue;
             if (artifactExtractedInfo.getText() != null) {
-                textStreamingPropertyValue = new StreamingPropertyValue(new ByteArrayInputStream(artifactExtractedInfo.getText().getBytes()), byte[].class);
+                textStreamingPropertyValue = new StreamingPropertyValue(new ByteArrayInputStream(artifactExtractedInfo.getText().getBytes()), String.class);
             } else {
-                textStreamingPropertyValue = new StreamingPropertyValue(openFile(artifactExtractedInfo.getTextHdfsPath()), byte[].class);
+                textStreamingPropertyValue = new StreamingPropertyValue(openFile(artifactExtractedInfo.getTextHdfsPath()), String.class);
             }
             artifact.setProperty(PropertyName.TEXT.toString(), textStreamingPropertyValue, visibility);
         }

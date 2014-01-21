@@ -66,7 +66,7 @@ public class ArtifactRaw extends BaseRequestHandler {
                 chain.next(request, response);
                 return;
             }
-            InputStream in = rawValue.getInputStream(user.getAuthorizations());
+            InputStream in = rawValue.getInputStream();
             try {
                 IOUtils.copy(in, response.getOutputStream());
             } finally {
@@ -112,7 +112,7 @@ public class ArtifactRaw extends BaseRequestHandler {
                 throw new RuntimeException("Could not find video property " + videoPropertyName + " on artifact " + artifactVertex.getId());
             }
 
-            in = videoPropertyValue.getInputStream(user.getAuthorizations());
+            in = videoPropertyValue.getInputStream();
             totalLength = (Long) artifactVertex.getPropertyValue(videoSizePropertyName, 0);
         } else {
             throw new RuntimeException("Invalid video type: " + videoType);

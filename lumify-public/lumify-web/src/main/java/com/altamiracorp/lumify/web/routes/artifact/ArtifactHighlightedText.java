@@ -39,7 +39,7 @@ public class ArtifactHighlightedText extends BaseRequestHandler {
             response.sendError(HttpServletResponse.SC_NOT_FOUND);
             return;
         }
-        InputStream in = highlightedTextValue.getInputStream(user.getAuthorizations());
+        InputStream in = highlightedTextValue.getInputStream();
         if (in == null) {
             response.sendError(HttpServletResponse.SC_NOT_FOUND);
             return;

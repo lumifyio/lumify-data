@@ -70,7 +70,7 @@ public class ArtifactVideoPreviewImage extends BaseRequestHandler {
             chain.next(request, response);
             return;
         }
-        InputStream in = videoPreviewImageValue.getInputStream(user.getAuthorizations());
+        InputStream in = videoPreviewImageValue.getInputStream();
         try {
             if (widthStr != null) {
                 LOGGER.info("Cache miss for: %s (video-preview) %d x %d", artifactVertex.getId().toString(), boundaryDims[0], boundaryDims[1]);

@@ -68,7 +68,7 @@ public class ArtifactPosterFrame extends BaseRequestHandler {
             chain.next(request, response);
             return;
         }
-        InputStream in = rawPosterFrameValue.getInputStream(user.getAuthorizations());
+        InputStream in = rawPosterFrameValue.getInputStream();
         try {
             if (widthStr != null) {
                 LOGGER.info("Cache miss for: %s (poster-frame) %d x %d", graphVertexId, boundaryDims[0], boundaryDims[1]);

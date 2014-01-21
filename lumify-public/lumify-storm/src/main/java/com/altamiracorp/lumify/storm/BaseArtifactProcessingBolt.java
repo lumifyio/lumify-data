@@ -104,6 +104,9 @@ public abstract class BaseArtifactProcessingBolt extends BaseFileProcessingBolt 
         artifactExtractedInfo.setFileExtension(FilenameUtils.getExtension(fileMetadata.getFileName()));
         artifactExtractedInfo.setMimeType(fileMetadata.getMimeType());
         rawSize = in.available();
+        if(rawSize <= ArtifactExtractedInfo.MAX_SIZE_OF_INLINE_FILE) {
+            in = new ByteArrayInputStream(IOUtils.toByteArray(in));
+        }
 
         runWorkers(in, fileMetadata, artifactExtractedInfo, archiveTempDir);
 

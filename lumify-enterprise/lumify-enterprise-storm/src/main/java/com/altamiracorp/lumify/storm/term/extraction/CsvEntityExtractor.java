@@ -49,7 +49,7 @@ public class CsvEntityExtractor {
 
         CsvPreference csvPrefs = CsvPreference.EXCEL_PREFERENCE;
         StreamingPropertyValue textValue = (StreamingPropertyValue) artifactVertex.getPropertyValue(PropertyName.TEXT.toString(), 0);
-        LineReader reader = new LineReader(new InputStreamReader(textValue.getInputStream(new Authorizations())));
+        LineReader reader = new LineReader(new InputStreamReader(textValue.getInputStream()));
         String line;
         int lastOffset = 0;
         while ((line = reader.readLine()) != null) {

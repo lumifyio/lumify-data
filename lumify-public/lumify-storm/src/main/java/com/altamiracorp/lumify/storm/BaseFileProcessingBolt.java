@@ -73,7 +73,7 @@ public abstract class BaseFileProcessingBolt extends BaseLumifyBolt {
                 title = (String) artifactVertex.getPropertyValue(PropertyName.TITLE.toString(), 0);
 
                 StreamingPropertyValue rowPropertyValue = (StreamingPropertyValue) artifactVertex.getPropertyValue(PropertyName.RAW.toString(), 0);
-                raw = rowPropertyValue.getInputStream(getUser().getAuthorizations());
+                raw = rowPropertyValue.getInputStream();
             } else if (rawString != null) {
                 raw = new ByteArrayInputStream(rawString.getBytes());
             }

@@ -18,7 +18,7 @@ public abstract class BaseTextProcessingBolt extends BaseLumifyBolt {
         if (textPropertyValue == null) {
             return new ByteArrayInputStream("".getBytes());
         }
-        return textPropertyValue.getInputStream(getUser().getAuthorizations());
+        return textPropertyValue.getInputStream();
     }
 
     protected String getText(Vertex graphVertex) throws Exception {
