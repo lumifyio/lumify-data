@@ -28,7 +28,7 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * This TermResolutionWorker uses the Clavin processor to refine
+ * This TermResolutionWorker uses the CLAVIN processor to refine
  * identification of location entities.
  */
 public class ClavinLocationResolutionWorker implements TermResolutionWorker {
@@ -43,27 +43,27 @@ public class ClavinLocationResolutionWorker implements TermResolutionWorker {
     private static final String TARGET_ONTOLOGY_URI = "location";
 
     /**
-     * The Clavin disabled configuration key.
+     * The CLAVIN disabled configuration key.
      */
     public static final String CLAVIN_DISABLED = "clavin.disabled";
 
     /**
-     * The Clavin index directory configuration key.
+     * The CLAVIN index directory configuration key.
      */
     public static final String CLAVIN_INDEX_DIRECTORY = "clavin.indexDirectory";
 
     /**
-     * The Clavin max hit depth configuration key.
+     * The CLAVIN max hit depth configuration key.
      */
     public static final String CLAVIN_MAX_HIT_DEPTH = "clavin.maxHitDepth";
 
     /**
-     * The Clavin max content window configuration key.
+     * The CLAVIN max context window configuration key.
      */
-    public static final String CLAVIN_MAX_CONTENT_WINDOW = "clavin.maxContentWindow";
+    public static final String CLAVIN_MAX_CONTEXT_WINDOW = "clavin.maxContextWindow";
 
     /**
-     * The Clavin use fuzzy matching configuration key.
+     * The CLAVIN use fuzzy matching configuration key.
      */
     public static final String CLAVIN_USE_FUZZY_MATCHING = "clavin.useFuzzyMatching";
 
@@ -73,9 +73,9 @@ public class ClavinLocationResolutionWorker implements TermResolutionWorker {
     private static final int DEFAULT_MAX_HIT_DEPTH = 5;
 
     /**
-     * The default max content window.
+     * The default max context window.
      */
-    private static final int DEFAULT_MAX_CONTENT_WINDOW = 5;
+    private static final int DEFAULT_MAX_CONTEXT_WINDOW = 5;
 
     /**
      * The default fuzzy matching.
@@ -92,10 +92,10 @@ public class ClavinLocationResolutionWorker implements TermResolutionWorker {
     public void prepare(Map conf, User user) throws Exception {
         Configuration config = new Configuration(conf);
 
-        LOGGER.info("Configuring Clavin Location Resolution.");
+        LOGGER.info("Configuring CLAVIN Location Resolution.");
         disabled = Boolean.parseBoolean(config.get(CLAVIN_DISABLED));
         if (disabled) {
-            LOGGER.info("Clavin disabled. Initialization stopped.");
+            LOGGER.info("CLAVIN disabled. Initialization stopped.");
             return;
         }
 
@@ -103,10 +103,10 @@ public class ClavinLocationResolutionWorker implements TermResolutionWorker {
         if (idxDirPath == null || idxDirPath.trim().isEmpty()) {
             throw new IllegalArgumentException(String.format("%s must be configured.", CLAVIN_INDEX_DIRECTORY));
         }
-        LOGGER.debug("Configuring Clavin index [%s]: %s", CLAVIN_INDEX_DIRECTORY, idxDirPath);
+        LOGGER.debug("Configuring CLAVIN index [%s]: %s", CLAVIN_INDEX_DIRECTORY, idxDirPath);
         indexDirectory = new File(idxDirPath);
         if (!indexDirectory.exists() || !indexDirectory.isDirectory()) {
-            throw new IllegalArgumentException(String.format("Clavin index cannot be found at configured (%s) location: %s",
+            throw new IllegalArgumentException(String.format("CLAVIN index cannot be found at configured (%s) location: %s",
                     CLAVIN_INDEX_DIRECTORY, idxDirPath));
         }
 
@@ -115,10 +115,10 @@ public class ClavinLocationResolutionWorker implements TermResolutionWorker {
             LOGGER.debug("Found %s of %d. Using default: %d", CLAVIN_MAX_HIT_DEPTH, maxHitDepth, DEFAULT_MAX_HIT_DEPTH);
             maxHitDepth = DEFAULT_MAX_HIT_DEPTH;
         }
-        int maxContentWindow = config.getInt(CLAVIN_MAX_CONTENT_WINDOW);
-        if (maxContentWindow < 1) {
-            LOGGER.debug("Found %s of %d. Using default: %d", CLAVIN_MAX_CONTENT_WINDOW, maxContentWindow, DEFAULT_MAX_CONTENT_WINDOW);
-            maxContentWindow = DEFAULT_MAX_CONTENT_WINDOW;
+        int maxContextWindow = config.getInt(CLAVIN_MAX_CONTEXT_WINDOW);
+        if (maxContextWindow < 1) {
+            LOGGER.debug("Found %s of %d. Using default: %d", CLAVIN_MAX_CONTEXT_WINDOW, maxContextWindow, DEFAULT_MAX_CONTEXT_WINDOW);
+            maxContextWindow = DEFAULT_MAX_CONTEXT_WINDOW;
         }
         String fuzzyStr = config.get(CLAVIN_USE_FUZZY_MATCHING, null);
         if (fuzzyStr != null) {
@@ -132,13 +132,13 @@ public class ClavinLocationResolutionWorker implements TermResolutionWorker {
             LOGGER.debug("%s not configured. Using default: %s", CLAVIN_USE_FUZZY_MATCHING, DEFAULT_FUZZY_MATCHING);
             fuzzy = DEFAULT_FUZZY_MATCHING;
         }
-        resolver = new LuceneLocationResolver(indexDirectory, maxHitDepth, maxContentWindow);
+        resolver = new LuceneLocationResolver(indexDirectory, maxHitDepth, maxContextWindow);
     }
 
     @Override
     public TermExtractionResult resolveTerms(TermExtractionResult termExtractionResult) throws Exception {
         if (disabled) {
-            LOGGER.info("Clavin disabled. Processing cancelled.");
+            LOGGER.info("CLAVIN disabled. Processing cancelled.");
             return termExtractionResult;
         }
         if (termExtractionResult != null) {
