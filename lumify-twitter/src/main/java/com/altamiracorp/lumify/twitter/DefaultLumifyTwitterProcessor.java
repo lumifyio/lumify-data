@@ -167,7 +167,8 @@ public class DefaultLumifyTwitterProcessor extends BaseArtifactProcessor impleme
                 .setProperty(PropertyName.TITLE.toString(), tweetText, visibility)
                 .setProperty(PropertyName.AUTHOR.toString(), tweeterScreenName, visibility)
                 .setProperty(PropertyName.SOURCE.toString(), TWITTER_SOURCE, visibility)
-                .setProperty(PropertyName.PROCESS.toString(), processId, visibility);
+                .setProperty(PropertyName.PROCESS.toString(), processId, visibility)
+                .setProperty(PropertyName.ROW_KEY.toString(), rowKey, visibility);
 
         if (tweetCreatedAt != null) {
             artifact.setProperty(PropertyName.PUBLISHED_DATE.toString(), new Date(tweetCreatedAt), visibility);
@@ -178,6 +179,7 @@ public class DefaultLumifyTwitterProcessor extends BaseArtifactProcessor impleme
 
         Vertex tweet = artifact.save();
         getGraph().flush();
+
         String tweetId = tweet.getId().toString();
         LOGGER.info("Saved Tweet to Accumulo and as Graph Vertex: %s", tweetId);
 
@@ -292,6 +294,7 @@ public class DefaultLumifyTwitterProcessor extends BaseArtifactProcessor impleme
                 getTermMentionRepository().save(mention, user.getModelUserContext());
 
                 graph.addEdge(tweetVertex, termVertex, entityType.getRelationshipLabel(), visibility);
+
                 auditRepo.auditRelationships(AuditAction.CREATE.toString(), tweetVertex, termVertex, relDispName, processId, "", user);
             }
         }
@@ -348,9 +351,9 @@ public class DefaultLumifyTwitterProcessor extends BaseArtifactProcessor impleme
                 }
 
             } catch (MalformedURLException mue) {
-                LOGGER.warn("Invalid Profile Photo URL [%s] for Twitter User: %s", imageUrl, screenName, mue);
+                LOGGER.warn("Invalid Profile Photo URL [%s] for Twitter User [%s]: %s", imageUrl, screenName, mue.getMessage());
             } catch (IOException ioe) {
-                LOGGER.warn("Unable to retrieve Profile Photo [%s] for Twitter User: %s", imageUrl, screenName, ioe);
+                LOGGER.warn("Unable to retrieve Profile Photo [%s] for Twitter User [%s]: %s", imageUrl, screenName, ioe.getMessage());
             }
         }
     }
