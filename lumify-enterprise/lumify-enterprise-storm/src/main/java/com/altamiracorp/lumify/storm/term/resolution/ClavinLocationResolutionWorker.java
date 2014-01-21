@@ -117,8 +117,8 @@ public class ClavinLocationResolutionWorker implements TermResolutionWorker {
         }
         int maxContextWindow = config.getInt(CLAVIN_MAX_CONTEXT_WINDOW);
         if (maxContextWindow < 1) {
-            LOGGER.debug("Found %s of %d. Using default: %d", CLAVIN_MAX_CONTEXT_WINDOW, maxContextWindow, DEFAULT_MAX_CONTEXT_WINDOW);
-            maxContextWindow = DEFAULT_MAX_CONTEXT_WINDOW;
+            LOGGER.debug("Found %s of %d. Using default: %d", CLAVIN_MAX_CONTEXT_WINDOW, maxContextWindow, ClavinLocationResolutionWorker.DEFAULT_MAX_CONTENT_WINDOW);
+            maxContextWindow = ClavinLocationResolutionWorker.DEFAULT_MAX_CONTENT_WINDOW;
         }
         String fuzzyStr = config.get(CLAVIN_USE_FUZZY_MATCHING, null);
         if (fuzzyStr != null) {

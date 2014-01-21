@@ -358,7 +358,7 @@ public class ClavinLocationResolutionWorkerTest {
     }
 
     private void doPrepareTest(final Map<String, String> config, final boolean expectedFuzzy) throws Exception {
-        doPrepareTest(config, DEFAULT_MAX_HIT_DEPTH, ClavinLocationResolutionWorker.DEFAULT_MAX_CONTEXT_WINDOW, expectedFuzzy);
+        doPrepareTest(config, DEFAULT_MAX_HIT_DEPTH, ClavinLocationResolutionWorker.DEFAULT_MAX_CONTENT_WINDOW, expectedFuzzy);
     }
 
     private void doPrepareTest(final Map<String, String> config, final int expectedHitDepth, final int expectedContextWindow,
