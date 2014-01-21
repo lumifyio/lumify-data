@@ -1,6 +1,5 @@
 package com.altamiracorp.lumify.storm.textHighlighting;
 
-import com.altamiracorp.lumify.core.model.artifact.ArtifactRowKey;
 import com.altamiracorp.lumify.core.model.artifactHighlighting.OffsetItem;
 import com.altamiracorp.lumify.core.model.artifactHighlighting.TermMentionOffsetItem;
 import com.altamiracorp.lumify.core.model.termMention.TermMentionModel;
@@ -34,7 +33,6 @@ public class EntityHighlightTest {
     @Test
     public void testGetHighlightedText() throws Exception {
         ArrayList<TermMentionModel> terms = new ArrayList<TermMentionModel>();
-        ArtifactRowKey artifactKey = new ArtifactRowKey("artifact1");
         terms.add(createTermMention("joe ferner", 18, 28, "1"));
         terms.add(createTermMention("jeff kunkle", 33, 44, "1"));
         List<OffsetItem> termAndTermMetadata = new EntityHighlighter(graph).convertTermMentionsToOffsetItems(terms, user);
@@ -50,7 +48,6 @@ public class EntityHighlightTest {
 
     public void testGetHighlightedTextOverlaps() throws Exception {
         ArrayList<TermMentionModel> terms = new ArrayList<TermMentionModel>();
-        ArtifactRowKey artifactKey = ArtifactRowKey.build("artifact1".getBytes());
         terms.add(createTermMention("joe ferner", 18, 28, "1"));
         terms.add(createTermMention("jeff kunkle", 18, 21, "1"));
         List<OffsetItem> termAndTermMetadata = new EntityHighlighter(graph).convertTermMentionsToOffsetItems(terms, user);

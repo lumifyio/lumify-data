@@ -115,10 +115,6 @@ public abstract class BaseArtifactProcessingBolt extends BaseFileProcessingBolt 
             artifactExtractedInfo.setRaw(IOUtils.toByteArray(in));
         }
 
-        if (artifactExtractedInfo.getTextRowKey() != null && artifactExtractedInfo.getTextHdfsPath() != null) {
-            String newTextPath = moveTempTextFile(artifactExtractedInfo.getTextHdfsPath(), artifactExtractedInfo.getRowKey());
-            artifactExtractedInfo.setTextHdfsPath(newTextPath);
-        }
         if (artifactExtractedInfo.getMp4HdfsFilePath() != null) {
             String newTextPath = moveTempMp4File(artifactExtractedInfo.getMp4HdfsFilePath(), artifactExtractedInfo.getRowKey());
             artifactExtractedInfo.setMp4HdfsFilePath(newTextPath);

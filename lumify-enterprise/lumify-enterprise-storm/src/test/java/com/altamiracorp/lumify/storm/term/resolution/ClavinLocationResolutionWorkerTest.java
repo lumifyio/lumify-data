@@ -17,12 +17,12 @@ import com.altamiracorp.lumify.core.ingest.term.extraction.TermExtractionResult;
 import com.altamiracorp.lumify.core.ingest.term.extraction.TermMention;
 import com.altamiracorp.lumify.core.model.ontology.PropertyName;
 import com.altamiracorp.lumify.core.user.User;
+import com.altamiracorp.securegraph.type.GeoPoint;
 import com.bericotech.clavin.extractor.LocationOccurrence;
 import com.bericotech.clavin.gazetteer.CountryCode;
 import com.bericotech.clavin.gazetteer.GeoName;
 import com.bericotech.clavin.resolver.LuceneLocationResolver;
 import com.bericotech.clavin.resolver.ResolvedLocation;
-import com.thinkaurelius.titan.core.attribute.Geoshape;
 import java.io.File;
 import java.util.Arrays;
 import java.util.Collections;
@@ -42,14 +42,6 @@ import org.powermock.reflect.Whitebox;
 @PrepareForTest({ ClavinLocationResolutionWorker.class, Configuration.class, File.class })
 public class ClavinLocationResolutionWorkerTest {
     private static final String TEST_IDX_PATH = "/test/index";
-    private static final int DEFAULT_MAX_HIT_DEPTH;
-    private static final int DEFAULT_MAX_CONTENT_WINDOW;
-    private static final boolean DEFAULT_FUZZY_MATCHING;
-    static {
-        DEFAULT_MAX_HIT_DEPTH = Whitebox.getInternalState(ClavinLocationResolutionWorker.class, "DEFAULT_MAX_HIT_DEPTH");
-        DEFAULT_MAX_CONTENT_WINDOW = Whitebox.getInternalState(ClavinLocationResolutionWorker.class, "DEFAULT_MAX_CONTENT_WINDOW");
-        DEFAULT_FUZZY_MATCHING = Whitebox.getInternalState(ClavinLocationResolutionWorker.class, "DEFAULT_FUZZY_MATCHING");
-    }
 
     private static Map<String, String> genDisabledMap() {
         return genConfigMap("true", null, null, null, null);
@@ -130,8 +122,8 @@ public class ClavinLocationResolutionWorkerTest {
     private static final double ALDIE_LONG = -77.6414d;
     private static final double WASHINGTON_LAT = 38.8951d;
     private static final double WASHINGTON_LONG = -77.0367d;
-    private static final Geoshape ALDIE_POINT = Geoshape.point(ALDIE_LAT, ALDIE_LONG);
-    private static final Geoshape WASHINGTON_POINT = Geoshape.point(WASHINGTON_LAT, WASHINGTON_LONG);
+    private static final GeoPoint ALDIE_POINT = new GeoPoint(ALDIE_LAT, ALDIE_LONG);
+    private static final GeoPoint WASHINGTON_POINT = new GeoPoint(WASHINGTON_LAT, WASHINGTON_LONG);
     private static final Map<String, Object> ALDIE_PROPS;
     private static final Map<String, Object> WASHINGTON_PROPS;
     static {
@@ -358,17 +350,17 @@ public class ClavinLocationResolutionWorkerTest {
     }
 
     private void doPrepareTest(final Map<String, String> config) throws Exception {
-        doPrepareTest(config, DEFAULT_MAX_HIT_DEPTH, DEFAULT_MAX_CONTENT_WINDOW, DEFAULT_FUZZY_MATCHING);
+        doPrepareTest(config, ClavinLocationResolutionWorker.DEFAULT_MAX_HIT_DEPTH, ClavinLocationResolutionWorker.DEFAULT_MAX_CONTENT_WINDOW, ClavinLocationResolutionWorker.DEFAULT_FUZZY_MATCHING);
     }
 
     private void doPrepareTest(final int expectedHitDepth, final int expectedContentWindow)
             throws Exception {
         doPrepareTest(genIntPropMap(""+expectedHitDepth, ""+expectedContentWindow), expectedHitDepth, expectedContentWindow,
-                DEFAULT_FUZZY_MATCHING);
+                ClavinLocationResolutionWorker.DEFAULT_FUZZY_MATCHING);
     }
 
     private void doPrepareTest(final Map<String, String> config, final boolean expectedFuzzy) throws Exception {
-        doPrepareTest(config, DEFAULT_MAX_HIT_DEPTH, DEFAULT_MAX_CONTENT_WINDOW, expectedFuzzy);
+        doPrepareTest(config, ClavinLocationResolutionWorker.DEFAULT_MAX_HIT_DEPTH, ClavinLocationResolutionWorker.DEFAULT_MAX_CONTENT_WINDOW, expectedFuzzy);
     }
 
     private void doPrepareTest(final Map<String, String> config, final int expectedHitDepth, final int expectedContentWindow,

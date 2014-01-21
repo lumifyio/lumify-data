@@ -17,7 +17,6 @@ public class ArtifactExtractedInfo {
     private static final String TEXT_HDFS_PATH = "textHdfsPath";
     private static final String ONTOLOGY_CLASS_URI = "ontologyClassUri";
     private static final String RAW = "raw";
-    private static final String TEXT_ROW_KEY = "textRowKey";
     private static final String MP4_HDFS_PATH = "mp4HdfsPath";
     private static final String WEBM_HDFS_PATH = "webmHdfsPath";
     private static final String DETECTED_OBJECTS = "detectedObjects";
@@ -240,25 +239,6 @@ public class ArtifactExtractedInfo {
 
     public byte[] getRaw() {
         return (byte[]) properties.get(RAW);
-    }
-
-    public void setTextRowKey(String textRowKey) {
-        properties.put(TEXT_ROW_KEY, textRowKey);
-    }
-
-    /**
-     * Builder pattern for textRowKey property.
-     *
-     * @param textRowKey the textRowKey
-     * @return this
-     */
-    public ArtifactExtractedInfo textRowKey(final String textRowKey) {
-        setTextRowKey(textRowKey);
-        return this;
-    }
-
-    public String getTextRowKey() {
-        return (String) properties.get(TEXT_ROW_KEY);
     }
 
     public void setMp4HdfsFilePath(String mp4HdfsFilePath) {

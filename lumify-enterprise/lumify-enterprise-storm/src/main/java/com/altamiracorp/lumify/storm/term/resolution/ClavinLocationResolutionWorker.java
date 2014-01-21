@@ -70,17 +70,17 @@ public class ClavinLocationResolutionWorker implements TermResolutionWorker {
     /**
      * The default max hit depth.
      */
-    private static final int DEFAULT_MAX_HIT_DEPTH = 5;
+    public static final int DEFAULT_MAX_HIT_DEPTH = 5;
 
     /**
      * The default max content window.
      */
-    private static final int DEFAULT_MAX_CONTENT_WINDOW = 5;
+    public static final int DEFAULT_MAX_CONTENT_WINDOW = 5;
 
     /**
      * The default fuzzy matching.
      */
-    private static final boolean DEFAULT_FUZZY_MATCHING = false;
+    public static final boolean DEFAULT_FUZZY_MATCHING = false;
 
     private boolean disabled;
     private File indexDirectory;
