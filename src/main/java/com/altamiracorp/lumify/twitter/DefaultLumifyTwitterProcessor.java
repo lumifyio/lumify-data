@@ -323,7 +323,7 @@ public class DefaultLumifyTwitterProcessor extends BaseArtifactProcessor impleme
                 GraphVertex imageVertex = getArtifactRepository().saveArtifact(artifactInfo, user);
 
                 LOGGER.debug("Saved Twitter User [%s] Profile Photo to Accumulo and as graph vertex: %s", screenName, imageVertex.getId());
-                String labelDisplay = getOntologyRepository().getDisplayNameForLabel(LabelName.HAS_IMAGE.toString(), user);
+                String labelDisplay = getOntologyRepository().getDisplayNameForLabel(LabelName.ENTITY_HAS_IMAGE_HANDLE_PHOTO.toString(), user);
                 auditRepo.auditRelationships(AuditAction.CREATE.toString(), tweeterVertex, imageVertex, labelDisplay, processId, "", user);
 
                 tweeterVertex.setProperty(PropertyName.GLYPH_ICON.toString(), String.format(GLYPH_ICON_FMT, imageVertex.getId()));
@@ -335,7 +335,7 @@ public class DefaultLumifyTwitterProcessor extends BaseArtifactProcessor impleme
                 auditRepo.auditEntityProperties(AuditAction.UPDATE.toString(), imageVertex, PropertyName.GLYPH_ICON.toString(),
                         processId, "", user);
 
-                graphRepo.findOrAddRelationship(tweeterVertex.getId(), imageVertex.getId(), LabelName.HAS_IMAGE.toString(), user);
+                graphRepo.findOrAddRelationship(tweeterVertex.getId(), imageVertex.getId(), LabelName.ENTITY_HAS_IMAGE_HANDLE_PHOTO.toString(), user);
             } catch (MalformedURLException mue) {
                 LOGGER.warn("Invalid Profile Photo URL [%s] for Twitter User [%s]: %s", imageUrl, screenName, mue.getMessage());
             } catch (IOException ioe) {
