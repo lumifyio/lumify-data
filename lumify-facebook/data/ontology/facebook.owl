@@ -326,12 +326,12 @@
 
 <!-- relationships -->
  
-    <owl:ObjectProperty rdf:about="containsImageOf">
+    <owl:ObjectProperty rdf:about="facebookProfileImageContainsImageOfEntity">
     	<rdfs:label xml:lang="en">contains image of</rdfs:label>
         <rdfs:domain rdf:resource="#facebookProfileImage"/>
         <rdfs:range rdf:resource="#entity"/>
     </owl:ObjectProperty>
-    <owl:ObjectProperty rdf:about="hasImage">
+    <owl:ObjectProperty rdf:about="entityHasImageFacebookProfileImage">
     	<rdfs:label xml:lang="en">has image</rdfs:label>
         <rdfs:domain rdf:resource="#entity"/>
         <rdfs:range rdf:resource="#facebookProfileImage"/>
