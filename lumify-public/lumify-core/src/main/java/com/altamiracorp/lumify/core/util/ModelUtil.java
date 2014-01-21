@@ -37,5 +37,10 @@ public class ModelUtil {
         for (String table : tables) {
             modelSession.deleteTable(table, user.getModelUserContext());
         }
+        for (String table : modelSession.getTableList(user.getModelUserContext())) {
+            if (table.startsWith("atc_")) {
+                modelSession.deleteTable(table, user.getModelUserContext());
+            }
+        }
     }
 }
