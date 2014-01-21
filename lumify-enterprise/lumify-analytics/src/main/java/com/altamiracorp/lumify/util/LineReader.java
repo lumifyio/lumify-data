@@ -12,7 +12,6 @@ public class LineReader {
         this.offset = 0;
     }
 
-
     public String readLine() throws IOException {
         StringBuilder line = new StringBuilder();
         while (true) {
@@ -30,6 +29,22 @@ public class LineReader {
             }
         }
         return line.toString();
+    }
+
+    /**
+     * Skips over the next <code>skipCount</code> lines in the
+     * input.
+     * @param skipCount the number of lines to skip
+     * @throws IOException
+     */
+    public void skipLines(final int skipCount) throws IOException {
+        for (int ct=0; ct < skipCount; ct++) {
+            if (readLine() == null) {
+                // we've reached the end of the stream, short-circuit
+                // the loop
+                break;
+            }
+        }
     }
 
     public int getOffset() {

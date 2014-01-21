@@ -13,7 +13,8 @@ import com.altamiracorp.lumify.core.user.User;
 import com.altamiracorp.lumify.core.util.LumifyLogger;
 import com.altamiracorp.lumify.core.util.LumifyLoggerFactory;
 import com.altamiracorp.lumify.storm.structuredData.MappingProperties;
-import com.altamiracorp.lumify.util.LineReader;
+import com.altamiracorp.lumify.storm.structuredData.mapping.DocumentMapping;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.inject.Inject;
 import com.thinkaurelius.titan.core.attribute.Geoshape;
 import java.io.IOException;
@@ -27,8 +28,6 @@ import java.util.List;
 import java.util.Map;
 import org.json.JSONArray;
 import org.json.JSONObject;
-import org.supercsv.io.CsvListReader;
-import org.supercsv.prefs.CsvPreference;
 
 public class CsvEntityExtractor {
     private static final LumifyLogger LOGGER = LumifyLoggerFactory.getLogger(CsvEntityExtractor.class);
@@ -38,36 +37,39 @@ public class CsvEntityExtractor {
     public TermExtractionResult extract(GraphVertex graphVertex, User user) throws IOException, ParseException {
         checkNotNull(graphVertex);
         checkNotNull(user);
-        TermExtractionResult termExtractionResult = new TermExtractionResult();
+//        TermExtractionResult termExtractionResult = new TermExtractionResult();
+        TermExtractionResult termExtractionResult = null;
         String artifactRowKey = (String) graphVertex.getProperty(PropertyName.ROW_KEY);
         LOGGER.debug("Processing graph vertex [%s] for artifact: %s", graphVertex.getId(), artifactRowKey);
 
         Artifact artifact = artifactRepository.findByRowKey(artifactRowKey, user.getModelUserContext());
         if (artifact.getMetadata().getMappingJson() != null) {
-            JSONObject mappingJson = new JSONObject(artifact.getMetadata().getMappingJson());
-            int row = 0;
-            int skipRows = mappingJson.getInt(MappingProperties.SKIP_ROWS);
-
-            CsvPreference csvPrefs = CsvPreference.EXCEL_PREFERENCE;
-            LineReader reader = new LineReader(new StringReader(artifact.getMetadata().getText()));
-            String line;
-            int lastOffset = 0;
-            while ((line = reader.readLine()) != null) {
-                if (line.length() == 0) {
-                    break;
-                }
-                CsvListReader csvReader = new CsvListReader(new StringReader(line), csvPrefs);
-                List<String> columns = csvReader.read();
-                if (columns == null) {
-                    break;
-                }
-
-                if (row >= skipRows) {
-                    processLine(termExtractionResult, lastOffset, columns, mappingJson);
-                }
-                row++;
-                lastOffset = reader.getOffset();
-            }
+            DocumentMapping mapping = new ObjectMapper().readValue(artifact.getMetadata().getMappingJson(), DocumentMapping.class);
+            termExtractionResult = mapping.mapDocument(new StringReader(artifact.getMetadata().getText()), getClass().getName());
+//            JSONObject mappingJson = new JSONObject(artifact.getMetadata().getMappingJson());
+//            int row = 0;
+//            int skipRows = mappingJson.getInt(MappingProperties.SKIP_ROWS);
+//
+//            CsvPreference csvPrefs = CsvPreference.EXCEL_PREFERENCE;
+//            LineReader reader = new LineReader(new StringReader(artifact.getMetadata().getText()));
+//            String line;
+//            int lastOffset = 0;
+//            while ((line = reader.readLine()) != null) {
+//                if (line.length() == 0) {
+//                    break;
+//                }
+//                CsvListReader csvReader = new CsvListReader(new StringReader(line), csvPrefs);
+//                List<String> columns = csvReader.read();
+//                if (columns == null) {
+//                    break;
+//                }
+//
+//                if (row >= skipRows) {
+//                    processLine(termExtractionResult, lastOffset, columns, mappingJson);
+//                }
+//                row++;
+//                lastOffset = reader.getOffset();
+//            }
         }
         return termExtractionResult;
     }
