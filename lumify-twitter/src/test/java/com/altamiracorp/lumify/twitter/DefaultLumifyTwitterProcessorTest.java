@@ -707,7 +707,7 @@ public class DefaultLumifyTwitterProcessorTest {
         when(artifactRepository.saveArtifact(expectedInfo, user)).thenReturn(imageVertex);
 
         String hasImageLabel = "testHasImage";
-        when(ontologyRepository.getDisplayNameForLabel(LabelName.HAS_IMAGE.toString(), user)).thenReturn(hasImageLabel);
+        when(ontologyRepository.getDisplayNameForLabel(LabelName.ENTITY_HAS_IMAGE_HANDLE_PHOTO.toString(), user)).thenReturn(hasImageLabel);
 
         instance.retrieveProfileImage(TEST_PROCESS_ID, tweet, tweeterVertex);
 
@@ -715,7 +715,7 @@ public class DefaultLumifyTwitterProcessorTest {
         verify(graphRepository).save(tweeterVertex, user);
         verify(auditRepository).auditEntityProperties(eq(AuditAction.UPDATE.toString()), eq(tweeterVertex),
                 eq(PropertyName.GLYPH_ICON.toString()), eq(TEST_PROCESS_ID), anyString(), eq(user));
-        verify(graphRepository).findOrAddRelationship(TWEETER_VERTEX_ID, imageVertexId, LabelName.HAS_IMAGE.toString(), user);
+        verify(graphRepository).findOrAddRelationship(TWEETER_VERTEX_ID, imageVertexId, LabelName.ENTITY_HAS_IMAGE_HANDLE_PHOTO.toString(), user);
         verify(auditRepository).auditRelationships(eq(AuditAction.CREATE.toString()), eq(tweeterVertex), eq(imageVertex),
                 eq(hasImageLabel), eq(TEST_PROCESS_ID), anyString(), eq(user));
     }
