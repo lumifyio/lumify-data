@@ -148,6 +148,9 @@ public abstract class BaseArtifactProcessingBolt extends BaseFileProcessingBolt 
             FileUtils.deleteDirectory(archiveTempDir);
             LOGGER.debug("Deleted temporary directory holding archive content");
         }
+
+        graph.flush();
+
         LOGGER.debug("Created graph vertex [%s] for %s", graphVertex.getId(), artifactExtractedInfo.getTitle());
         return graphVertex;
     }
