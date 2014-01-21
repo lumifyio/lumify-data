@@ -61,17 +61,17 @@ public class DefaultLumifyTwitterProcessor extends BaseArtifactProcessor impleme
      * The class logger.
      */
     private static final LumifyLogger LOGGER = LumifyLoggerFactory.getLogger(DefaultLumifyTwitterProcessor.class);
-    
+
     /**
      * The MIME type of Twitter artifacts.
      */
     private static final String TWEET_ARTIFACT_MIME_TYPE = "text/plain";
-    
+
     /**
      * The source of Twitter artifacts.
      */
     private static final String TWITTER_SOURCE = "Twitter";
-    
+
     /**
      * The profile image MIME type.
      */
@@ -91,19 +91,19 @@ public class DefaultLumifyTwitterProcessor extends BaseArtifactProcessor impleme
      * The glyph icon property value format.
      */
     private static final String GLYPH_ICON_FMT = "/artifact/%s/raw";
-    
+
     /**
      * The Map of Lumify property keys to optional properties to extract
      * from a Tweet JSONObject.
      */
     private static final Map<String, JsonProperty<?, ?>> OPTIONAL_TWEET_PROPERTY_MAP;
-    
+
     /**
      * The Map of Lumify property keys to optional properties to extract
      * from a Twitter User JSONObject.
      */
     private static final Map<String, JsonProperty<?, ?>> OPTIONAL_USER_PROPERTY_MAP;
-    
+
     /**
      * Initialize the Optional Property maps.
      */
@@ -113,7 +113,7 @@ public class DefaultLumifyTwitterProcessor extends BaseArtifactProcessor impleme
         optTweetMap.put(LUMIFY_FAVORITE_COUNT_PROPERTY, JSON_FAVORITE_COUNT_PROPERTY);
         optTweetMap.put(LUMIFY_RETWEET_COUNT_PROPERTY, JSON_RETWEET_COUNT_PROPERTY);
         OPTIONAL_TWEET_PROPERTY_MAP = Collections.unmodifiableMap(optTweetMap);
-        
+
         Map<String, JsonProperty<?, ?>> optUserMap = new HashMap<String, JsonProperty<?, ?>>();
         optUserMap.put(PropertyName.DISPLAY_NAME.toString(), JSON_DISPLAY_NAME_PROPERTY);
         optUserMap.put(PropertyName.GEO_LOCATION.toString(), JSON_COORDINATES_PROPERTY);
@@ -124,7 +124,7 @@ public class DefaultLumifyTwitterProcessor extends BaseArtifactProcessor impleme
         optUserMap.put(LUMIFY_DESCRIPTION_PROPERTY, JSON_DESCRIPTION_PROPERTY);
         OPTIONAL_USER_PROPERTY_MAP = Collections.unmodifiableMap(optUserMap);
     }
-    
+
     /**
      * The list of properties modified during entity extraction.
      */
@@ -133,7 +133,7 @@ public class DefaultLumifyTwitterProcessor extends BaseArtifactProcessor impleme
             PropertyName.ROW_KEY.toString(),
             PropertyName.CONCEPT_TYPE.toString()
     );
-    
+
     /**
      * The URL Stream Creator.
      */
@@ -145,25 +145,25 @@ public class DefaultLumifyTwitterProcessor extends BaseArtifactProcessor impleme
             getWorkQueueRepository().pushOnQueue(queueName.trim(), FlushFlag.DEFAULT, tweet);
         }
     }
-    
+
     @Override
     public GraphVertex parseTweet(final String processId, final JSONObject jsonTweet) throws Exception {
         // cache current User
         User user = getUser();
-        
+
         String tweetText = JSON_TEXT_PROPERTY.getFrom(jsonTweet);
         Long tweetCreatedAt = JSON_CREATED_AT_PROPERTY.getFrom(jsonTweet);
         String tweeterScreenName = JSON_SCREEN_NAME_PROPERTY.getFrom(JSON_USER_PROPERTY.getFrom(jsonTweet));
-        
+
         // at minimum, the tweet text and user screen name must be set or this object cannot be
         // added to the system as a Tweet
         if (tweetText == null || tweeterScreenName == null || tweeterScreenName.trim().isEmpty()) {
             return null;
         }
-        
+
         byte[] jsonBytes = jsonTweet.toString().getBytes(TWITTER_CHARSET);
         String rowKey = ArtifactRowKey.build(jsonBytes).toString();
-        
+
         ArtifactExtractedInfo artifact = new ArtifactExtractedInfo()
                 .text(tweetText)
                 .raw(jsonBytes)
@@ -177,11 +177,11 @@ public class DefaultLumifyTwitterProcessor extends BaseArtifactProcessor impleme
         if (tweetCreatedAt != null) {
             artifact.setDate(new Date(tweetCreatedAt));
         }
-        
+
         GraphVertex tweet = getArtifactRepository().saveArtifact(artifact, user);
         String tweetId = tweet.getId();
         LOGGER.info("Saved Tweet to Accumulo and as Graph Vertex: %s", tweetId);
-        
+
         List<String> modifiedProps = setOptionalProps(tweet, jsonTweet, OPTIONAL_TWEET_PROPERTY_MAP);
         if (!modifiedProps.isEmpty()) {
             getGraphRepository().save(tweet, user);
@@ -190,7 +190,7 @@ public class DefaultLumifyTwitterProcessor extends BaseArtifactProcessor impleme
                 auditRepo.auditEntityProperties(AuditAction.UPDATE.toString(), tweet, prop, processId, "", user);
             }
         }
-        
+
         return tweet;
     }
 
@@ -201,37 +201,37 @@ public class DefaultLumifyTwitterProcessor extends BaseArtifactProcessor impleme
         if (jsonUser == null || screenName == null || screenName.trim().isEmpty()) {
             return null;
         }
-        
+
         // cache the current Lumify User
         User lumifyUser = getUser();
         GraphRepository graphRepo = getGraphRepository();
-        
+
         Concept handleConcept = getOntologyRepository().getConceptByName(CONCEPT_TWITTER_HANDLE, lumifyUser);
         GraphVertex userVertex = graphRepo.findVertexByExactTitle(screenName, lumifyUser);
         if (userVertex == null) {
             userVertex = new InMemoryGraphVertex();
         }
-        
+
         List<String> modifiedProps = Lists.newArrayList(
                 PropertyName.TITLE.toString(),
                 PropertyName.CONCEPT_TYPE.toString()
         );
         userVertex.setProperty(PropertyName.TITLE, screenName);
         userVertex.setProperty(PropertyName.CONCEPT_TYPE, handleConcept.getId());
-        
+
         modifiedProps.addAll(setOptionalProps(userVertex, jsonUser, OPTIONAL_USER_PROPERTY_MAP));
-        
+
         graphRepo.save(userVertex, lumifyUser);
         AuditRepository auditRepo = getAuditRepository();
         for (String prop : modifiedProps) {
             auditRepo.auditEntityProperties(AuditAction.UPDATE.toString(), userVertex, prop, processId, "", lumifyUser);
         }
-        
+
         // create the relationship between the user and their tweet
         graphRepo.saveRelationship(userVertex.getId(), tweetVertex.getId(), TWEETED_RELATIONSHIP, lumifyUser);
         String labelDispName = getOntologyRepository().getDisplayNameForLabel(TWEETED_RELATIONSHIP, lumifyUser);
         auditRepo.auditRelationships(AuditAction.CREATE.toString(), userVertex, tweetVertex, labelDispName, processId, "", lumifyUser);
-        
+
         return userVertex;
     }
 
@@ -246,18 +246,18 @@ public class DefaultLumifyTwitterProcessor extends BaseArtifactProcessor impleme
             GraphRepository graphRepo = getGraphRepository();
             OntologyRepository ontRepo = getOntologyRepository();
             AuditRepository auditRepo = getAuditRepository();
-            
+
             Concept concept = ontRepo.getConceptByName(entityType.getConceptName(), user);
             String conceptId = concept.getId();
             GraphVertex conceptVertex = graphRepo.findVertex(conceptId, user);
             String relLabel = entityType.getRelationshipLabel();
             String relDispName = ontRepo.getDisplayNameForLabel(relLabel, user);
-            
+
             List<TermMentionModel> mentions = TermRegexFinder.find(tweetId, conceptVertex, tweetText, entityType.getTermRegex());
             for (TermMentionModel mention : mentions) {
                 String sign = mention.getMetadata().getSign().toLowerCase();
                 String rowKey = mention.getRowKey().toString();
-                
+
                 GraphVertex termVertex = graphRepo.findVertexByExactTitle(sign, user);
                 boolean newVertex = false;
                 if (termVertex == null) {
@@ -267,7 +267,7 @@ public class DefaultLumifyTwitterProcessor extends BaseArtifactProcessor impleme
                 termVertex.setProperty(PropertyName.TITLE, sign);
                 termVertex.setProperty(PropertyName.ROW_KEY, rowKey);
                 termVertex.setProperty(PropertyName.CONCEPT_TYPE, conceptId);
-                
+
                 graphRepo.save(termVertex, user);
                 String termId = termVertex.getId();
                 if (newVertex) {
@@ -277,10 +277,10 @@ public class DefaultLumifyTwitterProcessor extends BaseArtifactProcessor impleme
                 for (String prop : ENTITY_MODIFIED_PROPERTIES) {
                     auditRepo.auditEntityProperties(AuditAction.UPDATE.toString(), termVertex, prop, processId, "", user);
                 }
-                
+
                 mention.getMetadata().setGraphVertexId(termId);
                 getTermMentionRepository().save(mention, user.getModelUserContext());
-                
+
                 graphRepo.saveRelationship(tweetVertex.getId(), termId, entityType.getRelationshipLabel(), user);
                 auditRepo.auditRelationships(AuditAction.CREATE.toString(), tweetVertex, termVertex, relDispName, processId, "", user);
             }
@@ -337,9 +337,9 @@ public class DefaultLumifyTwitterProcessor extends BaseArtifactProcessor impleme
 
                 graphRepo.findOrAddRelationship(tweeterVertex.getId(), imageVertex.getId(), LabelName.HAS_IMAGE.toString(), user);
             } catch (MalformedURLException mue) {
-                LOGGER.warn("Invalid Profile Photo URL [%s] for Twitter User: %s", imageUrl, screenName, mue);
+                LOGGER.warn("Invalid Profile Photo URL [%s] for Twitter User [%s]: %s", imageUrl, screenName, mue.getMessage());
             } catch (IOException ioe) {
-                LOGGER.warn("Unable to retrieve Profile Photo [%s] for Twitter User: %s", imageUrl, screenName, ioe);
+                LOGGER.warn("Unable to retrieve Profile Photo [%s] for Twitter User [%s]: %s", imageUrl, screenName, ioe.getMessage());
             }
         }
     }
@@ -350,12 +350,12 @@ public class DefaultLumifyTwitterProcessor extends BaseArtifactProcessor impleme
             getWorkQueueRepository().pushArtifactHighlight(tweetVertexId);
         }
     }
-    
+
     @Inject
     public void setUrlStreamCreator(final UrlStreamCreator urlCreator) {
         urlStreamCreator = urlCreator;
     }
-    
+
     /**
      * Sets optional properties on a Vertex, returning all property keys that were
      * modified.
