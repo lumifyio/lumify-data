@@ -8,16 +8,8 @@
     <title>Lumify Demo Signup</title>
 
     <link rel="stylesheet" href="libs/bootstrap/css/bootstrap.css">
-    <link rel="stylesheet" href="libs/sb-admin/css/sb-admin.css">
     <link rel="stylesheet" href="libs/sb-admin/font-awesome/css/font-awesome.min.css">
     <link rel="stylesheet" href="css/demo-account-web.css">
-
-    <script src="libs/jquery-1.10.2.js"></script>
-    <script src="libs/jquery-hashchange.js"></script>
-    <script src="libs/bootstrap/js/bootstrap.js"></script>
-    <script src="libs/ejs.js"></script>
-    <script src="libs/sf.js"></script>
-    <script src="js/demo-account-web.js"></script>
 </head>
 
 <body>
@@ -27,16 +19,24 @@
 
    <img src="img/lumify-logo.png"/>
 
-   <form action="create-token" method="post">
-       <label>
-           Email Address
-           <input type="text" name="email"/>
-       </label>
-       <label class="registerme">
-           <input type="checkbox" name="register" checked/>
-           Keep me informed of Lumify news
-       </label>
-       <button class="btn btn-primary btn-lg btn-block">Sign up for a Demo Account</button>
-   </form>
+    <div class="pane">
+        <form action="create-token" method="post">
+           <h1>Sign up for a Demo Account</h1>
+
+
+           <div class="input-group">
+               <input type="text" name="email" class="form-control" placeholder="Enter your email" required pattern=".+@.+" />
+               <span class="input-group-btn">
+                   <button class="btn btn-default btn-primary" type="button">Sign Up</button>
+               </span>
+           </div>
+
+
+           <label class="registerme">
+               <input type="checkbox" name="register" checked/>
+               Keep me informed of Lumify news
+           </label>
+        </form>
+    </div>
 </body>
 </html>
