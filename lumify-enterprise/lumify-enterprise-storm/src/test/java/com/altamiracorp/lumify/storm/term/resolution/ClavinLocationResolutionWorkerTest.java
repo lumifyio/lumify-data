@@ -7,11 +7,6 @@
 package com.altamiracorp.lumify.storm.term.resolution;
 
 
-import static com.altamiracorp.lumify.storm.term.resolution.ClavinLocationResolutionWorker.*;
-import static org.hamcrest.CoreMatchers.instanceOf;
-import static org.junit.Assert.*;
-import static org.mockito.Mockito.*;
-
 import com.altamiracorp.lumify.core.config.Configuration;
 import com.altamiracorp.lumify.core.ingest.term.extraction.TermExtractionResult;
 import com.altamiracorp.lumify.core.ingest.term.extraction.TermMention;
@@ -23,12 +18,6 @@ import com.bericotech.clavin.gazetteer.CountryCode;
 import com.bericotech.clavin.gazetteer.GeoName;
 import com.bericotech.clavin.resolver.LuceneLocationResolver;
 import com.bericotech.clavin.resolver.ResolvedLocation;
-import java.io.File;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -38,8 +27,16 @@ import org.powermock.core.classloader.annotations.PrepareForTest;
 import org.powermock.modules.junit4.PowerMockRunner;
 import org.powermock.reflect.Whitebox;
 
+import java.io.File;
+import java.util.*;
+
+import static com.altamiracorp.lumify.storm.term.resolution.ClavinLocationResolutionWorker.*;
+import static org.hamcrest.CoreMatchers.instanceOf;
+import static org.junit.Assert.*;
+import static org.mockito.Mockito.*;
+
 @RunWith(PowerMockRunner.class)
-@PrepareForTest({ ClavinLocationResolutionWorker.class, Configuration.class, File.class })
+@PrepareForTest({ClavinLocationResolutionWorker.class, Configuration.class, File.class})
 public class ClavinLocationResolutionWorkerTest {
     private static final String TEST_IDX_PATH = "/test/index";
 
@@ -51,8 +48,8 @@ public class ClavinLocationResolutionWorkerTest {
         return genConfigMap(null, idxPath, null, null, null);
     }
 
-    private static Map<String, String> genIntPropMap(final String maxHitDepth, final String maxContentWindow) {
-        return genConfigMap(null, TEST_IDX_PATH, maxHitDepth, maxContentWindow, null);
+    private static Map<String, String> genIntPropMap(final String maxHitDepth, final String maxContextWindow) {
+        return genConfigMap(null, TEST_IDX_PATH, maxHitDepth, maxContextWindow, null);
     }
 
     private static Map<String, String> genFuzzyMap(final String fuzzy) {
@@ -60,12 +57,12 @@ public class ClavinLocationResolutionWorkerTest {
     }
 
     private static Map<String, String> genConfigMap(final String disabled, final String idxPath, final String maxHitDepth,
-            final String maxContentWindow, final String fuzzy) {
+                                                    final String maxContextWindow, final String fuzzy) {
         Map<String, String> config = new HashMap<String, String>();
         config.put(CLAVIN_DISABLED, disabled);
         config.put(CLAVIN_INDEX_DIRECTORY, idxPath);
         config.put(CLAVIN_MAX_HIT_DEPTH, maxHitDepth);
-        config.put(CLAVIN_MAX_CONTENT_WINDOW, maxContentWindow);
+        config.put(CLAVIN_MAX_CONTEXT_WINDOW, maxContextWindow);
         config.put(CLAVIN_USE_FUZZY_MATCHING, fuzzy);
         return config;
     }
@@ -126,6 +123,7 @@ public class ClavinLocationResolutionWorkerTest {
     private static final GeoPoint WASHINGTON_POINT = new GeoPoint(WASHINGTON_LAT, WASHINGTON_LONG);
     private static final Map<String, Object> ALDIE_PROPS;
     private static final Map<String, Object> WASHINGTON_PROPS;
+
     static {
         Map<String, Object> aldieProps = new HashMap<String, Object>();
         aldieProps.put(PropertyName.GEO_LOCATION.toString(), ALDIE_POINT);
@@ -353,24 +351,24 @@ public class ClavinLocationResolutionWorkerTest {
         doPrepareTest(config, ClavinLocationResolutionWorker.DEFAULT_MAX_HIT_DEPTH, ClavinLocationResolutionWorker.DEFAULT_MAX_CONTENT_WINDOW, ClavinLocationResolutionWorker.DEFAULT_FUZZY_MATCHING);
     }
 
-    private void doPrepareTest(final int expectedHitDepth, final int expectedContentWindow)
+    private void doPrepareTest(final int expectedHitDepth, final int expectedContextWindow)
             throws Exception {
-        doPrepareTest(genIntPropMap(""+expectedHitDepth, ""+expectedContentWindow), expectedHitDepth, expectedContentWindow,
-                ClavinLocationResolutionWorker.DEFAULT_FUZZY_MATCHING);
+        doPrepareTest(genIntPropMap("" + expectedHitDepth, "" + expectedContextWindow), expectedHitDepth, expectedContextWindow,
+                DEFAULT_FUZZY_MATCHING);
     }
 
     private void doPrepareTest(final Map<String, String> config, final boolean expectedFuzzy) throws Exception {
-        doPrepareTest(config, ClavinLocationResolutionWorker.DEFAULT_MAX_HIT_DEPTH, ClavinLocationResolutionWorker.DEFAULT_MAX_CONTENT_WINDOW, expectedFuzzy);
+        doPrepareTest(config, DEFAULT_MAX_HIT_DEPTH, ClavinLocationResolutionWorker.DEFAULT_MAX_CONTEXT_WINDOW, expectedFuzzy);
     }
 
-    private void doPrepareTest(final Map<String, String> config, final int expectedHitDepth, final int expectedContentWindow,
-            final boolean expectedFuzzy) throws Exception {
+    private void doPrepareTest(final Map<String, String> config, final int expectedHitDepth, final int expectedContextWindow,
+                               final boolean expectedFuzzy) throws Exception {
         when(indexDirectory.exists()).thenReturn(true);
         when(indexDirectory.isDirectory()).thenReturn(true);
 
         instance.prepare(config, user);
 
-        PowerMockito.verifyNew(LuceneLocationResolver.class).withArguments(indexDirectory, expectedHitDepth, expectedContentWindow);
+        PowerMockito.verifyNew(LuceneLocationResolver.class).withArguments(indexDirectory, expectedHitDepth, expectedContextWindow);
         assertEquals(expectedFuzzy, Whitebox.getInternalState(instance, "fuzzy"));
     }
 
