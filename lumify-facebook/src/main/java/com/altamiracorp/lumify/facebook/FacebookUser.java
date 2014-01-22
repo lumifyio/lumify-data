@@ -169,7 +169,7 @@ public class FacebookUser {
         userVertex.setProperty(PropertyName.GLYPH_ICON.toString(), "/artifact/" + pictureVertex.getId() + "/raw");
         pictureVertex.setProperty(PropertyName.GLYPH_ICON.toString(), "/artifact/" + pictureVertex.getId() + "/raw");
         modifiedProperties.add(PropertyName.GLYPH_ICON.toString());
-        String labelDisplay = LabelName.HAS_IMAGE.toString();
+        String labelDisplay = LabelName.ENTITY_HAS_IMAGE_PROFILE_PHOTO.toString();
         graphRepository.save(userVertex, user);
         graphRepository.save(pictureVertex, user);
         graphRepository.findOrAddRelationship(userVertex.getId(), pictureVertex.getId(), labelDisplay, user);

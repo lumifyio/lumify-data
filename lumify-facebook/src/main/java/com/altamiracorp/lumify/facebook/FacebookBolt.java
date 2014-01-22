@@ -24,6 +24,7 @@ public class FacebookBolt extends BaseLumifyBolt {
     private static final String USERNAME = "username";
     private static final String AUTHOR_UID = "author_uid";
     private static final String MESSAGE = "message";
+    private static final String POST_CONCEPT = "document";
     private static FileSystem fileSystem;
     private static GraphVertex savedArtifact;
 
@@ -45,6 +46,7 @@ public class FacebookBolt extends BaseLumifyBolt {
             ArtifactExtractedInfo postExtractedInfo = facebookPost.processPostArtifact(jsonObject);
             setSavedArtifact(postExtractedInfo);
             GraphVertex post = facebookPost.processPostVertex(jsonObject, savedArtifact, graphRepository, auditRepository, ontologyRepository, getUser());
+            post.setProperty(PropertyName.DISPLAY_TYPE, POST_CONCEPT);
             InputStream in = new ByteArrayInputStream(jsonObject.getString(MESSAGE).getBytes());
             searchProvider.add(post, in);
             workQueueRepository.pushArtifactHighlight(post.getId());

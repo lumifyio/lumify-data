@@ -46,9 +46,9 @@ public class ClavinLocationResolutionWorkerTest {
     private static final int DEFAULT_MAX_CONTEXT_WINDOW;
     private static final boolean DEFAULT_FUZZY_MATCHING;
     static {
-        DEFAULT_MAX_HIT_DEPTH = Whitebox.getInternalState(ClavinLocationResolutionWorker.class, "DEFAULT_MAX_HIT_DEPTH");
-        DEFAULT_MAX_CONTEXT_WINDOW = Whitebox.getInternalState(ClavinLocationResolutionWorker.class, "DEFAULT_MAX_CONTEXT_WINDOW");
-        DEFAULT_FUZZY_MATCHING = Whitebox.getInternalState(ClavinLocationResolutionWorker.class, "DEFAULT_FUZZY_MATCHING");
+        DEFAULT_MAX_HIT_DEPTH = (Integer) Whitebox.getInternalState(ClavinLocationResolutionWorker.class, "DEFAULT_MAX_HIT_DEPTH");
+        DEFAULT_MAX_CONTEXT_WINDOW = (Integer) Whitebox.getInternalState(ClavinLocationResolutionWorker.class, "DEFAULT_MAX_CONTEXT_WINDOW");
+        DEFAULT_FUZZY_MATCHING = (Boolean) Whitebox.getInternalState(ClavinLocationResolutionWorker.class, "DEFAULT_FUZZY_MATCHING");
     }
 
     private static Map<String, String> genDisabledMap() {
