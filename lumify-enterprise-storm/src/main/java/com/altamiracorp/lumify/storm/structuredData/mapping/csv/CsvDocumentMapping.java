@@ -95,10 +95,12 @@ public class CsvDocumentMapping implements DocumentMapping {
      * @param relationships
      */
     @JsonCreator
-    public CsvDocumentMapping(@JsonProperty(value="subject", required=false) final String subject,
+    public CsvDocumentMapping(@JsonProperty("subject") final String subject,
             @JsonProperty(value="skipRows",required=false) final Integer skipRows,
-            @JsonProperty(value="terms") final List<CsvTermColumnMapping> terms,
-            @JsonProperty(value="relationships") final List<CsvRelationshipMapping> relationships) {
+            @JsonProperty("terms") final List<CsvTermColumnMapping> terms,
+            @JsonProperty(value="relationships", required=false) final List<CsvRelationshipMapping> relationships) {
+        checkArgument(subject != null && !subject.trim().isEmpty(), "Subject must be provided.");
+        checkArgument(skipRows == null || skipRows >= 0, "skipRows must be >= 0 if provided.");
         checkNotNull(terms, "At least one term mapping must be provided.");
         checkArgument(!terms.isEmpty(), "At least one term mapping must be provided.");
         this.subject = subject != null ? subject.trim() : DEFAULT_SUBJECT;
