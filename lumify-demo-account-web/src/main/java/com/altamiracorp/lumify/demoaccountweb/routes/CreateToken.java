@@ -4,8 +4,10 @@ import com.altamiracorp.lumify.demoaccountweb.ApplicationConfiguration;
 import com.altamiracorp.lumify.demoaccountweb.DemoAccountUserRepository;
 import com.altamiracorp.lumify.demoaccountweb.model.DemoAccountUser;
 import com.altamiracorp.miniweb.HandlerChain;
+import com.google.common.base.Preconditions;
 import com.google.inject.Inject;
 import org.apache.commons.io.FileUtils;
+import org.apache.commons.lang.StringUtils;
 import org.apache.commons.mail.EmailException;
 import org.apache.commons.mail.ImageHtmlEmail;
 import org.apache.commons.mail.resolver.DataSourceFileResolver;
@@ -43,6 +45,10 @@ public class CreateToken extends BaseRequestHandler {
         String email = getRequiredParameter(request, "email");
         boolean shouldRegister = getParameterBoolean(request, "register");
 
+        if (StringUtils.isEmpty(email)) {
+            throw new IllegalArgumentException("Email must not be blank");
+        }
+
         final DemoAccountUser user = demoAccountUserRepository.getOrCreateUser(email, shouldRegister);
         demoAccountUserRepository.generateToken(user);
         demoAccountUserRepository.save(user);
@@ -60,12 +66,17 @@ public class CreateToken extends BaseRequestHandler {
             }
         });
 
-        response.sendRedirect("token-created.html");
+        if (user.getMetadata().getReset()) {
+            response.sendRedirect("reset-password.html");
+        } else {
+            response.sendRedirect("confirm-email.html");
+        }
     }
 
     private void sendEmail(DemoAccountUser demoAccountUser, String baseUrl) throws IOException, EmailException {
-        URL html = CreateToken.class.getResource("email-template.html");
-        URL text = CreateToken.class.getResource("email-template.txt");
+        String resetPath = demoAccountUser.getMetadata().getReset() ? "-reset" : "";
+        URL html = CreateToken.class.getResource("email-template" + resetPath + ".html");
+        URL text = CreateToken.class.getResource("email-template" + resetPath + ".txt");
         File htmlFile = new File(html.getFile());
         File textFile = new File(text.getFile());
 
@@ -85,7 +96,10 @@ public class CreateToken extends BaseRequestHandler {
         email.setSubject(configuration.get(EMAIL_SUBJECT));
 
         Map<String, String> replacementTokens = new HashMap();
-        replacementTokens.put("create-account-link", baseUrl + "/create-account?token=" + demoAccountUser.getMetadata().getToken());
+        replacementTokens.put("create-account-link",
+                baseUrl + "/create-account?" +
+                "token=" + demoAccountUser.getMetadata().getToken() +
+                (demoAccountUser.getMetadata().getReset() ? "&reset=1" : ""));
 
         email.setHtmlMsg(replaceTokens(FileUtils.readFileToString(htmlFile), replacementTokens));
         email.setTextMsg(replaceTokens(FileUtils.readFileToString(textFile), replacementTokens));

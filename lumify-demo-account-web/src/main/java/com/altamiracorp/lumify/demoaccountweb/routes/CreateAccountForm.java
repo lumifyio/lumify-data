@@ -26,6 +26,7 @@ public class CreateAccountForm extends BaseRequestHandler {
     public void handle(HttpServletRequest request, HttpServletResponse response, HandlerChain chain) throws Exception {
         String token = getOptionalParameter(request, "token");
         String errorMessage = getOptionalParameter(request, "err");
+        boolean reset = getParameterBoolean(request, "reset");
 
         if (token == null) {
             response.sendRedirect("index.html");
@@ -44,7 +45,8 @@ public class CreateAccountForm extends BaseRequestHandler {
         replacementTokens.put("email", user.getMetadata().getEmail());
         replacementTokens.put("token", token);
         replacementTokens.put("baseUrl", getBaseUrl(request));
-
+        replacementTokens.put("buttonText", reset ? "Reset Password" : "Create Account");
+        replacementTokens.put("action", reset ? "create-account?reset=1" : "create-account");
         if (errorMessage != null) {
             replacementTokens.put("errorMessage", errorMessage);
         }

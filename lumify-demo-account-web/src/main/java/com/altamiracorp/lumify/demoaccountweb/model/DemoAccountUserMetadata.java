@@ -10,6 +10,7 @@ public class DemoAccountUserMetadata extends AccumuloColumnFamily {
     public static final String EMAIL = "email";
     public static final String OPT_IN = "optIn";
     public static final String TOKEN = "token";
+    public static final String RESET = "reset";
     public static final String TOKEN_EXPIRATION = "tokenExpiration";
 
 
@@ -32,6 +33,15 @@ public class DemoAccountUserMetadata extends AccumuloColumnFamily {
 
     public DemoAccountUserMetadata setOptIn(Boolean optIn) {
         set(OPT_IN, optIn);
+        return this;
+    }
+
+    public Boolean getReset() {
+        return get(RESET).toBoolean();
+    }
+
+    public DemoAccountUserMetadata setReset(Boolean reset) {
+        set(RESET, reset);
         return this;
     }
 

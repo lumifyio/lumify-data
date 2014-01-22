@@ -32,9 +32,9 @@ public class DemoAccountUserRepository extends Repository<DemoAccountUser> {
         DemoAccountUser user = findByRowKey(email.toLowerCase(), context);
         if (user == null) {
             user = new DemoAccountUser(new DemoAccountUserRowKey(email));
-            user.getMetadata().setEmail(email).setOptIn(shouldRegister);
+            user.getMetadata().setEmail(email).setOptIn(shouldRegister).setReset(false);
         } else {
-            user.getMetadata().setOptIn(shouldRegister);
+            user.getMetadata().setOptIn(shouldRegister).setReset(true);
         }
 
         return user;

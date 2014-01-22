@@ -31,10 +31,12 @@ public class CreateAccount extends BaseRequestHandler {
         String token = getRequiredParameter(request, "token");
         String password = getRequiredParameter(request, "password");
         String confirmPassword = getRequiredParameter(request, "confirm-password");
-
+        boolean reset = getParameterBoolean(request, "reset");
 
         if (!password.equals(confirmPassword)) {
-            String path = "create-account?err=" + UrlUtils.urlEncode("Passwords do not match") + "&token=" + token;
+            String path = "create-account?err=" + UrlUtils.urlEncode("Passwords do not match") +
+                    "&token=" + token +
+                    (reset ? "&reset=1" : "");
             response.sendRedirect(path);
             return;
         }
@@ -49,8 +51,9 @@ public class CreateAccount extends BaseRequestHandler {
 
         // expire the token
         user.getMetadata().setTokenExpiration(new Date());
+        user.getMetadata().setReset(false);
         demoAccountUserRepository.save(user);
 
-        response.sendRedirect("account-created");
+        response.sendRedirect("account-created" + (reset ? "?reset=1" : ""));
     }
 }

@@ -5,8 +5,7 @@
 
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Lumify Demo Signup</title>
-
+    <title>Create Account: Lumify Demo</title>
     <link rel="stylesheet" href="libs/bootstrap/css/bootstrap.css">
     <link rel="stylesheet" href="libs/sb-admin/css/sb-admin.css">
     <link rel="stylesheet" href="libs/sb-admin/font-awesome/css/font-awesome.min.css">
@@ -31,7 +30,7 @@
     <div class="pane">
         <p class="error">{{ errorMessage }}</p>
 
-        <form role="form" action="create-account" method="post">
+        <form role="form" action="{{ action }}" method="post">
             <input type="hidden" value="{{ token }}" name="token" />
             <div class="form-group">
                 <label for="email">Email address</label>
@@ -45,7 +44,7 @@
                 <label for="confirm-password">Confirm Password</label>
                 <input name="confirm-password" type="password" class="form-control" id="confirm-password" placeholder="Password">
             </div>
-            <button type="submit" class="btn btn-primary">Create Account</button>
+            <button type="submit" class="btn btn-primary">{{ buttonText }}</button>
         </form>
     </div>
 </body>

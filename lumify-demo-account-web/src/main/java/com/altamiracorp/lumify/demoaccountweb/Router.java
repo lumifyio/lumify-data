@@ -29,7 +29,8 @@ public class Router extends HttpServlet {
         app = new WebApp(config, injector);
         app.get("/index.html", new SimpleTemplateFileHandler());
         app.post("/create-token", CreateToken.class);
-        app.get("/token-created.html", new SimpleTemplateFileHandler());
+        app.get("/confirm-email.html", new SimpleTemplateFileHandler());
+        app.get("/reset-password.html", new SimpleTemplateFileHandler());
 
         app.get("/create-account", CreateAccountForm.class);
         app.post("/create-account", CreateAccount.class);

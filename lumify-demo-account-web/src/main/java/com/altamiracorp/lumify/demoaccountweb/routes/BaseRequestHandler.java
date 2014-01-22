@@ -24,7 +24,7 @@ public abstract class BaseRequestHandler implements Handler {
 
     protected boolean getParameterBoolean(final HttpServletRequest request, final String parameterName) {
         String parameter = getParameter(request, parameterName, true);
-        return parameter != null && parameter.equals("on");
+        return parameter != null && (parameter.equals("on") || parameter.equals("1") || parameter.equals("true"));
     }
 
     protected String getRequiredParameter(final HttpServletRequest request, final String parameterName) {

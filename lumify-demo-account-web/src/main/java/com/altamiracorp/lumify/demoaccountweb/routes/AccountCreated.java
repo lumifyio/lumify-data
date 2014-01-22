@@ -27,9 +27,11 @@ public class AccountCreated extends BaseRequestHandler {
     @Override
     public void handle(HttpServletRequest request, HttpServletResponse response, HandlerChain chain) throws Exception {
         String path = request.getServletContext().getRealPath(request.getPathInfo());
+        boolean reset = getParameterBoolean(request, "reset");
 
         Map<String, String> replacementTokens = new HashMap();
         replacementTokens.put("lumify-login-url", configuration.get(ApplicationConfiguration.LUMIFY_URL));
+        replacementTokens.put("message", (reset ? "Password Reset" : "Account Creation") + "  was Successful");
         replacementTokens.put("baseUrl", getBaseUrl(request));
 
         String contents = replaceTokens(FileUtils.readFileToString(new File(path + ".html")), replacementTokens);
