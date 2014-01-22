@@ -1,0 +1,37 @@
+body {
+    font-size: 150%;
+    font-family: helvetica, arial, sans-serif;
+}
+p.error {
+    color: #b94a48;
+    text-align: center;
+    font-weight: bold;
+}
+p.error:empty { display:none; }
+h1 { 
+    text-align: center;     
+    color: #4EC5F1;
+    font-size: 110%;
+    margin: 0 0 1.5em 0;
+}
+img {
+   padding: 1em 0;
+   width: 30%;
+   display: block;
+   margin: auto;
+}
+.pane {
+    margin: 3em auto;
+    display: block;
+    width: 20em;        
+}
+form label.registerme {    
+    margin: 1em 0;    
+    font-size: 90%;
+    font-weight: normal;    
+    width: 100%;
+    text-align: center;
+}
+form label.registerme input {
+    margin-right: 5px;
+}
