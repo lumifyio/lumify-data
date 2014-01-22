@@ -4,8 +4,10 @@ import com.altamiracorp.lumify.core.ingest.AdditionalArtifactWorkData;
 import com.altamiracorp.lumify.core.ingest.ArtifactExtractedInfo;
 import com.altamiracorp.lumify.core.ingest.TextExtractionWorkerPrepareData;
 import com.altamiracorp.lumify.core.ingest.video.VideoTextExtractionWorker;
-import com.altamiracorp.lumify.core.model.artifact.Artifact;
-import com.altamiracorp.lumify.core.util.*;
+import com.altamiracorp.lumify.core.util.LumifyLogger;
+import com.altamiracorp.lumify.core.util.LumifyLoggerFactory;
+import com.altamiracorp.lumify.core.util.ProcessRunner;
+import com.altamiracorp.lumify.core.util.ThreadedTeeInputStreamWorker;
 import com.google.inject.Inject;
 import org.apache.commons.io.FileUtils;
 import org.apache.hadoop.fs.Path;
@@ -33,7 +35,6 @@ public class VideoExtractFramesWorker extends ThreadedTeeInputStreamWorker<Artif
         LOGGER.debug("Extracting Frames [VideoExtractFramesWorker]: %s", additionalArtifactWorkData.getFileName());
         Pattern fileNamePattern = Pattern.compile("image-([0-9]+)\\.png");
         File tempDir = createTempDir("video-frames");
-        HdfsLimitOutputStream textOut = new HdfsLimitOutputStream(additionalArtifactWorkData.getHdfsFileSystem(), Artifact.MAX_SIZE_OF_INLINE_FILE);
 
         int framesPerSecondToExtract = 1;
 
@@ -73,19 +74,7 @@ public class VideoExtractFramesWorker extends ThreadedTeeInputStreamWorker<Artif
         info.setVideoFrames(videoFrames);
 
         String text = videoFrameTextExtractor.extract(videoFrames, additionalArtifactWorkData).getText();
-        try {
-            if (text != null) {
-                textOut.write(text.getBytes());
-            }
-        } finally {
-            textOut.close();
-        }
-
-        if (textOut.hasExceededSizeLimit()) {
-            info.setTextHdfsPath(textOut.getHdfsPath().toString());
-        } else {
-            info.setText(new String(textOut.getSmall()));
-        }
+        info.setText(text);
 
         LOGGER.debug("Finished [VideoExtractFramesWorker]: %s", additionalArtifactWorkData.getFileName());
         return info;

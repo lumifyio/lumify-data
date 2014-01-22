@@ -4,9 +4,7 @@ import com.altamiracorp.lumify.core.ingest.AdditionalArtifactWorkData;
 import com.altamiracorp.lumify.core.ingest.ArtifactExtractedInfo;
 import com.altamiracorp.lumify.core.ingest.TextExtractionWorkerPrepareData;
 import com.altamiracorp.lumify.core.ingest.structuredData.StructuredDataExtractionWorker;
-import com.altamiracorp.lumify.core.model.artifact.Artifact;
 import com.altamiracorp.lumify.core.model.ontology.DisplayType;
-import com.altamiracorp.lumify.core.util.HdfsLimitOutputStream;
 import com.altamiracorp.lumify.core.util.LumifyLogger;
 import com.altamiracorp.lumify.core.util.LumifyLoggerFactory;
 import com.altamiracorp.lumify.core.util.ThreadedTeeInputStreamWorker;
@@ -32,7 +30,6 @@ public class CsvTextExtractorWorker
     protected ArtifactExtractedInfo doWork(InputStream work, AdditionalArtifactWorkData data) throws Exception {
         LOGGER.debug("Extracting Text from CSV [CsvTextExtractorWorker]: %s", data.getFileName());
         ArtifactExtractedInfo info = new ArtifactExtractedInfo();
-        HdfsLimitOutputStream textOut = new HdfsLimitOutputStream(data.getHdfsFileSystem(), Artifact.MAX_SIZE_OF_INLINE_FILE);
 
         // Extract mapping json
         JSONObject mappingJson = readMappingJson(data);
@@ -49,19 +46,7 @@ public class CsvTextExtractorWorker
         }
         csvListWriter.close();
 
-        try {
-            if (writer.toString() != null) {
-                textOut.write(writer.toString().getBytes());
-            }
-        } finally {
-            textOut.close();
-        }
-
-        if (textOut.hasExceededSizeLimit()) {
-            info.setTextHdfsPath(textOut.getHdfsPath().toString());
-        } else {
-            info.setText(new String(textOut.getSmall()));
-        }
+        info.setText(writer.toString());
         if (mappingJson.has(MappingProperties.SUBJECT)) {
             info.setTitle(mappingJson.get(MappingProperties.SUBJECT).toString());
         }
