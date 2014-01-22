@@ -335,7 +335,7 @@ public class DefaultLumifyTwitterProcessor extends BaseArtifactProcessor impleme
                 Vertex imageVertex = imageBuilder.save();
 
                 LOGGER.debug("Saved Twitter User [%s] Profile Photo to Accumulo and as graph vertex: %s", screenName, imageVertex.getId());
-                String labelDisplay = getOntologyRepository().getDisplayNameForLabel(LabelName.HAS_IMAGE.toString());
+                String labelDisplay = getOntologyRepository().getDisplayNameForLabel(LabelName.ENTITY_HAS_IMAGE_HANDLE_PHOTO.toString());
                 auditRepo.auditRelationships(AuditAction.CREATE.toString(), tweeterVertex, imageVertex, labelDisplay, processId, "", user);
 
                 tweeterVertex.setProperty(PropertyName.GLYPH_ICON.toString(), String.format(GLYPH_ICON_FMT, imageVertex.getId()), visibility);
@@ -345,11 +345,10 @@ public class DefaultLumifyTwitterProcessor extends BaseArtifactProcessor impleme
                 auditRepo.auditEntityProperties(AuditAction.UPDATE.toString(), imageVertex, PropertyName.GLYPH_ICON.toString(),
                         processId, "", user);
 
-                Iterator<Edge> edges = tweeterVertex.getEdges(imageVertex, Direction.IN, LabelName.HAS_IMAGE.toString(), user.getAuthorizations()).iterator();
+                Iterator<Edge> edges = tweeterVertex.getEdges(imageVertex, Direction.IN, LabelName.ENTITY_HAS_IMAGE_HANDLE_PHOTO.toString(), user.getAuthorizations()).iterator();
                 if (!edges.hasNext()) {
-                    graph.addEdge(tweeterVertex, imageVertex, LabelName.HAS_IMAGE.toString(), visibility);
+                    graph.addEdge(tweeterVertex, imageVertex, LabelName.ENTITY_HAS_IMAGE_HANDLE_PHOTO.toString(), visibility);
                 }
-
             } catch (MalformedURLException mue) {
                 LOGGER.warn("Invalid Profile Photo URL [%s] for Twitter User [%s]: %s", imageUrl, screenName, mue.getMessage());
             } catch (IOException ioe) {

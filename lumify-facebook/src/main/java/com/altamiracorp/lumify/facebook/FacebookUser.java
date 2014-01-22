@@ -169,7 +169,8 @@ public class FacebookUser {
         userVertex.setProperty(PropertyName.GLYPH_ICON.toString(), "/artifact/" + pictureVertex.getId() + "/raw", visibility);
         pictureVertex.setProperty(PropertyName.GLYPH_ICON.toString(), "/artifact/" + pictureVertex.getId() + "/raw", visibility);
         modifiedProperties.add(PropertyName.GLYPH_ICON.toString());
-        String labelDisplay = LabelName.HAS_IMAGE.toString();
+
+        String labelDisplay = LabelName.ENTITY_HAS_IMAGE_PROFILE_PHOTO.toString();
 
         Iterator<Edge> edges = userVertex.getEdges(pictureVertex, Direction.IN, labelDisplay, user.getAuthorizations()).iterator();
         if (!edges.hasNext()) {
