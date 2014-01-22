@@ -7,16 +7,16 @@ import com.altamiracorp.lumify.core.ingest.term.extraction.TermMention;
 import com.altamiracorp.lumify.core.ingest.term.extraction.TermRelationship;
 import com.altamiracorp.lumify.core.model.artifact.Artifact;
 import com.altamiracorp.lumify.core.model.artifact.ArtifactRepository;
-import com.altamiracorp.lumify.core.model.graph.GraphVertex;
 import com.altamiracorp.lumify.core.model.ontology.PropertyName;
 import com.altamiracorp.lumify.core.user.User;
 import com.altamiracorp.lumify.core.util.LumifyLogger;
 import com.altamiracorp.lumify.core.util.LumifyLoggerFactory;
 import com.altamiracorp.lumify.storm.structuredData.MappingProperties;
 import com.altamiracorp.lumify.storm.structuredData.mapping.DocumentMapping;
+import com.altamiracorp.securegraph.Vertex;
+import com.altamiracorp.securegraph.type.GeoPoint;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.inject.Inject;
-import com.thinkaurelius.titan.core.attribute.Geoshape;
 import java.io.IOException;
 import java.io.StringReader;
 import java.text.ParseException;
@@ -34,13 +34,13 @@ public class CsvEntityExtractor {
     private final Map<String, SimpleDateFormat> dateFormatCache = new HashMap<String, SimpleDateFormat>();
     private ArtifactRepository artifactRepository;
 
-    public TermExtractionResult extract(GraphVertex graphVertex, User user) throws IOException, ParseException {
-        checkNotNull(graphVertex);
+    public TermExtractionResult extract(Vertex vertex, User user) throws IOException, ParseException {
+        checkNotNull(vertex);
         checkNotNull(user);
 //        TermExtractionResult termExtractionResult = new TermExtractionResult();
         TermExtractionResult termExtractionResult = null;
-        String artifactRowKey = (String) graphVertex.getProperty(PropertyName.ROW_KEY);
-        LOGGER.debug("Processing graph vertex [%s] for artifact: %s", graphVertex.getId(), artifactRowKey);
+        String artifactRowKey = (String) vertex.getProperty(PropertyName.ROW_KEY.toString(), 0);
+        LOGGER.debug("Processing graph vertex [%s] for artifact: %s", vertex.getId(), artifactRowKey);
 
         Artifact artifact = artifactRepository.findByRowKey(artifactRowKey, user.getModelUserContext());
         if (artifact.getMetadata().getMappingJson() != null) {
@@ -158,7 +158,7 @@ public class CsvEntityExtractor {
             return getPropertyValueDate(propertyMappingJson, columnData);
         } else if (dataType.equals(MappingProperties.GEO_LOCATION)) {
             String[] latlong = columnData.split(",");
-            return Geoshape.point(Float.valueOf(latlong[0]), Float.valueOf(latlong[1]));
+            return new GeoPoint(Float.valueOf(latlong[0]), Float.valueOf(latlong[1]));
         } else {
             return columnData;
         }

@@ -88,13 +88,13 @@ public class OwlExport extends CommandLineBase {
 
         rootElem.appendChild(createVersionElement(doc));
 
-        Concept rootConcept = ontologyRepository.getRootConcept(getUser());
+        Concept rootConcept = ontologyRepository.getRootConcept();
         List<Node> nodes = createConceptElements(doc, rootConcept, null);
         for (Node e : nodes) {
             rootElem.appendChild(e);
         }
 
-        List<Relationship> relationships = ontologyRepository.getRelationshipLabels(getUser());
+        Iterable<Relationship> relationships = ontologyRepository.getRelationshipLabels();
         for (Relationship relationship : relationships) {
             nodes = createRelationshipElements(doc, relationship);
             for (Node e : nodes) {
@@ -118,8 +118,8 @@ public class OwlExport extends CommandLineBase {
         List<Node> elems = new ArrayList<Node>();
         elems.add(createObjectPropertyElement(doc, relationship));
 
-        List<Property> properties = ontologyRepository.getPropertiesByRelationship(relationship.getTitle(), getUser());
-        for (Property property : properties) {
+        List<OntologyProperty> properties = ontologyRepository.getPropertiesByRelationship(relationship.getTitle());
+        for (OntologyProperty property : properties) {
             elems.add(createDatatypePropertyElement(doc, property, relationship));
         }
 
@@ -146,28 +146,28 @@ public class OwlExport extends CommandLineBase {
         classElem.setAttributeNS(NS_RDF.getURI(), "rdf:about", concept.getTitle());
         classElem.appendChild(createLabelElement(doc, concept.getDisplayName()));
 
-        for (String propertyName : concept.getPropertyKeys()) {
-            if (propertyName.equals(PropertyName.ONTOLOGY_TITLE.toString())) {
+        for (com.altamiracorp.securegraph.Property property : concept.getVertex().getProperties()) {
+            if (property.getName().equals(PropertyName.ONTOLOGY_TITLE.toString())) {
                 continue;
             }
-            if (propertyName.equals(PropertyName.DISPLAY_NAME.toString())) {
+            if (property.getName().equals(PropertyName.DISPLAY_NAME.toString())) {
                 continue;
             }
-            if (propertyName.equals(PropertyName.CONCEPT_TYPE.toString())) {
+            if (property.getName().equals(PropertyName.CONCEPT_TYPE.toString())) {
                 continue;
             }
-            classElem.appendChild(createPropertyElement(doc, propertyName, concept.getProperty(propertyName)));
+            classElem.appendChild(createPropertyElement(doc, property.getName(), property.getValue().toString()));
         }
         if (parentConcept != null) {
             classElem.appendChild(createSubClassOfElement(doc, parentConcept));
         }
 
-        List<Property> properties = ontologyRepository.getPropertiesByConceptIdNoRecursion(concept.getId(), getUser());
-        for (Property property : properties) {
+        List<OntologyProperty> properties = ontologyRepository.getPropertiesByConceptIdNoRecursion(concept.getId().toString());
+        for (OntologyProperty property : properties) {
             elems.add(createDatatypePropertyElement(doc, property, concept));
         }
 
-        List<Concept> childConcepts = ontologyRepository.getChildConcepts(concept, getUser());
+        List<Concept> childConcepts = ontologyRepository.getChildConcepts(concept);
         for (Concept childConcept : childConcepts) {
             elems.addAll(createConceptElements(doc, childConcept, concept));
         }
@@ -175,7 +175,7 @@ public class OwlExport extends CommandLineBase {
         return elems;
     }
 
-    private Element createDatatypePropertyElement(Document doc, Property property, Concept concept) {
+    private Element createDatatypePropertyElement(Document doc, OntologyProperty property, Concept concept) {
         Element elem = doc.createElementNS(NS_OWL.getURI(), "owl:DatatypeProperty");
         elem.setAttributeNS(NS_RDF.getURI(), "rdf:about", property.getTitle());
         elem.appendChild(createLabelElement(doc, property.getDisplayName()));
@@ -184,7 +184,7 @@ public class OwlExport extends CommandLineBase {
         return elem;
     }
 
-    private Element createDatatypePropertyElement(Document doc, Property property, Relationship relationship) {
+    private Element createDatatypePropertyElement(Document doc, OntologyProperty property, Relationship relationship) {
         Element elem = doc.createElementNS(NS_OWL.getURI(), "owl:DatatypeProperty");
         elem.setAttributeNS(NS_RDF.getURI(), "rdf:about", property.getTitle());
         elem.appendChild(createLabelElement(doc, property.getDisplayName()));
