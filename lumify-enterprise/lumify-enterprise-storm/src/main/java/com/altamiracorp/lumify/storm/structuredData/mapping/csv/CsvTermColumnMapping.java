@@ -141,7 +141,7 @@ public class CsvTermColumnMapping implements Comparable<CsvTermColumnMapping> {
      * @param processId the ID of the process reading this file
      * @return the generated TermMention
      */
-    public final TermMention mapTerm(final List<String> fields, final int offset, final String processId) {
+    public TermMention mapTerm(final List<String> fields, final int offset, final String processId) {
         String sign = fields.get(columnIndex);
         TermMention mention;
         if (sign == null || sign.trim().isEmpty()) {
