@@ -9,6 +9,7 @@ import com.altamiracorp.lumify.core.user.User;
 import com.altamiracorp.lumify.core.util.LumifyLogger;
 import com.altamiracorp.lumify.core.util.LumifyLoggerFactory;
 import com.altamiracorp.lumify.storm.BaseFileProcessingBolt;
+import static com.altamiracorp.lumify.facebook.FacebookConstants.*;
 import com.altamiracorp.lumify.storm.file.FileMetadata;
 import com.altamiracorp.securegraph.Vertex;
 import com.google.inject.Inject;
@@ -28,7 +29,6 @@ public class FacebookFileProcessingBolt extends BaseFileProcessingBolt {
     private static FileSystem fileSystem;
     private static Vertex savedArtifact;
     private static final Pattern JSON_OBJECT = Pattern.compile("^\\s*\\{.*\\}\\s*$");
-    private static final String GZIP_EXTENSION = ".gz";
     private static OutputCollector collector;
 
     @Override
