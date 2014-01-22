@@ -334,12 +334,12 @@
         <rdfs:domain rdf:resource="#person"/>
         <rdfs:range rdf:resource="#person"/>
     </owl:ObjectProperty>
-    <owl:ObjectProperty rdf:about="containsImageOf">
+    <owl:ObjectProperty rdf:about="tweeterProfileImageContainsImageOfEntity">
         <rdfs:label xml:lang="en">contains image of</rdfs:label>
         <rdfs:domain rdf:resource="#tweeterProfileImage"/>
         <rdfs:range rdf:resource="#entity"/>
     </owl:ObjectProperty>
-    <owl:ObjectProperty rdf:about="hasImage">
+    <owl:ObjectProperty rdf:about="entityHasImageTweeterProfileImage">
         <rdfs:label xml:lang="en">has image</rdfs:label>
         <rdfs:domain rdf:resource="#entity"/>
         <rdfs:range rdf:resource="#tweeterProfileImage"/>
@@ -399,7 +399,7 @@
         <rdfs:domain rdf:resource="#organization"/>
         <rdfs:range rdf:resource="#phoneNumber"/>
     </owl:ObjectProperty>
-	<owl:ObjectProperty rdf:about="organizationHasTwitter">
+	<owl:ObjectProperty rdf:about="organizationHasTwitterHandle">
         <rdfs:label xml:lang="en">has twitter handle</rdfs:label>
         <rdfs:domain rdf:resource="#organization"/>
         <rdfs:range rdf:resource="#twitterHandle"/>
@@ -424,47 +424,47 @@
         <rdfs:domain rdf:resource="#organization"/>
         <rdfs:range rdf:resource="#person"/>
     </owl:ObjectProperty>
-	<owl:ObjectProperty rdf:about="happenedIn">
+	<owl:ObjectProperty rdf:about="eventHappenedInLocation">
 	    <rdfs:label xml:lang="en">happened in</rdfs:label>
 	    <rdfs:domain rdf:resource="#event"/>
 	    <rdfs:range rdf:resource="#location"/>
 	</owl:ObjectProperty>
-	<owl:ObjectProperty rdf:about="personHasSibling">
+	<owl:ObjectProperty rdf:about="personHasSiblingPerson">
         <rdfs:label xml:lang="en">has sibling</rdfs:label>
         <rdfs:domain rdf:resource="#person"/>
         <rdfs:range rdf:resource="#person"/>
     </owl:ObjectProperty>
-	<owl:ObjectProperty rdf:about="personHasGrandparent">
+	<owl:ObjectProperty rdf:about="personHasGrandparentPerson">
         <rdfs:label xml:lang="en">has grandparent</rdfs:label>
         <rdfs:domain rdf:resource="#person"/>
         <rdfs:range rdf:resource="#person"/>
     </owl:ObjectProperty>
-    <owl:ObjectProperty rdf:about="personHasParent">
+    <owl:ObjectProperty rdf:about="personHasParentPerson">
         <rdfs:label xml:lang="en">has parent</rdfs:label>
         <rdfs:domain rdf:resource="#person"/>
         <rdfs:range rdf:resource="#person"/>
     </owl:ObjectProperty>
-    <owl:ObjectProperty rdf:about="personHasChild">
+    <owl:ObjectProperty rdf:about="personHasChildPerson">
         <rdfs:label xml:lang="en">has child</rdfs:label>
         <rdfs:domain rdf:resource="#person"/>
         <rdfs:range rdf:resource="#person"/>
     </owl:ObjectProperty>
-    <owl:ObjectProperty rdf:about="personGrandchild">
+    <owl:ObjectProperty rdf:about="personGrandchildPerson">
         <rdfs:label xml:lang="en">has grandchild</rdfs:label>
         <rdfs:domain rdf:resource="#person"/>
         <rdfs:range rdf:resource="#person"/>
     </owl:ObjectProperty>
-    <owl:ObjectProperty rdf:about="personHasCousin">
+    <owl:ObjectProperty rdf:about="personHasCousinPerson">
         <rdfs:label xml:lang="en">has cousin</rdfs:label>
         <rdfs:domain rdf:resource="#person"/>
         <rdfs:range rdf:resource="#person"/>
     </owl:ObjectProperty>
-    <owl:ObjectProperty rdf:about="personHasInLaw">
+    <owl:ObjectProperty rdf:about="personHasInLawPerson">
         <rdfs:label xml:lang="en">has in-law</rdfs:label>
         <rdfs:domain rdf:resource="#person"/>
         <rdfs:range rdf:resource="#person"/>
     </owl:ObjectProperty>
-    <owl:ObjectProperty rdf:about="personHasAunt">
+    <owl:ObjectProperty rdf:about="personHasAuntPerson">
         <rdfs:label xml:lang="en">has aunt</rdfs:label>
         <rdfs:domain rdf:resource="#person"/>
         <rdfs:range rdf:resource="#person"/>
@@ -479,62 +479,62 @@
         <rdfs:domain rdf:resource="#person"/>
         <rdfs:range rdf:resource="#person"/>
     </owl:ObjectProperty>
-    <owl:ObjectProperty rdf:about="personHasNephew">
+    <owl:ObjectProperty rdf:about="personHasNephewPerson">
         <rdfs:label xml:lang="en">has nephew</rdfs:label>
         <rdfs:domain rdf:resource="#person"/>
         <rdfs:range rdf:resource="#person"/>
     </owl:ObjectProperty>
-    <owl:ObjectProperty rdf:about="personHasFriend">
+    <owl:ObjectProperty rdf:about="personHasFriendPerson">
         <rdfs:label xml:lang="en">has friend</rdfs:label>
         <rdfs:domain rdf:resource="#person"/>
         <rdfs:range rdf:resource="#person"/>
     </owl:ObjectProperty>
-    <owl:ObjectProperty rdf:about="personHasCoworker">
+    <owl:ObjectProperty rdf:about="personHasCoworkerPerson">
         <rdfs:label xml:lang="en">has coworker</rdfs:label>
         <rdfs:domain rdf:resource="#person"/>
         <rdfs:range rdf:resource="#person"/>
     </owl:ObjectProperty>
-    <owl:ObjectProperty rdf:about="personLivesWith">
+    <owl:ObjectProperty rdf:about="personLivesWithPerson">
         <rdfs:label xml:lang="en">lives with</rdfs:label>
         <rdfs:domain rdf:resource="#person"/>
         <rdfs:range rdf:resource="#person"/>
     </owl:ObjectProperty>
-    <owl:ObjectProperty rdf:about="personHasHomeAddress">
+    <owl:ObjectProperty rdf:about="personHasHomeAddressLocation">
         <rdfs:label xml:lang="en">has home address</rdfs:label>
         <rdfs:domain rdf:resource="#person"/>
         <rdfs:range rdf:resource="#location"/>
     </owl:ObjectProperty>
-    <owl:ObjectProperty rdf:about="personHasWorkAddress">
+    <owl:ObjectProperty rdf:about="personHasWorkAddressLocation">
         <rdfs:label xml:lang="en">has work address</rdfs:label>
         <rdfs:domain rdf:resource="#person"/>
         <rdfs:range rdf:resource="#location"/>
     </owl:ObjectProperty>
-    <owl:ObjectProperty rdf:about="personIsFrom">
+    <owl:ObjectProperty rdf:about="personIsFromLocation">
         <rdfs:label xml:lang="en">is from</rdfs:label>
         <rdfs:domain rdf:resource="#person"/>
         <rdfs:range rdf:resource="#location"/>
     </owl:ObjectProperty>
-    <owl:ObjectProperty rdf:about="personHasCitizenshipIn">
+    <owl:ObjectProperty rdf:about="personHasCitizenshipInCountry">
         <rdfs:label xml:lang="en">has citizenship in</rdfs:label>
         <rdfs:domain rdf:resource="#person"/>
         <rdfs:range rdf:resource="#country"/>
     </owl:ObjectProperty>
-    <owl:ObjectProperty rdf:about="personHasVisited">
+    <owl:ObjectProperty rdf:about="personHasVisitedLocation">
         <rdfs:label xml:lang="en">has home address</rdfs:label>
         <rdfs:domain rdf:resource="#person"/>
         <rdfs:range rdf:resource="#location"/>
     </owl:ObjectProperty>
-    <owl:ObjectProperty rdf:about="personHasLived">
+    <owl:ObjectProperty rdf:about="personHasLivedLocation">
         <rdfs:label xml:lang="en">has lived in</rdfs:label>
         <rdfs:domain rdf:resource="#person"/>
         <rdfs:range rdf:resource="#location"/>
     </owl:ObjectProperty>
-    <owl:ObjectProperty rdf:about="personOwns">
+    <owl:ObjectProperty rdf:about="personOwnsLocation">
         <rdfs:label xml:lang="en">owns</rdfs:label>
         <rdfs:domain rdf:resource="#person"/>
         <rdfs:range rdf:resource="#location"/>
     </owl:ObjectProperty>
-    <owl:ObjectProperty rdf:about="locationHasLeader">
+    <owl:ObjectProperty rdf:about="locationHasLeaderPerson">
         <rdfs:label xml:lang="en">has leader</rdfs:label>
         <rdfs:domain rdf:resource="#location"/>
         <rdfs:range rdf:resource="#person"/>
@@ -579,12 +579,12 @@
         <rdfs:domain rdf:resource="#event"/>
         <rdfs:range rdf:resource="#organization"/>
     </owl:ObjectProperty>
-    <owl:ObjectProperty rdf:about="personHasHomeEmail">
+    <owl:ObjectProperty rdf:about="personHasHomeEmailAddress">
         <rdfs:label xml:lang="en">has home address</rdfs:label>
         <rdfs:domain rdf:resource="#person"/>
         <rdfs:range rdf:resource="#emailAddress"/>
     </owl:ObjectProperty>
-    <owl:ObjectProperty rdf:about="personHasWorkEmail">
+    <owl:ObjectProperty rdf:about="personHasWorkEmailAddress">
         <rdfs:label xml:lang="en">has work address</rdfs:label>
         <rdfs:domain rdf:resource="#person"/>
         <rdfs:range rdf:resource="#emailAddress"/>
@@ -682,15 +682,15 @@
         <rdfs:domain rdf:resource="#tweet"/>
         <rdfs:range rdf:resource="#tweet"/>
     </owl:ObjectProperty>
-    <owl:ObjectProperty rdf:about="tweetHasImage">
+    <owl:ObjectProperty rdf:about="tweetHasTweeterProfileImage">
         <rdfs:label xml:lang="en">has</rdfs:label>
         <rdfs:domain rdf:resource="#tweet"/>
-        <rdfs:range rdf:resource="#tweet"/>
+        <rdfs:range rdf:resource="#tweeterProfileImage"/>
     </owl:ObjectProperty>
     
 <!-- TwitterHandle Relationships -->
 
-	<owl:ObjectProperty rdf:about="handleHasEmail">
+	<owl:ObjectProperty rdf:about="twitterHandleHasEmailAddress">
         <rdfs:label xml:lang="en">has email address</rdfs:label>
         <rdfs:domain rdf:resource="#twitterHandle"/>
         <rdfs:range rdf:resource="#emailAddress"/>
@@ -703,12 +703,12 @@
 	<owl:ObjectProperty rdf:about="twitterHandleHasHeaderPhoto">
         <rdfs:label xml:lang="en">has header photo</rdfs:label>
         <rdfs:domain rdf:resource="#twitterHandle"/>
-        <rdfs:range rdf:resource="#tweet"/>
+        <rdfs:range rdf:resource="#tweeterProfileImage"/>
     </owl:ObjectProperty>
 	<owl:ObjectProperty rdf:about="twitterHandleHasProfilePhoto">
         <rdfs:label xml:lang="en">has profile photo</rdfs:label>
         <rdfs:domain rdf:resource="#twitterHandle"/>
-        <rdfs:range rdf:resource="#tweet"/>
+        <rdfs:range rdf:resource="#tweeterProfileImage"/>
     </owl:ObjectProperty>
 	<owl:ObjectProperty rdf:about="twitterHandleHasFollowerTwitterHandle">
         <rdfs:label xml:lang="en">has follower</rdfs:label>
@@ -720,12 +720,6 @@
         <rdfs:domain rdf:resource="#twitterHandle"/>
         <rdfs:range rdf:resource="#twitterHandle"/>
     </owl:ObjectProperty>
-  	<owl:ObjectProperty rdf:about="twitterHandleHasFollowerTwitterHandle">
-        <rdfs:label xml:lang="en">has follower</rdfs:label>
-        <rdfs:domain rdf:resource="#twitterHandle"/>
-        <rdfs:range rdf:resource="#twitterHandle"/>
-    </owl:ObjectProperty>
-    
     
   	<owl:ObjectProperty rdf:about="locationHasTwitterHandle">
         <rdfs:label xml:lang="en">has twitter handle</rdfs:label>
@@ -882,7 +876,7 @@
         <rdfs:range rdf:resource="#url"/>
     </owl:ObjectProperty>  
     
-    <owl:ObjectProperty rdf:about="hashtagIsRelatedToUrl">
+    <owl:ObjectProperty rdf:about="urlIsRelatedToUrl">
         <rdfs:label xml:lang="en">is related to</rdfs:label>
         <rdfs:domain rdf:resource="#url"/>
         <rdfs:range rdf:resource="#url"/>
