@@ -68,20 +68,22 @@ public class DateCsvPropertyColumnMapping extends AbstractSimpleCsvPropertyColum
     @Override
     protected Long fromString(final String fieldValue) {
         Date date = null;
-        if (format == null) {
-            for (String fmt : DEFAULT_DATE_FORMATS) {
+        if (!isNullOrEmpty(fieldValue)) {
+            if (format == null) {
+                for (String fmt : DEFAULT_DATE_FORMATS) {
+                    try {
+                        date = new SimpleDateFormat(fmt).parse(fieldValue);
+                        break;
+                    } catch (ParseException pe) {
+                        date = null;
+                    }
+                }
+            } else {
                 try {
-                    date = new SimpleDateFormat(fmt).parse(fieldValue);
-                    break;
+                    date = new SimpleDateFormat(format).parse(fieldValue);
                 } catch (ParseException pe) {
                     date = null;
                 }
-            }
-        } else {
-            try {
-                date = new SimpleDateFormat(format).parse(fieldValue);
-            } catch (ParseException pe) {
-                date = null;
             }
         }
         return date != null ? date.getTime() : null;
