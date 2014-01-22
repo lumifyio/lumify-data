@@ -1,18 +1,34 @@
 package com.altamiracorp.lumify.demoaccountweb.routes;
 
+import com.altamiracorp.lumify.core.model.user.UserRepository;
+import com.altamiracorp.lumify.core.user.SystemUser;
+import com.altamiracorp.lumify.demoaccountweb.DemoAccountUserRepository;
+import com.altamiracorp.lumify.demoaccountweb.model.DemoAccountUser;
 import com.altamiracorp.miniweb.HandlerChain;
 import com.altamiracorp.miniweb.utils.UrlUtils;
 import com.google.inject.Inject;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import java.util.Date;
 
 public class CreateAccount extends BaseRequestHandler {
+    private UserRepository userRepository;
+    private DemoAccountUserRepository demoAccountUserRepository;
+
+    @Inject
+    public void setDemoAccountUserRepository(DemoAccountUserRepository demoAccountUserRepository) {
+        this.demoAccountUserRepository = demoAccountUserRepository;
+    }
+
+    @Inject
+    public void setUserRepository(UserRepository userRepository) {
+        this.userRepository = userRepository;
+    }
 
     @Override
     public void handle(HttpServletRequest request, HttpServletResponse response, HandlerChain chain) throws Exception {
         String token = getRequiredParameter(request, "token");
-        String email = "sample@example.com"; // Get email from token, not from request
         String password = getRequiredParameter(request, "password");
         String confirmPassword = getRequiredParameter(request, "confirm-password");
 
@@ -23,8 +39,13 @@ public class CreateAccount extends BaseRequestHandler {
             return;
         }
 
-        // TODO update user account
+        DemoAccountUser user = demoAccountUserRepository.getUserFromToken(token);
+        if (user == null) {
+            response.sendRedirect("index.html");
+            return;
+        }
 
+        this.userRepository.addUser(user.getMetadata().getEmail(), password, new SystemUser());
         response.sendRedirect("account-created.html");
     }
 }
