@@ -5,10 +5,12 @@ import com.altamiracorp.lumify.demoaccountweb.model.DemoAccountUser;
 import com.altamiracorp.miniweb.HandlerChain;
 import com.google.inject.Inject;
 import org.apache.commons.io.FileUtils;
+import org.apache.commons.lang.time.DateUtils;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.File;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -31,7 +33,7 @@ public class CreateAccountForm extends BaseRequestHandler {
         }
 
         DemoAccountUser user =  demoAccountUserRepository.getUserFromToken(token);
-        if (user == null) {
+        if (user == null || user.getMetadata().getTokenExpiration().before(new Date())) {
             response.sendRedirect("index.html");
             return;
         }
@@ -41,6 +43,8 @@ public class CreateAccountForm extends BaseRequestHandler {
         Map<String, String> replacementTokens = new HashMap();
         replacementTokens.put("email", user.getMetadata().getEmail());
         replacementTokens.put("token", token);
+        replacementTokens.put("baseUrl", getBaseUrl(request));
+
         if (errorMessage != null) {
             replacementTokens.put("errorMessage", errorMessage);
         }

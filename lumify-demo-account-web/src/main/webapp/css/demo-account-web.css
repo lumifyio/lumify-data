@@ -12,7 +12,7 @@ h1 {
     text-align: center;     
     color: #4EC5F1;
     font-size: 110%;
-    margin-bottom: 1em;
+    margin: 0 0 1.5em 0;
 }
 img {
    padding: 1em 0;
@@ -29,6 +29,8 @@ form label.registerme {
     margin: 1em 0;    
     font-size: 90%;
     font-weight: normal;    
+    width: 100%;
+    text-align: center;
 }
 form label.registerme input {
     margin-right: 5px;

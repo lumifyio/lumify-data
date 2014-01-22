@@ -46,11 +46,13 @@ public class CreateAccount extends BaseRequestHandler {
         }
 
         userRepository.addUser(user.getMetadata().getEmail(), password, new SystemUser());
+        user.getMetadata().setToken("");
+        this.demoAccountUserRepository.save(user, SystemUser.getSystemUserContext());
 
         // expire the token
         user.getMetadata().setTokenExpiration(new Date());
         demoAccountUserRepository.save(user);
 
-        response.sendRedirect("account-created.html");
+        response.sendRedirect("account-created");
     }
 }

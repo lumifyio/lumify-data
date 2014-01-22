@@ -1,0 +1,3 @@
+Thank you for signing up for access to the Lumify demo. Please click or paste the link below to create your account.
+
+{{ create-account-link }}

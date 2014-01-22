@@ -1,5 +1,6 @@
 package com.altamiracorp.lumify.demoaccountweb;
 
+import com.altamiracorp.lumify.demoaccountweb.routes.AccountCreated;
 import com.altamiracorp.lumify.demoaccountweb.routes.CreateAccount;
 import com.altamiracorp.lumify.demoaccountweb.routes.CreateAccountForm;
 import com.altamiracorp.lumify.demoaccountweb.routes.CreateToken;
@@ -32,7 +33,7 @@ public class Router extends HttpServlet {
 
         app.get("/create-account", CreateAccountForm.class);
         app.post("/create-account", CreateAccount.class);
-        app.get("/account-created.html", new SimpleTemplateFileHandler());
+        app.get("/account-created", AccountCreated.class);
     }
 
     @Override

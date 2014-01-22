@@ -15,10 +15,16 @@ public abstract class BaseRequestHandler implements Handler {
         response.setContentType("application/json");
         response.getWriter().write(json.toString());
     }
+    protected String getBaseUrl(final HttpServletRequest request) {
+        String path = request.getServletContext().getRealPath(request.getPathInfo());
+        String url = request.getRequestURL().toString();
+        int slashIndex = url.indexOf('/', "https://".length() + 1);
+        return url.substring(0, slashIndex) + request.getServletContext().getContextPath();
+    }
 
-    protected boolean getRequiredParameterBoolean(final HttpServletRequest request, final String parameterName) {
-        String parameter = getRequiredParameter(request, parameterName);
-        return parameter.equals("on");
+    protected boolean getParameterBoolean(final HttpServletRequest request, final String parameterName) {
+        String parameter = getParameter(request, parameterName, true);
+        return parameter != null && parameter.equals("on");
     }
 
     protected String getRequiredParameter(final HttpServletRequest request, final String parameterName) {

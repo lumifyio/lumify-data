@@ -49,12 +49,13 @@ public class ApplicationBootstrap extends AbstractModule implements ServletConte
 
     @Override
     protected void configure() {
-        bind(ModelSession.class).toInstance(createModelSession());
+        Map properties = loadModelProperties();
+        bind(ModelSession.class).toInstance(createModelSession(properties));
+        bind(ApplicationConfiguration.class).toInstance(new ApplicationConfiguration(properties));
     }
 
-    private ModelSession createModelSession() {
+    private ModelSession createModelSession(Map<String, Object> properties) {
         ModelSession modelSession = (ModelSession) createClassInstanceFromConfig(CONFIG_MODEL_SESSION);
-        Map properties = loadModelProperties();
         modelSession.init(properties);
         //modelSession.deleteTable(DemoAccountUser.TABLE_NAME, new AccumuloUserContext(new Authorizations()));
         modelSession.initializeTable(DemoAccountUser.TABLE_NAME, new AccumuloUserContext(new Authorizations()));
@@ -62,10 +63,8 @@ public class ApplicationBootstrap extends AbstractModule implements ServletConte
     }
 
     private Map loadModelProperties() {
-        String fileName = getModelPropertiesFileName();
-        if (!new File(fileName).isFile()) {
-            fileName = "/opt/lumify/config/configuration.properties";
-        }
+        String fileName = "/opt/lumify/config/configuration.properties";
+
         try {
             Properties properties = new Properties();
             InputStream in = new FileInputStream(fileName);
@@ -78,10 +77,6 @@ public class ApplicationBootstrap extends AbstractModule implements ServletConte
         } catch (IOException ex) {
             throw new RuntimeException("Could not load properties from " + fileName, ex);
         }
-    }
-
-    private String getModelPropertiesFileName() {
-        return context.getInitParameter("ModelPropertiesFileName");
     }
 
     private Object createClassInstanceFromConfig(String configKey) {
