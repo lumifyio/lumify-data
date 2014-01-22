@@ -34,12 +34,15 @@ public class ArtifactHighlightedText extends BaseRequestHandler {
         }
         OutputStream out = response.getOutputStream();
 
-        StreamingPropertyValue highlightedTextValue = (StreamingPropertyValue) artifactVertex.getPropertyValue(PropertyName.HIGHLIGHTED_TEXT.toString(), 0);
-        if (highlightedTextValue == null) {
-            response.sendError(HttpServletResponse.SC_NOT_FOUND);
-            return;
+        StreamingPropertyValue textValue = (StreamingPropertyValue) artifactVertex.getPropertyValue(PropertyName.HIGHLIGHTED_TEXT.toString(), 0);
+        if (textValue == null) {
+            textValue = (StreamingPropertyValue) artifactVertex.getPropertyValue(PropertyName.TEXT.toString(), 0);
+            if (textValue == null) {
+                response.sendError(HttpServletResponse.SC_NOT_FOUND);
+                return;
+            }
         }
-        InputStream in = highlightedTextValue.getInputStream();
+        InputStream in = textValue.getInputStream();
         if (in == null) {
             response.sendError(HttpServletResponse.SC_NOT_FOUND);
             return;

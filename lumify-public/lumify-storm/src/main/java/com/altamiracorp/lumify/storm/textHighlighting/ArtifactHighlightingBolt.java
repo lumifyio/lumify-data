@@ -31,6 +31,7 @@ public class ArtifactHighlightingBolt extends BaseTextProcessingBolt {
 
             Iterable<TermMentionModel> termMentions = termMentionRepository.findByGraphVertexId(artifactGraphVertex.getId().toString(), getUser());
             performHighlighting(artifactGraphVertex, termMentions);
+            graph.flush();
         } else {
             LOGGER.warn("Could not find vertex with id: %s", graphVertexId);
         }
