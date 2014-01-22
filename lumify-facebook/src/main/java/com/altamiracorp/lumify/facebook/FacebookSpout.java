@@ -3,7 +3,7 @@ package com.altamiracorp.lumify.facebook;
 
 import java.util.Iterator;
 import java.util.Map;
-
+import static com.altamiracorp.lumify.facebook.FacebookConstants.*;
 import backtype.storm.spout.SpoutOutputCollector;
 import backtype.storm.task.TopologyContext;
 import backtype.storm.topology.OutputFieldsDeclarer;
@@ -26,16 +26,6 @@ import static com.google.common.base.Preconditions.checkNotNull;
 public class FacebookSpout extends BaseRichSpout {
     private static final Logger LOGGER = LoggerFactory.getLogger(FacebookSpout.class);
     private Facebook facebook = new FacebookFactory().getInstance();
-    private static final String APP_ID = "facebook.appId";
-    private static final String APP_SECRET = "facebook.appSecret";
-    private static final String ACCESS_TOKEN = "facebook.accessToken";
-    private static final String USER_PERMISSION = "facebook.userPermissions";
-    private static final String LOCATION_PERMISSION = "facebook.locationPermissions";
-    private static final String LATITUDE = "facebook.latitude";
-    private static final String LONGITUDE = "facebook.longitude";
-    private static final String DISTANCE = "facebook.distance";
-    private static final String AUTHOR_UID = "author_uid";
-    private static final String TAGGEED_UIDS = "tagged_uids";
     private String locationPermissions;
     private String userPermissions;
     private String latitude;

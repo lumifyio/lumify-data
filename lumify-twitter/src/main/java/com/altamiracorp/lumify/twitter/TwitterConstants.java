@@ -184,4 +184,8 @@ public interface TwitterConstants {
      * The Lumify description property.
      */
     String LUMIFY_DESCRIPTION_PROPERTY = "description";
+
+    String ENTITY_HAS_IMAGE_HANDLE_PHOTO = "entityHasImageTweeterProfileImage";
+
+    String HANDLE_CONTAINS_IMAGE_OF = "tweeterProfileImageContainsImageOfEntity";
 }
