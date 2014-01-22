@@ -6,6 +6,8 @@
 
 package com.altamiracorp.lumify.storm.structuredData.mapping.csv;
 
+import static com.google.common.base.Preconditions.*;
+
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
@@ -41,9 +43,15 @@ public class CsvRelationshipMapping {
     public CsvRelationshipMapping(@JsonProperty("label") final String lbl,
             @JsonProperty("source") final String srcId,
             @JsonProperty("target") final String tgtId) {
-        this.label = lbl;
-        this.sourceTermId = srcId;
-        this.targetTermId = tgtId;
+        checkNotNull(lbl, "label must be provided");
+        checkArgument(!lbl.trim().isEmpty(), "label must be provided");
+        checkNotNull(srcId, "source must be provided");
+        checkArgument(!srcId.trim().isEmpty(), "source must be provided");
+        checkNotNull(tgtId, "target must be provided");
+        checkArgument(!tgtId.trim().isEmpty(), "target must be provided");
+        this.label = lbl.trim();
+        this.sourceTermId = srcId.trim();
+        this.targetTermId = tgtId.trim();
     }
 
     @JsonProperty("label")

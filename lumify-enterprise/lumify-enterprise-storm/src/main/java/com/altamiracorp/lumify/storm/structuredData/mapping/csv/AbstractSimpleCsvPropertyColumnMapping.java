@@ -6,6 +6,8 @@
 
 package com.altamiracorp.lumify.storm.structuredData.mapping.csv;
 
+import static com.google.common.base.Preconditions.*;
+
 import com.fasterxml.jackson.annotation.JsonProperty;
 import java.util.List;
 
@@ -37,8 +39,11 @@ public abstract class AbstractSimpleCsvPropertyColumnMapping<T> implements CsvPr
      * @param reqd <code>true</code> if this column is required
      */
     protected AbstractSimpleCsvPropertyColumnMapping(final int index, final String nm, final Boolean reqd) {
+        checkArgument(index >= 0, "column index must be >= 0");
+        checkNotNull(nm, "name must be provided");
+        checkArgument(!nm.trim().isEmpty(), "name must be provided");
         this.columnIndex = index;
-        this.name = nm;
+        this.name = nm.trim();
         this.required = reqd != null ? reqd : CsvPropertyColumnMapping.DEFAULT_REQUIRED;
     }
 

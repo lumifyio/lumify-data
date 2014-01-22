@@ -18,6 +18,8 @@
 
 package com.altamiracorp.lumify.storm.structuredData.mapping.csv;
 
+import static com.google.common.base.Preconditions.*;
+
 import com.altamiracorp.lumify.core.ingest.term.extraction.TermMention;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonInclude;
@@ -94,9 +96,15 @@ public class CsvTermColumnMapping implements Comparable<CsvTermColumnMapping> {
             @JsonProperty(value="useExisting", required=false) final Boolean useExistingIn,
             @JsonProperty(value="properties", required=false) final List<CsvPropertyColumnMapping<?>> props,
             @JsonProperty(value="required", required=false) final Boolean reqd) {
+        checkArgument(index >= 0, "Column index must be >= 0");
+        checkNotNull(mId, "mapId must be provided");
+        checkArgument(!mId.trim().isEmpty(), "mapId must be provided");
+        checkNotNull(label, "conceptLabel must be provided");
+        checkArgument(!label.trim().isEmpty(), "conceptLabel must be provided");
+
         this.columnIndex = index;
-        this.mapId = mId;
-        this.conceptLabel = label;
+        this.mapId = mId.trim();
+        this.conceptLabel = label.trim();
         this.useExisting = useExistingIn != null ? useExistingIn : CsvTermColumnMapping.DEFAULT_USE_EXISTING;
         this.required = reqd != null ? reqd : CsvTermColumnMapping.DEFAULT_REQUIRED;
         this.properties =
