@@ -56,13 +56,21 @@ public class DemoAccountUserRepository extends Repository<DemoAccountUser> {
 
     public DemoAccountUser getUserFromToken(String token) {
         // FIXME: better way to not load all users?
+        // "maybe org.apache.accumulo.core.iterators.user.RowFilter" -Joe
         for (DemoAccountUser user : findAll(context)) {
             String usersToken = user.getMetadata().getToken();
             if (usersToken != null && token.equals(usersToken)) {
-                return user;
+                Date tokenExpiration = user.getMetadata().getTokenExpiration();
+                if (tokenExpiration != null && tokenExpiration.after(new Date())) {
+                    return user;
+                } else {
+                    LOGGER.debug("found expired token");
+                    return null;
+                }
             }
         }
 
+        LOGGER.debug("token not found");
         return null;
     }
 
