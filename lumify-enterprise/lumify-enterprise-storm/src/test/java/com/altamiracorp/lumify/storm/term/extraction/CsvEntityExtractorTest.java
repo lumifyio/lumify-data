@@ -1,32 +1,19 @@
 package com.altamiracorp.lumify.storm.term.extraction;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
-import static org.mockito.Matchers.any;
-import static org.mockito.Matchers.anyString;
-import static org.mockito.Mockito.times;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
-
-import java.io.IOException;
-import java.text.ParseException;
-
+import com.altamiracorp.lumify.core.ingest.term.extraction.TermExtractionResult;
+import com.altamiracorp.lumify.core.ingest.term.extraction.TermMention;
+import com.altamiracorp.lumify.core.ingest.term.extraction.TermRelationship;
+import com.altamiracorp.lumify.core.user.User;
 import com.altamiracorp.securegraph.Vertex;
-import org.apache.commons.io.IOUtils;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
-import com.altamiracorp.bigtable.model.user.ModelUserContext;
-import com.altamiracorp.lumify.core.ingest.term.extraction.TermExtractionResult;
-import com.altamiracorp.lumify.core.ingest.term.extraction.TermMention;
-import com.altamiracorp.lumify.core.ingest.term.extraction.TermRelationship;
-import com.altamiracorp.lumify.core.model.artifact.Artifact;
-import com.altamiracorp.lumify.core.model.artifact.ArtifactMetadata;
-import com.altamiracorp.lumify.core.model.artifact.ArtifactRepository;
-import com.altamiracorp.lumify.core.user.User;
+import java.io.IOException;
+import java.text.ParseException;
+
+import static org.junit.Assert.*;
 
 @RunWith(MockitoJUnitRunner.class)
 public class CsvEntityExtractorTest {
@@ -34,29 +21,11 @@ public class CsvEntityExtractorTest {
     @Mock
     private Vertex vertex;
     @Mock
-    private Artifact artifact;
-    @Mock
-    private ArtifactMetadata metadata;
-    @Mock
     private User user;
-    @Mock
-    private ArtifactRepository artifactRepository;
 
     @Test
     public void testExtract() throws IOException, ParseException {
         extractor = new CsvEntityExtractor();
-        extractor.setArtifactRepository(artifactRepository);
-        when(artifactRepository
-                .findByRowKey(anyString(), any(ModelUserContext.class)))
-                .thenReturn(artifact);
-
-        when(artifact.getMetadata())
-                .thenReturn(metadata);
-        when(metadata.getText())
-                .thenReturn(IOUtils.toString(getClass().getResourceAsStream("personLocations.csv")));
-        when(metadata.getMappingJson())
-                .thenReturn(IOUtils.toString(getClass().getResourceAsStream("personLocations.csv.mapping.json")));
-
 
         TermExtractionResult result = extractor.extract(vertex, user);
         assertNotNull(result);
@@ -82,12 +51,6 @@ public class CsvEntityExtractorTest {
         assertEquals(relationship.getSourceTermMention(), mention1);
         assertEquals(relationship.getDestTermMention(), mention2);
         assertEquals("personLivesAtLocation", relationship.getLabel());
-
-        verify(artifactRepository, times(1)).findByRowKey(anyString(), any(ModelUserContext.class));
-        verify(artifact, times(3)).getMetadata();
-        verify(metadata, times(1)).getText();
-        verify(metadata, times(2)).getMappingJson();
-
     }
 
 }

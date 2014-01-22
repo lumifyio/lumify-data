@@ -3,7 +3,7 @@ package com.altamiracorp.lumify.storm.video;
 import backtype.storm.task.OutputCollector;
 import backtype.storm.task.TopologyContext;
 import backtype.storm.tuple.Tuple;
-import com.altamiracorp.lumify.core.model.artifact.ArtifactRepository;
+import com.altamiracorp.lumify.core.model.artifactThumbnails.ArtifactThumbnailRepository;
 import com.altamiracorp.lumify.core.model.videoFrames.VideoFrame;
 import com.altamiracorp.lumify.core.model.videoFrames.VideoFrameRepository;
 import com.altamiracorp.lumify.core.user.User;
@@ -34,7 +34,7 @@ public class VideoPreviewBolt extends BaseLumifyBolt {
     public void prepare(Map stormConf, TopologyContext context, OutputCollector collector) {
         super.prepare(stormConf, context, collector);
         try {
-            mkdir(ArtifactRepository.LUMIFY_VIDEO_PREVIEW_HDFS_PATH);
+            mkdir(ArtifactThumbnailRepository.LUMIFY_VIDEO_PREVIEW_HDFS_PATH);
         } catch (IOException e) {
             collector.reportError(e);
         }
@@ -63,7 +63,7 @@ public class VideoPreviewBolt extends BaseLumifyBolt {
     private Path saveImage(String artifactRowKey, BufferedImage previewImage, User user) throws IOException {
         ByteArrayOutputStream out = new ByteArrayOutputStream();
         ImageIO.write(previewImage, "png", out);
-        Path path = new Path(ArtifactRepository.getVideoPreviewPath(artifactRowKey));
+        Path path = new Path(ArtifactThumbnailRepository.getVideoPreviewPath(artifactRowKey));
         FSDataOutputStream hdfsOut = getHdfsFileSystem().create(path);
         try {
             hdfsOut.write(out.toByteArray());
@@ -74,14 +74,14 @@ public class VideoPreviewBolt extends BaseLumifyBolt {
     }
 
     private BufferedImage createPreviewImage(List<VideoFrame> videoFrames, User user) {
-        BufferedImage previewImage = new BufferedImage(ArtifactRepository.PREVIEW_FRAME_WIDTH * videoFrames.size(), ArtifactRepository.PREVIEW_FRAME_HEIGHT, BufferedImage.TYPE_INT_RGB);
+        BufferedImage previewImage = new BufferedImage(ArtifactThumbnailRepository.PREVIEW_FRAME_WIDTH * videoFrames.size(), ArtifactThumbnailRepository.PREVIEW_FRAME_HEIGHT, BufferedImage.TYPE_INT_RGB);
         Graphics g = previewImage.getGraphics();
         for (int i = 0; i < videoFrames.size(); i++) {
             Image img = videoFrameRepository.loadImage(videoFrames.get(i), user);
-            int dx1 = i * ArtifactRepository.PREVIEW_FRAME_WIDTH;
+            int dx1 = i * ArtifactThumbnailRepository.PREVIEW_FRAME_WIDTH;
             int dy1 = 0;
-            int dx2 = dx1 + ArtifactRepository.PREVIEW_FRAME_WIDTH;
-            int dy2 = ArtifactRepository.PREVIEW_FRAME_HEIGHT;
+            int dx2 = dx1 + ArtifactThumbnailRepository.PREVIEW_FRAME_WIDTH;
+            int dy2 = ArtifactThumbnailRepository.PREVIEW_FRAME_HEIGHT;
             int sx1 = 0;
             int sy1 = 0;
             int sx2 = img.getWidth(null);
@@ -95,7 +95,7 @@ public class VideoPreviewBolt extends BaseLumifyBolt {
         List<VideoFrame> videoFrames = toList(videoFramesIterable);
 
         ArrayList<VideoFrame> results = new ArrayList<VideoFrame>();
-        double skip = (double) videoFrames.size() / (double) ArtifactRepository.FRAMES_PER_PREVIEW;
+        double skip = (double) videoFrames.size() / (double) ArtifactThumbnailRepository.FRAMES_PER_PREVIEW;
         for (double i = 0; i < videoFrames.size(); i += skip) {
             results.add(videoFrames.get((int) Math.floor(i)));
         }

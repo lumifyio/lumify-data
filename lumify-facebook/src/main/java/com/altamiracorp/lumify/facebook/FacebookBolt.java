@@ -73,7 +73,8 @@ public class FacebookBolt extends BaseLumifyBolt {
     }
 
     private void setSavedArtifact(ArtifactExtractedInfo artifactExtractedInfo) {
-        this.savedArtifact = saveArtifact(artifactExtractedInfo);
+        // TODO refactor for secure graph
+//        this.savedArtifact = saveArtifact(artifactExtractedInfo);
     }
 
 }

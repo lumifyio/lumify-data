@@ -1,73 +1,72 @@
 package com.altamiracorp.lumify.storm.term.extraction;
 
-import static com.google.common.base.Preconditions.checkNotNull;
-
 import com.altamiracorp.lumify.core.ingest.term.extraction.TermExtractionResult;
 import com.altamiracorp.lumify.core.ingest.term.extraction.TermMention;
 import com.altamiracorp.lumify.core.ingest.term.extraction.TermRelationship;
-import com.altamiracorp.lumify.core.model.artifact.Artifact;
-import com.altamiracorp.lumify.core.model.artifact.ArtifactRepository;
 import com.altamiracorp.lumify.core.model.ontology.PropertyName;
 import com.altamiracorp.lumify.core.user.User;
 import com.altamiracorp.lumify.core.util.LumifyLogger;
 import com.altamiracorp.lumify.core.util.LumifyLoggerFactory;
 import com.altamiracorp.lumify.storm.structuredData.MappingProperties;
 import com.altamiracorp.lumify.util.LineReader;
+import com.altamiracorp.securegraph.Authorizations;
 import com.altamiracorp.securegraph.Vertex;
+import com.altamiracorp.securegraph.property.StreamingPropertyValue;
 import com.altamiracorp.securegraph.type.GeoPoint;
-import com.google.inject.Inject;
-import java.io.IOException;
-import java.io.StringReader;
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
 import org.json.JSONArray;
 import org.json.JSONObject;
 import org.supercsv.io.CsvListReader;
 import org.supercsv.prefs.CsvPreference;
 
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.io.StringReader;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.*;
+
+import static com.google.common.base.Preconditions.checkNotNull;
+
 public class CsvEntityExtractor {
     private static final LumifyLogger LOGGER = LumifyLoggerFactory.getLogger(CsvEntityExtractor.class);
     private final Map<String, SimpleDateFormat> dateFormatCache = new HashMap<String, SimpleDateFormat>();
-    private ArtifactRepository artifactRepository;
 
-    public TermExtractionResult extract(Vertex vertex, User user) throws IOException, ParseException {
-        checkNotNull(vertex);
+    public TermExtractionResult extract(Vertex artifactVertex, User user) throws IOException, ParseException {
+        checkNotNull(artifactVertex);
         checkNotNull(user);
         TermExtractionResult termExtractionResult = new TermExtractionResult();
-        String artifactRowKey = (String) vertex.getPropertyValue(PropertyName.ROW_KEY.toString(), 0);
-        LOGGER.debug("Processing graph vertex [%s] for artifact: %s", vertex.getId(), artifactRowKey);
+        String artifactRowKey = (String) artifactVertex.getPropertyValue(PropertyName.ROW_KEY.toString(), 0);
+        LOGGER.debug("Processing graph vertex [%s] for artifact: %s", artifactVertex.getId(), artifactRowKey);
 
-        Artifact artifact = artifactRepository.findByRowKey(artifactRowKey, user.getModelUserContext());
-        if (artifact.getMetadata().getMappingJson() != null) {
-            JSONObject mappingJson = new JSONObject(artifact.getMetadata().getMappingJson());
-            int row = 0;
-            int skipRows = mappingJson.getInt(MappingProperties.SKIP_ROWS);
+        String mappingJsonString = (String) artifactVertex.getPropertyValue(PropertyName.MAPPING_JSON.toString(), 0);
+        if (mappingJsonString == null) {
+            return termExtractionResult;
+        }
 
-            CsvPreference csvPrefs = CsvPreference.EXCEL_PREFERENCE;
-            LineReader reader = new LineReader(new StringReader(artifact.getMetadata().getText()));
-            String line;
-            int lastOffset = 0;
-            while ((line = reader.readLine()) != null) {
-                if (line.length() == 0) {
-                    break;
-                }
-                CsvListReader csvReader = new CsvListReader(new StringReader(line), csvPrefs);
-                List<String> columns = csvReader.read();
-                if (columns == null) {
-                    break;
-                }
+        JSONObject mappingJson = new JSONObject(mappingJsonString);
+        int row = 0;
+        int skipRows = mappingJson.getInt(MappingProperties.SKIP_ROWS);
 
-                if (row >= skipRows) {
-                    processLine(termExtractionResult, lastOffset, columns, mappingJson);
-                }
-                row++;
-                lastOffset = reader.getOffset();
+        CsvPreference csvPrefs = CsvPreference.EXCEL_PREFERENCE;
+        StreamingPropertyValue textValue = (StreamingPropertyValue) artifactVertex.getPropertyValue(PropertyName.TEXT.toString(), 0);
+        LineReader reader = new LineReader(new InputStreamReader(textValue.getInputStream()));
+        String line;
+        int lastOffset = 0;
+        while ((line = reader.readLine()) != null) {
+            if (line.length() == 0) {
+                break;
             }
+            CsvListReader csvReader = new CsvListReader(new StringReader(line), csvPrefs);
+            List<String> columns = csvReader.read();
+            if (columns == null) {
+                break;
+            }
+
+            if (row >= skipRows) {
+                processLine(termExtractionResult, lastOffset, columns, mappingJson);
+            }
+            row++;
+            lastOffset = reader.getOffset();
         }
         return termExtractionResult;
     }
@@ -180,10 +179,5 @@ public class CsvEntityExtractor {
         }
 
         return sdf.parse(columnData).getTime();
-    }
-
-    @Inject
-    public void setArtifactRepository(ArtifactRepository artifactRepository) {
-        this.artifactRepository = artifactRepository;
     }
 }

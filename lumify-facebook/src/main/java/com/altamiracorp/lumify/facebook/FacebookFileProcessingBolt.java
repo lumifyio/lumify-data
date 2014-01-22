@@ -50,7 +50,7 @@ public class FacebookFileProcessingBolt extends BaseFileProcessingBolt {
         if (isArchive(filenameNoDate)) {
             processArchive(rootTuple, fileMd);
         } else {
-            InputStream is = getInputStream(filename, null);
+            InputStream is = openFile(filename);
             // if the file is a gzip compressed file, uncompress before reading
             if (filenameNoDate.endsWith(GZIP_EXTENSION)) {
                 is = new GZIPInputStream(is);
@@ -113,7 +113,8 @@ public class FacebookFileProcessingBolt extends BaseFileProcessingBolt {
     }
 
     private void setSavedArtifact(ArtifactExtractedInfo artifactExtractedInfo) {
-        this.savedArtifact = saveArtifact(artifactExtractedInfo);
+        // TODO refactor for secure graph
+//        this.savedArtifact = saveArtifact(artifactExtractedInfo);
     }
 
     private void setCollector() {
