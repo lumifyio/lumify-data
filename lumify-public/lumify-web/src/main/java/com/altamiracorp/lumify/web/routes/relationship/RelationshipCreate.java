@@ -2,33 +2,35 @@ package com.altamiracorp.lumify.web.routes.relationship;
 
 import com.altamiracorp.lumify.core.model.audit.AuditAction;
 import com.altamiracorp.lumify.core.model.audit.AuditRepository;
-import com.altamiracorp.lumify.core.model.graph.GraphRelationship;
-import com.altamiracorp.lumify.core.model.graph.GraphRepository;
-import com.altamiracorp.lumify.core.model.graph.GraphVertex;
 import com.altamiracorp.lumify.core.model.ontology.OntologyRepository;
-import com.altamiracorp.lumify.core.model.ontology.PropertyName;
 import com.altamiracorp.lumify.core.user.User;
 import com.altamiracorp.lumify.core.util.LumifyLogger;
 import com.altamiracorp.lumify.core.util.LumifyLoggerFactory;
 import com.altamiracorp.lumify.web.BaseRequestHandler;
 import com.altamiracorp.miniweb.HandlerChain;
+import com.altamiracorp.securegraph.Edge;
+import com.altamiracorp.securegraph.Graph;
+import com.altamiracorp.securegraph.Vertex;
+import com.altamiracorp.securegraph.Visibility;
 import com.google.inject.Inject;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import static com.altamiracorp.lumify.core.util.GraphUtil.toJson;
+
 public class RelationshipCreate extends BaseRequestHandler {
     private static final LumifyLogger LOGGER = LumifyLoggerFactory.getLogger(RelationshipCreate.class);
 
-    private final GraphRepository graphRepository;
+    private final Graph graph;
     private final AuditRepository auditRepository;
     private final OntologyRepository ontologyRepository;
 
     @Inject
-    public RelationshipCreate(final GraphRepository graphRepository,
+    public RelationshipCreate(final Graph graph,
                               final AuditRepository auditRepository,
                               final OntologyRepository ontologyRepository) {
-        this.graphRepository = graphRepository;
+        this.graph = graph;
         this.auditRepository = auditRepository;
         this.ontologyRepository = ontologyRepository;
     }
@@ -41,19 +43,21 @@ public class RelationshipCreate extends BaseRequestHandler {
         final String predicateLabel = getRequiredParameter(request, "predicateLabel");
 
         User user = getUser(request);
-        GraphRelationship relationship = graphRepository.saveRelationship(sourceGraphVertexId, destGraphVertexId, predicateLabel, user);
+        String relationshipDisplayName = ontologyRepository.getDisplayNameForLabel(predicateLabel);
+        Vertex destVertex = graph.getVertex(destGraphVertexId, user.getAuthorizations());
+        Vertex sourceVertex = graph.getVertex(sourceGraphVertexId, user.getAuthorizations());
 
-        String relationshipDisplayName = ontologyRepository.getDisplayNameForLabel(predicateLabel, user);
-        GraphVertex destVertex = graphRepository.findVertex(destGraphVertexId, user);
-        GraphVertex sourceVertex = graphRepository.findVertex(sourceGraphVertexId, user);
+        Edge edge = graph.addEdge(sourceVertex, destVertex, predicateLabel, new Visibility(""));
 
         // TODO: replace second "" when we implement commenting on ui
         auditRepository.auditRelationships(AuditAction.CREATE.toString(), sourceVertex, destVertex, relationshipDisplayName, "", "", user);
 
+        graph.flush();
+
         if (LOGGER.isInfoEnabled()) {
-            LOGGER.info("Statement created:\n" + relationship.toJson().toString(2));
+            LOGGER.info("Statement created:\n" + toJson(edge).toString(2));
         }
 
-        respondWithJson(response, relationship.toJson());
+        respondWithJson(response, toJson(edge));
     }
 }

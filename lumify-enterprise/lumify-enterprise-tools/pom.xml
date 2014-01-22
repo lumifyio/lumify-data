@@ -82,6 +82,11 @@
             <groupId>com.altamiracorp.jmxui</groupId>
             <artifactId>jmx-ui-core</artifactId>
         </dependency>
+
+        <dependency>
+            <groupId>com.altamiracorp.bigtable</groupId>
+            <artifactId>bigtable-accumulo</artifactId>
+        </dependency>
     </dependencies>
 
     <build>

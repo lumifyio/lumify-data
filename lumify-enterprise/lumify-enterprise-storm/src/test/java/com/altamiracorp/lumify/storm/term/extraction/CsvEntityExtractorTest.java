@@ -12,6 +12,7 @@ import static org.mockito.Mockito.when;
 import java.io.IOException;
 import java.text.ParseException;
 
+import com.altamiracorp.securegraph.Vertex;
 import org.apache.commons.io.IOUtils;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -25,14 +26,13 @@ import com.altamiracorp.lumify.core.ingest.term.extraction.TermRelationship;
 import com.altamiracorp.lumify.core.model.artifact.Artifact;
 import com.altamiracorp.lumify.core.model.artifact.ArtifactMetadata;
 import com.altamiracorp.lumify.core.model.artifact.ArtifactRepository;
-import com.altamiracorp.lumify.core.model.graph.GraphVertex;
 import com.altamiracorp.lumify.core.user.User;
 
 @RunWith(MockitoJUnitRunner.class)
 public class CsvEntityExtractorTest {
     private CsvEntityExtractor extractor;
     @Mock
-    private GraphVertex vertex;
+    private Vertex vertex;
     @Mock
     private Artifact artifact;
     @Mock

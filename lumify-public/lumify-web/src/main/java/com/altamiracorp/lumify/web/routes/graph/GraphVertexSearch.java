@@ -1,32 +1,32 @@
 package com.altamiracorp.lumify.web.routes.graph;
 
-import com.altamiracorp.lumify.core.model.graph.GraphPagedResults;
-import com.altamiracorp.lumify.core.model.graph.GraphRepository;
-import com.altamiracorp.lumify.core.model.graph.GraphVertex;
 import com.altamiracorp.lumify.core.model.ontology.OntologyRepository;
+import com.altamiracorp.lumify.core.model.ontology.PropertyName;
 import com.altamiracorp.lumify.core.user.User;
 import com.altamiracorp.lumify.core.util.LumifyLogger;
 import com.altamiracorp.lumify.core.util.LumifyLoggerFactory;
 import com.altamiracorp.lumify.web.BaseRequestHandler;
 import com.altamiracorp.miniweb.HandlerChain;
+import com.altamiracorp.securegraph.Graph;
+import com.altamiracorp.securegraph.Vertex;
 import com.google.inject.Inject;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import java.util.List;
-import java.util.Map;
+
+import static com.altamiracorp.lumify.core.util.GraphUtil.toJson;
 
 public class GraphVertexSearch extends BaseRequestHandler {
     private static final LumifyLogger LOGGER = LumifyLoggerFactory.getLogger(GraphVertexSearch.class);
-    private final GraphRepository graphRepository;
+    private final Graph graph;
     private final OntologyRepository ontologyRepository;
 
     @Inject
-    public GraphVertexSearch(final OntologyRepository ontologyRepo, final GraphRepository graphRepo) {
+    public GraphVertexSearch(final OntologyRepository ontologyRepo, final Graph graph) {
         ontologyRepository = ontologyRepo;
-        graphRepository = graphRepo;
+        this.graph = graph;
     }
 
     @Override
@@ -40,23 +40,28 @@ public class GraphVertexSearch extends BaseRequestHandler {
         User user = getUser(request);
         JSONArray filterJson = new JSONArray(filter);
 
-        ontologyRepository.resolvePropertyIds(filterJson, user);
+        ontologyRepository.resolvePropertyIds(filterJson);
 
-        graphRepository.commit();
+        graph.flush();
 
-        GraphPagedResults pagedResults = graphRepository.search(query, filterJson, user, offset, size != 0 && size != offset ? size - 1 : size, conceptType);
+        // TODO user the filterJson   OLD CODE: .search(query, filterJson, user, offset, size != 0 && size != offset ? size - 1 : size, conceptType);
+        // TODO page results
+        Iterable<Vertex> searchResults = graph.query(query, user.getAuthorizations())
+                .vertices();
 
         JSONArray vertices = new JSONArray();
         JSONObject counts = new JSONObject();
         int verticesCount = 0;
-        for (Map.Entry<String, List<GraphVertex>> entry : pagedResults.getResults().entrySet()) {
-            JSONArray temp = GraphVertex.toJson(entry.getValue());
-            for (int i = 0; i < temp.length(); i++) {
-                vertices.put(temp.getJSONObject(i));
+        for (Vertex vertex : searchResults) {
+            vertices.put(toJson(vertex));
+            String type = vertex.getPropertyValue(PropertyName.CONCEPT_TYPE.toString(), 0).toString();
+            if (counts.keySet().contains(type)){
+                counts.put(type, (counts.getInt(type) + 1));
+            } else {
+                counts.put(type, 1);
             }
-            Integer count = pagedResults.getCount().get(entry.getKey());
-            verticesCount += count.intValue();
-            counts.put(entry.getKey(), count);
+             verticesCount++;
+            // TODO this used create hierarchical results
         }
         LOGGER.info("Number of vertices returned for query: %d", verticesCount);
 

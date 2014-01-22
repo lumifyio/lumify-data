@@ -3,25 +3,28 @@ package com.altamiracorp.lumify.web.routes.entity;
 import com.altamiracorp.lumify.core.model.artifactHighlighting.TermMentionOffsetItem;
 import com.altamiracorp.lumify.core.model.audit.AuditAction;
 import com.altamiracorp.lumify.core.model.audit.AuditRepository;
-import com.altamiracorp.lumify.core.model.graph.GraphRepository;
-import com.altamiracorp.lumify.core.model.graph.GraphVertex;
+import com.altamiracorp.lumify.core.model.ontology.Concept;
 import com.altamiracorp.lumify.core.model.ontology.LabelName;
 import com.altamiracorp.lumify.core.model.ontology.OntologyRepository;
-import com.altamiracorp.lumify.core.model.ontology.PropertyName;
 import com.altamiracorp.lumify.core.model.termMention.TermMentionModel;
 import com.altamiracorp.lumify.core.model.termMention.TermMentionRepository;
 import com.altamiracorp.lumify.core.model.termMention.TermMentionRowKey;
 import com.altamiracorp.lumify.core.user.User;
+import com.altamiracorp.lumify.core.util.LumifyLogger;
+import com.altamiracorp.lumify.core.util.LumifyLoggerFactory;
 import com.altamiracorp.lumify.web.BaseRequestHandler;
 import com.altamiracorp.miniweb.HandlerChain;
+import com.altamiracorp.securegraph.*;
 import com.google.inject.Inject;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import java.util.Iterator;
 
 public class EntityTermUpdate extends BaseRequestHandler {
+    private static final LumifyLogger LOGGER = LumifyLoggerFactory.getLogger(EntityTermUpdate.class);
     private final TermMentionRepository termMentionRepository;
-    private final GraphRepository graphRepository;
+    private final Graph graph;
     private final EntityHelper entityHelper;
     private final OntologyRepository ontologyRepository;
     private final AuditRepository auditRepository;
@@ -29,12 +32,12 @@ public class EntityTermUpdate extends BaseRequestHandler {
     @Inject
     public EntityTermUpdate(
             final TermMentionRepository termMentionRepository,
-            final GraphRepository graphRepository,
+            final Graph graph,
             final EntityHelper entityHelper,
             final OntologyRepository ontologyRepository,
             final AuditRepository auditRepository) {
         this.termMentionRepository = termMentionRepository;
-        this.graphRepository = graphRepository;
+        this.graph = graph;
         this.entityHelper = entityHelper;
         this.ontologyRepository = ontologyRepository;
         this.auditRepository = auditRepository;
@@ -48,19 +51,30 @@ public class EntityTermUpdate extends BaseRequestHandler {
         final long mentionEnd = getRequiredParameterAsLong(request, "mentionEnd");
         final String sign = getRequiredParameter(request, "sign");
         final String conceptId = getRequiredParameter(request, "conceptId");
-        final String resolvedGraphVertexId = getRequiredParameter(request, "graphVertexId");
+        final String graphVertexId = getRequiredParameter(request, "graphVertexId");
+
+        LOGGER.debug(
+                "EntityTermUpdate (artifactId: %s, mentionStart: %d, mentionEnd: %d, sign: %s, conceptId: %s, graphVertexId: %s)",
+                artifactId,
+                mentionStart,
+                mentionEnd,
+                sign,
+                conceptId,
+                graphVertexId);
 
         User user = getUser(request);
-        GraphVertex conceptVertex = graphRepository.findVertex(conceptId, user);
-        GraphVertex resolvedVertex = graphRepository.findVertex(resolvedGraphVertexId, user);
+        Concept concept = ontologyRepository.getConceptById(conceptId);
+        Vertex resolvedVertex = graph.getVertex(graphVertexId, user.getAuthorizations());
 
         // TODO: replace second "" when we implement commenting on ui
         entityHelper.updateGraphVertex(resolvedVertex, conceptId, sign, "", "", user);
 
-        if (graphRepository.findEdge(artifactId, resolvedGraphVertexId, LabelName.RAW_HAS_ENTITY.toString(), user) == null) {
-            graphRepository.saveRelationship(artifactId, resolvedVertex.getId(), LabelName.RAW_HAS_ENTITY, user);
-            String labelDisplayName = ontologyRepository.getDisplayNameForLabel(LabelName.RAW_HAS_ENTITY.toString(), user);
-            GraphVertex artifactVertex = graphRepository.findVertex(artifactId, user);
+        Vertex artifactVertex = graph.getVertex(artifactId, user.getAuthorizations());
+        Vertex resolvedGraphVertex = graph.getVertex(graphVertexId, user.getAuthorizations());
+        Iterator<Edge> edges = artifactVertex.getEdges(resolvedGraphVertex, Direction.BOTH, LabelName.RAW_HAS_ENTITY.toString(), user.getAuthorizations()).iterator();
+        if (!edges.hasNext()) {
+            graph.addEdge(artifactVertex, resolvedVertex, LabelName.RAW_HAS_ENTITY.toString(), new Visibility(""));
+            String labelDisplayName = ontologyRepository.getDisplayNameForLabel(LabelName.RAW_HAS_ENTITY.toString());
             // TODO: replace second "" when we implement commenting on ui
             auditRepository.auditRelationships(AuditAction.CREATE.toString(), artifactVertex, resolvedVertex, labelDisplayName, "", "", user);
         }
@@ -70,7 +84,9 @@ public class EntityTermUpdate extends BaseRequestHandler {
         if (termMention == null) {
             termMention = new TermMentionModel(termMentionRowKey);
         }
-        entityHelper.updateTermMention(termMention, sign, conceptVertex, resolvedVertex, user);
+        entityHelper.updateTermMention(termMention, sign, concept, resolvedVertex, user);
+
+        this.graph.flush();
 
         entityHelper.scheduleHighlight(artifactId, user);
 

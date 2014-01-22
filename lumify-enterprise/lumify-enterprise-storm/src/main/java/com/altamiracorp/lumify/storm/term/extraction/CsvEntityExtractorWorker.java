@@ -15,7 +15,7 @@ public class CsvEntityExtractorWorker extends TermExtractionWorker {
 
     @Override
     protected TermExtractionResult doWork(InputStream work, TermExtractionAdditionalWorkData termExtractionAdditionalWorkData) throws Exception {
-        return csvEntityExtractor.extract(termExtractionAdditionalWorkData.getGraphVertex(), user);
+        return csvEntityExtractor.extract(termExtractionAdditionalWorkData.getVertex(), user);
     }
 
     @Override

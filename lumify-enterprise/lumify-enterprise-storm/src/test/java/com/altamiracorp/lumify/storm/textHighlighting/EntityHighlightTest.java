@@ -3,10 +3,10 @@ package com.altamiracorp.lumify.storm.textHighlighting;
 import com.altamiracorp.lumify.core.model.artifact.ArtifactRowKey;
 import com.altamiracorp.lumify.core.model.artifactHighlighting.OffsetItem;
 import com.altamiracorp.lumify.core.model.artifactHighlighting.TermMentionOffsetItem;
-import com.altamiracorp.lumify.core.model.graph.GraphRepository;
 import com.altamiracorp.lumify.core.model.termMention.TermMentionModel;
 import com.altamiracorp.lumify.core.model.termMention.TermMentionRowKey;
 import com.altamiracorp.lumify.core.user.User;
+import com.altamiracorp.securegraph.Graph;
 import edu.emory.mathcs.backport.java.util.Arrays;
 import org.json.JSONObject;
 import org.junit.Assert;
@@ -26,7 +26,7 @@ import static org.mockito.Mockito.when;
 public class EntityHighlightTest {
 
     @Mock
-    GraphRepository graphRepository;
+    Graph graph;
 
     @Mock
     private User user;
@@ -37,7 +37,7 @@ public class EntityHighlightTest {
         ArtifactRowKey artifactKey = new ArtifactRowKey("artifact1");
         terms.add(createTermMention("joe ferner", 18, 28, "1"));
         terms.add(createTermMention("jeff kunkle", 33, 44, "1"));
-        List<OffsetItem> termAndTermMetadata = new EntityHighlighter(graphRepository).convertTermMentionsToOffsetItems(terms, user);
+        List<OffsetItem> termAndTermMetadata = new EntityHighlighter(graph).convertTermMentionsToOffsetItems(terms, user);
         String highlightText = EntityHighlighter.getHighlightedText("Test highlight of Joe Ferner and Jeff Kunkle.", 0, termAndTermMetadata);
         assertEquals("Test highlight of <span class=\"entity\" title=\"joe ferner\" data-info=\"{&quot;title&quot;:&quot;joe ferner&quot;,&quot;start&quot;:18,&quot;_rowKey&quot;:&quot;1:0000000000000028:0000000000000018&quot;,&quot;type&quot;:&quot;entity&quot;,&quot;end&quot;:28}\">Joe Ferner</span> and <span class=\"entity\" title=\"jeff kunkle\" data-info=\"{&quot;title&quot;:&quot;jeff kunkle&quot;,&quot;start&quot;:33,&quot;_rowKey&quot;:&quot;1:0000000000000044:0000000000000033&quot;,&quot;type&quot;:&quot;entity&quot;,&quot;end&quot;:44}\">Jeff Kunkle</span>.", highlightText);
     }
@@ -53,7 +53,7 @@ public class EntityHighlightTest {
         ArtifactRowKey artifactKey = ArtifactRowKey.build("artifact1".getBytes());
         terms.add(createTermMention("joe ferner", 18, 28, "1"));
         terms.add(createTermMention("jeff kunkle", 18, 21, "1"));
-        List<OffsetItem> termAndTermMetadata = new EntityHighlighter(graphRepository).convertTermMentionsToOffsetItems(terms, user);
+        List<OffsetItem> termAndTermMetadata = new EntityHighlighter(graph).convertTermMentionsToOffsetItems(terms, user);
         String highlightText = EntityHighlighter.getHighlightedText("Test highlight of Joe Ferner.", 0, termAndTermMetadata);
         assertEquals("Test highlight of <span class=\"entity person\" term-key=\"joe ferner\\x1Fee\\x1Fperson\"><span class=\"entity person\" term-key=\"joe\\x1Fee\\x1Fperson\">Joe</span> Ferner</span>.", highlightText);
     }

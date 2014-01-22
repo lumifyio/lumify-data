@@ -17,7 +17,7 @@ package com.altamiracorp.lumify.twitter.storm;
 
 import backtype.storm.topology.OutputFieldsDeclarer;
 import backtype.storm.tuple.Tuple;
-import com.altamiracorp.lumify.core.model.graph.GraphVertex;
+import com.altamiracorp.securegraph.Vertex;
 import org.json.JSONObject;
 
 /**
@@ -38,7 +38,7 @@ import org.json.JSONObject;
 public class TwitterProfilePhotoBolt extends BaseTwitterBolt {
     @Override
     protected void processJson(final JSONObject json, final Tuple input) throws Exception {
-        GraphVertex tweeterVertex = (GraphVertex) input.getValueByField(TwitterStormConstants.TWITTER_USER_VERTEX_FIELD);
+        Vertex tweeterVertex = (Vertex) input.getValueByField(TwitterStormConstants.TWITTER_USER_VERTEX_FIELD);
         if (tweeterVertex != null) {
             getTwitterProcessor().retrieveProfileImage(getProcessId(), json, tweeterVertex);
         }

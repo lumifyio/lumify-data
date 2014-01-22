@@ -1,7 +1,7 @@
 package com.altamiracorp.lumify.core.model.ontology;
 
-import com.altamiracorp.lumify.core.model.graph.GraphVertex;
-import com.thinkaurelius.titan.core.attribute.Geoshape;
+import com.altamiracorp.securegraph.Vertex;
+import com.altamiracorp.securegraph.type.GeoPoint;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -13,7 +13,9 @@ import java.util.TimeZone;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-public abstract class Property extends GraphVertex {
+import static com.altamiracorp.lumify.core.util.ObjectHelper.toStringOrNull;
+
+public class OntologyProperty {
     public static SimpleDateFormat DATE_FORMAT = new SimpleDateFormat("yyyy-MM-dd");
     public static Pattern GEO_LOCATION_FORMAT = Pattern.compile("POINT\\((.*?),(.*?)\\)", Pattern.CASE_INSENSITIVE);
     public static Pattern GEO_LOCATION_ALTERNATE_FORMAT = Pattern.compile("(.*?),(.*)", Pattern.CASE_INSENSITIVE);
@@ -22,19 +24,39 @@ public abstract class Property extends GraphVertex {
         DATE_FORMAT.setTimeZone(TimeZone.getTimeZone("UTC"));
     }
 
-    public abstract String getId();
+    private final Vertex vertex;
 
-    public abstract String getTitle();
+    public OntologyProperty(Vertex vertex) {
+        this.vertex = vertex;
+    }
 
-    public abstract String getDisplayName();
+    public Object getId() {
+        return this.vertex.getId();
+    }
 
-    public abstract String getDisplayType();
+    public String getTitle() {
+        return toStringOrNull(this.vertex.getPropertyValue(PropertyName.ONTOLOGY_TITLE.toString(), 0));
+    }
 
-    public abstract PropertyType getDataType();
+    public String getDisplayName() {
+        return toStringOrNull(this.vertex.getPropertyValue(PropertyName.DISPLAY_NAME.toString(), 0));
+    }
 
-    public static JSONArray toJsonProperties(List<Property> properties) {
+    public String getDisplayType() {
+        return toStringOrNull(this.vertex.getPropertyValue(PropertyName.DISPLAY_TYPE.toString(), 0));
+    }
+
+    public PropertyType getDataType() {
+        return PropertyType.convert((toStringOrNull(this.vertex.getPropertyValue(PropertyName.DATA_TYPE.toString(), 0))));
+    }
+
+    public Vertex getVertex() {
+        return vertex;
+    }
+
+    public static JSONArray toJsonProperties(List<OntologyProperty> properties) {
         JSONArray json = new JSONArray();
-        for (Property property : properties) {
+        for (OntologyProperty property : properties) {
             json.put(property.toJson());
         }
         return json;
@@ -78,13 +100,13 @@ public abstract class Property extends GraphVertex {
         if (match.find()) {
             double latitude = Double.parseDouble(match.group(1).trim());
             double longitude = Double.parseDouble(match.group(2).trim());
-            return Geoshape.point(latitude, longitude);
+            return new GeoPoint(latitude, longitude);
         }
         match = GEO_LOCATION_ALTERNATE_FORMAT.matcher(valueStr);
         if (match.find()) {
             double latitude = Double.parseDouble(match.group(1).trim());
             double longitude = Double.parseDouble(match.group(2).trim());
-            return Geoshape.point(latitude, longitude);
+            return new GeoPoint(latitude, longitude);
         }
         throw new RuntimeException("Could not parse location: " + valueStr);
     }

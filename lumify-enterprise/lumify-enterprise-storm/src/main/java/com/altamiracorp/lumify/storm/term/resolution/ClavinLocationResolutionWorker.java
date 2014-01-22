@@ -14,12 +14,13 @@ import com.altamiracorp.lumify.core.model.ontology.PropertyName;
 import com.altamiracorp.lumify.core.user.User;
 import com.altamiracorp.lumify.core.util.LumifyLogger;
 import com.altamiracorp.lumify.core.util.LumifyLoggerFactory;
+import com.altamiracorp.securegraph.type.GeoPoint;
 import com.bericotech.clavin.extractor.LocationOccurrence;
 import com.bericotech.clavin.gazetteer.GeoName;
 import com.bericotech.clavin.resolver.LuceneLocationResolver;
 import com.bericotech.clavin.resolver.ResolvedLocation;
 import com.google.inject.Inject;
-import com.thinkaurelius.titan.core.attribute.Geoshape;
+
 import java.io.File;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -166,7 +167,7 @@ public class ClavinLocationResolutionWorker implements TermResolutionWorker {
                                 .sign(toSign(loc))
                                 .ontologyClassUri(ontologyMapper.getOntologyClassUri(loc, termMention.getOntologyClassUri()))
                                 .setProperty(PropertyName.GEO_LOCATION.toString(),
-                                        Geoshape.point(loc.getGeoname().getLatitude(), loc.getGeoname().getLongitude()))
+                                        new GeoPoint(loc.getGeoname().getLatitude(), loc.getGeoname().getLongitude()))
                                 .setProperty(PropertyName.GEO_LOCATION_DESCRIPTION.toString(), termMention.getSign())
                                 .process(processId)
                                 .build();

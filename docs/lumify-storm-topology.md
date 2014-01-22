@@ -5,7 +5,9 @@
 2. ```$ vagrant ssh```
 3. ```$ /opt/lumify/format.sh``` (format every time you come from develop)
 4. ```$ /opt/lumify/start.sh```
-5. make sure to update your ```/opt/lumify/config/configuration.properties``` on your local machine and Vagrant VM to contain the configurations under the [Application Configuration Wiki Page](https://github.com/nearinfinity/lumify/wiki/Application-Configuration)
+5. ```$ /opt/lumify/shell.sh accumulo```
+        Run ```setauths -u root -s "ontology"```
+6. make sure to update your ```/opt/lumify/config/configuration.properties``` on your local machine and Vagrant VM to contain the configurations under the [Application Configuration Wiki Page](https://github.com/nearinfinity/lumify/wiki/Application-Configuration)
 
 ### HDFS
 

@@ -21,7 +21,7 @@ import static org.mockito.Mockito.*;
 import backtype.storm.topology.OutputFieldsDeclarer;
 import backtype.storm.tuple.Fields;
 import backtype.storm.tuple.Tuple;
-import com.altamiracorp.lumify.core.model.graph.GraphVertex;
+import com.altamiracorp.securegraph.Vertex;
 import org.json.JSONObject;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -55,7 +55,7 @@ public class TweetFinalizerBoltTest extends BaseTwitterBoltTest<TweetFinalizerBo
     @Test
     public void testProcessJson_WithTweetVertex() throws Exception {
         Tuple tuple = mock(Tuple.class);
-        GraphVertex tweetVertex = mock(GraphVertex.class);
+        Vertex tweetVertex = mock(Vertex.class);
         String vertexId = "testId";
         JSONObject json = mock(JSONObject.class);
 

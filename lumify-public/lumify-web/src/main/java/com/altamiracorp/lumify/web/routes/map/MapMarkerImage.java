@@ -54,9 +54,9 @@ public class MapMarkerImage extends BaseRequestHandler {
         if (imageData == null) {
             LOGGER.info("map marker cache miss %s (scale: %d, heading: %d)", typeStr, scale, heading);
 
-            Concept concept = ontologyRepository.getConceptById(typeStr, user);
+            Concept concept = ontologyRepository.getConceptById(typeStr);
             if (concept == null) {
-                concept = ontologyRepository.getConceptByName(typeStr, user);
+                concept = ontologyRepository.getConceptByName(typeStr);
             }
 
             boolean isMapGlyphIcon = false;
@@ -161,12 +161,12 @@ public class MapMarkerImage extends BaseRequestHandler {
 
     private String getMapGlyphIcon(Concept concept, User user) {
         while (concept != null) {
-            String mapGlyphIcon = (String) concept.getProperty(PropertyName.MAP_GLYPH_ICON);
+            String mapGlyphIcon = (String) concept.getVertex().getPropertyValue(PropertyName.MAP_GLYPH_ICON.toString(), 0);
             if (mapGlyphIcon != null) {
                 return mapGlyphIcon;
             }
 
-            concept = ontologyRepository.getParentConcept(concept.getId(), user);
+            concept = ontologyRepository.getParentConcept(concept.getId().toString());
         }
 
         return null;
@@ -174,12 +174,12 @@ public class MapMarkerImage extends BaseRequestHandler {
 
     private String getGlyphIcon(Concept concept, User user) {
         while (concept != null) {
-            String glyphIcon = (String) concept.getProperty(PropertyName.GLYPH_ICON);
+            String glyphIcon = (String) concept.getVertex().getPropertyValue(PropertyName.GLYPH_ICON.toString(), 0);
             if (glyphIcon != null) {
                 return glyphIcon;
             }
 
-            concept = ontologyRepository.getParentConcept(concept.getId(), user);
+            concept = ontologyRepository.getParentConcept(concept.getId().toString());
         }
 
         return null;

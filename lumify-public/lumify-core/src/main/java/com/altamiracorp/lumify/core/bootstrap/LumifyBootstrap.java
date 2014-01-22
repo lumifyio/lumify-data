@@ -22,8 +22,6 @@ import com.altamiracorp.lumify.core.contentTypeExtraction.ContentTypeExtractor;
 import com.altamiracorp.lumify.core.fs.FileSystemSession;
 import com.altamiracorp.lumify.core.metrics.JmxMetricsManager;
 import com.altamiracorp.lumify.core.metrics.MetricsManager;
-import com.altamiracorp.lumify.core.model.GraphSession;
-import com.altamiracorp.lumify.core.model.search.SearchProvider;
 import com.altamiracorp.lumify.core.model.workQueue.WorkQueueRepository;
 import com.altamiracorp.lumify.core.user.SystemUser;
 import com.altamiracorp.lumify.core.user.User;
@@ -31,6 +29,7 @@ import com.altamiracorp.lumify.core.util.LumifyLogger;
 import com.altamiracorp.lumify.core.util.LumifyLoggerFactory;
 import com.altamiracorp.lumify.core.version.VersionService;
 import com.altamiracorp.lumify.core.version.VersionServiceMXBean;
+import com.altamiracorp.securegraph.Graph;
 import com.google.inject.*;
 
 import java.lang.reflect.Constructor;
@@ -164,13 +163,8 @@ public class LumifyBootstrap extends AbstractModule {
         bind(FileSystemSession.class)
                 .toProvider(getConfigurableProvider(FileSystemSession.class, configuration, Configuration.FILESYSTEM_PROVIDER, true))
                 .in(Scopes.SINGLETON);
-        bind(GraphSession.class)
-                .toProvider(getConfigurableProvider(GraphSession.class, configuration, Configuration.GRAPH_PROVIDER, true))
-                .in(Scopes.SINGLETON);
-        Class<? extends SearchProvider> searchProviderClass =
-                BootstrapUtils.getConfiguredClass(configuration, Configuration.SEARCH_PROVIDER, true);
-        bind(SearchProvider.class)
-                .toProvider(new SearchProviderProvider(searchProviderClass, configuration, user, metricsManager))
+        bind(Graph.class)
+                .toProvider(getGraphProvider(configuration, Configuration.GRAPH_PROVIDER))
                 .in(Scopes.SINGLETON);
         bind(WorkQueueRepository.class)
                 .toProvider(getConfigurableProvider(WorkQueueRepository.class, configuration, Configuration.WORK_QUEUE_REPOSITORY, true))
@@ -182,10 +176,39 @@ public class LumifyBootstrap extends AbstractModule {
         injectProviders();
     }
 
+    private Provider<? extends Graph> getGraphProvider(Configuration configuration, String configurationPrefix) {
+        String graphClassName = configuration.get(configurationPrefix);
+        final Map configurationSubset = configuration.getSubset(configurationPrefix).toMap();
+
+        final Class<?> graphClass;
+        try {
+            graphClass = Class.forName(graphClassName);
+        } catch (ClassNotFoundException e) {
+            throw new RuntimeException("Could not find graph class with name: " + graphClassName, e);
+        }
+
+        final Method createMethod;
+        try {
+            createMethod = graphClass.getDeclaredMethod("create", Map.class);
+        } catch (NoSuchMethodException e) {
+            throw new RuntimeException("Could not find create(Map) method on class: " + graphClass.getName(), e);
+        }
+
+        return new Provider<Graph>() {
+            @Override
+            public Graph get() {
+                try {
+                    return (Graph) createMethod.invoke(null, configurationSubset);
+                } catch (Exception e) {
+                    throw new RuntimeException("Could not create graph " + graphClass.getName(), e);
+                }
+            }
+        };
+    }
+
     private void injectProviders() {
         LOGGER.info("Running BootstrapBindingProviders");
         ServiceLoader<BootstrapBindingProvider> bindingProviders = ServiceLoader.load(BootstrapBindingProvider.class);
-
         Binder binder = binder();
         for (BootstrapBindingProvider provider : bindingProviders) {
             LOGGER.debug("Configuring bindings from BootstrapBindingProvider: %s", provider.getClass().getName());
@@ -333,50 +356,6 @@ public class LumifyBootstrap extends AbstractModule {
                 error = ite;
             }
             throw new BootstrapException(error, "Unable to initialize instance of %s", clazz.getName());
-        }
-    }
-
-    private static class SearchProviderProvider implements Provider<SearchProvider> {
-        /**
-         * The SearchProvider class to instantiate.
-         */
-        private final Class<? extends SearchProvider> clazz;
-
-        /**
-         * The Lumify Configuration.
-         */
-        private final Configuration config;
-
-        /**
-         * The Lumify User for the SearchProvider.
-         */
-        private final User user;
-
-        /**
-         * The Lumify MetricsManager.
-         */
-        private final MetricsManager metricsManager;
-
-        public SearchProviderProvider(Class<? extends SearchProvider> clazz, Configuration config, User user, MetricsManager metricsManager) {
-            this.clazz = clazz;
-            this.config = config;
-            this.user = user;
-            this.metricsManager = metricsManager;
-        }
-
-        @Override
-        public SearchProvider get() {
-            Throwable error;
-            try {
-                SearchProvider provider = clazz.newInstance();
-                provider.init(config, user, metricsManager);
-                return provider;
-            } catch (InstantiationException ie) {
-                error = ie;
-            } catch (IllegalAccessException iae) {
-                error = iae;
-            }
-            throw new BootstrapException(error, "Unable to instantiate SearchProvider: %s", clazz.getName());
         }
     }
 }

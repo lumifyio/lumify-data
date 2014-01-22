@@ -17,13 +17,13 @@
 package com.altamiracorp.lumify.twitter;
 
 import com.altamiracorp.lumify.core.json.JsonProperty;
-import com.thinkaurelius.titan.core.attribute.Geoshape;
+import com.altamiracorp.securegraph.type.GeoPoint;
 import org.json.JSONArray;
 
 /**
  * A Twitter JSON property whose value is a Geo-coordinate array.
  */
-public class TwitterGeoPointJsonProperty extends JsonProperty<Geoshape, JSONArray> {
+public class TwitterGeoPointJsonProperty extends JsonProperty<GeoPoint, JSONArray> {
     /**
      * The latitude index.
      */
@@ -48,19 +48,19 @@ public class TwitterGeoPointJsonProperty extends JsonProperty<Geoshape, JSONArra
     }
 
     @Override
-    protected Geoshape fromJSON(final JSONArray jsonValue) {
+    protected GeoPoint fromJSON(final JSONArray jsonValue) {
         double latitude = jsonValue.optDouble(LATITUDE, NO_COORDINATE);
         double longitude = jsonValue.optDouble(LONGITUDE, NO_COORDINATE);
-        return latitude != NO_COORDINATE && longitude != NO_COORDINATE ? Geoshape.point(latitude, longitude) : null;
+        return latitude != NO_COORDINATE && longitude != NO_COORDINATE ? new GeoPoint(latitude, longitude) : null;
     }
 
     @Override
-    protected JSONArray toJSON(final Geoshape value) {
+    protected JSONArray toJSON(final GeoPoint value) {
         JSONArray array = null;
         if (value != null) {
             array = new JSONArray();
-            array.put(LONGITUDE, (double) value.getPoint().getLongitude());
-            array.put(LATITUDE, (double) value.getPoint().getLatitude());
+            array.put(LONGITUDE, (double) value.getLongitude());
+            array.put(LATITUDE, (double) value.getLatitude());
         }
         return array;
     }
