@@ -80,7 +80,7 @@ public class TwitterFileProcessingBolt extends BaseFileProcessingBolt {
             processArchive(rootTuple, fileMd);
         } else {
             OutputCollector collector = getCollector();
-            InputStream is = getInputStream(filename, null);
+            InputStream is = openFile(filename);
             // if the file is a gzip compressed file, uncompress before reading
             if (filenameNoDate.endsWith(GZIP_EXTENSION)) {
                 is = new GZIPInputStream(is);
