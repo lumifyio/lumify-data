@@ -39,7 +39,7 @@ public class CsvEntityExtractor {
         checkNotNull(user);
 //        TermExtractionResult termExtractionResult = new TermExtractionResult();
         TermExtractionResult termExtractionResult = null;
-        String artifactRowKey = (String) vertex.getProperty(PropertyName.ROW_KEY.toString(), 0);
+        String artifactRowKey = (String) vertex.getPropertyValue(PropertyName.ROW_KEY.toString(), 0);
         LOGGER.debug("Processing graph vertex [%s] for artifact: %s", vertex.getId(), artifactRowKey);
 
         Artifact artifact = artifactRepository.findByRowKey(artifactRowKey, user.getModelUserContext());

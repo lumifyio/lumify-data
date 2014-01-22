@@ -20,7 +20,7 @@
                 <cluster.dependency.scope>provided</cluster.dependency.scope>
             </properties>
         </profile>
-        
+
         <!-- Builds the Storm Uber-JAR -->
         <profile>
             <id>storm-jar</id>
@@ -51,7 +51,7 @@
             </build>
         </profile>
     </profiles>
-    
+
     <dependencies>
         <!-- Storm Dependencies; These override the managed versions for compatibility. -->
         <dependency>
@@ -116,6 +116,10 @@
         <dependency>
             <groupId>com.codahale.metrics</groupId>
             <artifactId>metrics-core</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.fasterxml.jackson.core</groupId>
+            <artifactId>jackson-databind</artifactId>
         </dependency>
     </dependencies>
 

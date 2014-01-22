@@ -9,8 +9,10 @@ package com.altamiracorp.lumify.storm.structuredData.mapping.csv;
 import static org.junit.Assert.*;
 import static org.mockito.Mockito.*;
 
+import com.altamiracorp.lumify.core.ingest.term.extraction.TermExtractionResult;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.io.Reader;
 import java.io.Writer;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -32,7 +34,10 @@ import org.supercsv.prefs.CsvPreference;
 public class CsvDocumentMappingTest {
     private static final String TEST_SUBJECT = "Test Subject";
     private static final int TEST_SKIP_ROWS = 1;
+    private static final String TEST_PROCESS_ID = "testProcess";
 
+    @Mock
+    private Reader mappingReader;
     @Mock
     private CsvTermColumnMapping term1;
     @Mock
@@ -67,7 +72,7 @@ public class CsvDocumentMappingTest {
         doConstructorTest("whitespace subject", "\n \t\t \n", IllegalArgumentException.class);
         doConstructorTest("negative skipRows", -1, IllegalArgumentException.class);
         doConstructorTest("null terms", (List) null, NullPointerException.class);
-        doConstructorTest("empty terms", Collections.EMPTY_LIST, NullPointerException.class);
+        doConstructorTest("empty terms", Collections.EMPTY_LIST, IllegalArgumentException.class);
     }
 
     @Test
@@ -119,6 +124,14 @@ public class CsvDocumentMappingTest {
         verify(writer).write(line2);
         verify(writer).write(line3);
         verify(writer).close();
+    }
+
+    @Test
+    public void testMapDocument_EmptyDocument() throws Exception {
+        when(mappingReader.read()).thenReturn(-1);
+        TermExtractionResult expected = new TermExtractionResult();
+        TermExtractionResult actual = instance.mapDocument(mappingReader, TEST_PROCESS_ID);
+        assertEquals(expected, actual);
     }
 
     @SuppressWarnings("unchecked")

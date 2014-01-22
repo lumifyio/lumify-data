@@ -6,9 +6,9 @@
 
 package com.altamiracorp.lumify.storm.structuredData.mapping.csv;
 
+import com.altamiracorp.securegraph.type.GeoPoint;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonTypeName;
-import com.thinkaurelius.titan.core.attribute.Geoshape;
 import java.util.List;
 
 /**
@@ -18,7 +18,7 @@ import java.util.List;
  * if either the latitude or longitude columns are empty or invalid.
  */
 @JsonTypeName("geopoint")
-public class GeoPointCsvPropertyColumnMapping implements CsvPropertyColumnMapping<Geoshape> {
+public class GeoPointCsvPropertyColumnMapping implements CsvPropertyColumnMapping<GeoPoint> {
     /**
      * The name of the property.
      */
@@ -35,6 +35,11 @@ public class GeoPointCsvPropertyColumnMapping implements CsvPropertyColumnMappin
     private final int longitudeColumnIndex;
 
     /**
+     * The altitude value column index.
+     */
+    private final Integer altitudeColumnIndex;
+
+    /**
      * Is this property required.
      */
     private final boolean required;
@@ -44,15 +49,18 @@ public class GeoPointCsvPropertyColumnMapping implements CsvPropertyColumnMappin
      * @param name the name of the property
      * @param latIdx the index of the latitude column
      * @param longIdx the index of the longitude column
+     * @param altIdx the index of the optional altitude column
      * @param reqd true if this property is required
      */
     public GeoPointCsvPropertyColumnMapping(@JsonProperty("name") final String name,
-            @JsonProperty("latitudeColumnIndex") final int latIdx,
-            @JsonProperty("longitudeColumnIndex") final int longIdx,
+            @JsonProperty("latitudeColumn") final int latIdx,
+            @JsonProperty("longitudeColumn") final int longIdx,
+            @JsonProperty(value="altitudeColumn", required=false) final Integer altIdx,
             @JsonProperty(value="required", required=false) final Boolean reqd) {
         this.name = name;
         this.latitudeColumnIndex = latIdx;
         this.longitudeColumnIndex = longIdx;
+        this.altitudeColumnIndex = altIdx != null && altIdx >= 0 ? altIdx : null;
         this.required = reqd != null ? reqd : CsvPropertyColumnMapping.DEFAULT_REQUIRED;
     }
 
@@ -61,12 +69,19 @@ public class GeoPointCsvPropertyColumnMapping implements CsvPropertyColumnMappin
         return name;
     }
 
+    @JsonProperty("latitudeColumn")
     public final int getLatitudeColumnIndex() {
         return latitudeColumnIndex;
     }
 
+    @JsonProperty("longitudeColumn")
     public final int getLongitudeColumnIndex() {
         return longitudeColumnIndex;
+    }
+
+    @JsonProperty("altitudeColumn")
+    public final Integer getAltitudeColumnIndex() {
+        return altitudeColumnIndex;
     }
 
     @Override
@@ -75,18 +90,19 @@ public class GeoPointCsvPropertyColumnMapping implements CsvPropertyColumnMappin
     }
 
     @Override
-    public Geoshape getPropertyValue(final List<String> fields) {
-        Geoshape point;
+    public GeoPoint getPropertyValue(final List<String> fields) {
+        GeoPoint point;
         try {
             double latitude = Double.parseDouble(fields.get(latitudeColumnIndex));
             double longitude = Double.parseDouble(fields.get(longitudeColumnIndex));
-            point = Geoshape.point(latitude, longitude);
+            Double altitude = altitudeColumnIndex != null ? Double.parseDouble(fields.get(altitudeColumnIndex)) : null;
+            point = new GeoPoint(latitude, longitude, altitude);
         } catch (NumberFormatException nfe) {
             point = null;
         }
         if (required && point == null) {
-            throw new IllegalArgumentException(String.format("%s [lat: %d, long: %d] is a required property.", name,
-                    latitudeColumnIndex, longitudeColumnIndex));
+            throw new IllegalArgumentException(String.format("%s [lat: %d, long: %d, alt: %d] is a required property.", name,
+                    latitudeColumnIndex, longitudeColumnIndex, altitudeColumnIndex));
         }
         return point;
     }
