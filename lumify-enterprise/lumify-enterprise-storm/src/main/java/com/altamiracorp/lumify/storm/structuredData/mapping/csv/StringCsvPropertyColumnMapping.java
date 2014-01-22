@@ -30,6 +30,6 @@ public class StringCsvPropertyColumnMapping extends AbstractSimpleCsvPropertyCol
 
     @Override
     protected String fromString(final String fieldValue) {
-        return fieldValue;
+        return isNullOrEmpty(fieldValue) ? null : fieldValue;
     }
 }
