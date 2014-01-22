@@ -1,10 +1,10 @@
 package com.altamiracorp.lumify.facebook;
 
 import com.altamiracorp.lumify.core.ingest.ArtifactExtractedInfo;
+import static com.altamiracorp.lumify.facebook.FacebookConstants.*;
 import com.altamiracorp.lumify.core.model.audit.AuditAction;
 import com.altamiracorp.lumify.core.model.audit.AuditRepository;
 import com.altamiracorp.lumify.core.model.ontology.Concept;
-import com.altamiracorp.lumify.core.model.ontology.LabelName;
 import com.altamiracorp.lumify.core.model.ontology.OntologyRepository;
 import com.altamiracorp.lumify.core.model.ontology.PropertyName;
 import com.altamiracorp.lumify.core.user.User;
@@ -29,26 +29,9 @@ import java.util.Iterator;
 import java.util.List;
 
 public class FacebookUser {
-    private static final String NAME = "name";
-    private static final String UID = "uid";
-    private static final String SEX = "sex";
-    private static final String GENDER = "gender";
-    private static final String EMAIL = "email";
-    private static final String EMAIL_ADDRESS = "emailAddress";
-    private static final String EMAIL_RELATIONSHIP = "personHasEmailAddress";
-    private static final String BIRTHDAY_DATE = "birthday_date";
-    private static final String BIRTHDAY = "birthday";
-    private static final String PIC = "pic";
-    private static final String BIRTHDAY_FORMAT = "MM/dd";
-    private static final String USERNAME = "username";
-    private static final String PROFILE_ID = "profileId";
-    private static final String COORDS = "coords";
-    private static final String FACEBOOK_PROFILE_IMAGE = "facebookProfileImage";
     private static final LumifyLogger LOGGER = LumifyLoggerFactory.getLogger(FacebookBolt.class);
     private static final String PROCESS = FacebookUser.class.getName();
     private FacebookBolt facebookBolt = new FacebookBolt();
-    ;
-
     public Vertex process(JSONObject userJson, Graph graph, AuditRepository auditRepository, OntologyRepository ontologyRepository, User user) throws ParseException {
         //TODO set visibility
         Visibility visibility = new Visibility("");
@@ -169,14 +152,12 @@ public class FacebookUser {
         userVertex.setProperty(PropertyName.GLYPH_ICON.toString(), "/artifact/" + pictureVertex.getId() + "/raw", visibility);
         pictureVertex.setProperty(PropertyName.GLYPH_ICON.toString(), "/artifact/" + pictureVertex.getId() + "/raw", visibility);
         modifiedProperties.add(PropertyName.GLYPH_ICON.toString());
-
-        String labelDisplay = LabelName.ENTITY_HAS_IMAGE_PROFILE_PHOTO.toString();
+        String labelDisplay = ENTITY_HAS_IMAGE_PROFILE_PHOTO;
 
         Iterator<Edge> edges = userVertex.getEdges(pictureVertex, Direction.IN, labelDisplay, user.getAuthorizations()).iterator();
         if (!edges.hasNext()) {
             graph.addEdge(userVertex, pictureVertex, labelDisplay, visibility);
         }
-
         auditRepository.auditEntityProperties(AuditAction.UPDATE.toString(), userVertex, PropertyName.GLYPH_ICON.toString(),
                 PROCESS, "", user);
         auditRepository.auditEntityProperties(AuditAction.UPDATE.toString(), pictureVertex, PropertyName.GLYPH_ICON.toString(),

@@ -6,6 +6,7 @@ import com.altamiracorp.lumify.core.model.audit.AuditRepository;
 import com.altamiracorp.lumify.core.model.ontology.Concept;
 import com.altamiracorp.lumify.core.model.ontology.OntologyRepository;
 import com.altamiracorp.lumify.core.model.ontology.PropertyName;
+import static com.altamiracorp.lumify.facebook.FacebookConstants.*;
 import com.altamiracorp.lumify.core.user.User;
 import com.altamiracorp.lumify.core.util.HdfsLimitOutputStream;
 import com.altamiracorp.lumify.core.util.LumifyLogger;
@@ -23,17 +24,6 @@ import java.util.Iterator;
 import java.util.List;
 
 public class FacebookPost {
-    private static final String PROFILE_ID = "profileId";
-    private static final String COORDS = "coords";
-    private static final String TAGGEED_UIDS = "tagged_uids";
-    private static final String TIMESTAMP = "timestamp";
-    private static final String POSTED_RELATIONSHIP = "postPostedByProfile";
-    private static final String MENTIONED_RELATIONSHIP = "postMentionedProfile";
-    private static final String FACEBOOK = "Facebook";
-    private static final String FACEBOOK_POST = "post";
-    private static final String MESSAGE = "message";
-    private static final String AUTHOR_UID = "author_uid";
-    private static final String FACEBOOK_PROFILE = "facebookProfile";
     private static final LumifyLogger LOGGER = LumifyLoggerFactory.getLogger(FacebookBolt.class);
     private static final String PROCESS = FacebookPost.class.getName();
     private FacebookBolt facebookBolt = new FacebookBolt();
