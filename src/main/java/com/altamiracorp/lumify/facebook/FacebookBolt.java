@@ -8,9 +8,10 @@ import com.altamiracorp.lumify.core.util.LumifyLogger;
 import com.altamiracorp.lumify.core.util.LumifyLoggerFactory;
 import com.altamiracorp.lumify.storm.BaseLumifyBolt;
 import com.altamiracorp.securegraph.Vertex;
-import com.google.inject.Inject;
-import org.json.JSONObject;
+import com.altamiracorp.securegraph.Visibility;
 import org.apache.hadoop.fs.FileSystem;
+import org.json.JSONObject;
+
 import java.io.ByteArrayInputStream;
 import java.io.InputStream;
 
@@ -20,6 +21,7 @@ public class FacebookBolt extends BaseLumifyBolt {
     private static final String USERNAME = "username";
     private static final String AUTHOR_UID = "author_uid";
     private static final String MESSAGE = "message";
+    private static final String POST_CONCEPT = "document";
     private static FileSystem fileSystem;
     private static Vertex savedArtifact;
 
@@ -41,6 +43,7 @@ public class FacebookBolt extends BaseLumifyBolt {
             ArtifactExtractedInfo postExtractedInfo = facebookPost.processPostArtifact(jsonObject);
             setSavedArtifact(postExtractedInfo);
             Vertex post = facebookPost.processPostVertex(jsonObject, savedArtifact, graph, auditRepository, ontologyRepository, getUser());
+            post.setProperty(PropertyName.DISPLAY_TYPE.toString(), POST_CONCEPT, new Visibility(""));
             InputStream in = new ByteArrayInputStream(jsonObject.getString(MESSAGE).getBytes());
             workQueueRepository.pushArtifactHighlight(post.getId().toString());
         } else {
@@ -59,6 +62,7 @@ public class FacebookBolt extends BaseLumifyBolt {
     public FileSystem getFileSystem() {
         return fileSystem;
     }
+
     public User getUser() {
         return super.getUser();
     }
