@@ -29,7 +29,7 @@ public class AccountCreated extends BaseRequestHandler {
         String path = request.getServletContext().getRealPath(request.getPathInfo());
 
         Map<String, String> replacementTokens = new HashMap();
-        replacementTokens.put("lumify-login-url", configuration.get(ApplicationConfiguration.LUMIFY_LOGIN_URL));
+        replacementTokens.put("lumify-login-url", configuration.get(ApplicationConfiguration.LUMIFY_URL));
         replacementTokens.put("baseUrl", getBaseUrl(request));
 
         String contents = replaceTokens(FileUtils.readFileToString(new File(path + ".html")), replacementTokens);

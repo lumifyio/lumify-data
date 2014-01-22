@@ -1,20 +1,14 @@
 package com.altamiracorp.lumify.demoaccountweb.routes;
 
-import static com.altamiracorp.lumify.demoaccountweb.ApplicationConfiguration.*;
-
 import com.altamiracorp.lumify.demoaccountweb.ApplicationConfiguration;
 import com.altamiracorp.lumify.demoaccountweb.DemoAccountUserRepository;
 import com.altamiracorp.lumify.demoaccountweb.model.DemoAccountUser;
 import com.altamiracorp.miniweb.HandlerChain;
 import com.google.inject.Inject;
-import com.sun.xml.internal.messaging.saaj.packaging.mime.MessagingException;
 import org.apache.commons.io.FileUtils;
-import org.apache.commons.mail.DefaultAuthenticator;
 import org.apache.commons.mail.EmailException;
-import org.apache.commons.mail.HtmlEmail;
 import org.apache.commons.mail.ImageHtmlEmail;
 import org.apache.commons.mail.resolver.DataSourceFileResolver;
-import org.apache.commons.mail.resolver.DataSourceUrlResolver;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -26,7 +20,8 @@ import java.io.IOException;
 import java.net.URL;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.concurrent.Callable;
+
+import static com.altamiracorp.lumify.demoaccountweb.ApplicationConfiguration.*;
 
 public class CreateToken extends BaseRequestHandler {
     private static final Logger LOGGER = LoggerFactory.getLogger(CreateToken.class.getName());
