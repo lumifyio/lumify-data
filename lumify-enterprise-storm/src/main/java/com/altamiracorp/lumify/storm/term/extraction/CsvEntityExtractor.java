@@ -1,12 +1,10 @@
 package com.altamiracorp.lumify.storm.term.extraction;
 
-import static com.google.common.base.Preconditions.checkNotNull;
+import static com.google.common.base.Preconditions.*;
 
 import com.altamiracorp.lumify.core.ingest.term.extraction.TermExtractionResult;
 import com.altamiracorp.lumify.core.ingest.term.extraction.TermMention;
 import com.altamiracorp.lumify.core.ingest.term.extraction.TermRelationship;
-import com.altamiracorp.lumify.core.model.artifact.Artifact;
-import com.altamiracorp.lumify.core.model.artifact.ArtifactRepository;
 import com.altamiracorp.lumify.core.model.ontology.PropertyName;
 import com.altamiracorp.lumify.core.user.User;
 import com.altamiracorp.lumify.core.util.LumifyLogger;
@@ -16,7 +14,6 @@ import com.altamiracorp.lumify.storm.structuredData.mapping.DocumentMapping;
 import com.altamiracorp.securegraph.Vertex;
 import com.altamiracorp.securegraph.type.GeoPoint;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.google.inject.Inject;
 import java.io.IOException;
 import java.io.StringReader;
 import java.text.ParseException;
@@ -32,20 +29,20 @@ import org.json.JSONObject;
 public class CsvEntityExtractor {
     private static final LumifyLogger LOGGER = LumifyLoggerFactory.getLogger(CsvEntityExtractor.class);
     private final Map<String, SimpleDateFormat> dateFormatCache = new HashMap<String, SimpleDateFormat>();
-    private ArtifactRepository artifactRepository;
 
-    public TermExtractionResult extract(Vertex vertex, User user) throws IOException, ParseException {
-        checkNotNull(vertex);
+    public TermExtractionResult extract(Vertex artifactVertex, User user) throws IOException, ParseException {
+        checkNotNull(artifactVertex);
         checkNotNull(user);
 //        TermExtractionResult termExtractionResult = new TermExtractionResult();
         TermExtractionResult termExtractionResult = null;
-        String artifactRowKey = (String) vertex.getPropertyValue(PropertyName.ROW_KEY.toString(), 0);
-        LOGGER.debug("Processing graph vertex [%s] for artifact: %s", vertex.getId(), artifactRowKey);
+        String artifactRowKey = (String) artifactVertex.getPropertyValue(PropertyName.ROW_KEY.toString(), 0);
+        LOGGER.debug("Processing graph vertex [%s] for artifact: %s", artifactVertex.getId(), artifactRowKey);
 
-        Artifact artifact = artifactRepository.findByRowKey(artifactRowKey, user.getModelUserContext());
-        if (artifact.getMetadata().getMappingJson() != null) {
-            DocumentMapping mapping = new ObjectMapper().readValue(artifact.getMetadata().getMappingJson(), DocumentMapping.class);
-            termExtractionResult = mapping.mapDocument(new StringReader(artifact.getMetadata().getText()), getClass().getName());
+        String mappingJsonString = (String) artifactVertex.getPropertyValue(PropertyName.MAPPING_JSON.toString(), 0);
+        if (mappingJsonString != null) {
+            DocumentMapping mapping = new ObjectMapper().readValue(mappingJsonString, DocumentMapping.class);
+            String text = artifactVertex.getPropertyValue(PropertyName.TEXT.toString(), 0);
+            termExtractionResult = mapping.mapDocument(new StringReader(text), getClass().getName());
 //            JSONObject mappingJson = new JSONObject(artifact.getMetadata().getMappingJson());
 //            int row = 0;
 //            int skipRows = mappingJson.getInt(MappingProperties.SKIP_ROWS);
@@ -182,10 +179,5 @@ public class CsvEntityExtractor {
         }
 
         return sdf.parse(columnData).getTime();
-    }
-
-    @Inject
-    public void setArtifactRepository(ArtifactRepository artifactRepository) {
-        this.artifactRepository = artifactRepository;
     }
 }
