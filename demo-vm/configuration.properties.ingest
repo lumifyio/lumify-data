@@ -1,0 +1,73 @@
+p component
+map.provider=googlev3
+map.apiKey=AIzaSyCauz3KEz7k8zxOjPW4plTuVQv_CFGFMd4
+map.tileServer.hostName=localhost
+map.tileServer.port=9999
+
+# Providers
+model.provider=com.altamiracorp.bigtable.model.accumulo.AccumuloSession
+graph.provider=com.altamiracorp.lumify.model.TitanGraphSession
+search.provider=com.altamiracorp.lumify.search.ElasticSearchProvider
+authentication.provider=com.altamiracorp.lumify.web.UsernameOnlyAuthenticationProvider
+fs.provider= com.altamiracorp.lumify.fs.hdfs.HdfsSession
+work-queue-repository=com.altamiracorp.lumify.model.KafkaWorkQueueRepository
+content-type-extractor=com.altamiracorp.lumify.contentTypeExtraction.TikaContentTypeExtractor
+object.detector=com.altamiracorp.lumify.objectDetection.OpenCVObjectDetector
+
+# Application-wide
+hadoop.url=hdfs://192.168.33.10:8020
+zookeeper.serverNames=192.168.33.10
+fs.default.name=hdfs://192.168.33.10:8020
+
+# Accumulo specific
+bigtable.accumulo.instanceName=lumify
+bigtable.accumulo.zookeeperServerNames=192.168.33.10
+bigtable.accumulo.username=root
+bigtable.accumulo.password=password
+
+# Titan specific
+graph.titan.storage.backend=com.altamiracorp.titan.accumulo.AccumuloStorageManager
+graph.titan.storage.tablename=atc_titan
+graph.titan.storage.accumuloInstanceName=lumify
+graph.titan.storage.zookeeperServerName=192.168.33.10
+graph.titan.storage.username=root
+graph.titan.storage.password=password
+graph.titan.storage.index.search.backend=elasticsearch
+graph.titan.storage.index.search.hostname=192.168.33.10
+graph.titan.storage.index.search.port=9300
+graph.titan.storage.index.search.indexName=titan
+graph.titan.storage.index.search.client-only=true
+graph.titan.autotype=none
+
+# Titan-ES specific
+graph.titan.storage.index.search.providerUtilClass=com.altamiracorp.lumify.model.index.utils.TitanGraphElasticSearchUtil
+
+# Elastic search specific
+search.elasticsearch.locations=192.168.33.10:9300
+
+# Object-detection
+objectdetection.classifierConcepts=face
+objectdetection.classifier.face.path=hdfs:///lumify/config/opencv/haarcascade_frontalface_alt.xml
+objectdetection.opencv.disabled=true
+
+# Term extraction
+termextraction.opennlp.pathPrefix=/lumify/config/opennlp/
+termextraction.knownEntities.pathPrefix=/lumify/config/knownEntities/
+
+# graph
+graph=com.altamiracorp.securegraph.accumulo.AccumuloGraph
+# TODO when server side element visibility is fix remove this line
+graph.useServerSideElementVisibilityRowFilter=false
+graph.accumuloInstanceName=lumify
+graph.username=root
+graph.password=password
+graph.tableName=atc_securegraph
+graph.zookeeperServers=192.168.33.10,192.168.33.10
+graph.serializer=com.altamiracorp.securegraph.accumulo.serializer.JavaValueSerializer
+graph.idgenerator=com.altamiracorp.securegraph.id.UUIDIdGenerator
+graph.search=com.altamiracorp.securegraph.elasticsearch.ElasticSearchSearchIndex
+graph.search.locations=192.168.33.10
+graph.search.indexName=securegraph
+
+# Clavin
+clavin.disabled=true

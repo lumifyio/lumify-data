@@ -33,6 +33,7 @@ public class OpenCVObjectDetectorTest {
     @Test
     public void testObjectDetection() throws Exception {
         OpenCVObjectDetector objectDetector = new OpenCVObjectDetector();
+        objectDetector.loadLibrary();
         ClassLoader cl = Thread.currentThread().getContextClassLoader();
         BufferedImage bImage = ImageIO.read(cl.getResourceAsStream(TEST_IMAGE));
 

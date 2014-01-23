@@ -1,5 +1,7 @@
 #!/bin/bash
 
+sudo cp /vagrant/demo-vm/configuration.properties /opt/lumify/config/configuration.properties
+
 /opt/lumify/stop.sh
 
 sudo rm -f /var/log/accumulo/*
