@@ -1,7 +1,6 @@
 package com.altamiracorp.lumify.facebook;
 
 import com.altamiracorp.lumify.core.ingest.ArtifactExtractedInfo;
-import static com.altamiracorp.lumify.facebook.FacebookConstants.*;
 import com.altamiracorp.lumify.core.model.audit.AuditAction;
 import com.altamiracorp.lumify.core.model.audit.AuditRepository;
 import com.altamiracorp.lumify.core.model.ontology.Concept;
@@ -28,10 +27,13 @@ import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
 
+import static com.altamiracorp.lumify.facebook.FacebookConstants.*;
+
 public class FacebookUser {
     private static final LumifyLogger LOGGER = LumifyLoggerFactory.getLogger(FacebookBolt.class);
     private static final String PROCESS = FacebookUser.class.getName();
     private FacebookBolt facebookBolt = new FacebookBolt();
+
     public Vertex process(JSONObject userJson, Graph graph, AuditRepository auditRepository, OntologyRepository ontologyRepository, User user) throws ParseException {
         //TODO set visibility
         Visibility visibility = new Visibility("");
@@ -79,7 +81,7 @@ public class FacebookUser {
 
             Iterator<Vertex> emailIterator = graph.query(user.getAuthorizations()).has(EMAIL_ADDRESS, email).vertices().iterator();
             if (!emailIterator.hasNext()) {
-                emailVertex = graph.addVertex(visibility);
+                emailVertex = graph.addVertex(visibility, user.getAuthorizations());
                 emailVertex.setProperty(PropertyName.TITLE.toString(), email, visibility);
                 emailVertex.setProperty(PropertyName.CONCEPT_TYPE.toString(), emailConcept.getId(), visibility);
                 auditRepository.auditEntity(AuditAction.CREATE.toString(), emailVertex.getId(), userVertex.getId().toString(), email, emailConcept.getId().toString(), PROCESS, "", user);
@@ -89,7 +91,7 @@ public class FacebookUser {
                 // TODO what happens if emailIterator contains multiple users
                 emailVertex = emailIterator.next();
             }
-            graph.addEdge(userVertex, emailVertex, EMAIL_RELATIONSHIP, visibility);
+            graph.addEdge(userVertex, emailVertex, EMAIL_RELATIONSHIP, visibility, user.getAuthorizations());
         }
 
         if (userJson.has(COORDS) && !userJson.get(COORDS).equals(JSONObject.NULL)) {
@@ -156,7 +158,7 @@ public class FacebookUser {
 
         Iterator<Edge> edges = userVertex.getEdges(pictureVertex, Direction.IN, labelDisplay, user.getAuthorizations()).iterator();
         if (!edges.hasNext()) {
-            graph.addEdge(userVertex, pictureVertex, labelDisplay, visibility);
+            graph.addEdge(userVertex, pictureVertex, labelDisplay, visibility, user.getAuthorizations());
         }
         auditRepository.auditEntityProperties(AuditAction.UPDATE.toString(), userVertex, PropertyName.GLYPH_ICON.toString(),
                 PROCESS, "", user);

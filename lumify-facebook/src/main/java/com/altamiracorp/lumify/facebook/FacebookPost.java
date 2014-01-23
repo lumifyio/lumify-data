@@ -6,9 +6,7 @@ import com.altamiracorp.lumify.core.model.audit.AuditRepository;
 import com.altamiracorp.lumify.core.model.ontology.Concept;
 import com.altamiracorp.lumify.core.model.ontology.OntologyRepository;
 import com.altamiracorp.lumify.core.model.ontology.PropertyName;
-import static com.altamiracorp.lumify.facebook.FacebookConstants.*;
 import com.altamiracorp.lumify.core.user.User;
-import com.altamiracorp.lumify.core.util.HdfsLimitOutputStream;
 import com.altamiracorp.lumify.core.util.LumifyLogger;
 import com.altamiracorp.lumify.core.util.LumifyLoggerFactory;
 import com.altamiracorp.lumify.core.util.RowKeyHelper;
@@ -22,6 +20,8 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
+
+import static com.altamiracorp.lumify.facebook.FacebookConstants.*;
 
 public class FacebookPost {
     private static final LumifyLogger LOGGER = LumifyLoggerFactory.getLogger(FacebookBolt.class);
@@ -76,7 +76,7 @@ public class FacebookPost {
         Vertex authorVertex;
         Iterator<Vertex> verticesIterator = graph.query(user.getAuthorizations()).has(PROFILE_ID, author_uid).vertices().iterator();
         if (!verticesIterator.hasNext()) {
-            authorVertex = graph.addVertex(visibility);
+            authorVertex = graph.addVertex(visibility, user.getAuthorizations());
             authorVertex.setProperty(PROFILE_ID, author_uid, visibility);
             authorVertex.setProperty(PropertyName.TITLE.toString(), author_uid, visibility);
             authorVertex.setProperty(PropertyName.CONCEPT_TYPE.toString(), profileConceptId, visibility);
@@ -88,7 +88,7 @@ public class FacebookPost {
             // TODO what happens if verticesIterator contains multiple users
             authorVertex = verticesIterator.next();
         }
-        graph.addEdge(authorVertex, posting, POSTED_RELATIONSHIP, visibility);
+        graph.addEdge(authorVertex, posting, POSTED_RELATIONSHIP, visibility, user.getAuthorizations());
         String postedRelationshipLabelDisplayName = ontologyRepository.getDisplayNameForLabel(POSTED_RELATIONSHIP);
         auditRepository.auditRelationships(AuditAction.CREATE.toString(), posting, authorVertex, postedRelationshipLabelDisplayName, PROCESS, "", user);
         if (post.get(TAGGEED_UIDS) instanceof JSONObject) {
@@ -98,7 +98,7 @@ public class FacebookPost {
                 Vertex taggedVertex;
                 Iterator<Vertex> taggedUidIterator = graph.query(user.getAuthorizations()).has(PROFILE_ID, next).vertices().iterator();
                 if (!taggedUidIterator.hasNext()) {
-                    taggedVertex = graph.addVertex(visibility);
+                    taggedVertex = graph.addVertex(visibility, user.getAuthorizations());
                     taggedVertex.setProperty(PROFILE_ID, next, visibility);
                     taggedVertex.setProperty(PropertyName.TITLE.toString(), next, visibility);
                     taggedVertex.setProperty(PropertyName.CONCEPT_TYPE.toString(), profileConceptId, visibility);
@@ -109,7 +109,7 @@ public class FacebookPost {
                     // TODO what happens if taggedUidIterator contains multiple users
                     taggedVertex = taggedUidIterator.next();
                 }
-                graph.addEdge(posting, taggedVertex, MENTIONED_RELATIONSHIP, visibility);
+                graph.addEdge(posting, taggedVertex, MENTIONED_RELATIONSHIP, visibility, user.getAuthorizations());
                 String mentionedRelationshipLabelDisplayName = ontologyRepository.getDisplayNameForLabel(MENTIONED_RELATIONSHIP);
                 auditRepository.auditRelationships(AuditAction.CREATE.toString(), posting, taggedVertex, mentionedRelationshipLabelDisplayName, PROCESS, "", user);
             }
