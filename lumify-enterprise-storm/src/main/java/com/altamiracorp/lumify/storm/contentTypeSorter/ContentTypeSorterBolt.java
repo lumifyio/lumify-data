@@ -20,6 +20,7 @@ import org.apache.commons.compress.archivers.ArchiveStreamFactory;
 import org.apache.commons.io.FilenameUtils;
 import org.apache.hadoop.fs.Path;
 
+import javax.annotation.Nullable;
 import java.io.*;
 import java.nio.charset.Charset;
 import java.util.List;
@@ -136,7 +137,7 @@ public class ContentTypeSorterBolt extends BaseLumifyBolt {
     }
 
     @Inject
-    public void setContentTypeExtractor(ContentTypeExtractor contentTypeExtractor) {
+    public void setContentTypeExtractor(@Nullable ContentTypeExtractor contentTypeExtractor) {
         this.contentTypeExtractor = contentTypeExtractor;
     }
 
