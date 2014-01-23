@@ -23,7 +23,6 @@ import com.altamiracorp.lumify.core.json.JsonProperty;
 import com.altamiracorp.lumify.core.model.audit.AuditAction;
 import com.altamiracorp.lumify.core.model.audit.AuditRepository;
 import com.altamiracorp.lumify.core.model.ontology.Concept;
-import com.altamiracorp.lumify.core.model.ontology.LabelName;
 import com.altamiracorp.lumify.core.model.ontology.OntologyRepository;
 import com.altamiracorp.lumify.core.model.ontology.PropertyName;
 import com.altamiracorp.lumify.core.model.termMention.TermMentionModel;
@@ -213,7 +212,7 @@ public class DefaultLumifyTwitterProcessor extends BaseArtifactProcessor impleme
         Vertex userVertex = null;
         Iterator<Vertex> userIterator = graph.query(lumifyUser.getAuthorizations()).has(PropertyName.TITLE.toString(), screenName).vertices().iterator();
         if (!userIterator.hasNext()) {
-            userVertex = graph.addVertex(visibility);
+            userVertex = graph.addVertex(visibility, lumifyUser.getAuthorizations());
         } else {
             // TODO what happens if userIterator contains multiple users
             userVertex = userIterator.next();
@@ -234,7 +233,7 @@ public class DefaultLumifyTwitterProcessor extends BaseArtifactProcessor impleme
         }
 
         // create the relationship between the user and their tweet
-        graph.addEdge(tweetVertex, userVertex, TWEETED_RELATIONSHIP, visibility);
+        graph.addEdge(tweetVertex, userVertex, TWEETED_RELATIONSHIP, visibility, lumifyUser.getAuthorizations());
         String labelDispName = getOntologyRepository().getDisplayNameForLabel(TWEETED_RELATIONSHIP);
         auditRepo.auditRelationships(AuditAction.CREATE.toString(), userVertex, tweetVertex, labelDispName, processId, "", lumifyUser);
 
@@ -270,7 +269,7 @@ public class DefaultLumifyTwitterProcessor extends BaseArtifactProcessor impleme
                 Vertex termVertex = null;
                 Iterator<Vertex> userIterator = graph.query(user.getAuthorizations()).has(PropertyName.TITLE.toString(), sign).vertices().iterator();
                 if (!userIterator.hasNext()) {
-                    termVertex = graph.addVertex(visibility);
+                    termVertex = graph.addVertex(visibility, user.getAuthorizations());
                     newVertex = true;
                 } else {
                     // TODO what happens if userIterator contains multiple users
@@ -293,7 +292,7 @@ public class DefaultLumifyTwitterProcessor extends BaseArtifactProcessor impleme
                 mention.getMetadata().setVertexId(termId);
                 getTermMentionRepository().save(mention, user.getModelUserContext());
 
-                graph.addEdge(tweetVertex, termVertex, entityType.getRelationshipLabel(), visibility);
+                graph.addEdge(tweetVertex, termVertex, entityType.getRelationshipLabel(), visibility, user.getAuthorizations());
 
                 auditRepo.auditRelationships(AuditAction.CREATE.toString(), tweetVertex, termVertex, relDispName, processId, "", user);
             }
@@ -347,7 +346,7 @@ public class DefaultLumifyTwitterProcessor extends BaseArtifactProcessor impleme
 
                 Iterator<Edge> edges = tweeterVertex.getEdges(imageVertex, Direction.IN, ENTITY_HAS_IMAGE_HANDLE_PHOTO, user.getAuthorizations()).iterator();
                 if (!edges.hasNext()) {
-                    graph.addEdge(tweeterVertex, imageVertex, ENTITY_HAS_IMAGE_HANDLE_PHOTO, visibility);
+                    graph.addEdge(tweeterVertex, imageVertex, ENTITY_HAS_IMAGE_HANDLE_PHOTO, visibility, user.getAuthorizations());
                 }
             } catch (MalformedURLException mue) {
                 LOGGER.warn("Invalid Profile Photo URL [%s] for Twitter User [%s]: %s", imageUrl, screenName, mue.getMessage());
