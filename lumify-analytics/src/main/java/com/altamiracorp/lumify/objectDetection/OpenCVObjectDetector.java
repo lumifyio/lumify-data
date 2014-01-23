@@ -29,23 +29,22 @@ public class OpenCVObjectDetector extends ObjectDetector {
     public static final String OPENCV_CLASSIFIER_CONCEPT_LIST = "objectdetection.classifierConcepts";
     public static final String OPENCV_CLASSIFIER_PATH_PREFIX = "objectdetection.classifier.";
     public static final String OPENCV_CLASSIFIER_PATH_SUFFIX = ".path";
+    public static final String OPENCV_DISABLED = "objectdetection.opencv.disabled";
 
     private static final String MODEL = "opencv";
 
     private List<CascadeClassifierHolder> objectClassifiers = new ArrayList<CascadeClassifierHolder>();
 
-    static {
-        try {
-            System.loadLibrary(Core.NATIVE_LIBRARY_NAME);
-        } catch (UnsatisfiedLinkError ex) {
-            String javaLibraryPath = System.getProperty("java.library.path");
-            throw new RuntimeException("Could not find opencv library: " + Core.NATIVE_LIBRARY_NAME + " (java.library.path: " + javaLibraryPath + ")", ex);
-        }
-    }
-
     @Override
     public void init(Map stormConf, FileSystem fs) throws Exception {
         super.init(stormConf, fs);
+        String opencvDisabled = (String) stormConf.get(OPENCV_DISABLED);
+        if (opencvDisabled != null && opencvDisabled.equals("true")) {
+            return;
+        }
+
+        loadLibrary();
+
         String conceptListString = (String) stormConf.get(OPENCV_CLASSIFIER_CONCEPT_LIST);
         checkNotNull(conceptListString, OPENCV_CLASSIFIER_CONCEPT_LIST + " is a required configuration parameter");
         String[] classifierConcepts = conceptListString.split(",");
@@ -56,6 +55,15 @@ public class OpenCVObjectDetector extends ObjectDetector {
             CascadeClassifier objectClassifier = new CascadeClassifier(localFile.getPath());
             addObjectClassifier(classifierConcept, objectClassifier);
             localFile.delete();
+        }
+    }
+
+    public void loadLibrary () {
+        try {
+            System.loadLibrary(Core.NATIVE_LIBRARY_NAME);
+        } catch (UnsatisfiedLinkError ex) {
+            String javaLibraryPath = System.getProperty("java.library.path");
+            throw new RuntimeException("Could not find opencv library: " + Core.NATIVE_LIBRARY_NAME + " (java.library.path: " + javaLibraryPath + ")", ex);
         }
     }
 
