@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <base href="${context.url}" target="_self">
+
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Account Created: Lumify Demo</title>
+    <link rel="stylesheet" href="libs/bootstrap/css/bootstrap.css">
+    <link rel="stylesheet" href="libs/sb-admin/css/sb-admin.css">
+    <link rel="stylesheet" href="libs/sb-admin/font-awesome/css/font-awesome.min.css">
+    <link rel="stylesheet" href="css/demo-account-web.css">
+</head>
+
+<body>
+<!-- Version: ${project.version} -->
+<!-- Git SHA-1: ${buildNumber} -->
+<!-- Build Timestamp: ${build.timestamp.formatted} -->
+
+<img src="img/lumify-logo.png"/>
+
+<div class="pane" style="text-align:center;">
+    <h1>{{ message }}</h1>
+
+    <a href="{{ lumify-login-url }}" class="btn btn-primary">Log In to Lumify</a>
+</div>
+</body>
+</html>

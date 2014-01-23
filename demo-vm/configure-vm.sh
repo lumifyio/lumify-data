@@ -26,10 +26,10 @@ Built on $(date +'%Y-%m-%d')
 EOM
 
 mkdir -p /opt/lumify/config
-cp /vagrant/demo-vm/configuration.properties /opt/lumify/config/configuration.properties
+cp /vagrant/demo-vm/configuration.properties.ingest /opt/lumify/config/configuration.properties
 
 # run maven
-su - vagrant -c 'cd /vagrant && mvn package install -P storm-jar,web-war -DskipTests' 2>&1 \
+su - vagrant -c 'cd /vagrant && cd lumify-root && mvn clean install && cd ../ &&  mvn install -P storm-jar,web-war -DskipTests' 2>&1 \
   | tee /vagrant/mvn.log \
   | grep '\[INFO\] Building'
 
@@ -38,14 +38,25 @@ cp /vagrant/deployment/lumify.xml /opt/jetty/contexts
 cp /vagrant/lumify-public/lumify-web/target/lumify-web-1.0-SNAPSHOT.war /opt/jetty/webapps/lumify.war
 
 # restore sample data
-cp /vagrant/bin/accumulo-import.sh /opt/lumify
-cp /vagrant/demo-vm/sample-data.tgz /opt/lumify
+cp /vagrant/demo-vm/sample-data-html.tgz /opt/lumify
 /opt/lumify/format.sh
-/opt/lumify/accumulo-import.sh /opt/lumify/sample-data.tgz
+cd /vagrant/lumify-root/ && mvn install && cd /vagrant/ && mvn package -DskipTests && /vagrant/bin/080_Ontology.sh
+tar xvf /opt/lumify/sample-data-html.tgz -C /opt/lumify/
+sudo -u hdfs hadoop fs -mkdir /lumify/data/unknown/
+sudo -u hdfs hadoop fs -put /opt/lumify/import/* /lumify/data/unknown/
+rm -rf /opt/lumify/import
 
 # deploy the open source topology
 /opt/storm/bin/storm list \
-  | grep -q 'lumify\s*ACTIVE' && /opt/storm/bin/storm kill lumify
+  | grep -q 'lumify\s*ACTIVE' && /opt/storm/bin/storm kill -w 1 lumify && /opt/storm/bin/storm kill -w 1 lumify-enterprise
 /opt/storm/bin/storm jar \
  /vagrant/lumify-public/lumify-storm/target/lumify-storm-1.0-SNAPSHOT-jar-with-dependencies.jar \
  com.altamiracorp.lumify.storm.StormRunner
+/opt/storm/bin/storm jar \
+ /vagrant/lumify-enterprise/lumify-enterprise-storm/target/lumify-enterprise-storm-1.0-SNAPSHOT-jar-with-dependencies.jar \
+ com.altamiracorp.lumify.storm.StormEnterpriseRunner 
+
+echo 'Please kill storm enterprise topology to and replace configuration.properties when data is done ingesting'
+
+sleep 5
+

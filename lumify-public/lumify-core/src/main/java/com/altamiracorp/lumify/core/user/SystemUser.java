@@ -2,6 +2,7 @@ package com.altamiracorp.lumify.core.user;
 
 import com.altamiracorp.bigtable.model.user.ModelUserContext;
 import com.altamiracorp.lumify.core.model.user.UserType;
+import com.altamiracorp.securegraph.accumulo.AccumuloAuthorizations;
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
 
@@ -12,7 +13,8 @@ public class SystemUser extends User {
 
     @Inject
     public SystemUser() {
-        super("", USERNAME, CURRENT_WORKSPACE, getSystemUserContext(), UserType.SYSTEM.toString());
+        // TODO make authorizations configurable
+        super("", USERNAME, CURRENT_WORKSPACE, getSystemUserContext(), UserType.SYSTEM.toString(), new AccumuloAuthorizations());
     }
 
     public static ModelUserContext getSystemUserContext() {

@@ -1,23 +1,19 @@
 package com.altamiracorp.lumify.facebook;
 
 import com.altamiracorp.lumify.core.ingest.ArtifactExtractedInfo;
-import com.altamiracorp.lumify.core.model.artifact.Artifact;
-import com.altamiracorp.lumify.core.model.artifact.ArtifactRowKey;
 import com.altamiracorp.lumify.core.model.audit.AuditAction;
 import com.altamiracorp.lumify.core.model.audit.AuditRepository;
 import com.altamiracorp.lumify.core.model.ontology.Concept;
-import com.altamiracorp.lumify.core.model.ontology.LabelName;
 import com.altamiracorp.lumify.core.model.ontology.OntologyRepository;
 import com.altamiracorp.lumify.core.model.ontology.PropertyName;
 import com.altamiracorp.lumify.core.user.User;
 import com.altamiracorp.lumify.core.util.LumifyLogger;
 import com.altamiracorp.lumify.core.util.LumifyLoggerFactory;
+import com.altamiracorp.lumify.core.util.RowKeyHelper;
 import com.altamiracorp.securegraph.*;
 import com.altamiracorp.securegraph.type.GeoPoint;
 import com.beust.jcommander.internal.Lists;
 import org.apache.commons.io.IOUtils;
-import org.apache.hadoop.fs.FSDataOutputStream;
-import org.apache.hadoop.fs.Path;
 import org.json.JSONObject;
 
 import java.io.ByteArrayOutputStream;
@@ -31,26 +27,12 @@ import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
 
+import static com.altamiracorp.lumify.facebook.FacebookConstants.*;
+
 public class FacebookUser {
-    private static final String NAME = "name";
-    private static final String UID = "uid";
-    private static final String SEX = "sex";
-    private static final String GENDER = "gender";
-    private static final String EMAIL = "email";
-    private static final String EMAIL_ADDRESS = "emailAddress";
-    private static final String EMAIL_RELATIONSHIP = "personHasEmailAddress";
-    private static final String BIRTHDAY_DATE = "birthday_date";
-    private static final String BIRTHDAY = "birthday";
-    private static final String PIC = "pic";
-    private static final String BIRTHDAY_FORMAT = "MM/dd";
-    private static final String USERNAME = "username";
-    private static final String PROFILE_ID = "profileId";
-    private static final String COORDS = "coords";
-    private static final String FACEBOOK_PROFILE_IMAGE = "facebookProfileImage";
     private static final LumifyLogger LOGGER = LumifyLoggerFactory.getLogger(FacebookBolt.class);
     private static final String PROCESS = FacebookUser.class.getName();
     private FacebookBolt facebookBolt = new FacebookBolt();
-    ;
 
     public Vertex process(JSONObject userJson, Graph graph, AuditRepository auditRepository, OntologyRepository ontologyRepository, User user) throws ParseException {
         //TODO set visibility
@@ -99,7 +81,7 @@ public class FacebookUser {
 
             Iterator<Vertex> emailIterator = graph.query(user.getAuthorizations()).has(EMAIL_ADDRESS, email).vertices().iterator();
             if (!emailIterator.hasNext()) {
-                emailVertex = graph.addVertex(visibility);
+                emailVertex = graph.addVertex(visibility, user.getAuthorizations());
                 emailVertex.setProperty(PropertyName.TITLE.toString(), email, visibility);
                 emailVertex.setProperty(PropertyName.CONCEPT_TYPE.toString(), emailConcept.getId(), visibility);
                 auditRepository.auditEntity(AuditAction.CREATE.toString(), emailVertex.getId(), userVertex.getId().toString(), email, emailConcept.getId().toString(), PROCESS, "", user);
@@ -109,7 +91,7 @@ public class FacebookUser {
                 // TODO what happens if emailIterator contains multiple users
                 emailVertex = emailIterator.next();
             }
-            graph.addEdge(userVertex, emailVertex, EMAIL_RELATIONSHIP, visibility);
+            graph.addEdge(userVertex, emailVertex, EMAIL_RELATIONSHIP, visibility, user.getAuthorizations());
         }
 
         if (userJson.has(COORDS) && !userJson.get(COORDS).equals(JSONObject.NULL)) {
@@ -147,8 +129,7 @@ public class FacebookUser {
             InputStream is = url.openStream();
             IOUtils.copy(is, os);
             byte[] raw = os.toByteArray();
-            ArtifactRowKey build = ArtifactRowKey.build(raw);
-            String rowKey = build.toString();
+            String rowKey = RowKeyHelper.buildSHA256KeyString(raw);
 
             ArtifactExtractedInfo artifactExtractedInfo = new ArtifactExtractedInfo();
             artifactExtractedInfo.setMimeType("image/png");
@@ -157,18 +138,7 @@ public class FacebookUser {
             artifactExtractedInfo.setTitle(facebookPictureTitle);
             artifactExtractedInfo.setSource(facebookPictureSource);
             artifactExtractedInfo.setProcess(PROCESS);
-            if (raw.length > Artifact.MAX_SIZE_OF_INLINE_FILE) {
-                String path = "/lumify/artifacts/raw/" + rowKey;
-                FSDataOutputStream rawFile = facebookBolt.getFileSystem().create(new Path(path));
-                try {
-                    rawFile.write(raw);
-                } finally {
-                    rawFile.close();
-                }
-                artifactExtractedInfo.setRawHdfsPath(path);
-            } else {
-                artifactExtractedInfo.setRaw(raw);
-            }
+            artifactExtractedInfo.setRaw(raw);
             return artifactExtractedInfo;
         } catch (IOException e) {
             LOGGER.warn("Failed to create image for vertex: %s", userVertex.getId());
@@ -184,14 +154,12 @@ public class FacebookUser {
         userVertex.setProperty(PropertyName.GLYPH_ICON.toString(), "/artifact/" + pictureVertex.getId() + "/raw", visibility);
         pictureVertex.setProperty(PropertyName.GLYPH_ICON.toString(), "/artifact/" + pictureVertex.getId() + "/raw", visibility);
         modifiedProperties.add(PropertyName.GLYPH_ICON.toString());
-
-        String labelDisplay = LabelName.ENTITY_HAS_IMAGE_PROFILE_PHOTO.toString();
+        String labelDisplay = ENTITY_HAS_IMAGE_PROFILE_PHOTO;
 
         Iterator<Edge> edges = userVertex.getEdges(pictureVertex, Direction.IN, labelDisplay, user.getAuthorizations()).iterator();
         if (!edges.hasNext()) {
-            graph.addEdge(userVertex, pictureVertex, labelDisplay, visibility);
+            graph.addEdge(userVertex, pictureVertex, labelDisplay, visibility, user.getAuthorizations());
         }
-
         auditRepository.auditEntityProperties(AuditAction.UPDATE.toString(), userVertex, PropertyName.GLYPH_ICON.toString(),
                 PROCESS, "", user);
         auditRepository.auditEntityProperties(AuditAction.UPDATE.toString(), pictureVertex, PropertyName.GLYPH_ICON.toString(),

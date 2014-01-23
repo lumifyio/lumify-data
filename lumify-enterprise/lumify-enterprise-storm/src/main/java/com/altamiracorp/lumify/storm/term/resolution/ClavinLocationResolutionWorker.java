@@ -70,17 +70,17 @@ public class ClavinLocationResolutionWorker implements TermResolutionWorker {
     /**
      * The default max hit depth.
      */
-    private static final int DEFAULT_MAX_HIT_DEPTH = 5;
+    public static final int DEFAULT_MAX_HIT_DEPTH = 5;
 
     /**
      * The default max context window.
      */
-    private static final int DEFAULT_MAX_CONTEXT_WINDOW = 5;
+    public static final int DEFAULT_MAX_CONTENT_WINDOW = 5;
 
     /**
      * The default fuzzy matching.
      */
-    private static final boolean DEFAULT_FUZZY_MATCHING = false;
+    public static final boolean DEFAULT_FUZZY_MATCHING = false;
 
     private boolean disabled;
     private File indexDirectory;
@@ -117,8 +117,8 @@ public class ClavinLocationResolutionWorker implements TermResolutionWorker {
         }
         int maxContextWindow = config.getInt(CLAVIN_MAX_CONTEXT_WINDOW);
         if (maxContextWindow < 1) {
-            LOGGER.debug("Found %s of %d. Using default: %d", CLAVIN_MAX_CONTEXT_WINDOW, maxContextWindow, DEFAULT_MAX_CONTEXT_WINDOW);
-            maxContextWindow = DEFAULT_MAX_CONTEXT_WINDOW;
+            LOGGER.debug("Found %s of %d. Using default: %d", CLAVIN_MAX_CONTEXT_WINDOW, maxContextWindow, ClavinLocationResolutionWorker.DEFAULT_MAX_CONTENT_WINDOW);
+            maxContextWindow = ClavinLocationResolutionWorker.DEFAULT_MAX_CONTENT_WINDOW;
         }
         String fuzzyStr = config.get(CLAVIN_USE_FUZZY_MATCHING, null);
         if (fuzzyStr != null) {

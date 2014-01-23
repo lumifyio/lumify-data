@@ -2,6 +2,7 @@ package com.altamiracorp.lumify.facebook;
 
 import backtype.storm.tuple.Tuple;
 import com.altamiracorp.lumify.core.ingest.ArtifactExtractedInfo;
+import static com.altamiracorp.lumify.facebook.FacebookConstants.*;
 import com.altamiracorp.lumify.core.model.ontology.PropertyName;
 import com.altamiracorp.lumify.core.user.User;
 import com.altamiracorp.lumify.core.util.LumifyLogger;
@@ -18,10 +19,6 @@ import java.io.InputStream;
 public class FacebookBolt extends BaseLumifyBolt {
     private static final LumifyLogger LOGGER = LumifyLoggerFactory.getLogger(FacebookBolt.class);
     private static final String PROCESS = FacebookBolt.class.getName();
-    private static final String USERNAME = "username";
-    private static final String AUTHOR_UID = "author_uid";
-    private static final String MESSAGE = "message";
-    private static final String POST_CONCEPT = "document";
     private static FileSystem fileSystem;
     private static Vertex savedArtifact;
 
@@ -76,7 +73,8 @@ public class FacebookBolt extends BaseLumifyBolt {
     }
 
     private void setSavedArtifact(ArtifactExtractedInfo artifactExtractedInfo) {
-        this.savedArtifact = saveArtifact(artifactExtractedInfo);
+        // TODO refactor for secure graph
+//        this.savedArtifact = saveArtifact(artifactExtractedInfo);
     }
 
 }
