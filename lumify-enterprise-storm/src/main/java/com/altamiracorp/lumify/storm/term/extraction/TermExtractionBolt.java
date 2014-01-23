@@ -129,7 +129,7 @@ public class TermExtractionBolt extends BaseTextProcessingBolt {
                                 .has(PropertyName.TITLE.toString(), title)
                                 .vertices());
                 if (!termMention.getUseExisting() || vertex == null) {
-                    vertex = graph.addVertex(new Visibility(""));
+                    vertex = graph.addVertex(new Visibility(""), getUser().getAuthorizations());
                     newVertex = true;
                     title = termMention.getSign();
                     vertex.setProperty(PropertyName.TITLE.toString(), title, new Visibility(""));
@@ -157,7 +157,7 @@ public class TermExtractionBolt extends BaseTextProcessingBolt {
                     auditRepository.auditEntityProperties(AuditAction.UPDATE.toString(), vertex, property, termMention.getProcess(), "", getUser());
                 }
 
-                graph.addEdge(artifactGraphVertex, vertex, LabelName.RAW_HAS_ENTITY.toString(), new Visibility(""));
+                graph.addEdge(artifactGraphVertex, vertex, LabelName.RAW_HAS_ENTITY.toString(), new Visibility(""), getUser().getAuthorizations());
 
                 String labelDisplayName = ontologyRepository.getDisplayNameForLabel(LabelName.RAW_HAS_ENTITY.toString());
                 auditRepository.auditRelationships(AuditAction.CREATE.toString(), artifactGraphVertex, vertex, labelDisplayName, termMention.getProcess(), "", getUser());
@@ -185,7 +185,8 @@ public class TermExtractionBolt extends BaseTextProcessingBolt {
                     sourceTermMentionsWithGraphVertex.getVertex(),
                     destTermMentionsWithGraphVertex.getVertex(),
                     label,
-                    new Visibility("")
+                    new Visibility(""),
+                    getUser().getAuthorizations()
             );
         }
     }
