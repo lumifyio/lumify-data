@@ -33,6 +33,8 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.SortedSet;
+import java.util.TreeSet;
 import org.supercsv.io.CsvListReader;
 import org.supercsv.io.CsvListWriter;
 import org.supercsv.prefs.CsvPreference;
@@ -80,7 +82,7 @@ public class CsvDocumentMapping implements DocumentMapping {
     /**
      * The term mappings for this CSV.
      */
-    private final List<CsvTermColumnMapping> termMappings;
+    private final SortedSet<TermMapping> termMappings;
 
     /**
      * The relationship mappings for this CSV.
@@ -97,7 +99,7 @@ public class CsvDocumentMapping implements DocumentMapping {
     @JsonCreator
     public CsvDocumentMapping(@JsonProperty("subject") final String subject,
             @JsonProperty(value="skipRows",required=false) final Integer skipRows,
-            @JsonProperty("terms") final List<CsvTermColumnMapping> terms,
+            @JsonProperty("terms") final Map<String, CsvTermColumnMapping> terms,
             @JsonProperty(value="relationships", required=false) final List<CsvRelationshipMapping> relationships) {
         checkArgument(subject != null && !subject.trim().isEmpty(), "Subject must be provided.");
         checkArgument(skipRows == null || skipRows >= 0, "skipRows must be >= 0 if provided.");
@@ -105,9 +107,11 @@ public class CsvDocumentMapping implements DocumentMapping {
         checkArgument(!terms.isEmpty(), "At least one term mapping must be provided.");
         this.subject = subject != null ? subject.trim() : DEFAULT_SUBJECT;
         this.skipRows = skipRows != null && skipRows >= 0 ? skipRows : DEFAULT_SKIP_ROWS;
-        List<CsvTermColumnMapping> myTerms = new ArrayList<CsvTermColumnMapping>(terms);
-        Collections.sort(myTerms);
-        this.termMappings = Collections.unmodifiableList(myTerms);
+        SortedSet<TermMapping> myTerms = new TreeSet<TermMapping>();
+        for (Map.Entry<String, CsvTermColumnMapping> entry : terms.entrySet()) {
+            myTerms.add(new TermMapping(entry.getKey(), entry.getValue()));
+        }
+        this.termMappings = Collections.unmodifiableSortedSet(myTerms);
         List<CsvRelationshipMapping> myRels = new ArrayList<CsvRelationshipMapping>();
         if (relationships != null) {
             myRels.addAll(relationships);
@@ -131,8 +135,12 @@ public class CsvDocumentMapping implements DocumentMapping {
     }
 
     @JsonProperty("terms")
-    public List<CsvTermColumnMapping> getTerms() {
-        return termMappings;
+    public Map<String, CsvTermColumnMapping> getTerms() {
+        Map<String, CsvTermColumnMapping> map = new HashMap<String, CsvTermColumnMapping>();
+        for (TermMapping tm : termMappings) {
+            map.put(tm.getKey(), tm.getMapping());
+        }
+        return Collections.unmodifiableMap(map);
     }
 
     @JsonProperty("relationships")
@@ -181,24 +189,25 @@ public class CsvDocumentMapping implements DocumentMapping {
             termMap = new HashMap<String, TermMention>();
             lastCol = 0;
             skipLine = false;
-            for (CsvTermColumnMapping termMapping : termMappings) {
+            for (TermMapping termMapping : termMappings) {
+                CsvTermColumnMapping colMapping = termMapping.getMapping();
                 // term mappings are ordered by column number; update offset
                 // so it is set to the start of the column for the current term
-                currentCol = termMapping.getColumnIndex();
+                currentCol = colMapping.getColumnIndex();
                 for (/* no precondition */; lastCol < currentCol; lastCol++) {
                     offset += (columns.get(lastCol) != null ? columns.get(lastCol).length() : 0) + 1;
                 }
                 try {
-                    mention = termMapping.mapTerm(columns, offset, processId);
+                    mention = colMapping.mapTerm(columns, offset, processId);
                     if (mention != null) {
                         // no need to update offset here, it will get updated by the block
                         // above when the next term is processed or, if this is the last term,
                         // it will be set to the proper offset for the next line
-                        termMap.put(termMapping.getMapId(), mention);
+                        termMap.put(termMapping.getKey(), mention);
                         mentions.add(mention);
                     }
                 } catch (Exception e) {
-                    if (termMapping.isRequired()) {
+                    if (colMapping.isRequired()) {
                         // skip line
                         skipLine = true;
                         break;
@@ -222,5 +231,28 @@ public class CsvDocumentMapping implements DocumentMapping {
             offset = lineReader.getOffset();
         }
         return results;
+    }
+
+    private static class TermMapping implements Comparable<TermMapping> {
+        private final String key;
+        private final CsvTermColumnMapping mapping;
+
+        public TermMapping(String key, CsvTermColumnMapping mapping) {
+            this.key = key;
+            this.mapping = mapping;
+        }
+
+        public String getKey() {
+            return key;
+        }
+
+        public CsvTermColumnMapping getMapping() {
+            return mapping;
+        }
+
+        @Override
+        public int compareTo(final TermMapping o) {
+            return this.mapping.compareTo(o.mapping);
+        }
     }
 }

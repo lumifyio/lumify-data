@@ -21,7 +21,9 @@ import java.io.Writer;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -61,30 +63,40 @@ public class CsvDocumentMappingTest {
     @Mock
     private CsvRelationshipMapping rel2;
 
-    private List<CsvTermColumnMapping> termList;
+    private Map<String, CsvTermColumnMapping> termMap;
     private List<CsvRelationshipMapping> relList;
 
     private CsvDocumentMapping instance;
 
     @Before
     public void setup() {
-        termList = Arrays.asList(term1, term2, term3);
+        termMap = new HashMap<String, CsvTermColumnMapping>();
+        termMap.put(TERM1_ID, term1);
+        termMap.put(TERM2_ID, term2);
+        termMap.put(TERM3_ID, term3);
         relList = Arrays.asList(rel1, rel2);
 
-        instance = new CsvDocumentMapping(TEST_SUBJECT, TEST_SKIP_ROWS, termList, relList);
-
         when(term1.getColumnIndex()).thenReturn(TERM1_IDX);
-        when(term1.getMapId()).thenReturn(TERM1_ID);
         when(term2.getColumnIndex()).thenReturn(TERM2_IDX);
-        when(term2.getMapId()).thenReturn(TERM2_ID);
         when(term3.getColumnIndex()).thenReturn(TERM3_IDX);
-        when(term3.getMapId()).thenReturn(TERM3_ID);
+        when(term1.compareTo(term1)).thenReturn(0);
+        when(term1.compareTo(term2)).thenReturn(-1);
+        when(term1.compareTo(term3)).thenReturn(-1);
+        when(term2.compareTo(term1)).thenReturn(1);
+        when(term2.compareTo(term2)).thenReturn(0);
+        when(term2.compareTo(term3)).thenReturn(-1);
+        when(term3.compareTo(term1)).thenReturn(1);
+        when(term3.compareTo(term2)).thenReturn(1);
+        when(term3.compareTo(term3)).thenReturn(0);
         when(rel1.getLabel()).thenReturn(LIVES_AT);
         when(rel1.getSourceTermId()).thenReturn(TERM1_ID);
         when(rel1.getTargetTermId()).thenReturn(TERM2_ID);
         when(rel2.getLabel()).thenReturn(KNOWS);
         when(rel2.getSourceTermId()).thenReturn(TERM3_ID);
         when(rel2.getTargetTermId()).thenReturn(TERM1_ID);
+
+        // instance must be configured AFTER comparisons are set up for term mocks
+        instance = new CsvDocumentMapping(TEST_SUBJECT, TEST_SKIP_ROWS, termMap, relList);
     }
 
     @Test
@@ -94,8 +106,8 @@ public class CsvDocumentMappingTest {
         doConstructorTest("empty subject", "", IllegalArgumentException.class);
         doConstructorTest("whitespace subject", "\n \t\t \n", IllegalArgumentException.class);
         doConstructorTest("negative skipRows", -1, IllegalArgumentException.class);
-        doConstructorTest("null terms", (List) null, NullPointerException.class);
-        doConstructorTest("empty terms", Collections.EMPTY_LIST, IllegalArgumentException.class);
+        doConstructorTest("null terms", (Map) null, NullPointerException.class);
+        doConstructorTest("empty terms", Collections.EMPTY_MAP, IllegalArgumentException.class);
     }
 
     @Test
@@ -106,8 +118,10 @@ public class CsvDocumentMappingTest {
         doConstructorTest("null skipRows", null, 0);
         doConstructorTest("0 skipRows", 0);
         doConstructorTest(">0 skipRows", 10);
-        doConstructorTest_Terms("multiple terms", termList);
-        doConstructorTest_Terms("one term", Arrays.asList(term1));
+        doConstructorTest_Terms("multiple terms", termMap);
+        Map<String, CsvTermColumnMapping> singleton = new HashMap<String, CsvTermColumnMapping>();
+        singleton.put(TERM1_ID, term1);
+        doConstructorTest_Terms("one term", singleton);
         doConstructorTest_Rels("null relationships", null, Collections.EMPTY_LIST);
         doConstructorTest_Rels("empty relationships", new ArrayList<CsvRelationshipMapping>(), Collections.EMPTY_LIST);
         doConstructorTest_Rels("multiple relationships", relList);
@@ -181,7 +195,7 @@ public class CsvDocumentMappingTest {
 
         when(lineReader.readLine()).thenReturn(line1, line2);
         when(lineReader.getOffset()).thenReturn(lineOffset1, lineOffset2);
-        when(csvReader.read()).thenReturn(fields1, null);
+        when(csvReader.read()).thenReturn(fields1, (List<String>) null);
         when(term1.mapTerm(fields1, line1Term1Offset, TEST_PROCESS_ID)).thenReturn(line1term1);
         when(term2.mapTerm(fields1, line1Term2Offset, TEST_PROCESS_ID)).thenReturn(line1term2);
         when(term3.mapTerm(fields1, line1Term3Offset, TEST_PROCESS_ID)).thenReturn(line1term3);
@@ -285,22 +299,22 @@ public class CsvDocumentMappingTest {
 
     @SuppressWarnings("unchecked")
     private void doConstructorTest(final String testName, final String subject, final Class<? extends Throwable> expectedError) {
-        doConstructorTest(testName, subject, 0, termList, Collections.EMPTY_LIST, expectedError);
+        doConstructorTest(testName, subject, 0, termMap, Collections.EMPTY_LIST, expectedError);
     }
 
     @SuppressWarnings("unchecked")
     private void doConstructorTest(final String testName, final Integer skipRows, final Class<? extends Throwable> expectedError) {
-        doConstructorTest(testName, TEST_SUBJECT, skipRows, termList, Collections.EMPTY_LIST, expectedError);
+        doConstructorTest(testName, TEST_SUBJECT, skipRows, termMap, Collections.EMPTY_LIST, expectedError);
     }
 
     @SuppressWarnings("unchecked")
-    private void doConstructorTest(final String testName, final List<CsvTermColumnMapping> terms,
+    private void doConstructorTest(final String testName, final Map<String, CsvTermColumnMapping> terms,
             final Class<? extends Throwable> expectedError) {
         doConstructorTest(testName, TEST_SUBJECT, 0, terms, Collections.EMPTY_LIST, expectedError);
     }
 
     private void doConstructorTest(final String testName, final String subject, final Integer skipRows,
-            final List<CsvTermColumnMapping> terms, final List<CsvRelationshipMapping> relationships,
+            final Map<String, CsvTermColumnMapping> terms, final List<CsvRelationshipMapping> relationships,
             final Class<? extends Throwable> expectedError) {
         try {
             new CsvDocumentMapping(subject, skipRows, terms, relationships);
@@ -317,8 +331,8 @@ public class CsvDocumentMappingTest {
 
     @SuppressWarnings("unchecked")
     private void doConstructorTest(final String testName, final String subject, final String expSubject) {
-        doConstructorTest(testName, subject, 0, termList, Collections.EMPTY_LIST,
-                expSubject, 0, termList, Collections.EMPTY_LIST);
+        doConstructorTest(testName, subject, 0, termMap, Collections.EMPTY_LIST,
+                expSubject, 0, termMap, Collections.EMPTY_LIST);
     }
 
     private void doConstructorTest(final String testName, final Integer skipRows) {
@@ -327,12 +341,12 @@ public class CsvDocumentMappingTest {
 
     @SuppressWarnings("unchecked")
     private void doConstructorTest(final String testName, final Integer skipRows, final Integer expSkipRows) {
-        doConstructorTest(testName, TEST_SUBJECT, skipRows, termList, Collections.EMPTY_LIST,
-                TEST_SUBJECT, expSkipRows, termList, Collections.EMPTY_LIST);
+        doConstructorTest(testName, TEST_SUBJECT, skipRows, termMap, Collections.EMPTY_LIST,
+                TEST_SUBJECT, expSkipRows, termMap, Collections.EMPTY_LIST);
     }
 
     @SuppressWarnings("unchecked")
-    private void doConstructorTest_Terms(final String testName, final List<CsvTermColumnMapping> terms) {
+    private void doConstructorTest_Terms(final String testName, final Map<String, CsvTermColumnMapping> terms) {
         doConstructorTest(testName, TEST_SUBJECT, 0, terms, Collections.EMPTY_LIST,
                 TEST_SUBJECT, 0, terms, Collections.EMPTY_LIST);
     }
@@ -343,12 +357,12 @@ public class CsvDocumentMappingTest {
 
     private void doConstructorTest_Rels(final String testName, final List<CsvRelationshipMapping> rels,
             final List<CsvRelationshipMapping> expRels) {
-        doConstructorTest(testName, TEST_SUBJECT, 0, termList, rels, TEST_SUBJECT, 0, termList, expRels);
+        doConstructorTest(testName, TEST_SUBJECT, 0, termMap, rels, TEST_SUBJECT, 0, termMap, expRels);
     }
 
     private void doConstructorTest(final String testName, final String subject, final Integer skipRows,
-            final List<CsvTermColumnMapping> terms, final List<CsvRelationshipMapping> relationships, final String expSubject,
-            final int expSkipRows, final List<CsvTermColumnMapping> expTerms, final List<CsvRelationshipMapping> expRelationships) {
+            final Map<String, CsvTermColumnMapping> terms, final List<CsvRelationshipMapping> relationships, final String expSubject,
+            final int expSkipRows, final Map<String, CsvTermColumnMapping> expTerms, final List<CsvRelationshipMapping> expRelationships) {
         CsvDocumentMapping mapping = new CsvDocumentMapping(subject, skipRows, terms, relationships);
         assertEquals(testName, expSubject, mapping.getSubject());
         assertEquals(testName, expSkipRows, mapping.getSkipRows());
