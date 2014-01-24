@@ -44,21 +44,21 @@ public class FacebookUser {
         Concept emailConcept = ontologyRepository.getConceptByName(EMAIL_ADDRESS);
 
         Vertex userVertex;
-        Iterator<Vertex> verticesIterator = graph.query(user.getAuthorizations()).has(PropertyName.TITLE.toString(), name_uid.toString()).vertices().iterator();
-        if (!verticesIterator.hasNext()) {
-            Iterator<Vertex> verticesByNameIterator = graph.query(user.getAuthorizations()).has(PropertyName.TITLE.toString(), name.toString()).vertices().iterator();
-            if (!verticesByNameIterator.hasNext()) {
-                LOGGER.error("Could not find user in system, with given profile_id.");
-                throw new RuntimeException();
-            } else {
-                // TODO what happens if verticesByNameIterator contains multiple users
-                userVertex = verticesByNameIterator.next();
-                LOGGER.info("Vertex previously processed: ", userVertex.getId());
-                return userVertex;
-            }
+        String userVid = generateUserVertexId(name_uid.toString());
+        Vertex queryVertex = graph.getVertex(userVid, user.getAuthorizations());
+        if (queryVertex == null) {
+            LOGGER.error("Could not find user in system, with given profile_id.");
+            throw new RuntimeException();
         } else {
-            // TODO what happens if verticesIterator contains multiple users
-            userVertex = verticesIterator.next();
+            Iterable <Object> titles = queryVertex.getPropertyValues(PropertyName.TITLE.toString());
+            for (Object title : titles) {
+                if (title.toString().equals(name)) {
+                    userVertex = queryVertex;
+                    LOGGER.info("Vertex previously processed: ", userVertex.getId());
+                    return userVertex;
+                }
+            }
+            userVertex = queryVertex;
         }
         List<String> modifiedProperties = Lists.newArrayList
                 (PropertyName.TITLE.toString(), PropertyName.CONCEPT_TYPE.toString(), PropertyName.DISPLAY_NAME.toString(), PROFILE_ID);
@@ -77,21 +77,34 @@ public class FacebookUser {
 
         if (userJson.has(EMAIL) && !userJson.getString(EMAIL).equals(JSONObject.NULL)) {
             String email = userJson.getString(EMAIL);
-            Vertex emailVertex;
+            Vertex emailVertex = null;
 
             Iterator<Vertex> emailIterator = graph.query(user.getAuthorizations()).has(EMAIL_ADDRESS, email).vertices().iterator();
-            if (!emailIterator.hasNext()) {
-                emailVertex = graph.addVertex(visibility, user.getAuthorizations());
-                emailVertex.setProperty(PropertyName.TITLE.toString(), email, visibility);
-                emailVertex.setProperty(PropertyName.CONCEPT_TYPE.toString(), emailConcept.getId(), visibility);
+            Vertex queryEmailVertex = emailIterator.next();
+            if (queryEmailVertex == null) {
+                VertexBuilder emailBuilder;
+                emailBuilder = graph.prepareVertex(visibility, user.getAuthorizations());
+                emailBuilder.setProperty(PropertyName.TITLE.toString(), email, visibility);
+                emailBuilder.setProperty(PropertyName.CONCEPT_TYPE.toString(), emailConcept.getId(), visibility);
+                emailVertex = emailBuilder.save();
+
                 auditRepository.auditEntity(AuditAction.CREATE.toString(), emailVertex.getId(), userVertex.getId().toString(), email, emailConcept.getId().toString(), PROCESS, "", user);
                 auditRepository.auditEntityProperties(AuditAction.UPDATE.toString(), emailVertex, PropertyName.TITLE.toString(), PROCESS, "", user);
 
             } else {
-                // TODO what happens if emailIterator contains multiple users
-                emailVertex = emailIterator.next();
+                while (queryEmailVertex != null) {
+                    Iterable <Object> titles = queryVertex.getPropertyValues(PropertyName.TITLE.toString());
+                    for (Object title : titles) {
+                        if (title.toString().equals(name)) {
+                            emailVertex = queryEmailVertex;
+                            break;
+                        }
+                    }
+                    queryEmailVertex = emailIterator.next();
+                }
             }
             graph.addEdge(userVertex, emailVertex, EMAIL_RELATIONSHIP, visibility, user.getAuthorizations());
+            graph.flush();
         }
 
         if (userJson.has(COORDS) && !userJson.get(COORDS).equals(JSONObject.NULL)) {
@@ -170,5 +183,9 @@ public class FacebookUser {
 
     public void setFacebookBolt(FacebookBolt bolt) {
         this.facebookBolt = bolt;
+    }
+
+    public String generateUserVertexId (String profileId) {
+        return FACEBOOK_VERTEX_ID + profileId;
     }
 }
