@@ -19,7 +19,7 @@ public abstract class BaseRequestHandler implements Handler {
         String path = request.getServletContext().getRealPath(request.getPathInfo());
         String url = request.getRequestURL().toString();
         int slashIndex = url.indexOf('/', "https://".length() + 1);
-        return url.substring(0, slashIndex) + request.getServletContext().getContextPath();
+        return url.substring(0, slashIndex) + request.getServletContext().getContextPath() + "/";
     }
 
     protected boolean getParameterBoolean(final HttpServletRequest request, final String parameterName) {

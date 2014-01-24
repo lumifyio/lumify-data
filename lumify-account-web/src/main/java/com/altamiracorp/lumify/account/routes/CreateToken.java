@@ -96,7 +96,7 @@ public class CreateToken extends BaseRequestHandler {
 
         Map<String, String> replacementTokens = new HashMap();
         replacementTokens.put("create-account-link",
-                baseUrl + "/create-account?" +
+                baseUrl + "create-account?" +
                 "token=" + accountUser.getData().getToken() +
                 (accountUser.getData().getReset() ? "&reset=1" : ""));
 
