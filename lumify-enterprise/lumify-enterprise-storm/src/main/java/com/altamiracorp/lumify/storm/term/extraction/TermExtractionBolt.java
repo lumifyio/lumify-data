@@ -124,11 +124,8 @@ public class TermExtractionBolt extends BaseTextProcessingBolt {
 
             if (termMention.isResolved()) {
                 String title = termMention.getSign();
-                vertex = single(
-                        graph.query(getUser().getAuthorizations())
-                                .has(PropertyName.TITLE.toString(), title)
-                                .vertices());
-                if (!termMention.getUseExisting() || vertex == null) {
+                Iterable<Vertex> vertexIterator = graph.query(getUser().getAuthorizations()).has(PropertyName.TITLE.toString(), title).vertices();
+                if (!termMention.getUseExisting() || !vertexIterator.iterator().hasNext()) {
                     vertex = graph.addVertex(new Visibility(""), getUser().getAuthorizations());
                     newVertex = true;
                     title = termMention.getSign();
@@ -138,6 +135,8 @@ public class TermExtractionBolt extends BaseTextProcessingBolt {
                         vertex.setProperty(PropertyName.CONCEPT_TYPE.toString(), concept.getId(), new Visibility(""));
                         modifiedProperties.add(PropertyName.CONCEPT_TYPE.toString());
                     }
+                } else {
+                    vertex = single(vertexIterator);
                 }
 
                 if (termMention.getPropertyValue() != null) {
