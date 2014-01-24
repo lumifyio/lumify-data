@@ -4,23 +4,18 @@ import com.altamiracorp.lumify.core.ingest.ArtifactExtractedInfo;
 import com.altamiracorp.lumify.core.model.audit.AuditRepository;
 import com.altamiracorp.lumify.core.model.ontology.Concept;
 import com.altamiracorp.lumify.core.model.ontology.OntologyRepository;
-import com.altamiracorp.lumify.core.model.ontology.PropertyName;
 import com.altamiracorp.lumify.core.user.SystemUser;
-import com.altamiracorp.securegraph.Graph;
-import com.altamiracorp.securegraph.Vertex;
+import com.altamiracorp.securegraph.*;
 import org.json.JSONObject;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
-import org.mockito.invocation.InvocationOnMock;
 import org.mockito.runners.MockitoJUnitRunner;
 import static org.mockito.Matchers.any;
 import static org.junit.Assert.*;
 import static org.mockito.Mockito.*;
 import static org.powermock.api.mockito.PowerMockito.when;
-import org.mockito.stubbing.Answer;
-import java.io.InputStream;
 import java.util.Iterator;
 
 @RunWith(MockitoJUnitRunner.class)
@@ -39,6 +34,14 @@ public class FacebookPostTest {
     private Vertex authorVertex;
     @Mock
     private Vertex taggedVertex;
+    @Mock
+    private VertexBuilder postBuilder;
+    @Mock
+    private VertexBuilder authorBuilder;
+    @Mock
+    private VertexBuilder taggedBuilder;
+    @Mock
+    private Visibility visibility;
     @Mock
     private Iterator keys;
     @Mock
@@ -88,66 +91,26 @@ public class FacebookPostTest {
         assertEquals("Facebook", returnedExtractedInfo.getSource());
     }
 
-    // TODO rewrite this test for secure graph!!!
-//    @Test
-//    public void testProcessPostVertex () throws Exception {
-//        facebookPost = new FacebookPost();
-//        when(graph.findVertexByProperty("profileId", "12345", systemUser)).thenReturn(authorVertex);
-//        when(graph.findVertexByProperty("profileId", "67890", systemUser)).thenReturn(taggedVertex);
-//
-//        doAnswer(new Answer() {
-//            @Override
-//            public Object answer(InvocationOnMock invocationOnMock) throws Throwable {
-//                postVertex   = (Vertex) invocationOnMock.getArguments()[0];
-//                authorVertex = (Vertex) invocationOnMock.getArguments()[0];
-//                taggedVertex = (Vertex) invocationOnMock.getArguments()[0];
-//                return null;
-//            }
-//        }).when(searchProvider).add(any(Vertex.class), any(InputStream.class));
-//
-//        when(ontologyRepository.getConceptByName("facebookProfile", systemUser)).thenReturn(facebookConcept);
-//        when(ontologyRepository.getConceptByName("emailAddress", systemUser)).thenReturn(emailConcept);
-//        when(facebookConcept.getId()).thenReturn("32");
-//        when(emailConcept.getId()).thenReturn("32");
-//        when(graph.save(postVertex, systemUser)).thenReturn("");
-//        when(graph.save(authorVertex, systemUser)).thenReturn("");
-//        when(graph.save(taggedVertex, systemUser)).thenReturn("");
-//        when(postVertex.getId()).thenReturn("");
-//        when(authorVertex.getId()).thenReturn("");
-//        when(taggedVertex.getId()).thenReturn("");
-//        when(postVertex.getProperty(PropertyName.TITLE)).thenReturn("");
-//        when(keys.next()).thenReturn(taggedVertex);
-//
-//        returnedVertex = facebookPost.processPostVertex(normalPostObject, postVertex, graph, auditRepository, ontologyRepository, systemUser);
-//
-//        verify(graph, times(1)).save(any(Vertex.class), eq(systemUser));
-//        verify(graph, times(2)).saveRelationship(anyString(), anyString(), anyString(), eq(systemUser));
-//        verify(graph, times(2)).findVertexByProperty(eq("profileId"), anyString(), eq(systemUser));
-//    }
-//
-//    @Test
-//    public void testProcessPostUserVertices () throws Exception {
-//        facebookPost = new FacebookPost();
-//        when(graph.findVertexByProperty("profileId", "12345", systemUser)).thenReturn(null);
-//        when(graph.findVertexByProperty("profileId", "67890", systemUser)).thenReturn(null);
-//        when(graph.save(postVertex, systemUser)).thenReturn("");
-//        when(graph.save(authorVertex, systemUser)).thenReturn("");
-//        when(graph.save(taggedVertex, systemUser)).thenReturn("");
-//        when(postVertex.getId()).thenReturn("");
-//        when(authorVertex.getId()).thenReturn("");
-//        when(taggedVertex.getId()).thenReturn("");
-//        when(postVertex.getProperty(PropertyName.TITLE)).thenReturn("");
-//        when(keys.next()).thenReturn(taggedVertex);
-//        when(ontologyRepository.getConceptByName("facebookProfile", systemUser)).thenReturn(facebookConcept);
-//        when(ontologyRepository.getConceptByName("emailAddress", systemUser)).thenReturn(emailConcept);
-//        when(facebookConcept.getId()).thenReturn("32");
-//        when(emailConcept.getId()).thenReturn("32");
-//        returnedVertex = facebookPost.processPostVertex(normalPostObject, postVertex, graph, auditRepository, ontologyRepository, systemUser);
-//
-//        verify(graph, times(3)).save(any(Vertex.class), eq(systemUser));
-//        verify(graph, times(2)).saveRelationship(anyString(), anyString(), anyString(), eq(systemUser));
-//        verify(graph, times(2)).findVertexByProperty(eq("profileId"), anyString(), eq(systemUser));
-//    }
+    @Test
+    public void testProcessPostVertex () throws Exception {
+        facebookPost = new FacebookPost();
+
+        when(graph.prepareVertex(eq("FB-USER-12345"), any(Visibility.class), any(Authorizations.class))).thenReturn(authorBuilder);
+        when(graph.prepareVertex(eq("FB-USER-67890"), any(Visibility.class), any(Authorizations.class))).thenReturn(taggedBuilder);
+        when(ontologyRepository.getConceptByName("facebookProfile")).thenReturn(facebookConcept);
+        when(ontologyRepository.getConceptByName("emailAddress")).thenReturn(emailConcept);
+        when(facebookConcept.getId()).thenReturn("32");
+        when(emailConcept.getId()).thenReturn("32");
+        when(authorBuilder.save()).thenReturn(authorVertex);
+        when(taggedBuilder.save()).thenReturn(taggedVertex);
+        when(postVertex.getId()).thenReturn("");
+        when(authorVertex.getId()).thenReturn("");
+        when(taggedVertex.getId()).thenReturn("");
+        when(keys.next()).thenReturn(taggedVertex);
+        returnedVertex = facebookPost.processPostVertex(normalPostObject, postVertex, graph, auditRepository, ontologyRepository, systemUser);
+        verify(graph, times(2)).flush();
+        verify(graph, times(2)).addEdge(any(Vertex.class), any(Vertex.class), anyString(), any(Visibility.class), any(Authorizations.class));
+    }
 
     private void setNormalPostObject() {
         normalPostObject = new JSONObject();
