@@ -25,7 +25,6 @@ import org.mockito.runners.MockitoJUnitRunner;
 @RunWith(MockitoJUnitRunner.class)
 public class CsvTermColumnMappingTest {
     private static final int TEST_COLUMN = 1;
-    private static final String TEST_MAP_ID = "mapId";
     private static final String TEST_CONCEPT_LABEL = "conceptLabel";
     private static final String TEST_SIGN = "My Test Term";
     private static final int TEST_OFFSET = 42;
@@ -52,9 +51,6 @@ public class CsvTermColumnMappingTest {
     @Test
     public void testIllegalConstruction() {
         doTestConstructor_ColIdx("colIdx < 0", -1, IllegalArgumentException.class);
-        doTestConstructor_MapId("null mapID", null, NullPointerException.class);
-        doTestConstructor_MapId("empty mapID", "", IllegalArgumentException.class);
-        doTestConstructor_MapId("whitespace mapID", "\n \t\t \n", IllegalArgumentException.class);
         doTestConstructor_ConceptLabel("null conceptLabel", null, NullPointerException.class);
         doTestConstructor_ConceptLabel("empty conceptLabel", "", IllegalArgumentException.class);
         doTestConstructor_ConceptLabel("whitespace conceptLabel", "\n \t\t \n", IllegalArgumentException.class);
@@ -67,8 +63,6 @@ public class CsvTermColumnMappingTest {
         singleton.add(prop1);
 
         doTestConstructor_ColIdx("colIdx", TEST_COLUMN);
-        doTestConstructor_MapId("trimmed mapId", TEST_MAP_ID);
-        doTestConstructor_MapId("untrimmed mapId", "\t  " + TEST_MAP_ID + "  \t\n", TEST_MAP_ID);
         doTestConstructor_ConceptLabel("trimmed conceptLabel", TEST_CONCEPT_LABEL);
         doTestConstructor_ConceptLabel("untrimmed conceptLabel", "\t  " + TEST_CONCEPT_LABEL + "  \t\n", TEST_CONCEPT_LABEL);
         doTestConstructor_UseExisting("null useExisting", null, CsvTermColumnMapping.DEFAULT_USE_EXISTING);
@@ -126,12 +120,12 @@ public class CsvTermColumnMappingTest {
     }
 
     private CsvTermColumnMapping getInstance(final int colIdx) {
-        return new CsvTermColumnMapping(colIdx, TEST_MAP_ID, TEST_CONCEPT_LABEL, null, null, null);
+        return new CsvTermColumnMapping(colIdx, TEST_CONCEPT_LABEL, null, null, null);
     }
 
     private CsvTermColumnMapping getInstance(final Boolean useExisting, final List<CsvPropertyColumnMapping<?>> props,
             final Boolean required) {
-        return new CsvTermColumnMapping(TEST_COLUMN, TEST_MAP_ID, TEST_CONCEPT_LABEL, useExisting, props, required);
+        return new CsvTermColumnMapping(TEST_COLUMN, TEST_CONCEPT_LABEL, useExisting, props, required);
     }
 
     private void doMissingSignTest(final String testName, final String sign, final boolean required) {
@@ -177,22 +171,18 @@ public class CsvTermColumnMappingTest {
     }
 
     private void doTestConstructor_ColIdx(final String testName, final int colIdx, final Class<? extends Throwable> expectedError) {
-        doTestConstructor(testName, colIdx, TEST_MAP_ID, TEST_CONCEPT_LABEL, expectedError);
-    }
-
-    private void doTestConstructor_MapId(final String testName, final String mapId, final Class<? extends Throwable> expectedError) {
-        doTestConstructor(testName, TEST_COLUMN, mapId, TEST_CONCEPT_LABEL, expectedError);
+        doTestConstructor(testName, colIdx, TEST_CONCEPT_LABEL, expectedError);
     }
 
     private void doTestConstructor_ConceptLabel(final String testName, final String conceptLabel,
             final Class<? extends Throwable> expectedError) {
-        doTestConstructor(testName, TEST_COLUMN, TEST_MAP_ID, conceptLabel, expectedError);
+        doTestConstructor(testName, TEST_COLUMN, conceptLabel, expectedError);
     }
 
-    private void doTestConstructor(final String testName, final int colIdx, final String mapId, final String conceptLabel,
+    private void doTestConstructor(final String testName, final int colIdx, final String conceptLabel,
             final Class<? extends Throwable> expectedError) {
         try {
-            new CsvTermColumnMapping(colIdx, mapId, conceptLabel, null, null, null);
+            new CsvTermColumnMapping(colIdx, conceptLabel, null, null, null);
             fail(String.format("[%s] Expected %s", testName, expectedError.getName()));
         } catch (Exception e) {
             assertTrue(String.format("[%s] Expected %s but got %s.", testName, expectedError.getName(),
@@ -202,19 +192,8 @@ public class CsvTermColumnMappingTest {
 
     @SuppressWarnings("unchecked")
     private void doTestConstructor_ColIdx(final String testName, final int colIdx) {
-        doTestConstructor(testName, colIdx, TEST_MAP_ID, TEST_CONCEPT_LABEL, null, null, null,
-                colIdx, TEST_MAP_ID, TEST_CONCEPT_LABEL, CsvTermColumnMapping.DEFAULT_USE_EXISTING, Collections.EMPTY_LIST,
-                CsvTermColumnMapping.DEFAULT_REQUIRED);
-    }
-
-    private void doTestConstructor_MapId(final String testName, final String mapId) {
-        doTestConstructor_MapId(testName, mapId, mapId);
-    }
-
-    @SuppressWarnings("unchecked")
-    private void doTestConstructor_MapId(final String testName, final String mapId, final String expMapId) {
-        doTestConstructor(testName, TEST_COLUMN, mapId, TEST_CONCEPT_LABEL, null, null, null,
-                TEST_COLUMN, expMapId, TEST_CONCEPT_LABEL, CsvTermColumnMapping.DEFAULT_USE_EXISTING, Collections.EMPTY_LIST,
+        doTestConstructor(testName, colIdx, TEST_CONCEPT_LABEL, null, null, null,
+                colIdx, TEST_CONCEPT_LABEL, CsvTermColumnMapping.DEFAULT_USE_EXISTING, Collections.EMPTY_LIST,
                 CsvTermColumnMapping.DEFAULT_REQUIRED);
     }
 
@@ -224,15 +203,15 @@ public class CsvTermColumnMappingTest {
 
     @SuppressWarnings("unchecked")
     private void doTestConstructor_ConceptLabel(final String testName, final String conceptLabel, final String expConceptLabel) {
-        doTestConstructor(testName, TEST_COLUMN, TEST_MAP_ID, conceptLabel, null, null, null,
-                TEST_COLUMN, TEST_MAP_ID, expConceptLabel, CsvTermColumnMapping.DEFAULT_USE_EXISTING, Collections.EMPTY_LIST,
+        doTestConstructor(testName, TEST_COLUMN, conceptLabel, null, null, null,
+                TEST_COLUMN, expConceptLabel, CsvTermColumnMapping.DEFAULT_USE_EXISTING, Collections.EMPTY_LIST,
                 CsvTermColumnMapping.DEFAULT_REQUIRED);
     }
 
     @SuppressWarnings("unchecked")
     private void doTestConstructor_UseExisting(final String testName, final Boolean useExisting, final boolean expUseExisting) {
-        doTestConstructor(testName, TEST_COLUMN, TEST_MAP_ID, TEST_CONCEPT_LABEL, useExisting, null, null,
-                TEST_COLUMN, TEST_MAP_ID, TEST_CONCEPT_LABEL, expUseExisting, Collections.EMPTY_LIST,
+        doTestConstructor(testName, TEST_COLUMN, TEST_CONCEPT_LABEL, useExisting, null, null,
+                TEST_COLUMN, TEST_CONCEPT_LABEL, expUseExisting, Collections.EMPTY_LIST,
                 CsvTermColumnMapping.DEFAULT_REQUIRED);
     }
 
@@ -242,25 +221,24 @@ public class CsvTermColumnMappingTest {
 
     private void doTestConstructor_Props(final String testName, final List<CsvPropertyColumnMapping<?>> props,
             final List<CsvPropertyColumnMapping<?>> expProps) {
-        doTestConstructor(testName, TEST_COLUMN, TEST_MAP_ID, TEST_CONCEPT_LABEL, null, props, null,
-                TEST_COLUMN, TEST_MAP_ID, TEST_CONCEPT_LABEL, CsvTermColumnMapping.DEFAULT_USE_EXISTING, expProps,
+        doTestConstructor(testName, TEST_COLUMN, TEST_CONCEPT_LABEL, null, props, null,
+                TEST_COLUMN, TEST_CONCEPT_LABEL, CsvTermColumnMapping.DEFAULT_USE_EXISTING, expProps,
                 CsvTermColumnMapping.DEFAULT_REQUIRED);
     }
 
     @SuppressWarnings("unchecked")
     private void doTestConstructor_Required(final String testName, final Boolean required, final boolean expRequired) {
-        doTestConstructor(testName, TEST_COLUMN, TEST_MAP_ID, TEST_CONCEPT_LABEL, null, null, required,
-                TEST_COLUMN, TEST_MAP_ID, TEST_CONCEPT_LABEL, CsvTermColumnMapping.DEFAULT_USE_EXISTING, Collections.EMPTY_LIST,
+        doTestConstructor(testName, TEST_COLUMN, TEST_CONCEPT_LABEL, null, null, required,
+                TEST_COLUMN, TEST_CONCEPT_LABEL, CsvTermColumnMapping.DEFAULT_USE_EXISTING, Collections.EMPTY_LIST,
                 expRequired);
     }
 
-    private void doTestConstructor(final String testName, final int colIdx, final String mapId, final String conceptLabel,
+    private void doTestConstructor(final String testName, final int colIdx, final String conceptLabel,
             final Boolean useExisting, final List<CsvPropertyColumnMapping<?>> props, final Boolean required,
-            final int expColIdx, final String expMapId, final String expConceptLabel, final boolean expUseExisting,
+            final int expColIdx, final String expConceptLabel, final boolean expUseExisting,
             final List<CsvPropertyColumnMapping<?>> expProps, final boolean expRequired) {
-        CsvTermColumnMapping mapping = new CsvTermColumnMapping(colIdx, mapId, conceptLabel, useExisting, props, required);
+        CsvTermColumnMapping mapping = new CsvTermColumnMapping(colIdx, conceptLabel, useExisting, props, required);
         assertEquals(testName, expColIdx, mapping.getColumnIndex());
-        assertEquals(testName, expMapId, mapping.getMapId());
         assertEquals(testName, expConceptLabel, mapping.getConceptLabel());
         assertEquals(testName, expUseExisting, mapping.isUseExisting());
         assertEquals(testName, expProps, mapping.getProperties());

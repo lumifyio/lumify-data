@@ -51,12 +51,6 @@ public class CsvTermColumnMapping implements Comparable<CsvTermColumnMapping> {
     private final int columnIndex;
 
     /**
-     * The map key for this Term, used to uniquely identify it
-     * within a relationship definition.
-     */
-    private final String mapId;
-
-    /**
      * The ontological concept label for this term.
      */
     private final String conceptLabel;
@@ -82,7 +76,6 @@ public class CsvTermColumnMapping implements Comparable<CsvTermColumnMapping> {
     /**
      * Create a new CsvTermColumnMapping.
      * @param index the column index
-     * @param mId the unique key used to identify this Term in a relationship definition
      * @param label the ontological concept label for the Term
      * @param useExistingIn true to re-use an existing Term with the same sign
      * @param reqd is this Term required
@@ -90,20 +83,16 @@ public class CsvTermColumnMapping implements Comparable<CsvTermColumnMapping> {
      */
     @JsonCreator
     @SuppressWarnings("unchecked")
-    public CsvTermColumnMapping(@JsonProperty("column") final int index,
-            @JsonProperty("mapId") final String mId,
+    public CsvTermColumnMapping(@JsonProperty("signColumn") final int index,
             @JsonProperty("conceptLabel") final String label,
             @JsonProperty(value="useExisting", required=false) final Boolean useExistingIn,
             @JsonProperty(value="properties", required=false) final List<CsvPropertyColumnMapping<?>> props,
             @JsonProperty(value="required", required=false) final Boolean reqd) {
         checkArgument(index >= 0, "Column index must be >= 0");
-        checkNotNull(mId, "mapId must be provided");
-        checkArgument(!mId.trim().isEmpty(), "mapId must be provided");
         checkNotNull(label, "conceptLabel must be provided");
         checkArgument(!label.trim().isEmpty(), "conceptLabel must be provided");
 
         this.columnIndex = index;
-        this.mapId = mId.trim();
         this.conceptLabel = label.trim();
         this.useExisting = useExistingIn != null ? useExistingIn : CsvTermColumnMapping.DEFAULT_USE_EXISTING;
         this.required = reqd != null ? reqd : CsvTermColumnMapping.DEFAULT_REQUIRED;
@@ -111,14 +100,9 @@ public class CsvTermColumnMapping implements Comparable<CsvTermColumnMapping> {
                 props != null ? Collections.unmodifiableList(new ArrayList<CsvPropertyColumnMapping<?>>(props)) : Collections.EMPTY_LIST;
     }
 
-    @JsonProperty("column")
+    @JsonProperty("signColumn")
     public int getColumnIndex() {
         return columnIndex;
-    }
-
-    @JsonProperty("mapId")
-    public String getMapId() {
-        return mapId;
     }
 
     @JsonProperty("conceptLabel")
@@ -154,7 +138,7 @@ public class CsvTermColumnMapping implements Comparable<CsvTermColumnMapping> {
         TermMention mention;
         if (sign == null || sign.trim().isEmpty()) {
             if (required) {
-                throw new IllegalArgumentException(String.format("Term [%s] in CSV column %d is required.", mapId, columnIndex));
+                throw new IllegalArgumentException(String.format("Sign in CSV column %d is required.", columnIndex));
             } else {
                 mention = null;
             }

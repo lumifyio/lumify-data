@@ -2,10 +2,9 @@
     "type": "csv",
     "subject": "CSV Mapping Integration Test",
     "skipRows": 3,
-    "terms": [
-        {
-            "column": 0,
-            "mapId": "person",
+    "terms": {
+        "person": {
+            "signColumn": 0,
             "conceptLabel": "person",
             "useExisting": false,
             "properties": [
@@ -67,9 +66,8 @@
                 }
             ]
         },
-        {
-            "mapId": "employer",
-            "column": 13,
+        "employer": {
+            "signColumn": 13,
             "conceptLabel": "organization",
             "required": true,
             "properties": [
@@ -94,9 +92,8 @@
                 }
             ]
         },
-        {
-            "mapId": "home",
-            "column": 17,
+        "home": {
+            "signColumn": 17,
             "conceptLabel": "location",
             "useExisting": true,
             "properties": [
@@ -119,9 +116,8 @@
                 }
             ]
         },
-        {
-            "mapId": "twitter",
-            "column": 20,
+        "twitter": {
+            "signColumn": 20,
             "conceptLabel": "twitterUser",
             "useExisting": true,
             "properties": [
@@ -156,14 +152,13 @@
                 }
             ]
         },
-        {
-            "column": 27,
-            "mapId": "facebook",
+        "facebook": {
+            "signColumn": 27,
             "required": true,
             "conceptLabel": "facebookAccount",
             "useExisting": true
         }
-    ],
+    },
     "relationships": [
         {
             "label": "livesAt",
