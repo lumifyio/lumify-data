@@ -168,6 +168,7 @@ public class CsvDocumentMapping implements DocumentMapping {
         TermMention tgtMention;
         int lastCol;
         int currentCol;
+        boolean skipLine;
         for (String line = lineReader.readLine(); line != null && !line.isEmpty(); line = lineReader.readLine()) {
             csvReader = new CsvListReader(new StringReader(line), CsvDocumentMapping.CSV_PREFERENCE);
             columns = csvReader.read();
@@ -176,8 +177,10 @@ public class CsvDocumentMapping implements DocumentMapping {
             }
             // extract all identified Terms, adding them to the results and
             // mapping them by the configured map ID for relationship discovery
+            List<TermMention> mentions = new ArrayList<TermMention>();
             termMap = new HashMap<String, TermMention>();
             lastCol = 0;
+            skipLine = false;
             for (CsvTermColumnMapping termMapping : termMappings) {
                 // term mappings are ordered by column number; update offset
                 // so it is set to the start of the column for the current term
@@ -185,26 +188,37 @@ public class CsvDocumentMapping implements DocumentMapping {
                 for (/* no precondition */; lastCol < currentCol; lastCol++) {
                     offset += (columns.get(lastCol) != null ? columns.get(lastCol).length() : 0) + 1;
                 }
-                mention = termMapping.mapTerm(columns, offset, processId);
-                if (mention != null) {
-                    // no need to update offset here, it will get updated by the block
-                    // above when the next term is processed or, if this is the last term,
-                    // it will be set to the proper offset for the next line
-                    termMap.put(termMapping.getMapId(), mention);
-                    results.add(mention);
+                try {
+                    mention = termMapping.mapTerm(columns, offset, processId);
+                    if (mention != null) {
+                        // no need to update offset here, it will get updated by the block
+                        // above when the next term is processed or, if this is the last term,
+                        // it will be set to the proper offset for the next line
+                        termMap.put(termMapping.getMapId(), mention);
+                        mentions.add(mention);
+                    }
+                } catch (Exception e) {
+                    if (termMapping.isRequired()) {
+                        // skip line
+                        skipLine = true;
+                        break;
+                    }
                 }
             }
-            // parse all configured relationships, generating the relationship only
-            // if both Terms were successfully extracted
-            List<TermRelationship> relationships = new ArrayList<TermRelationship>();
-            for (CsvRelationshipMapping relMapping : relationshipMappings) {
-                mention = termMap.get(relMapping.getSourceTermId());
-                tgtMention = termMap.get(relMapping.getTargetTermId());
-                if (mention != null && tgtMention != null) {
-                    relationships.add(new TermRelationship(mention, tgtMention, relMapping.getLabel()));
+            if (!skipLine) {
+                // parse all configured relationships, generating the relationship only
+                // if both Terms were successfully extracted
+                List<TermRelationship> relationships = new ArrayList<TermRelationship>();
+                for (CsvRelationshipMapping relMapping : relationshipMappings) {
+                    mention = termMap.get(relMapping.getSourceTermId());
+                    tgtMention = termMap.get(relMapping.getTargetTermId());
+                    if (mention != null && tgtMention != null) {
+                        relationships.add(new TermRelationship(mention, tgtMention, relMapping.getLabel()));
+                    }
                 }
+                results.addAllTermMentions(mentions);
+                results.addAllRelationships(relationships);
             }
-            results.addAllRelationships(relationships);
             offset = lineReader.getOffset();
         }
         return results;
