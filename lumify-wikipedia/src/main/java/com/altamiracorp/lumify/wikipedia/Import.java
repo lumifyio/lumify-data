@@ -118,7 +118,7 @@ public class Import extends CommandLineBase {
                         LOGGER.error("Found end page without page title. Line %d", lineNumber);
                     } else {
                         String pageString = page.toString();
-                        String wikipediaPageVertexId = getWikipediaPageVertexId(pageTitle);
+                        String wikipediaPageVertexId = WikipediaBolt.getWikipediaPageVertexId(pageTitle);
                         StreamingPropertyValue rawPropertyValue = new StreamingPropertyValue(new ByteArrayInputStream(pageString.getBytes()), byte[].class);
                         rawPropertyValue.store(true);
                         rawPropertyValue.searchIndex(false);
@@ -144,10 +144,6 @@ public class Import extends CommandLineBase {
         }
 
         return 0;
-    }
-
-    private String getWikipediaPageVertexId(String pageTitle) {
-        return "WIKIPEDIA_" + pageTitle.toLowerCase().replace(' ', '_');
     }
 
     @Inject

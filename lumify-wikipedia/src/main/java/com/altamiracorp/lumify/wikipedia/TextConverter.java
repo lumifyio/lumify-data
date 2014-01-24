@@ -33,7 +33,9 @@ import org.sweble.wikitext.lazy.preprocessor.*;
 import org.sweble.wikitext.lazy.utils.XmlCharRef;
 import org.sweble.wikitext.lazy.utils.XmlEntityRef;
 
+import java.util.ArrayList;
 import java.util.LinkedList;
+import java.util.List;
 import java.util.regex.Pattern;
 
 /**
@@ -81,6 +83,7 @@ public class TextConverter extends AstVisitor {
     private boolean noWrap;
 
     private LinkedList<Integer> sections;
+    private List<InternalLink> internalLinks = new ArrayList<InternalLink>();
 
     // =========================================================================
 
@@ -194,16 +197,17 @@ public class TextConverter extends AstVisitor {
     }
 
     public void visit(InternalLink link) {
+        internalLinks.add(link);
         try {
             PageTitle page = PageTitle.make(config, link.getTarget());
-            if (page.getNamespace().equals(config.getNamespace("Category")))
+            if (page.getNamespace().equals(config.getNamespace("Category"))) {
                 return;
+            }
         } catch (LinkTargetException e) {
         }
 
         write(link.getPrefix());
-        if (link.getTitle().getContent() == null
-                || link.getTitle().getContent().isEmpty()) {
+        if (link.getTitle().getContent() == null || link.getTitle().getContent().isEmpty()) {
             write(link.getTarget());
         } else {
             iterate(link.getTitle());
@@ -385,5 +389,9 @@ public class TextConverter extends AstVisitor {
 
     private void write(int num) {
         writeWord(String.valueOf(num));
+    }
+
+    public List<InternalLink> getInternalLinks() {
+        return internalLinks;
     }
 }
