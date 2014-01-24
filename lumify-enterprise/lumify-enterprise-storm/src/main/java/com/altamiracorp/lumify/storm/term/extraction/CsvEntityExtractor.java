@@ -41,7 +41,7 @@ public class CsvEntityExtractor {
         String mappingJsonString = (String) artifactVertex.getPropertyValue(PropertyName.MAPPING_JSON.toString(), 0);
         if (mappingJsonString != null) {
             DocumentMapping mapping = new ObjectMapper().readValue(mappingJsonString, DocumentMapping.class);
-            String text = artifactVertex.getPropertyValue(PropertyName.TEXT.toString(), 0);
+            String text = (String) artifactVertex.getPropertyValue(PropertyName.TEXT.toString(), 0);
             termExtractionResult = mapping.mapDocument(new StringReader(text), getClass().getName());
 //            JSONObject mappingJson = new JSONObject(artifact.getMetadata().getMappingJson());
 //            int row = 0;
