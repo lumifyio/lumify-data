@@ -9,8 +9,11 @@ import com.altamiracorp.lumify.core.util.LumifyLogger;
 import com.altamiracorp.lumify.core.util.LumifyLoggerFactory;
 import com.altamiracorp.lumify.storm.structuredData.mapping.DocumentMapping;
 import com.altamiracorp.securegraph.Vertex;
+import com.altamiracorp.securegraph.property.StreamingPropertyValue;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import java.io.IOException;
+import java.io.InputStreamReader;
+import java.io.Reader;
 import java.io.StringReader;
 import java.text.ParseException;
 
@@ -23,14 +26,20 @@ public class DocumentMappingEntityExtractor {
         checkNotNull(artifactVertex);
         checkNotNull(user);
         TermExtractionResult termExtractionResult = null;
-        String artifactRowKey = (String) artifactVertex.getPropertyValue(PropertyName.ROW_KEY.toString(), 0);
+        String artifactRowKey = (String) artifactVertex.getPropertyValue(PropertyName.ROW_KEY.toString());
         LOGGER.debug("Processing graph vertex [%s] for artifact: %s", artifactVertex.getId(), artifactRowKey);
 
-        String mappingJsonString = (String) artifactVertex.getPropertyValue(PropertyName.MAPPING_JSON.toString(), 0);
+        String mappingJsonString = (String) artifactVertex.getPropertyValue(PropertyName.MAPPING_JSON.toString());
         if (mappingJsonString != null) {
             DocumentMapping mapping = JSON_MAPPER.readValue(mappingJsonString, DocumentMapping.class);
-            String text = (String) artifactVertex.getPropertyValue(PropertyName.TEXT.toString(), 0);
-            termExtractionResult = mapping.mapDocument(new StringReader(text), getClass().getName());
+            Object textVal = artifactVertex.getPropertyValue(PropertyName.TEXT.toString());
+            Reader textReader;
+            if (textVal instanceof StreamingPropertyValue) {
+                textReader = new InputStreamReader(((StreamingPropertyValue) textVal).getInputStream());
+            } else {
+                textReader = new StringReader(textVal.toString());
+            }
+            termExtractionResult = mapping.mapDocument(textReader, getClass().getName());
         }
         return termExtractionResult;
     }
