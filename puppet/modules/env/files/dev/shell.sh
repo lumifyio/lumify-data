@@ -1,14 +1,19 @@
 #!/bin/bash -e
 
-case "$1" in
+tool=$1; shift
+for p in "$@"; do
+  params="${params} \"${p}\""
+done
+
+case "${tool}" in
   accumulo)
-    sudo -u accumulo /usr/lib/accumulo/bin/accumulo shell -u root
+    sudo -u accumulo bash -c "/usr/lib/accumulo/bin/accumulo shell -u root -p password ${params}"
     ;;
   blur)
-    sudo -u blur /usr/lib/apache-blur/bin/blur shell
+    sudo -u blur bash -c "/usr/lib/apache-blur/bin/blur shell ${params}"
     ;;
   zk)
-    sudo -u zookeeper /usr/lib/zookeeper/bin/zkCli.sh
+    sudo -u zookeeper bash -c "/usr/lib/zookeeper/bin/zkCli.sh ${params}"
     ;;
   *)
     echo 'you must specify a supported shell, one of:'
