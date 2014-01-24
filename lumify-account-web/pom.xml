@@ -5,14 +5,14 @@
     <modelVersion>4.0.0</modelVersion>
 
     <groupId>com.altamiracorp.lumify.demoaccountweb</groupId>
-    <artifactId>lumify-demo-account-web</artifactId>
+    <artifactId>lumify-account-web</artifactId>
     <version>0.1.0-SNAPSHOT</version>
     <packaging>war</packaging>
     
     <name>Lumify Demo Account Web</name>
     
     <scm>
-        <url>https://github.com/altamiracorp/lumify-all/lumify-demo-account-web</url>
+        <url>https://github.com/altamiracorp/lumify-all/lumify-account-web</url>
         <connection>scm:git:git://github.com/altamiracorp/lumify-all.git</connection>
         <developerConnection>scm:git:ssh://git@github.com/altamiracorp/lumify-all.git</developerConnection>
     </scm>
