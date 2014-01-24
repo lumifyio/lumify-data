@@ -17,47 +17,36 @@ import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.StringWriter;
-import org.json.JSONObject;
 
-public class CsvTextExtractorWorker
+/**
+ * This class applies a configured DocumentMapping to the input to process
+ * and store the document text with the Artifact for future term extraction
+ * by the defined mapping.
+ */
+public class DocumentMappingTextExtractorWorker
         extends ThreadedTeeInputStreamWorker<ArtifactExtractedInfo, AdditionalArtifactWorkData>
         implements StructuredDataExtractionWorker {
 
-    private static final LumifyLogger LOGGER = LumifyLoggerFactory.getLogger(CsvTextExtractorWorker.class);
+    private static final LumifyLogger LOGGER = LumifyLoggerFactory.getLogger(DocumentMappingTextExtractorWorker.class);
 
-    private ObjectMapper mapper;
+    private ObjectMapper jsonMapper;
 
     @Override
     protected ArtifactExtractedInfo doWork(InputStream work, AdditionalArtifactWorkData data) throws Exception {
-        LOGGER.debug("Extracting Text from CSV [CsvTextExtractorWorker]: %s", data.getFileName());
+        LOGGER.debug("Extracting Text from Mapped Document [DocumentMappingTextExtractorWorker]: %s", data.getFileName());
         ArtifactExtractedInfo info = new ArtifactExtractedInfo();
 
         // Extract mapping json
-//        JSONObject mappingJson = readMappingJson(data);
         DocumentMapping mapping = readMappingJson(data);
 
-        // Extract the csv text
+        // Extract the document text
         StringWriter writer = new StringWriter();
         mapping.ingestDocument(work, writer);
-//        CsvPreference csvPreference = CsvPreference.EXCEL_PREFERENCE;
-//        CsvListReader csvListReader = new CsvListReader(new InputStreamReader(work), csvPreference);
-//        CsvListWriter csvListWriter = new CsvListWriter(writer, csvPreference);
-//        List<String> line;
-//
-//        while ((line = csvListReader.read()) != null) {
-//            csvListWriter.write(line);
-//        }
-//        csvListWriter.close();
-
         info.setText(writer.toString());
-//        if (mappingJson.has(MappingProperties.SUBJECT)) {
-//            info.setTitle(mappingJson.get(MappingProperties.SUBJECT).toString());
-//        }
-//        info.setMappingJson(mappingJson);
         info.setTitle(mapping.getSubject());
-        info.setMappingJson(new JSONObject(mapper.writeValueAsString(mapping)));
+        info.setMappingJson(jsonMapper.writeValueAsString(mapping));
         info.setConceptType(DisplayType.DOCUMENT.toString());
-        LOGGER.debug("Finished [CsvTextExtractorWorker]: %s", data.getFileName());
+        LOGGER.debug("Finished [DocumentMappingTextExtractorWorker]: %s", data.getFileName());
         return info;
     }
 
@@ -67,8 +56,7 @@ public class CsvTextExtractorWorker
         checkState(tempDir.isDirectory(), "Archive temp directory not a directory");
         for (File f : tempDir.listFiles()) {
             if (!f.getName().startsWith(".") && f.getName().endsWith(StructuredDataContentTypeSorter.MAPPING_JSON_FILE_NAME_SUFFIX)) {
-                return mapper.readValue(f, DocumentMapping.class);
-//                return new JSONObject(FileUtils.readFileToString(f));
+                return jsonMapper.readValue(f, DocumentMapping.class);
             }
         }
         throw new RuntimeException("Could not find mapping.json file in directory: " + tempDir);
@@ -76,6 +64,6 @@ public class CsvTextExtractorWorker
 
     @Override
     public void prepare(TextExtractionWorkerPrepareData data) {
-        mapper = new ObjectMapper();
+        jsonMapper = new ObjectMapper();
     }
 }
