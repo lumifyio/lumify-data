@@ -5,17 +5,16 @@ import com.altamiracorp.lumify.core.ingest.term.extraction.TermExtractionResult;
 import com.altamiracorp.lumify.core.ingest.term.extraction.TermExtractionWorker;
 import com.altamiracorp.lumify.core.user.User;
 import com.google.inject.Inject;
-
 import java.io.InputStream;
 import java.util.Map;
 
-public class CsvEntityExtractorWorker extends TermExtractionWorker {
-    private CsvEntityExtractor csvEntityExtractor;
+public class DocumentMappingEntityExtractorWorker extends TermExtractionWorker {
+    private DocumentMappingEntityExtractor documentMappingEntityExtractor;
     private User user;
 
     @Override
     protected TermExtractionResult doWork(InputStream work, TermExtractionAdditionalWorkData termExtractionAdditionalWorkData) throws Exception {
-        return csvEntityExtractor.extract(termExtractionAdditionalWorkData.getVertex(), user);
+        return documentMappingEntityExtractor.extract(termExtractionAdditionalWorkData.getVertex(), user);
     }
 
     @Override
@@ -24,7 +23,7 @@ public class CsvEntityExtractorWorker extends TermExtractionWorker {
     }
 
     @Inject
-    void setCsvEntityExtractor (CsvEntityExtractor csvEntityExtractor) {
-        this.csvEntityExtractor = csvEntityExtractor;
+    public void setDocumentMappingEntityExtractor(final DocumentMappingEntityExtractor extractor) {
+        this.documentMappingEntityExtractor = extractor;
     }
 }
