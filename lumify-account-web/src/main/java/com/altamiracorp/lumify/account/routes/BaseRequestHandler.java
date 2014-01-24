@@ -1,4 +1,4 @@
-package com.altamiracorp.lumify.demoaccountweb.routes;
+package com.altamiracorp.lumify.account.routes;
 
 import com.altamiracorp.miniweb.Handler;
 import com.altamiracorp.miniweb.utils.UrlUtils;

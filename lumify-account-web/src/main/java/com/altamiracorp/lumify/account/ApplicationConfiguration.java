@@ -1,4 +1,4 @@
-package com.altamiracorp.lumify.demoaccountweb;
+package com.altamiracorp.lumify.account;
 
 import com.google.common.base.Preconditions;
 import com.google.inject.Singleton;
@@ -8,14 +8,14 @@ import java.util.Properties;
 
 @Singleton
 public class ApplicationConfiguration {
-    public static final String LUMIFY_URL      = "demoaccount.lumify-url";
-    public static final String EMAIL_SUBJECT   = "demoaccount.email.subject";
-    public static final String EMAIL_FROM      = "demoaccount.email.from";
-    public static final String EMAIL_FROM_FULL = "demoaccount.email.from.full";
-    public static final String EMAIL_SMTP_HOST = "demoaccount.email.smtp.host";
-    public static final String EMAIL_SMTP_USER = "demoaccount.email.smtp.user";
-    public static final String EMAIL_SMTP_PASS = "demoaccount.email.smtp.password";
-    public static final String EMAIL_SMTP_SSL  = "demoaccount.email.smtp.ssl.enable";
+    public static final String LUMIFY_URL      = "account.lumify-url";
+    public static final String EMAIL_SUBJECT   = "account.email.subject";
+    public static final String EMAIL_FROM      = "account.email.from";
+    public static final String EMAIL_FROM_FULL = "account.email.from.full";
+    public static final String EMAIL_SMTP_HOST = "account.email.smtp.host";
+    public static final String EMAIL_SMTP_USER = "account.email.smtp.user";
+    public static final String EMAIL_SMTP_PASS = "account.email.smtp.password";
+    public static final String EMAIL_SMTP_SSL  = "account.email.smtp.ssl.enable";
 
     private Map<String, Object> properties;
 

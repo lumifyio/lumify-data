@@ -1,8 +1,8 @@
-package com.altamiracorp.lumify.demoaccountweb;
+package com.altamiracorp.lumify.account;
 
 import com.altamiracorp.bigtable.model.ModelSession;
 import com.altamiracorp.bigtable.model.user.accumulo.AccumuloUserContext;
-import com.altamiracorp.lumify.demoaccountweb.model.DemoAccountUser;
+import com.altamiracorp.lumify.account.model.AccountUser;
 import com.google.inject.AbstractModule;
 import com.google.inject.Guice;
 import com.google.inject.Injector;
@@ -13,7 +13,6 @@ import org.slf4j.LoggerFactory;
 import javax.servlet.ServletContext;
 import javax.servlet.ServletContextEvent;
 import javax.servlet.ServletContextListener;
-import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -58,7 +57,7 @@ public class ApplicationBootstrap extends AbstractModule implements ServletConte
         ModelSession modelSession = (ModelSession) createClassInstanceFromConfig(CONFIG_MODEL_SESSION);
         modelSession.init(properties);
         //modelSession.deleteTable(DemoAccountUser.TABLE_NAME, new AccumuloUserContext(new Authorizations()));
-        modelSession.initializeTable(DemoAccountUser.TABLE_NAME, new AccumuloUserContext(new Authorizations()));
+        modelSession.initializeTable(AccountUser.TABLE_NAME, new AccumuloUserContext(new Authorizations()));
         return modelSession;
     }
 

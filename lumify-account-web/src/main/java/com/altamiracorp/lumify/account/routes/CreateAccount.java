@@ -1,9 +1,9 @@
-package com.altamiracorp.lumify.demoaccountweb.routes;
+package com.altamiracorp.lumify.account.routes;
 
+import com.altamiracorp.lumify.account.AccountUserRepository;
+import com.altamiracorp.lumify.account.model.AccountUser;
 import com.altamiracorp.lumify.core.model.user.UserRepository;
 import com.altamiracorp.lumify.core.user.SystemUser;
-import com.altamiracorp.lumify.demoaccountweb.DemoAccountUserRepository;
-import com.altamiracorp.lumify.demoaccountweb.model.DemoAccountUser;
 import com.altamiracorp.miniweb.HandlerChain;
 import com.altamiracorp.miniweb.utils.UrlUtils;
 import com.google.inject.Inject;
@@ -14,11 +14,11 @@ import java.util.Date;
 
 public class CreateAccount extends BaseRequestHandler {
     private UserRepository userRepository;
-    private DemoAccountUserRepository demoAccountUserRepository;
+    private AccountUserRepository accountUserRepository;
 
     @Inject
-    public void setDemoAccountUserRepository(DemoAccountUserRepository demoAccountUserRepository) {
-        this.demoAccountUserRepository = demoAccountUserRepository;
+    public void setAccountUserRepository(AccountUserRepository accountUserRepository) {
+        this.accountUserRepository = accountUserRepository;
     }
 
     @Inject
@@ -41,18 +41,18 @@ public class CreateAccount extends BaseRequestHandler {
             return;
         }
 
-        DemoAccountUser user = demoAccountUserRepository.getUserFromToken(token);
+        AccountUser user = accountUserRepository.getUserFromToken(token);
         if (user == null) {
             response.sendRedirect("index.html");
             return;
         }
 
-        userRepository.addUser(user.getMetadata().getEmail(), password, new SystemUser());
+        userRepository.addUser(user.getData().getEmail(), password, new SystemUser());
 
         // expire the token
-        user.getMetadata().setTokenExpiration(new Date());
-        user.getMetadata().setReset(false);
-        demoAccountUserRepository.save(user);
+        user.getData().setTokenExpiration(new Date());
+        user.getData().setReset(false);
+        accountUserRepository.save(user);
 
         response.sendRedirect("account-created" + (reset ? "?reset=1" : ""));
     }

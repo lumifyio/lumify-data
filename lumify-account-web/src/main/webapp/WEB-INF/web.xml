@@ -1,11 +1,11 @@
 <web-app xmlns="http://java.sun.com/xml/ns/javaee" version="3.0">
     <context-param>
         <param-name>AuthenticationProvider</param-name>
-        <param-value>com.altamiracorp.lumify.demoaccountweb.security.SessionAuthenticationProvider</param-value>
+        <param-value>com.altamiracorp.lumify.account.security.SessionAuthenticationProvider</param-value>
     </context-param>
     <context-param>
         <param-name>UserRepository</param-name>
-        <param-value>com.altamiracorp.lumify.demoaccountweb.security.UserRepository</param-value>
+        <param-value>com.altamiracorp.lumify.account.security.UserRepository</param-value>
     </context-param>
     <context-param>
         <param-name>ModelSession</param-name>
@@ -13,12 +13,12 @@
     </context-param>
 
     <listener>
-        <listener-class>com.altamiracorp.lumify.demoaccountweb.ApplicationBootstrap</listener-class>
+        <listener-class>com.altamiracorp.lumify.account.ApplicationBootstrap</listener-class>
     </listener>
 
     <servlet>
-        <servlet-name>demo-account-web</servlet-name>
-        <servlet-class>com.altamiracorp.lumify.demoaccountweb.Router</servlet-class>
+        <servlet-name>account</servlet-name>
+        <servlet-class>com.altamiracorp.lumify.account.Router</servlet-class>
         <init-param>
             <param-name>env</param-name>
             <param-value>dev</param-value>
@@ -26,7 +26,7 @@
         <async-supported>true</async-supported>
     </servlet>
     <servlet-mapping>
-        <servlet-name>demo-account-web</servlet-name>
+        <servlet-name>account</servlet-name>
         <url-pattern>/*</url-pattern>
     </servlet-mapping>
 </web-app>

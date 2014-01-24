@@ -1,11 +1,11 @@
-package com.altamiracorp.lumify.demoaccountweb;
+package com.altamiracorp.lumify.account;
 
 import com.altamiracorp.bigtable.model.*;
 import com.altamiracorp.bigtable.model.user.ModelUserContext;
 import com.altamiracorp.bigtable.model.user.accumulo.AccumuloUserContext;
-import com.altamiracorp.lumify.demoaccountweb.model.DemoAccountUser;
-import com.altamiracorp.lumify.demoaccountweb.model.DemoAccountUserMetadata;
-import com.altamiracorp.lumify.demoaccountweb.model.DemoAccountUserRowKey;
+import com.altamiracorp.lumify.account.model.AccountUser;
+import com.altamiracorp.lumify.account.model.AccountUserData;
+import com.altamiracorp.lumify.account.model.AccountUserRowKey;
 import com.google.common.hash.Hashing;
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
@@ -18,49 +18,49 @@ import java.util.Collection;
 import java.util.Date;
 
 @Singleton
-public class DemoAccountUserRepository extends Repository<DemoAccountUser> {
-    private static final Logger LOGGER = LoggerFactory.getLogger(DemoAccountUserRepository.class.getName());
+public class AccountUserRepository extends Repository<AccountUser> {
+    private static final Logger LOGGER = LoggerFactory.getLogger(AccountUserRepository.class.getName());
     private ModelUserContext context;
     @Inject
-    public DemoAccountUserRepository(ModelSession modelSession) {
+    public AccountUserRepository(ModelSession modelSession) {
         super(modelSession);
         context = new AccumuloUserContext(new Authorizations());
     }
 
-    public DemoAccountUser getOrCreateUser(String email, boolean shouldRegister) {
+    public AccountUser getOrCreateUser(String email, boolean shouldRegister) {
 
-        DemoAccountUser user = findByRowKey(email.toLowerCase(), context);
+        AccountUser user = findByRowKey(email.toLowerCase(), context);
         if (user == null) {
-            user = new DemoAccountUser(new DemoAccountUserRowKey(email));
-            user.getMetadata().setEmail(email).setOptIn(shouldRegister).setReset(false);
+            user = new AccountUser(new AccountUserRowKey(email));
+            user.getData().setEmail(email).setOptIn(shouldRegister).setReset(false);
         } else {
-            user.getMetadata().setOptIn(shouldRegister).setReset(true);
+            user.getData().setOptIn(shouldRegister).setReset(true);
         }
 
         return user;
     }
 
-    public void save(DemoAccountUser user) {
+    public void save(AccountUser user) {
         save(user, context);
     }
 
-    public void generateToken(DemoAccountUser user) {
-       user.getMetadata().setTokenExpiration(DateUtils.addHours(new Date(), 24));
-        user.getMetadata().setToken(Hashing.goodFastHash(64)
+    public void generateToken(AccountUser user) {
+       user.getData().setTokenExpiration(DateUtils.addHours(new Date(), 24));
+        user.getData().setToken(Hashing.goodFastHash(64)
                 .newHasher()
-                .putLong(user.getMetadata().getTokenExpiration().getTime())
-                .putString(user.getMetadata().getEmail())
+                .putLong(user.getData().getTokenExpiration().getTime())
+                .putString(user.getData().getEmail())
                 .hash()
                 .toString());
     }
 
-    public DemoAccountUser getUserFromToken(String token) {
+    public AccountUser getUserFromToken(String token) {
         // FIXME: better way to not load all users?
         // "maybe org.apache.accumulo.core.iterators.user.RowFilter" -Joe
-        for (DemoAccountUser user : findAll(context)) {
-            String usersToken = user.getMetadata().getToken();
+        for (AccountUser user : findAll(context)) {
+            String usersToken = user.getData().getToken();
             if (usersToken != null && token.equals(usersToken)) {
-                Date tokenExpiration = user.getMetadata().getTokenExpiration();
+                Date tokenExpiration = user.getData().getTokenExpiration();
                 if (tokenExpiration != null && tokenExpiration.after(new Date())) {
                     return user;
                 } else {
@@ -75,14 +75,14 @@ public class DemoAccountUserRepository extends Repository<DemoAccountUser> {
     }
 
     @Override
-    public DemoAccountUser fromRow(Row row) {
-        DemoAccountUser user = new DemoAccountUser(row.getRowKey());
+    public AccountUser fromRow(Row row) {
+        AccountUser user = new AccountUser(row.getRowKey());
         Collection<ColumnFamily> families = row.getColumnFamilies();
         for (ColumnFamily columnFamily : families) {
             String columnFamilyName = columnFamily.getColumnFamilyName();
-            if (columnFamilyName.equals(DemoAccountUserMetadata.NAME)) {
+            if (columnFamilyName.equals(AccountUserData.NAME)) {
                 Collection<Column> columns = columnFamily.getColumns();
-                user.addColumnFamily(new DemoAccountUserMetadata().addColumns(columns));
+                user.addColumnFamily(new AccountUserData().addColumns(columns));
             } else {
                 user.addColumnFamily(columnFamily);
             }
@@ -91,12 +91,12 @@ public class DemoAccountUserRepository extends Repository<DemoAccountUser> {
     }
 
     @Override
-    public Row toRow(DemoAccountUser obj) {
+    public Row toRow(AccountUser obj) {
         return obj;
     }
 
     @Override
     public String getTableName() {
-        return DemoAccountUser.TABLE_NAME;
+        return AccountUser.TABLE_NAME;
     }
 }

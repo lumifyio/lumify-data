@@ -1,6 +1,6 @@
-package com.altamiracorp.lumify.demoaccountweb.util;
+package com.altamiracorp.lumify.account.util;
 
-import com.altamiracorp.lumify.demoaccountweb.routes.BaseRequestHandler;
+import com.altamiracorp.lumify.account.routes.BaseRequestHandler;
 import com.altamiracorp.miniweb.Handler;
 import com.altamiracorp.miniweb.HandlerChain;
 import org.apache.commons.io.FileUtils;

@@ -1,11 +1,10 @@
-package com.altamiracorp.lumify.demoaccountweb.routes;
+package com.altamiracorp.lumify.account.routes;
 
-import com.altamiracorp.lumify.demoaccountweb.DemoAccountUserRepository;
-import com.altamiracorp.lumify.demoaccountweb.model.DemoAccountUser;
+import com.altamiracorp.lumify.account.AccountUserRepository;
+import com.altamiracorp.lumify.account.model.AccountUser;
 import com.altamiracorp.miniweb.HandlerChain;
 import com.google.inject.Inject;
 import org.apache.commons.io.FileUtils;
-import org.apache.commons.lang.time.DateUtils;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -15,11 +14,11 @@ import java.util.HashMap;
 import java.util.Map;
 
 public class CreateAccountForm extends BaseRequestHandler {
-    private DemoAccountUserRepository demoAccountUserRepository;
+    private AccountUserRepository accountUserRepository;
 
     @Inject
-    public void setDemoAccountUserRepository(DemoAccountUserRepository demoAccountUserRepository) {
-        this.demoAccountUserRepository = demoAccountUserRepository;
+    public void setAccountUserRepository(AccountUserRepository accountUserRepository) {
+        this.accountUserRepository = accountUserRepository;
     }
 
     @Override
@@ -33,8 +32,8 @@ public class CreateAccountForm extends BaseRequestHandler {
             return;
         }
 
-        DemoAccountUser user =  demoAccountUserRepository.getUserFromToken(token);
-        if (user == null || user.getMetadata().getTokenExpiration().before(new Date())) {
+        AccountUser user =  accountUserRepository.getUserFromToken(token);
+        if (user == null || user.getData().getTokenExpiration().before(new Date())) {
             response.sendRedirect("index.html");
             return;
         }
@@ -42,7 +41,7 @@ public class CreateAccountForm extends BaseRequestHandler {
         String path = request.getServletContext().getRealPath(request.getPathInfo());
 
         Map<String, String> replacementTokens = new HashMap();
-        replacementTokens.put("email", user.getMetadata().getEmail());
+        replacementTokens.put("email", user.getData().getEmail());
         replacementTokens.put("token", token);
         replacementTokens.put("baseUrl", getBaseUrl(request));
         replacementTokens.put("buttonText", reset ? "Reset Password" : "Create Account");

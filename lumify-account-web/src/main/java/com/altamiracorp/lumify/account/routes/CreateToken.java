@@ -1,8 +1,8 @@
-package com.altamiracorp.lumify.demoaccountweb.routes;
+package com.altamiracorp.lumify.account.routes;
 
-import com.altamiracorp.lumify.demoaccountweb.ApplicationConfiguration;
-import com.altamiracorp.lumify.demoaccountweb.DemoAccountUserRepository;
-import com.altamiracorp.lumify.demoaccountweb.model.DemoAccountUser;
+import com.altamiracorp.lumify.account.AccountUserRepository;
+import com.altamiracorp.lumify.account.ApplicationConfiguration;
+import com.altamiracorp.lumify.account.model.AccountUser;
 import com.altamiracorp.miniweb.HandlerChain;
 import com.google.inject.Inject;
 import org.apache.commons.io.FileUtils;
@@ -22,11 +22,11 @@ import java.net.URL;
 import java.util.HashMap;
 import java.util.Map;
 
-import static com.altamiracorp.lumify.demoaccountweb.ApplicationConfiguration.*;
+import static com.altamiracorp.lumify.account.ApplicationConfiguration.*;
 
 public class CreateToken extends BaseRequestHandler {
     private static final Logger LOGGER = LoggerFactory.getLogger(CreateToken.class.getName());
-    private DemoAccountUserRepository demoAccountUserRepository;
+    private AccountUserRepository accountUserRepository;
     private ApplicationConfiguration configuration;
 
     @Inject
@@ -35,8 +35,8 @@ public class CreateToken extends BaseRequestHandler {
     }
 
     @Inject
-    public void setDemoAccountUserRepository(DemoAccountUserRepository demoAccountUserRepository) {
-        this.demoAccountUserRepository = demoAccountUserRepository;
+    public void setAccountUserRepository(AccountUserRepository accountUserRepository) {
+        this.accountUserRepository = accountUserRepository;
     }
 
     @Override
@@ -48,9 +48,9 @@ public class CreateToken extends BaseRequestHandler {
             throw new IllegalArgumentException("Email must not be blank");
         }
 
-        final DemoAccountUser user = demoAccountUserRepository.getOrCreateUser(email, shouldRegister);
-        demoAccountUserRepository.generateToken(user);
-        demoAccountUserRepository.save(user);
+        final AccountUser user = accountUserRepository.getOrCreateUser(email, shouldRegister);
+        accountUserRepository.generateToken(user);
+        accountUserRepository.save(user);
 
         final String baseUrl = getBaseUrl(request);
         AsyncContext asyncContext = request.startAsync(request, response);
@@ -65,15 +65,15 @@ public class CreateToken extends BaseRequestHandler {
             }
         });
 
-        if (user.getMetadata().getReset()) {
+        if (user.getData().getReset()) {
             response.sendRedirect("reset-password.html");
         } else {
             response.sendRedirect("confirm-email.html");
         }
     }
 
-    private void sendEmail(DemoAccountUser demoAccountUser, String baseUrl) throws IOException, EmailException {
-        String resetPath = demoAccountUser.getMetadata().getReset() ? "-reset" : "";
+    private void sendEmail(AccountUser accountUser, String baseUrl) throws IOException, EmailException {
+        String resetPath = accountUser.getData().getReset() ? "-reset" : "";
         URL html = CreateToken.class.getResource("email-template" + resetPath + ".html");
         URL text = CreateToken.class.getResource("email-template" + resetPath + ".txt");
         File htmlFile = new File(html.getFile());
@@ -86,8 +86,8 @@ public class CreateToken extends BaseRequestHandler {
 
         String ssl = configuration.get(EMAIL_SMTP_SSL);
         email.setSSLOnConnect(ssl != null && ssl.toLowerCase().equals("true"));
-        email.setDataSourceResolver(new DataSourceClassPathResolver("/" + CreateToken.class.getPackage().getName().replaceAll("\\.","/")));
-        email.addTo(demoAccountUser.getMetadata().getEmail());
+        email.setDataSourceResolver(new DataSourceClassPathResolver("/" + CreateToken.class.getPackage().getName().replaceAll("\\.", "/")));
+        email.addTo(accountUser.getData().getEmail());
 
         String from = configuration.get(EMAIL_FROM);
         String fromFull = configuration.get(EMAIL_FROM_FULL);
@@ -97,14 +97,14 @@ public class CreateToken extends BaseRequestHandler {
         Map<String, String> replacementTokens = new HashMap();
         replacementTokens.put("create-account-link",
                 baseUrl + "/create-account?" +
-                "token=" + demoAccountUser.getMetadata().getToken() +
-                (demoAccountUser.getMetadata().getReset() ? "&reset=1" : ""));
+                "token=" + accountUser.getData().getToken() +
+                (accountUser.getData().getReset() ? "&reset=1" : ""));
 
         email.setHtmlMsg(replaceTokens(FileUtils.readFileToString(htmlFile), replacementTokens));
         email.setTextMsg(replaceTokens(FileUtils.readFileToString(textFile), replacementTokens));
 
         email.send();
-        LOGGER.info("Sent token email to " + demoAccountUser.getMetadata().getEmail());
+        LOGGER.info("Sent token email to " + accountUser.getData().getEmail());
     }
 
 

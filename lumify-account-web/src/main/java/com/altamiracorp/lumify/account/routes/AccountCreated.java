@@ -1,8 +1,6 @@
-package com.altamiracorp.lumify.demoaccountweb.routes;
+package com.altamiracorp.lumify.account.routes;
 
-import com.altamiracorp.lumify.demoaccountweb.ApplicationConfiguration;
-import com.altamiracorp.lumify.demoaccountweb.DemoAccountUserRepository;
-import com.altamiracorp.lumify.demoaccountweb.model.DemoAccountUser;
+import com.altamiracorp.lumify.account.ApplicationConfiguration;
 import com.altamiracorp.miniweb.HandlerChain;
 import com.google.inject.Inject;
 import org.apache.commons.io.FileUtils;
