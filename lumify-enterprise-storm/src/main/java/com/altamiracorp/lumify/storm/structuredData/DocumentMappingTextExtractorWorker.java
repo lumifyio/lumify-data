@@ -56,7 +56,11 @@ public class DocumentMappingTextExtractorWorker
         checkState(tempDir.isDirectory(), "Archive temp directory not a directory");
         for (File f : tempDir.listFiles()) {
             if (!f.getName().startsWith(".") && f.getName().endsWith(StructuredDataContentTypeSorter.MAPPING_JSON_FILE_NAME_SUFFIX)) {
-                return jsonMapper.readValue(f, DocumentMapping.class);
+                try {
+                    return jsonMapper.readValue(f, DocumentMapping.class);
+                } catch (IOException ioe) {
+                    LOGGER.error("Error reading mapping file.", ioe);
+                }
             }
         }
         throw new RuntimeException("Could not find mapping.json file in directory: " + tempDir);
