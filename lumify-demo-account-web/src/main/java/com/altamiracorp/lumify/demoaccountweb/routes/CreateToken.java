@@ -4,13 +4,12 @@ import com.altamiracorp.lumify.demoaccountweb.ApplicationConfiguration;
 import com.altamiracorp.lumify.demoaccountweb.DemoAccountUserRepository;
 import com.altamiracorp.lumify.demoaccountweb.model.DemoAccountUser;
 import com.altamiracorp.miniweb.HandlerChain;
-import com.google.common.base.Preconditions;
 import com.google.inject.Inject;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.mail.EmailException;
 import org.apache.commons.mail.ImageHtmlEmail;
-import org.apache.commons.mail.resolver.DataSourceFileResolver;
+import org.apache.commons.mail.resolver.DataSourceClassPathResolver;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -87,7 +86,7 @@ public class CreateToken extends BaseRequestHandler {
 
         String ssl = configuration.get(EMAIL_SMTP_SSL);
         email.setSSLOnConnect(ssl != null && ssl.toLowerCase().equals("true"));
-        email.setDataSourceResolver(new DataSourceFileResolver(new File("./src/main/webapp/img")));
+        email.setDataSourceResolver(new DataSourceClassPathResolver("/" + CreateToken.class.getPackage().getName().replaceAll("\\.","/")));
         email.addTo(demoAccountUser.getMetadata().getEmail());
 
         String from = configuration.get(EMAIL_FROM);
