@@ -28,7 +28,7 @@
         <module>lumify-enterprise</module>
         <module>lumify-facebook</module>
         <module>lumify-twitter</module>
-        <module>lumify-demo-account-web</module>
+        <module>lumify-account-web</module>
     </modules>
 </project>
 
