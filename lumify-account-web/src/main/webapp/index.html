@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <base href="${context.url}" target="_self">
+
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sign Up: Lumify Demo</title>
+    <link rel="stylesheet" href="libs/bootstrap/css/bootstrap.css">
+    <link rel="stylesheet" href="libs/sb-admin/font-awesome/css/font-awesome.min.css">
+    <link rel="stylesheet" href="css/account-web.css">
+</head>
+
+<body>
+<!-- Version: ${project.version} -->
+<!-- Git SHA-1: ${buildNumber} -->
+<!-- Build Timestamp: ${build.timestamp.formatted} -->
+
+   <img src="img/lumify-logo.png"/>
+
+    <div class="pane">
+        <form action="create-token" method="post">           
+           <h1>Sign up for a Demo Account</h1>
+           
+
+           <div class="input-group">
+               <input type="text" name="email" class="form-control" placeholder="Enter your email" required pattern=".+@.+">
+               <span class="input-group-btn">
+                   <input type="submit" class="btn btn-default btn-primary" type="button" value="Sign Up">
+               </span>               
+           </div>
+           
+
+
+           <label class="registerme">
+               <input type="checkbox" name="register" checked/>
+               Keep me informed of Lumify news
+           </label>
+           
+           <a class="forgot-password" href="forgot.html">Forgot Password?</a>
+        </form>
+    </div>
+</body>
+</html>

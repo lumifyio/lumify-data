@@ -12,6 +12,7 @@ import com.altamiracorp.lumify.core.util.LumifyLoggerFactory;
 import com.altamiracorp.lumify.core.util.RowKeyHelper;
 import com.altamiracorp.securegraph.Graph;
 import com.altamiracorp.securegraph.Vertex;
+import com.altamiracorp.securegraph.VertexBuilder;
 import com.altamiracorp.securegraph.Visibility;
 import com.altamiracorp.securegraph.type.GeoPoint;
 import org.json.JSONObject;
@@ -74,44 +75,50 @@ public class FacebookPost {
 
         //create entities for each of the ids tagged or author and the relationships
         Vertex authorVertex;
-        Iterator<Vertex> verticesIterator = graph.query(user.getAuthorizations()).has(PROFILE_ID, author_uid).vertices().iterator();
-        if (!verticesIterator.hasNext()) {
-            authorVertex = graph.addVertex(visibility, user.getAuthorizations());
-            authorVertex.setProperty(PROFILE_ID, author_uid, visibility);
-            authorVertex.setProperty(PropertyName.TITLE.toString(), author_uid, visibility);
-            authorVertex.setProperty(PropertyName.CONCEPT_TYPE.toString(), profileConceptId, visibility);
-
+        String authorVid = generateUserVertexId(author_uid);
+        Vertex queryVertex = graph.getVertex(authorVid, user.getAuthorizations());
+        if (queryVertex == null) {
+            VertexBuilder authorBuilder;
+            authorBuilder = graph.prepareVertex(authorVid, visibility, user.getAuthorizations());
+            authorBuilder.setProperty(PROFILE_ID, author_uid, visibility);
+            authorBuilder.setProperty(PropertyName.TITLE.toString(), author_uid, visibility);
+            authorBuilder.setProperty(PropertyName.CONCEPT_TYPE.toString(), profileConceptId, visibility);
+            authorVertex = authorBuilder.save();
             auditRepository.auditEntity(AuditAction.CREATE.toString(), authorVertex.getId(), posting.getId().toString(), profileConceptId, author_uid, PROCESS, "", user);
             auditRepository.auditEntityProperties(AuditAction.UPDATE.toString(), authorVertex, PROFILE_ID, PROCESS, "", user);
             auditRepository.auditEntityProperties(AuditAction.UPDATE.toString(), authorVertex, PropertyName.CONCEPT_TYPE.toString(), PROCESS, "", user);
         } else {
-            // TODO what happens if verticesIterator contains multiple users
-            authorVertex = verticesIterator.next();
+            authorVertex = queryVertex;
         }
         graph.addEdge(authorVertex, posting, POSTED_RELATIONSHIP, visibility, user.getAuthorizations());
         String postedRelationshipLabelDisplayName = ontologyRepository.getDisplayNameForLabel(POSTED_RELATIONSHIP);
         auditRepository.auditRelationships(AuditAction.CREATE.toString(), posting, authorVertex, postedRelationshipLabelDisplayName, PROCESS, "", user);
+        graph.flush();
         if (post.get(TAGGEED_UIDS) instanceof JSONObject) {
             Iterator tagged = post.getJSONObject(TAGGEED_UIDS).keys();
             while (tagged.hasNext()) {
                 String next = tagged.next().toString();
                 Vertex taggedVertex;
-                Iterator<Vertex> taggedUidIterator = graph.query(user.getAuthorizations()).has(PROFILE_ID, next).vertices().iterator();
-                if (!taggedUidIterator.hasNext()) {
-                    taggedVertex = graph.addVertex(visibility, user.getAuthorizations());
-                    taggedVertex.setProperty(PROFILE_ID, next, visibility);
-                    taggedVertex.setProperty(PropertyName.TITLE.toString(), next, visibility);
-                    taggedVertex.setProperty(PropertyName.CONCEPT_TYPE.toString(), profileConceptId, visibility);
+                String taggedVid = generateUserVertexId(next);
+                Vertex nextQueryVertex = graph.getVertex(taggedVid, user.getAuthorizations());
+                if (nextQueryVertex == null) {
+                    VertexBuilder taggedBuilder;
+                    taggedBuilder = graph.prepareVertex(taggedVid, visibility, user.getAuthorizations());
+                    taggedBuilder.setProperty(PROFILE_ID, next, visibility);
+                    taggedBuilder.setProperty(PropertyName.TITLE.toString(), next, visibility);
+                    taggedBuilder.setProperty(PropertyName.CONCEPT_TYPE.toString(), profileConceptId, visibility);
+                    taggedVertex = taggedBuilder.save();
+
                     auditRepository.auditEntity(AuditAction.CREATE.toString(), taggedVertex.getId(), posting.getId().toString(), profileConceptId, next, PROCESS, "", user);
                     auditRepository.auditEntityProperties(AuditAction.UPDATE.toString(), taggedVertex, PROFILE_ID, PROCESS, "", user);
                     auditRepository.auditEntityProperties(AuditAction.UPDATE.toString(), taggedVertex, PropertyName.CONCEPT_TYPE.toString(), PROCESS, "", user);
                 } else {
-                    // TODO what happens if taggedUidIterator contains multiple users
-                    taggedVertex = taggedUidIterator.next();
+                    taggedVertex = nextQueryVertex;
                 }
                 graph.addEdge(posting, taggedVertex, MENTIONED_RELATIONSHIP, visibility, user.getAuthorizations());
                 String mentionedRelationshipLabelDisplayName = ontologyRepository.getDisplayNameForLabel(MENTIONED_RELATIONSHIP);
                 auditRepository.auditRelationships(AuditAction.CREATE.toString(), posting, taggedVertex, mentionedRelationshipLabelDisplayName, PROCESS, "", user);
+                graph.flush();
             }
         }
 
@@ -124,5 +131,9 @@ public class FacebookPost {
         }
 
         return posting;
+    }
+
+    public String generateUserVertexId (String profileId) {
+        return FACEBOOK_VERTEX_ID + profileId;
     }
 }
