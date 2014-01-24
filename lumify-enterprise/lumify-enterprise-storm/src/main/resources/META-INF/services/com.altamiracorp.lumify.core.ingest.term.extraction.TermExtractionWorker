@@ -4,4 +4,4 @@ com.altamiracorp.lumify.storm.term.extraction.KnownEntityExtractorWorker
 com.altamiracorp.lumify.storm.term.extraction.PhoneNumberExtractorWorker
 com.altamiracorp.lumify.storm.term.extraction.EmailAddressExtractorWorker
 com.altamiracorp.lumify.storm.term.extraction.ZipCodeExtractorWorker
-com.altamiracorp.lumify.storm.term.extraction.CsvEntityExtractorWorker
+com.altamiracorp.lumify.storm.term.extraction.DocumentMappingEntityExtractorWorker
