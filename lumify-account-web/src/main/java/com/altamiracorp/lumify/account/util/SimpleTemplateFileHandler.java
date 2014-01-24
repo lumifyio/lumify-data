@@ -14,7 +14,7 @@ public class SimpleTemplateFileHandler extends BaseRequestHandler {
     public void handle(HttpServletRequest request, HttpServletResponse response, HandlerChain chain) throws Exception {
         String path = request.getServletContext().getRealPath(request.getPathInfo());
         String contents = FileUtils.readFileToString(new File(path));
-        contents = contents.replaceAll("\\$\\{context.url}", getBaseUrl(request) + "/");
+        contents = contents.replaceAll("\\$\\{context.url}", getBaseUrl(request));
 
         response.setContentType("text/html");
         response.getOutputStream().write(contents.getBytes());

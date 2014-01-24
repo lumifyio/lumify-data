@@ -56,7 +56,7 @@ function _hadoop_start {
     ssh ${SSH_OPTS} ${node} service hadoop-0.20-mapreduce-tasktracker start
   done
 
-  ssh ${SSH_OPTS} ${namenode} service hadoop-0.20-mapreduce-jobtracker start
+  ssh ${SSH_OPTS} ${_namenode} service hadoop-0.20-mapreduce-jobtracker start
 }
 
 function _hadoop_stop {

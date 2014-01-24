@@ -160,9 +160,10 @@ public class DefaultLumifyTwitterProcessor extends BaseArtifactProcessor impleme
         byte[] jsonBytes = jsonTweet.toString().getBytes(TWITTER_CHARSET);
         String rowKey = RowKeyHelper.buildSHA256KeyString(jsonBytes);
 
+
         ElementMutation<Vertex> artifact = findOrPrepareArtifactVertex(rowKey)
                 .setProperty(PropertyName.MIME_TYPE.toString(), TWEET_ARTIFACT_MIME_TYPE, visibility)
-                .setProperty(PropertyName.CONCEPT_TYPE.toString(), CONCEPT_TWEET, visibility)
+                .setProperty(PropertyName.CONCEPT_TYPE.toString(), getOntologyRepository().getConceptByName(CONCEPT_TWEET).getId(), visibility)
                 .setProperty(PropertyName.TITLE.toString(), tweetText, visibility)
                 .setProperty(PropertyName.AUTHOR.toString(), tweeterScreenName, visibility)
                 .setProperty(PropertyName.SOURCE.toString(), TWITTER_SOURCE, visibility)
@@ -174,7 +175,6 @@ public class DefaultLumifyTwitterProcessor extends BaseArtifactProcessor impleme
         }
 
         artifact.setProperty(PropertyName.TEXT.toString(), new StreamingPropertyValue(new ByteArrayInputStream(tweetText.getBytes()), String.class), visibility);
-        artifact.setProperty(PropertyName.RAW.toString(), new StreamingPropertyValue(new ByteArrayInputStream(jsonBytes), byte[].class), visibility);
 
         Vertex tweet = artifact.save();
         getGraph().flush();
@@ -227,15 +227,16 @@ public class DefaultLumifyTwitterProcessor extends BaseArtifactProcessor impleme
 
         modifiedProps.addAll(setOptionalProps(userVertex, jsonUser, OPTIONAL_USER_PROPERTY_MAP, visibility));
 
-        AuditRepository auditRepo = getAuditRepository();
-        for (String prop : modifiedProps) {
-            auditRepo.auditEntityProperties(AuditAction.UPDATE.toString(), userVertex, prop, processId, "", lumifyUser);
-        }
+        // TODO fix auditing
+//        AuditRepository auditRepo = getAuditRepository();
+//        for (String prop : modifiedProps) {
+//            auditRepo.auditEntityProperties(AuditAction.UPDATE.toString(), userVertex, prop, processId, "", lumifyUser);
+//        }
 
         // create the relationship between the user and their tweet
         graph.addEdge(tweetVertex, userVertex, TWEETED_RELATIONSHIP, visibility, lumifyUser.getAuthorizations());
         String labelDispName = getOntologyRepository().getDisplayNameForLabel(TWEETED_RELATIONSHIP);
-        auditRepo.auditRelationships(AuditAction.CREATE.toString(), userVertex, tweetVertex, labelDispName, processId, "", lumifyUser);
+//        auditRepo.auditRelationships(AuditAction.CREATE.toString(), userVertex, tweetVertex, labelDispName, processId, "", lumifyUser);
 
         return userVertex;
     }
@@ -255,8 +256,7 @@ public class DefaultLumifyTwitterProcessor extends BaseArtifactProcessor impleme
             AuditRepository auditRepo = getAuditRepository();
 
             Concept concept = ontRepo.getConceptByName(entityType.getConceptName());
-            String conceptId = concept.getId().toString();
-            Vertex conceptVertex = graph.getVertex(conceptId, user.getAuthorizations());
+            Vertex conceptVertex = concept.getVertex();
             String relLabel = entityType.getRelationshipLabel();
             String relDispName = ontRepo.getDisplayNameForLabel(relLabel);
 
@@ -278,16 +278,18 @@ public class DefaultLumifyTwitterProcessor extends BaseArtifactProcessor impleme
 
                 termVertex.setProperty(PropertyName.TITLE.toString(), sign, visibility);
                 termVertex.setProperty(PropertyName.ROW_KEY.toString(), rowKey, visibility);
-                termVertex.setProperty(PropertyName.CONCEPT_TYPE.toString(), conceptId, visibility);
+                termVertex.setProperty(PropertyName.CONCEPT_TYPE.toString(), concept.getId(), visibility);
 
                 String termId = termVertex.getId().toString();
-                if (newVertex) {
-                    auditRepo.auditEntity(AuditAction.CREATE.toString(), termId, tweetVertex.getId().toString(),
-                            sign, conceptId, processId, "", user);
-                }
-                for (String prop : ENTITY_MODIFIED_PROPERTIES) {
-                    auditRepo.auditEntityProperties(AuditAction.UPDATE.toString(), termVertex, prop, processId, "", user);
-                }
+
+                // TODO fix auditing
+//                if (newVertex) {
+//                    auditRepo.auditEntity(AuditAction.CREATE.toString(), termId, tweetVertex.getId().toString(),
+//                            sign, concept.getId(), processId, "", user);
+//                }
+//                for (String prop : ENTITY_MODIFIED_PROPERTIES) {
+//                    auditRepo.auditEntityProperties(AuditAction.UPDATE.toString(), termVertex, prop, processId, "", user);
+//                }
 
                 mention.getMetadata().setVertexId(termId);
                 getTermMentionRepository().save(mention, user.getModelUserContext());
@@ -296,6 +298,7 @@ public class DefaultLumifyTwitterProcessor extends BaseArtifactProcessor impleme
 
                 auditRepo.auditRelationships(AuditAction.CREATE.toString(), tweetVertex, termVertex, relDispName, processId, "", user);
             }
+            graph.flush();
         }
     }
 

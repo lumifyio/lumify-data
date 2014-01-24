@@ -17,6 +17,7 @@ _download lumify/lumify-enterprise-tools "*with-dependencies.jar" lumify-enterpr
 _download lumify/lumify-storm            "*with-dependencies.jar" lumify-storm-1.0-SNAPSHOT-jar-with-dependencies.jar
 _download lumify/lumify-enterprise-storm "*with-dependencies.jar" lumify-enterprise-storm-1.0-SNAPSHOT-jar-with-dependencies.jar
 _download lumify/lumify-twitter          "*with-dependencies.jar" lumify-twitter-1.0-SNAPSHOT-jar-with-dependencies.jar
-_download lumify/lumify-web              "*.war"                  lumify-web-1.0-SNAPSHOT.war
-_download bigtable/bigtable-ui           "*.war"                  bigtable-ui-1.0-SNAPSHOT.war
-_download jmxui/jmx-ui                   "*.war"                  jmx-ui-1.0-SNAPSHOT.war
+_download lumify/lumify-web              "*.war"                  lumify.war
+_download lumify/lumify-account-web      "*.war"                  account.war
+_download bigtable/bigtable-ui           "*.war"                  bigtable-ui.war
+_download jmxui/jmx-ui                   "*.war"                  jmx-ui.war
