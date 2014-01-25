@@ -112,9 +112,9 @@ public class FacebookFileProcessingBolt extends BaseFileProcessingBolt {
         this.fileSystem = fileSystem;
     }
 
-    private void setSavedArtifact(ArtifactExtractedInfo artifactExtractedInfo) {
+    private void setSavedArtifact(ArtifactExtractedInfo artifactExtractedInfo) throws Exception {
         // TODO refactor for secure graph
-//        this.savedArtifact = saveArtifact(artifactExtractedInfo);
+        this.savedArtifact = saveArtifact(artifactExtractedInfo);
     }
 
     private void setCollector() {

@@ -1,0 +1,184 @@
+{
+    "type": "csv",
+    "subject": "CSV Mapping Integration Test",
+    "skipRows": 3,
+    "terms": {
+        "person": {
+            "signColumn": 0,
+            "conceptLabel": "person",
+            "useExisting": false,
+            "properties": [
+                {
+                    "dataType": "date",
+                    "name": "Birth Date",
+                    "required": true,
+                    "column": 1
+                },
+                {
+                    "dataType": "string",
+                    "name": "Gender",
+                    "required": true,
+                    "column": 2
+                },
+                {
+                    "dataType": "boolean",
+                    "name": "Deceased",
+                    "required": true,
+                    "column": 3
+                },
+                {
+                    "dataType": "integer",
+                    "name": "Height_ft",
+                    "required": true,
+                    "column": 4
+                },
+                {
+                    "dataType": "integer",
+                    "name": "Height_in",
+                    "column": 5
+                },
+                {
+                    "dataType": "double",
+                    "name": "Weight_lbs",
+                    "column": 6
+                },
+                {
+                    "dataType": "geopoint",
+                    "name": "Home Address",
+                    "latitudeColumn": 7,
+                    "longitudeColumn": 8,
+                    "altitudeColumn": 9,
+                    "required": true
+                },
+                {
+                    "dataType": "geocircle",
+                    "name": "Home Area",
+                    "latitudeColumn": 10,
+                    "longitudeColumn": 11,
+                    "radiusColumn": 12,
+                    "required": true
+                },
+                {
+                    "dataType": "integer",
+                    "name": "Test Number",
+                    "column": 29,
+                    "required": true
+                }
+            ]
+        },
+        "employer": {
+            "signColumn": 13,
+            "conceptLabel": "organization",
+            "required": true,
+            "properties": [
+                {
+                    "dataType": "geopoint",
+                    "name": "Location",
+                    "required": false,
+                    "latitudeColumn": 14,
+                    "longitudeColumn": 15
+                },
+                {
+                    "dataType": "double",
+                    "name": "Earnings",
+                    "required": true,
+                    "column": 16
+                },
+                {
+                    "dataType": "integer",
+                    "name": "Test Number",
+                    "column": 29,
+                    "required": true
+                }
+            ]
+        },
+        "home": {
+            "signColumn": 17,
+            "conceptLabel": "location",
+            "useExisting": true,
+            "properties": [
+                {
+                    "dataType": "string",
+                    "name": "City Name",
+                    "column": 18
+                },
+                {
+                    "dataType": "long",
+                    "name": "Population",
+                    "required": true,
+                    "column": 19
+                },
+                {
+                    "dataType": "integer",
+                    "name": "Test Number",
+                    "column": 29,
+                    "required": true
+                }
+            ]
+        },
+        "twitter": {
+            "signColumn": 20,
+            "conceptLabel": "twitterUser",
+            "useExisting": true,
+            "properties": [
+                {
+                    "dataType": "long",
+                    "name": "Friend Count",
+                    "column": 21
+                },
+                {
+                    "dataType": "boolean",
+                    "name": "hasProfilePic",
+                    "column": 22
+                },
+                {
+                    "dataType": "date",
+                    "name": "Last Tweeted At",
+                    "format": "yyyyMMdd-HHmmss",
+                    "column": 23
+                },
+                {
+                    "dataType": "geocircle",
+                    "name": "Last Tweeted From",
+                    "latitudeColumn": 24,
+                    "longitudeColumn": 25,
+                    "radiusColumn": 26
+                },
+                {
+                    "dataType": "integer",
+                    "name": "Test Number",
+                    "column": 29,
+                    "required": true
+                }
+            ]
+        },
+        "facebook": {
+            "signColumn": 27,
+            "required": true,
+            "conceptLabel": "facebookAccount",
+            "useExisting": true
+        }
+    },
+    "relationships": [
+        {
+            "label": "livesAt",
+            "source": "person",
+            "target": "home"
+        },
+        {
+            "label": "employs",
+            "source": "employer",
+            "target": "person"
+        },
+        {
+            "label": "hasOnlinePresence",
+            "source": "person",
+            "target": "twitter"
+        },
+        {
+            "label": "hasOnlinePresence",
+            "source": "person",
+            "target": "facebook"
+        }
+    ]
+}

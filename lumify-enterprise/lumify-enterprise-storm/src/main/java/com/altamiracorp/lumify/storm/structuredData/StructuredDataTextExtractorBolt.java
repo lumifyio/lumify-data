@@ -4,7 +4,6 @@ import backtype.storm.task.OutputCollector;
 import backtype.storm.task.TopologyContext;
 import com.altamiracorp.lumify.core.ingest.structuredData.StructuredDataExtractionWorker;
 import com.altamiracorp.lumify.storm.BaseArtifactProcessingBolt;
-
 import java.io.File;
 import java.io.IOException;
 import java.util.Map;
@@ -40,8 +39,6 @@ public class StructuredDataTextExtractorBolt extends BaseArtifactProcessingBolt 
             }
             if (! f.getName().startsWith(".")) {
                 return f;
-            } else {
-                continue;
             }
         }
         throw new RuntimeException("Could not find primary file");

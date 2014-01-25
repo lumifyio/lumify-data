@@ -30,6 +30,7 @@
         <module>lumify-twitter</module>
         <module>lumify-demo-account-web</module>
         <module>lumify-wikipedia</module>
+        <module>lumify-account-web</module>
     </modules>
 </project>
 

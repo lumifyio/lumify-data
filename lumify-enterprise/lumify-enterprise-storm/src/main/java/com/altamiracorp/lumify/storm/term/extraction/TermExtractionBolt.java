@@ -1,11 +1,20 @@
 package com.altamiracorp.lumify.storm.term.extraction;
 
+import static com.altamiracorp.lumify.core.util.CollectionUtil.*;
+import static com.google.common.base.Preconditions.*;
+
 import backtype.storm.task.OutputCollector;
 import backtype.storm.task.TopologyContext;
 import backtype.storm.tuple.Tuple;
 import com.altamiracorp.bigtable.model.FlushFlag;
 import com.altamiracorp.lumify.core.bootstrap.InjectHelper;
-import com.altamiracorp.lumify.core.ingest.term.extraction.*;
+import com.altamiracorp.lumify.core.ingest.term.extraction.TermExtractionAdditionalWorkData;
+import com.altamiracorp.lumify.core.ingest.term.extraction.TermExtractionResult;
+import com.altamiracorp.lumify.core.ingest.term.extraction.TermExtractionWorker;
+import com.altamiracorp.lumify.core.ingest.term.extraction.TermMention;
+import com.altamiracorp.lumify.core.ingest.term.extraction.TermRelationship;
+import com.altamiracorp.lumify.core.ingest.term.extraction.TermResolutionWorker;
+import com.altamiracorp.lumify.core.ingest.term.extraction.TermWorker;
 import com.altamiracorp.lumify.core.model.audit.AuditAction;
 import com.altamiracorp.lumify.core.model.ontology.Concept;
 import com.altamiracorp.lumify.core.model.ontology.LabelName;
@@ -20,14 +29,13 @@ import com.altamiracorp.lumify.storm.BaseTextProcessingBolt;
 import com.altamiracorp.securegraph.Vertex;
 import com.altamiracorp.securegraph.Visibility;
 import com.google.common.collect.Lists;
-import org.json.JSONObject;
-
 import java.io.InputStream;
-import java.util.*;
-
-import static com.altamiracorp.lumify.core.util.CollectionUtil.single;
-import static com.google.common.base.Preconditions.checkNotNull;
-import static com.google.common.base.Preconditions.checkState;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.List;
+import java.util.Map;
+import java.util.ServiceLoader;
+import org.json.JSONObject;
 
 public class TermExtractionBolt extends BaseTextProcessingBolt {
     private static final LumifyLogger LOGGER = LumifyLoggerFactory.getLogger(TermExtractionBolt.class);
@@ -124,10 +132,9 @@ public class TermExtractionBolt extends BaseTextProcessingBolt {
 
             if (termMention.isResolved()) {
                 String title = termMention.getSign();
-                vertex = single(
-                        graph.query(getUser().getAuthorizations())
-                                .has(PropertyName.TITLE.toString(), title)
-                                .vertices());
+                vertex = trySingle(graph.query(getUser().getAuthorizations())
+                        .has(PropertyName.TITLE.toString(), title)
+                        .vertices());
                 if (!termMention.getUseExisting() || vertex == null) {
                     vertex = graph.addVertex(new Visibility(""), getUser().getAuthorizations());
                     newVertex = true;
@@ -168,6 +175,7 @@ public class TermExtractionBolt extends BaseTextProcessingBolt {
             termMentionRepository.save(termMentionModel, FlushFlag.NO_FLUSH, getUser().getModelUserContext());
             results.add(new TermMentionWithGraphVertex(termMentionModel, vertex));
         }
+        graph.flush();
         termMentionRepository.flush();
         return results;
     }

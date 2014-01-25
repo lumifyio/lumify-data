@@ -42,6 +42,7 @@ public class FacebookBolt extends BaseLumifyBolt {
             Vertex post = facebookPost.processPostVertex(jsonObject, savedArtifact, graph, auditRepository, ontologyRepository, getUser());
             post.setProperty(PropertyName.DISPLAY_TYPE.toString(), POST_CONCEPT, new Visibility(""));
             InputStream in = new ByteArrayInputStream(jsonObject.getString(MESSAGE).getBytes());
+            graph.flush();
             workQueueRepository.pushArtifactHighlight(post.getId().toString());
         } else {
             name = jsonObject.getString(USERNAME);
@@ -53,6 +54,7 @@ public class FacebookBolt extends BaseLumifyBolt {
                 setSavedArtifact(profilePicExtractedInfo);
                 facebookUser.createProfilePhotoVertex(savedArtifact, userVertex, graph, auditRepository, getUser());
             }
+            graph.flush();
         }
     }
 
@@ -72,9 +74,7 @@ public class FacebookBolt extends BaseLumifyBolt {
         this.fileSystem = fileSystem;
     }
 
-    private void setSavedArtifact(ArtifactExtractedInfo artifactExtractedInfo) {
-        // TODO refactor for secure graph
-//        this.savedArtifact = saveArtifact(artifactExtractedInfo);
+    private void setSavedArtifact(ArtifactExtractedInfo artifactExtractedInfo) throws Exception {
+        this.savedArtifact = saveArtifact(artifactExtractedInfo);
     }
-
 }

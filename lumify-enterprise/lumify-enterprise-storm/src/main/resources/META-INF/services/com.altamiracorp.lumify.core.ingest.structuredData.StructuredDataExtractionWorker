@@ -1,2 +1,2 @@
-com.altamiracorp.lumify.storm.structuredData.CsvTextExtractorWorker
+com.altamiracorp.lumify.storm.structuredData.DocumentMappingTextExtractorWorker
 com.altamiracorp.lumify.storm.file.HashCalculationWorker

@@ -37,4 +37,5 @@ public interface FacebookConstants {
     public static final String TAGGEED_UIDS = "tagged_uids";
     public static final String ENTITY_HAS_IMAGE_PROFILE_PHOTO = "entityHasImageFacebookProfileImage";
     public static final String PROFILE_CONTAINS_IMAGE_OF_ENTITY ="facebookProfileImageContainsImageOfEntity";
+    public static final String FACEBOOK_VERTEX_ID = "FB-USER-";
 }
