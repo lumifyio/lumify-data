@@ -37,6 +37,9 @@ public class WikipediaBolt extends BaseLumifyBolt {
     private static final LumifyLogger LOGGER = LumifyLoggerFactory.getLogger(WikipediaBolt.class);
     public static final String WIKIPEDIA_ID_PREFIX = "WIKIPEDIA_";
     public static final String WIKIPEDIA_LINK_ID_PREFIX = "WIKIPEDIA_LINK_";
+    public static final String TITLE_HIGH_PRIORITY = "0";
+    public static final String TITLE_MEDIUM_PRIORITY = "1";
+    public static final String TITLE_LOW_PRIORITY = "2";
     private Graph graph;
     private Compiler compiler;
     private SimpleWikiConfiguration config;
@@ -71,7 +74,7 @@ public class WikipediaBolt extends BaseLumifyBolt {
     protected void safeExecute(Tuple input) throws Exception {
         JSONObject json = getJsonFromTuple(input);
         String vertexId = json.getString("vertexId");
-        LOGGER.debug("processing: " + vertexId);
+        LOGGER.info("processing wikipedia page: " + vertexId);
 
         Vertex pageVertex = graph.getVertex(vertexId, getUser().getAuthorizations());
         if (pageVertex == null) {
@@ -111,7 +114,7 @@ public class WikipediaBolt extends BaseLumifyBolt {
 
         ElementMutation<Vertex> m = pageVertex.prepareMutation();
         if (title != null || title.length() > 0) {
-            m.setProperty(PropertyName.TITLE.toString(), title, visibility);
+            m.addPropertyValue(TITLE_HIGH_PRIORITY, PropertyName.TITLE.toString(), title, visibility);
         }
         m.setProperty(PropertyName.TEXT.toString(), textPropertyValue, visibility);
         m.save();
@@ -122,6 +125,7 @@ public class WikipediaBolt extends BaseLumifyBolt {
                     .setProperty(PropertyName.CONCEPT_TYPE.toString(), wikipediaPageConcept.getId(), visibility)
                     .setProperty(PropertyName.MIME_TYPE.toString(), "text/plain", visibility)
                     .setProperty(PropertyName.SOURCE.toString(), "Wikipedia", visibility)
+                    .addPropertyValue(TITLE_LOW_PRIORITY, PropertyName.TITLE.toString(), link.getTarget(), visibility)
                     .save();
             graph.addEdge(getWikipediaPageToPageEdgeId(pageVertex, linkedPageVertex), pageVertex, linkedPageVertex, "link", visibility, getUser().getAuthorizations());
         }

@@ -125,7 +125,7 @@ public class Import extends CommandLineBase {
                         graph.prepareVertex(wikipediaPageVertexId, visibility, getUser().getAuthorizations())
                                 .setProperty(PropertyName.CONCEPT_TYPE.toString(), wikipediaPageConcept.getId(), visibility)
                                 .setProperty(PropertyName.RAW.toString(), rawPropertyValue, visibility)
-                                .setProperty(PropertyName.TITLE.toString(), pageTitle, visibility)
+                                .addPropertyValue(WikipediaBolt.TITLE_MEDIUM_PRIORITY, PropertyName.TITLE.toString(), pageTitle, visibility)
                                 .setProperty(PropertyName.MIME_TYPE.toString(), "text/plain", visibility)
                                 .setProperty(PropertyName.SOURCE.toString(), "Wikipedia", visibility)
                                 .save();
