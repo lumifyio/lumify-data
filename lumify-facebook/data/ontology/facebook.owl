@@ -38,6 +38,7 @@
 <!-- Concept: Facebook Post Image -->
 	<owl:Class rdf:about="facebookPostImage">
         <rdfs:label xml:lang="en">Facebook Post Image</rdfs:label>
+        <atc:property atc:name="displayType">image</atc:property>
         <atc:property atc:name="_color">rgb(70, 97, 159)</atc:property>
         <rdfs:subClassOf rdf:resource="http://altamiracorp.com/ontology/post"/>
     </owl:Class>
