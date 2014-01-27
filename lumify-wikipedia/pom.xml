@@ -64,16 +64,6 @@
         </dependency>
 
         <dependency>
-            <groupId>org.sweble</groupId>
-            <artifactId>sweble</artifactId>
-            <version>${sweble.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>org.sweble.wikitext</groupId>
-            <artifactId>sweble-wikitext</artifactId>
-            <version>${sweble.version}</version>
-        </dependency>
-        <dependency>
             <groupId>org.sweble.wikitext</groupId>
             <artifactId>swc-engine</artifactId>
             <version>${sweble.version}</version>
