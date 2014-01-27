@@ -5,6 +5,7 @@ import backtype.storm.task.TopologyContext;
 import backtype.storm.tuple.Tuple;
 import com.altamiracorp.lumify.core.model.ontology.Concept;
 import com.altamiracorp.lumify.core.model.ontology.PropertyName;
+import com.altamiracorp.lumify.core.model.ontology.Relationship;
 import com.altamiracorp.lumify.core.util.LumifyLogger;
 import com.altamiracorp.lumify.core.util.LumifyLoggerFactory;
 import com.altamiracorp.lumify.storm.BaseLumifyBolt;
@@ -47,6 +48,7 @@ public class WikipediaBolt extends BaseLumifyBolt {
     private XPathExpression titleXPath;
     private XPathExpression textXPath;
     private Concept wikipediaPageConcept;
+    private Relationship wikipediaPageInternalLinkWikipediaPageRelationship;
 
     @Override
     public void prepare(Map stormConf, TopologyContext context, OutputCollector collector) {
@@ -62,9 +64,8 @@ public class WikipediaBolt extends BaseLumifyBolt {
             textXPath = xpath.compile("/page/revision/text/text()");
             titleXPath = xpath.compile("/page/title/text()");
 
-            Concept documentConcept = ontologyRepository.getConceptByName("document");
-            wikipediaPageConcept = ontologyRepository.getOrCreateConcept(documentConcept, "wikipediaPage", "Wikipedia Page");
-            wikipediaPageConcept.setProperty(PropertyName.DISPLAY_TYPE.toString(), "document", visibility);
+            wikipediaPageConcept = ontologyRepository.getConceptByName("wikipediaPage");
+            wikipediaPageInternalLinkWikipediaPageRelationship = ontologyRepository.getRelationship("wikipediaPageInternalLinkWikipediaPage");
         } catch (Exception e) {
             throw new RuntimeException("Could not initialize", e);
         }
@@ -127,7 +128,7 @@ public class WikipediaBolt extends BaseLumifyBolt {
                     .setProperty(PropertyName.SOURCE.toString(), "Wikipedia", visibility)
                     .addPropertyValue(TITLE_LOW_PRIORITY, PropertyName.TITLE.toString(), link.getTarget(), visibility)
                     .save();
-            graph.addEdge(getWikipediaPageToPageEdgeId(pageVertex, linkedPageVertex), pageVertex, linkedPageVertex, "link", visibility, getUser().getAuthorizations());
+            graph.addEdge(getWikipediaPageToPageEdgeId(pageVertex, linkedPageVertex), pageVertex, linkedPageVertex, wikipediaPageInternalLinkWikipediaPageRelationship.getId().toString(), visibility, getUser().getAuthorizations());
         }
 
         graph.flush();

@@ -164,19 +164,4 @@
             </build>
         </profile>
     </profiles>
-
-    <repositories>
-        <repository>
-            <id>lumify-releases</id>
-            <url>http://bits.lumify.io/m2/</url>
-        </repository>
-        <repository>
-            <snapshots>
-                <enabled>true</enabled>
-                <updatePolicy>always</updatePolicy>
-            </snapshots>
-            <id>lumify-snapshots</id>
-            <url>http://bits.lumify.io/m2/</url>
-        </repository>
-    </repositories>
 </project>

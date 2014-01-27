@@ -53,6 +53,15 @@ public class Import extends CommandLineBase {
 
         options.addOption(
                 OptionBuilder
+                        .withLongOpt("pagecount")
+                        .withDescription("Number of pages to import. (default: all)")
+                        .hasArg(true)
+                        .withArgName("number")
+                        .create()
+        );
+
+        options.addOption(
+                OptionBuilder
                         .withLongOpt("flush")
                         .withDescription("Flush after each page")
                         .hasArg(false)
@@ -66,6 +75,11 @@ public class Import extends CommandLineBase {
     protected int run(CommandLine cmd) throws Exception {
         Visibility visibility = new Visibility("");
 
+        int pageCountToImport = Integer.MAX_VALUE;
+        if (cmd.hasOption("pagecount")) {
+            pageCountToImport = Integer.parseInt(cmd.getOptionValue("pagecount"));
+        }
+
         boolean flush = cmd.hasOption("flush");
         String inputFileName = cmd.getOptionValue("in");
         if (inputFileName == null) {
@@ -77,9 +91,7 @@ public class Import extends CommandLineBase {
             throw new RuntimeException("Could not find " + inputFileName);
         }
 
-        Concept documentConcept = ontologyRepository.getConceptByName("document");
-        Concept wikipediaPageConcept = ontologyRepository.getOrCreateConcept(documentConcept, "wikipediaPage", "Wikipedia Page");
-        wikipediaPageConcept.setProperty(PropertyName.DISPLAY_TYPE.toString(), "document", visibility);
+        Concept wikipediaPageConcept = ontologyRepository.getConceptByName("wikipediaPage");
 
         FileInputStream fileInputStream = new FileInputStream(inputFile);
         BZip2CompressorInputStream in = new BZip2CompressorInputStream(fileInputStream);
@@ -135,6 +147,10 @@ public class Import extends CommandLineBase {
                         JSONObject workJson = new JSONObject();
                         workJson.put("vertexId", wikipediaPageVertexId);
                         this.workQueueRepository.pushOnQueue(StormRunner.WIKIPEDIA_QUEUE, FlushFlag.NO_FLUSH, workJson);
+                    }
+
+                    if (pageCount >= pageCountToImport) {
+                        break;
                     }
                 }
                 lineNumber++;
