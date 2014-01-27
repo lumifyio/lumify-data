@@ -332,8 +332,7 @@ public class DefaultLumifyTwitterProcessor extends BaseArtifactProcessor impleme
                         .setProperty(PropertyName.CONCEPT_TYPE.toString(), CONCEPT_TWITTER_PROFILE_IMAGE, visibility)
                         .setProperty(PropertyName.TITLE.toString(), String.format(IMAGE_ARTIFACT_TITLE_FMT, screenName), visibility)
                         .setProperty(PropertyName.SOURCE.toString(), IMAGE_ARTIFACT_SOURCE, visibility)
-                        .setProperty(PropertyName.PROCESS.toString(), processId, visibility)
-                        .setProperty(PropertyName.RAW.toString(), new StreamingPropertyValue(new ByteArrayInputStream(rawImg), byte[].class), visibility);
+                        .setProperty(PropertyName.PROCESS.toString(), processId, visibility);
                 Vertex imageVertex = imageBuilder.save();
 
                 LOGGER.debug("Saved Twitter User [%s] Profile Photo to Accumulo and as graph vertex: %s", screenName, imageVertex.getId());
@@ -354,7 +353,7 @@ public class DefaultLumifyTwitterProcessor extends BaseArtifactProcessor impleme
             } catch (MalformedURLException mue) {
                 LOGGER.warn("Invalid Profile Photo URL [%s] for Twitter User [%s]: %s", imageUrl, screenName, mue.getMessage());
             } catch (IOException ioe) {
-                LOGGER.warn("Unable to retrieve Profile Photo [%s] for Twitter User [%s]: %s", imageUrl, screenName, ioe.getMessage());
+                LOGGER.warn("BLB [%s] for Twitter User [%s]: %s", imageUrl, screenName, ioe.getMessage());
             }
         }
     }
