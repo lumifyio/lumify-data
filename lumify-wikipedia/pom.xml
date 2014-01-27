@@ -10,6 +10,7 @@
     </parent>
 
     <artifactId>lumify-wikipedia</artifactId>
+    <name>Lumify Wikipedia</name>
 
     <properties>
         <!-- Dependency Versions -->
