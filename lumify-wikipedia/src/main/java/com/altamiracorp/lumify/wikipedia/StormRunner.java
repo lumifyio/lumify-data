@@ -9,7 +9,6 @@ import com.altamiracorp.lumify.storm.StormRunnerBase;
 public class StormRunner extends StormRunnerBase {
     private static final LumifyLogger LOGGER = LumifyLoggerFactory.getLogger(StormRunner.class);
     private static final String TOPOLOGY_NAME = "lumify-wikipedia";
-    public static final String WIKIPEDIA_QUEUE = "wikipediaQueue";
 
     public static void main(String[] args) throws Exception {
         int res = new StormRunner().run(args);
@@ -33,7 +32,7 @@ public class StormRunner extends StormRunnerBase {
     private void createTopology(TopologyBuilder builder, int parallelismHint) {
         String name = "wikipedia";
         LOGGER.info("creating " + name + " topology");
-        builder.setSpout(name + "-spout", createWorkQueueRepositorySpout(WIKIPEDIA_QUEUE), 1)
+        builder.setSpout(name + "-spout", createWorkQueueRepositorySpout(WikipediaConstants.WIKIPEDIA_QUEUE), 1)
                 .setMaxTaskParallelism(1);
         builder.setBolt(name + "-bolt", new WikipediaBolt(), parallelismHint)
                 .shuffleGrouping(name + "-spout");

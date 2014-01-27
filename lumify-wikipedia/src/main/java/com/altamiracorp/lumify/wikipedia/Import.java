@@ -146,7 +146,7 @@ public class Import extends CommandLineBase {
                         }
                         JSONObject workJson = new JSONObject();
                         workJson.put("vertexId", wikipediaPageVertexId);
-                        this.workQueueRepository.pushOnQueue(StormRunner.WIKIPEDIA_QUEUE, FlushFlag.NO_FLUSH, workJson);
+                        this.workQueueRepository.pushOnQueue(WikipediaConstants.WIKIPEDIA_QUEUE, FlushFlag.NO_FLUSH, workJson);
                     }
 
                     if (pageCount >= pageCountToImport) {
