@@ -128,8 +128,9 @@ case ${component} in
     bundle_puppet
     bundle_config
     FILE_LIST="${FILE_LIST} setup_import.sh"
-    bundle_war
-    bundle_storm
+    FILE_LIST="${FILE_LIST} download_from_ci.sh"
+    #bundle_war
+    #bundle_storm
     ;;
   *)
     echo "invalid component: ${component}"
