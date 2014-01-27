@@ -124,7 +124,7 @@ public class WikipediaBolt extends BaseLumifyBolt {
 
         for (InternalLink link : p.getInternalLinks()) {
             String linkVertexId = getWikipediaPageVertexId(link.getTarget());
-            Vertex linkedPageVertex = graph.prepareVertex(getWikipediaPageVertexId(linkVertexId), visibility, getUser().getAuthorizations())
+            Vertex linkedPageVertex = graph.prepareVertex(linkVertexId, visibility, getUser().getAuthorizations())
                     .setProperty(PropertyName.CONCEPT_TYPE.toString(), wikipediaPageConcept.getId(), visibility)
                     .setProperty(PropertyName.MIME_TYPE.toString(), "text/plain", visibility)
                     .setProperty(PropertyName.SOURCE.toString(), "Wikipedia", visibility)
