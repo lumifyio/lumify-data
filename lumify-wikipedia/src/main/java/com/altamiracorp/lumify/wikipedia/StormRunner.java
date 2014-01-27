@@ -2,9 +2,12 @@ package com.altamiracorp.lumify.wikipedia;
 
 import backtype.storm.generated.StormTopology;
 import backtype.storm.topology.TopologyBuilder;
+import com.altamiracorp.lumify.core.util.LumifyLogger;
+import com.altamiracorp.lumify.core.util.LumifyLoggerFactory;
 import com.altamiracorp.lumify.storm.StormRunnerBase;
 
 public class StormRunner extends StormRunnerBase {
+    private static final LumifyLogger LOGGER = LumifyLoggerFactory.getLogger(StormRunner.class);
     private static final String TOPOLOGY_NAME = "lumify-wikipedia";
     public static final String WIKIPEDIA_QUEUE = "wikipediaQueue";
 
@@ -21,6 +24,7 @@ public class StormRunner extends StormRunnerBase {
     }
 
     public StormTopology createTopology(int parallelismHint) {
+        LOGGER.info("creating topology");
         TopologyBuilder builder = new TopologyBuilder();
         createTopology(builder, parallelismHint);
         return builder.createTopology();
@@ -28,6 +32,7 @@ public class StormRunner extends StormRunnerBase {
 
     private void createTopology(TopologyBuilder builder, int parallelismHint) {
         String name = "wikipedia";
+        LOGGER.info("creating " + name + " topology");
         builder.setSpout(name + "-spout", createWorkQueueRepositorySpout(WIKIPEDIA_QUEUE), 1)
                 .setMaxTaskParallelism(1);
         builder.setBolt(name + "-bolt", new WikipediaBolt(), parallelismHint)

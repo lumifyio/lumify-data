@@ -55,18 +55,24 @@ public class WikipediaBolt extends BaseLumifyBolt {
         super.prepare(stormConf, context, collector);
 
         try {
+            LOGGER.info("Create sweble compiler");
             config = new SimpleWikiConfiguration("classpath:/org/sweble/wikitext/engine/SimpleWikiConfiguration.xml");
             compiler = new Compiler(config);
             visibility = new Visibility("");
 
+            LOGGER.info("preparing XPath statements");
             XPathFactory xPathfactory = XPathFactory.newInstance();
             XPath xpath = xPathfactory.newXPath();
             textXPath = xpath.compile("/page/revision/text/text()");
             titleXPath = xpath.compile("/page/title/text()");
 
+            LOGGER.info("Getting ontology concepts");
             wikipediaPageConcept = ontologyRepository.getConceptByName("wikipediaPage");
             wikipediaPageInternalLinkWikipediaPageRelationship = ontologyRepository.getRelationship("wikipediaPageInternalLinkWikipediaPage");
+
+            LOGGER.info("prepare complete");
         } catch (Exception e) {
+            collector.reportError(e);
             throw new RuntimeException("Could not initialize", e);
         }
     }
