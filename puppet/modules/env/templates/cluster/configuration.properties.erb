@@ -39,6 +39,21 @@ graph.titan.storage.index.search.indexName=titan
 graph.titan.storage.index.search.client-only=true
 graph.titan.autotype=none
 
+# graph
+graph=com.altamiracorp.securegraph.accumulo.AccumuloGraph
+# TODO when server side element visibility is fix remove this line
+graph.useServerSideElementVisibilityRowFilter=false
+graph.accumuloInstanceName=lumify
+graph.username=root
+graph.password=password
+graph.tableName=atc_securegraph
+graph.zookeeperServers=<%= @zookeeper_nodes.values.collect {|node| node.split(':')[0]}.join(',') %>
+graph.serializer=com.altamiracorp.securegraph.accumulo.serializer.JavaValueSerializer
+graph.idgenerator=com.altamiracorp.securegraph.id.UUIDIdGenerator
+graph.search=com.altamiracorp.securegraph.elasticsearch.ElasticSearchSearchIndex
+graph.search.locations=<%= @hadoop_slaves[0] %>
+graph.search.indexName=securegraph
+
 # Titan-ES specific
 graph.titan.storage.index.search.providerUtilClass=com.altamiracorp.lumify.model.index.utils.TitanGraphElasticSearchUtil
 
