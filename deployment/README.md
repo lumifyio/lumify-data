@@ -66,8 +66,8 @@ n=5
 /opt/storm/bin/storm jar lumify-enterprise-storm-1.0-SNAPSHOT-jar-with-dependencies.jar \
   com.altamiracorp.lumify.storm.StormEnterpriseRunner -tpb $((${n} * 8)) -w $((${n} * 2)) -ph $((${n} * 4))
 
-/opt/storm/bin/storm jar lumify-twitter-1.0-SNAPSHOT-jar-with-dependencies.jar \
-  com.altamiracorp.lumify.storm.twitter.StormRunner -tpb $((${n} * 8)) -w $((${n} * 2)) -ph $((${n} * 4))
+/opt/storm/bin/storm jar lumify-wikipedia-1.0-SNAPSHOT-jar-with-dependencies.jar \
+  com.altamiracorp.lumify.wikipedia.StormRunner -tpb $((${n} * 8)) -w $((${n} * 2)) -ph $((${n} * 4))
 ```
 
 turning it off
