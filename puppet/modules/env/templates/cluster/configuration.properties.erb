@@ -10,7 +10,9 @@ graph.provider=com.altamiracorp.lumify.model.TitanGraphSession
 search.provider=com.altamiracorp.lumify.search.ElasticSearchProvider
 authentication.provider=<%= @authentication_provider %>
 fs.provider=com.altamiracorp.lumify.fs.hdfs.HdfsSession
-work-queue-repository=com.altamiracorp.lumify.model.KafkaWorkQueueRepository
+#work-queue-repository=com.altamiracorp.lumify.model.KafkaWorkQueueRepository
+work-queue-repository=com.altamiracorp.lumify.model.bigtablequeue.BigTableWorkQueueRepository
+work-queue-repository.tableprefix=atc_accumuloqueue_
 content-type-extractor=com.altamiracorp.lumify.contentTypeExtraction.TikaContentTypeExtractor
 object.detector=com.altamiracorp.lumify.objectDetection.OpenCVObjectDetector
 
