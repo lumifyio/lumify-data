@@ -27,20 +27,6 @@ bigtable.accumulo.zookeeperServerNames=<%= @zookeeper_nodes.values.collect {|nod
 bigtable.accumulo.username=root
 bigtable.accumulo.password=password
 
-# Titan specific
-graph.titan.storage.backend=com.altamiracorp.titan.accumulo.AccumuloStorageManager
-graph.titan.storage.tablename=atc_titan
-graph.titan.storage.accumuloInstanceName=lumify
-graph.titan.storage.zookeeperServerName=<%= @zookeeper_nodes.values.collect {|node| node.split(':')[0]}.join(',') %>
-graph.titan.storage.username=root
-graph.titan.storage.password=password
-graph.titan.storage.index.search.backend=elasticsearch
-graph.titan.storage.index.search.hostname=<%= @hadoop_slaves[0] %>
-graph.titan.storage.index.search.port=9300
-graph.titan.storage.index.search.indexName=titan
-graph.titan.storage.index.search.client-only=true
-graph.titan.autotype=none
-
 # graph
 graph=com.altamiracorp.securegraph.accumulo.AccumuloGraph
 # TODO when server side element visibility is fix remove this line
@@ -55,12 +41,6 @@ graph.idgenerator=com.altamiracorp.securegraph.id.UUIDIdGenerator
 graph.search=com.altamiracorp.securegraph.elasticsearch.ElasticSearchSearchIndex
 graph.search.locations=<%= @hadoop_slaves[0] %>
 graph.search.indexName=securegraph
-
-# Titan-ES specific
-graph.titan.storage.index.search.providerUtilClass=com.altamiracorp.lumify.model.index.utils.TitanGraphElasticSearchUtil
-
-# Elastic search specific
-search.elasticsearch.locations=<%= @elasticsearch_locations.join(',') %>
 
 # Object-detection
 objectdetection.classifierConcepts=face
