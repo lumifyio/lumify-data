@@ -25,7 +25,7 @@ public class DocumentMappingEntityExtractor {
     public TermExtractionResult extract(Vertex artifactVertex, User user) throws IOException, ParseException {
         checkNotNull(artifactVertex);
         checkNotNull(user);
-        TermExtractionResult termExtractionResult = null;
+        TermExtractionResult termExtractionResult = new TermExtractionResult();
         String artifactRowKey = (String) artifactVertex.getPropertyValue(PropertyName.ROW_KEY.toString());
         LOGGER.debug("Processing graph vertex [%s] for artifact: %s", artifactVertex.getId(), artifactRowKey);
 
