@@ -157,6 +157,7 @@ public class Import extends CommandLineBase {
             }
         } finally {
             graph.flush();
+            this.workQueueRepository.flush();
             reader.close();
         }
 

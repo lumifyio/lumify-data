@@ -23,7 +23,6 @@ public class StormRunner extends StormRunnerBase {
     }
 
     public StormTopology createTopology(int parallelismHint) {
-        LOGGER.info("creating topology");
         TopologyBuilder builder = new TopologyBuilder();
         createTopology(builder, parallelismHint);
         return builder.createTopology();
@@ -31,7 +30,6 @@ public class StormRunner extends StormRunnerBase {
 
     private void createTopology(TopologyBuilder builder, int parallelismHint) {
         String name = "wikipedia";
-        LOGGER.info("creating " + name + " topology");
         builder.setSpout(name + "-spout", createWorkQueueRepositorySpout(WikipediaConstants.WIKIPEDIA_QUEUE), 1)
                 .setMaxTaskParallelism(1);
         builder.setBolt(name + "-bolt", new WikipediaBolt(), parallelismHint)
