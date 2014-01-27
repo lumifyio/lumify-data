@@ -129,7 +129,7 @@ public class Import extends CommandLineBase {
                                 .setProperty(PropertyName.MIME_TYPE.toString(), "text/plain", visibility)
                                 .setProperty(PropertyName.SOURCE.toString(), "Wikipedia", visibility)
                                 .save();
-                        if (flush) {
+                        if (flush || pageCount < 100) { // We call flush for the first 100 so that we can saturate the storm topology otherwise we'll get vertex not found problems.
                             graph.flush();
                         }
                         JSONObject workJson = new JSONObject();
@@ -140,6 +140,7 @@ public class Import extends CommandLineBase {
                 lineNumber++;
             }
         } finally {
+            graph.flush();
             reader.close();
         }
 
