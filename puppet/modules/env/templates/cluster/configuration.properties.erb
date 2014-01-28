@@ -34,7 +34,7 @@ graph.useServerSideElementVisibilityRowFilter=false
 graph.accumuloInstanceName=lumify
 graph.username=root
 graph.password=password
-graph.tableName=atc_securegraph
+graph.tableNamePrefix=atc_securegraph
 graph.zookeeperServers=<%= @zookeeper_nodes.values.collect {|node| node.split(':')[0]}.join(',') %>
 graph.serializer=com.altamiracorp.securegraph.accumulo.serializer.JavaValueSerializer
 graph.idgenerator=com.altamiracorp.securegraph.id.UUIDIdGenerator
