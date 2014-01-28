@@ -30,3 +30,7 @@
 	url = git@github.com:dsingley/aws.git
 	path = deployment/aws
 	branch = master
+[subtree "lumify-wikipedia"]
+	url = git@github.com:altamiracorp/lumify-wikipedia.git
+	path = lumify-wikipedia
+	branch = master
