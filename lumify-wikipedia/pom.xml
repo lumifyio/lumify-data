@@ -167,4 +167,23 @@
             </build>
         </profile>
     </profiles>
+
+    <repositories>
+        <repository>
+            <id>lumify-releases</id>
+            <!-- The url needs to be hardcoded here because maven processes the parent pom before injecting local properties.
+                 To test clear your local m2 repo of the lumify root pom, then maven compile. -->
+            <url>http://bits.lumify.io/m2/</url>
+        </repository>
+        <repository>
+            <snapshots>
+                <enabled>true</enabled>
+                <updatePolicy>always</updatePolicy>
+            </snapshots>
+            <id>lumify-snapshots</id>
+            <!-- The url needs to be hardcoded here because maven processes the parent pom before injecting local properties.
+                 To test clear your local m2 repo of the lumify root pom, then maven compile. -->
+            <url>http://bits.lumify.io/m2/</url>
+        </repository>
+    </repositories>
 </project>
