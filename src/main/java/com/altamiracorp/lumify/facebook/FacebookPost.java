@@ -10,24 +10,21 @@ import com.altamiracorp.lumify.core.user.User;
 import com.altamiracorp.lumify.core.util.LumifyLogger;
 import com.altamiracorp.lumify.core.util.LumifyLoggerFactory;
 import com.altamiracorp.lumify.core.util.RowKeyHelper;
+import com.altamiracorp.securegraph.ElementMutation;
 import com.altamiracorp.securegraph.Graph;
 import com.altamiracorp.securegraph.Vertex;
-import com.altamiracorp.securegraph.VertexBuilder;
 import com.altamiracorp.securegraph.Visibility;
 import com.altamiracorp.securegraph.type.GeoPoint;
 import org.json.JSONObject;
 
-import java.util.ArrayList;
 import java.util.Date;
 import java.util.Iterator;
-import java.util.List;
 
 import static com.altamiracorp.lumify.facebook.FacebookConstants.*;
 
 public class FacebookPost {
     private static final LumifyLogger LOGGER = LumifyLoggerFactory.getLogger(FacebookBolt.class);
     private static final String PROCESS = FacebookPost.class.getName();
-    private FacebookBolt facebookBolt = new FacebookBolt();
 
 
     protected ArtifactExtractedInfo processPostArtifact(JSONObject post) throws Exception {
@@ -71,22 +68,18 @@ public class FacebookPost {
         LOGGER.info("Saving Facebook post to accumulo and as graph vertex: ", posting.getId());
         Concept profileConcept = ontologyRepository.getConceptByName(FACEBOOK_PROFILE);
         String profileConceptId = profileConcept.getId().toString();
-        List<String> modifiedProperties = new ArrayList<String>();
 
         //create entities for each of the ids tagged or author and the relationships
         Vertex authorVertex;
         String authorVid = generateUserVertexId(author_uid);
         Vertex queryVertex = graph.getVertex(authorVid, user.getAuthorizations());
         if (queryVertex == null) {
-            VertexBuilder authorBuilder;
-            authorBuilder = graph.prepareVertex(authorVid, visibility, user.getAuthorizations());
+            ElementMutation<Vertex> authorBuilder = graph.prepareVertex(authorVid, visibility, user.getAuthorizations());
             authorBuilder.setProperty(PROFILE_ID, author_uid, visibility);
             authorBuilder.setProperty(PropertyName.TITLE.toString(), author_uid, visibility);
             authorBuilder.setProperty(PropertyName.CONCEPT_TYPE.toString(), profileConceptId, visibility);
             authorVertex = authorBuilder.save();
-            auditRepository.auditEntity(AuditAction.CREATE.toString(), authorVertex.getId(), posting.getId().toString(), profileConceptId, author_uid, PROCESS, "", user);
-            auditRepository.auditEntityProperties(AuditAction.UPDATE.toString(), authorVertex, PROFILE_ID, PROCESS, "", user);
-            auditRepository.auditEntityProperties(AuditAction.UPDATE.toString(), authorVertex, PropertyName.CONCEPT_TYPE.toString(), PROCESS, "", user);
+            auditRepository.auditVertexElementMutation(authorBuilder, authorVertex, PROCESS, user);
         } else {
             authorVertex = queryVertex;
         }
@@ -94,6 +87,7 @@ public class FacebookPost {
         String postedRelationshipLabelDisplayName = ontologyRepository.getDisplayNameForLabel(POSTED_RELATIONSHIP);
         auditRepository.auditRelationships(AuditAction.CREATE.toString(), posting, authorVertex, postedRelationshipLabelDisplayName, PROCESS, "", user);
         graph.flush();
+
         if (post.get(TAGGEED_UIDS) instanceof JSONObject) {
             Iterator tagged = post.getJSONObject(TAGGEED_UIDS).keys();
             while (tagged.hasNext()) {
@@ -102,16 +96,12 @@ public class FacebookPost {
                 String taggedVid = generateUserVertexId(next);
                 Vertex nextQueryVertex = graph.getVertex(taggedVid, user.getAuthorizations());
                 if (nextQueryVertex == null) {
-                    VertexBuilder taggedBuilder;
-                    taggedBuilder = graph.prepareVertex(taggedVid, visibility, user.getAuthorizations());
+                    ElementMutation<Vertex> taggedBuilder = graph.prepareVertex(taggedVid, visibility, user.getAuthorizations());
                     taggedBuilder.setProperty(PROFILE_ID, next, visibility);
                     taggedBuilder.setProperty(PropertyName.TITLE.toString(), next, visibility);
                     taggedBuilder.setProperty(PropertyName.CONCEPT_TYPE.toString(), profileConceptId, visibility);
                     taggedVertex = taggedBuilder.save();
-
-                    auditRepository.auditEntity(AuditAction.CREATE.toString(), taggedVertex.getId(), posting.getId().toString(), profileConceptId, next, PROCESS, "", user);
-                    auditRepository.auditEntityProperties(AuditAction.UPDATE.toString(), taggedVertex, PROFILE_ID, PROCESS, "", user);
-                    auditRepository.auditEntityProperties(AuditAction.UPDATE.toString(), taggedVertex, PropertyName.CONCEPT_TYPE.toString(), PROCESS, "", user);
+                    auditRepository.auditVertexElementMutation(taggedBuilder, taggedVertex, PROCESS, user);
                 } else {
                     taggedVertex = nextQueryVertex;
                 }
@@ -125,15 +115,16 @@ public class FacebookPost {
         if (post.has(COORDS) && !post.getJSONObject(COORDS).equals(JSONObject.NULL)) {
             JSONObject coordinates = post.getJSONObject(COORDS);
             GeoPoint geo = new GeoPoint(coordinates.getDouble("latitude"), coordinates.getDouble("longitude"));
-            posting.setProperty(PropertyName.GEO_LOCATION.toString(), geo, visibility);
-            modifiedProperties.add(PropertyName.GEO_LOCATION.toString());
-            auditRepository.auditEntityProperties(AuditAction.UPDATE.toString(), posting, PropertyName.GEO_LOCATION.toString(), PROCESS, "", user);
+            ElementMutation<Vertex> postingMutation = posting.prepareMutation();
+            postingMutation.setProperty(PropertyName.GEO_LOCATION.toString(), geo, visibility);
+            auditRepository.auditVertexElementMutation(postingMutation, posting, PROCESS, user);
+            posting = postingMutation.save();
         }
 
         return posting;
     }
 
-    public String generateUserVertexId (String profileId) {
+    public String generateUserVertexId(String profileId) {
         return FACEBOOK_VERTEX_ID + profileId;
     }
 }

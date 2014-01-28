@@ -52,7 +52,7 @@ public class FacebookBolt extends BaseLumifyBolt {
             if (userVertex.getPropertyValue(PropertyName.GLYPH_ICON.toString(), 0) == null) {
                 ArtifactExtractedInfo profilePicExtractedInfo = facebookUser.createProfilePhotoArtifact(jsonObject, userVertex);
                 setSavedArtifact(profilePicExtractedInfo);
-                facebookUser.createProfilePhotoVertex(savedArtifact, userVertex, graph, auditRepository, getUser());
+                facebookUser.createProfilePhotoVertex(savedArtifact, userVertex, graph, auditRepository, ontologyRepository, getUser());
             }
             graph.flush();
         }
