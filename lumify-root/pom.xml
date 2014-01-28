@@ -66,7 +66,7 @@
         <inflector.version>0.7.0</inflector.version>
         <jackson.version>2.3.1</jackson.version>
         <jackson.annotations.version>2.3.0</jackson.annotations.version>
-        <javaee.version>7.0</javaee.version>
+        <javaee.version>6.0</javaee.version>
         <jetty.version>8.1.14.v20131031</jetty.version>
         <json.version>20130918</json.version>
         <kafka.version>0.8.0-wip4</kafka.version>
