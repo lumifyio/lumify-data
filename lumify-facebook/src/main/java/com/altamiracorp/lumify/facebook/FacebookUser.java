@@ -32,7 +32,6 @@ import static com.altamiracorp.lumify.facebook.FacebookConstants.*;
 public class FacebookUser {
     private static final LumifyLogger LOGGER = LumifyLoggerFactory.getLogger(FacebookBolt.class);
     private static final String PROCESS = FacebookUser.class.getName();
-    private FacebookBolt facebookBolt = new FacebookBolt();
 
     public Vertex process(JSONObject userJson, Graph graph, AuditRepository auditRepository, OntologyRepository ontologyRepository, User user) throws ParseException {
         //TODO set visibility
@@ -60,19 +59,16 @@ public class FacebookUser {
             }
             userVertex = queryVertex;
         }
-        List<String> modifiedProperties = Lists.newArrayList
-                (PropertyName.TITLE.toString(), PropertyName.CONCEPT_TYPE.toString(), PropertyName.DISPLAY_NAME.toString(), PROFILE_ID);
 
-
-        userVertex.setProperty(PropertyName.DISPLAY_NAME.toString(), username, visibility);
-        userVertex.setProperty(PropertyName.TITLE.toString(), name, visibility);
+        ElementMutation<Vertex> userVertexMutation = userVertex.prepareMutation();
+        userVertexMutation.setProperty(PropertyName.DISPLAY_NAME.toString(), username, visibility);
+        userVertexMutation.setProperty(PropertyName.TITLE.toString(), name, visibility);
 
         //get relationships for vertex and write audit message for each post
 
         if (userJson.has(SEX) && !userJson.getString(SEX).equals(JSONObject.NULL)) {
             String gender = userJson.getString(SEX);
-            userVertex.setProperty(GENDER, gender, visibility);
-            modifiedProperties.add(GENDER);
+            userVertexMutation.setProperty(GENDER, gender, visibility);
         }
 
         if (userJson.has(EMAIL) && !userJson.getString(EMAIL).equals(JSONObject.NULL)) {
@@ -82,15 +78,11 @@ public class FacebookUser {
             Iterator<Vertex> emailIterator = graph.query(user.getAuthorizations()).has(EMAIL_ADDRESS, email).vertices().iterator();
             Vertex queryEmailVertex = emailIterator.next();
             if (queryEmailVertex == null) {
-                VertexBuilder emailBuilder;
-                emailBuilder = graph.prepareVertex(visibility, user.getAuthorizations());
+                ElementMutation<Vertex> emailBuilder = graph.prepareVertex(visibility, user.getAuthorizations());
                 emailBuilder.setProperty(PropertyName.TITLE.toString(), email, visibility);
                 emailBuilder.setProperty(PropertyName.CONCEPT_TYPE.toString(), emailConcept.getId(), visibility);
                 emailVertex = emailBuilder.save();
-
-                auditRepository.auditEntity(AuditAction.CREATE.toString(), emailVertex.getId(), userVertex.getId().toString(), email, emailConcept.getId().toString(), PROCESS, "", user);
-                auditRepository.auditEntityProperties(AuditAction.UPDATE.toString(), emailVertex, PropertyName.TITLE.toString(), PROCESS, "", user);
-
+                auditRepository.auditVertexElementMutation(emailBuilder, emailVertex, PROCESS, user);
             } else {
                 while (queryEmailVertex != null) {
                     Iterable <Object> titles = queryVertex.getPropertyValues(PropertyName.TITLE.toString());
@@ -104,14 +96,15 @@ public class FacebookUser {
                 }
             }
             graph.addEdge(userVertex, emailVertex, EMAIL_RELATIONSHIP, visibility, user.getAuthorizations());
+            String labelDisplayName = ontologyRepository.getDisplayNameForLabel(EMAIL_RELATIONSHIP);
+            auditRepository.auditRelationships(AuditAction.CREATE.toString(), userVertex, emailVertex, labelDisplayName, PROCESS, "", user);
             graph.flush();
         }
 
         if (userJson.has(COORDS) && !userJson.get(COORDS).equals(JSONObject.NULL)) {
             JSONObject coordinates = userJson.getJSONObject(COORDS);
             GeoPoint geo = new GeoPoint(coordinates.getDouble("latitude"), coordinates.getDouble("longitude"));
-            userVertex.setProperty(PropertyName.GEO_LOCATION.toString(), geo, visibility);
-            modifiedProperties.add(PropertyName.GEO_LOCATION.toString());
+            userVertexMutation.setProperty(PropertyName.GEO_LOCATION.toString(), geo, visibility);
         }
 
         if (userJson.has(BIRTHDAY_DATE) && (userJson.get(BIRTHDAY_DATE) instanceof String)) {
@@ -122,13 +115,11 @@ public class FacebookUser {
                 birthdayFormat = new SimpleDateFormat(BIRTHDAY_FORMAT + "/yyyy");
             }
             Date birthday = birthdayFormat.parse(birthday_date);
-            userVertex.setProperty(BIRTHDAY.toString(), birthday.getTime(), visibility);
-            modifiedProperties.add(BIRTHDAY);
+            userVertexMutation.setProperty(BIRTHDAY.toString(), birthday.getTime(), visibility);
         }
         //create and save profile picture
-        for (String property : modifiedProperties) {
-            auditRepository.auditEntityProperties(AuditAction.UPDATE.toString(), userVertex, property, PROCESS, "", user);
-        }
+        auditRepository.auditVertexElementMutation(userVertexMutation, userVertex, PROCESS, user);
+        userVertex = userVertexMutation.save();
         return userVertex;
     }
 
@@ -160,29 +151,28 @@ public class FacebookUser {
         return null;
     }
 
-    protected void createProfilePhotoVertex(Vertex pictureVertex, Vertex userVertex, Graph graph, AuditRepository auditRepository, User user) {
+    protected void createProfilePhotoVertex(Vertex pictureVertex, Vertex userVertex, Graph graph, AuditRepository auditRepository, OntologyRepository ontologyRepository, User user) {
         //TODO set visibility
         Visibility visibility = new Visibility("");
-        List<String> modifiedProperties = new ArrayList<String>();
-        userVertex.setProperty(PropertyName.GLYPH_ICON.toString(), "/artifact/" + pictureVertex.getId() + "/raw", visibility);
-        pictureVertex.setProperty(PropertyName.GLYPH_ICON.toString(), "/artifact/" + pictureVertex.getId() + "/raw", visibility);
-        modifiedProperties.add(PropertyName.GLYPH_ICON.toString());
-        String labelDisplay = ENTITY_HAS_IMAGE_PROFILE_PHOTO;
+        ElementMutation<Vertex> userVertexMutation = userVertex.prepareMutation();
+        ElementMutation<Vertex> pictureVertexMutation = pictureVertex.prepareMutation();
+        userVertexMutation.setProperty(PropertyName.GLYPH_ICON.toString(), "/artifact/" + pictureVertex.getId() + "/raw", visibility);
+        pictureVertexMutation.setProperty(PropertyName.GLYPH_ICON.toString(), "/artifact/" + pictureVertex.getId() + "/raw", visibility);
+
+        auditRepository.auditVertexElementMutation(userVertexMutation, userVertex, PROCESS, user);
+        auditRepository.auditVertexElementMutation(pictureVertexMutation, pictureVertex, PROCESS, user);
+        userVertex = userVertexMutation.save();
+        pictureVertex = pictureVertexMutation.save();
+
+        String labelDisplay = ontologyRepository.getDisplayNameForLabel(ENTITY_HAS_IMAGE_PROFILE_PHOTO);
 
         Iterator<Edge> edges = userVertex.getEdges(pictureVertex, Direction.IN, labelDisplay, user.getAuthorizations()).iterator();
         if (!edges.hasNext()) {
-            graph.addEdge(userVertex, pictureVertex, labelDisplay, visibility, user.getAuthorizations());
+            graph.addEdge(userVertex, pictureVertex, ENTITY_HAS_IMAGE_PROFILE_PHOTO, visibility, user.getAuthorizations());
         }
-        auditRepository.auditEntityProperties(AuditAction.UPDATE.toString(), userVertex, PropertyName.GLYPH_ICON.toString(),
-                PROCESS, "", user);
-        auditRepository.auditEntityProperties(AuditAction.UPDATE.toString(), pictureVertex, PropertyName.GLYPH_ICON.toString(),
-                PROCESS, "", user);
+
         auditRepository.auditRelationships(AuditAction.CREATE.toString(), userVertex, pictureVertex, labelDisplay, PROCESS, "", user);
         LOGGER.info("Saving Facebook picture to accumulo and as graph vertex: %s", pictureVertex.getId());
-    }
-
-    public void setFacebookBolt(FacebookBolt bolt) {
-        this.facebookBolt = bolt;
     }
 
     public String generateUserVertexId (String profileId) {

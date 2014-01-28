@@ -26,6 +26,8 @@ import com.altamiracorp.lumify.core.util.LumifyLoggerFactory;
 import com.altamiracorp.lumify.core.util.ThreadedInputStreamProcess;
 import com.altamiracorp.lumify.core.util.ThreadedTeeInputStreamWorker;
 import com.altamiracorp.lumify.storm.BaseTextProcessingBolt;
+import com.altamiracorp.securegraph.ElementMutation;
+import com.altamiracorp.securegraph.ExistingElementMutation;
 import com.altamiracorp.securegraph.Vertex;
 import com.altamiracorp.securegraph.Visibility;
 import com.google.common.collect.Lists;
@@ -36,6 +38,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.ServiceLoader;
 import org.json.JSONObject;
+import scala.unchecked;
 
 public class TermExtractionBolt extends BaseTextProcessingBolt {
     private static final LumifyLogger LOGGER = LumifyLoggerFactory.getLogger(TermExtractionBolt.class);
@@ -115,9 +118,7 @@ public class TermExtractionBolt extends BaseTextProcessingBolt {
         List<TermMentionWithGraphVertex> results = new ArrayList<TermMentionWithGraphVertex>();
         for (TermMention termMention : termMentions) {
             LOGGER.debug("Saving term mention '%s':%s (%d:%d)", termMention.getSign(), termMention.getOntologyClassUri(), termMention.getStart(), termMention.getEnd());
-            List<String> modifiedProperties = new ArrayList<String>();
             Vertex vertex = null;
-            boolean newVertex = false;
             TermMentionModel termMentionModel = new TermMentionModel(new TermMentionRowKey(artifactGraphVertex.getId().toString(), termMention.getStart(), termMention.getEnd()));
             termMentionModel.getMetadata().setSign(termMention.getSign());
             termMentionModel.getMetadata().setOntologyClassUri(termMention.getOntologyClassUri());
@@ -132,37 +133,33 @@ public class TermExtractionBolt extends BaseTextProcessingBolt {
 
             if (termMention.isResolved()) {
                 String title = termMention.getSign();
+                ElementMutation<Vertex> vertexElementMutation;
                 vertex = trySingle(graph.query(getUser().getAuthorizations())
                         .has(PropertyName.TITLE.toString(), title)
                         .vertices());
                 if (!termMention.getUseExisting() || vertex == null) {
-                    vertex = graph.addVertex(new Visibility(""), getUser().getAuthorizations());
-                    newVertex = true;
+                    vertexElementMutation = graph.prepareVertex(new Visibility(""), getUser().getAuthorizations());
                     title = termMention.getSign();
-                    vertex.setProperty(PropertyName.TITLE.toString(), title, new Visibility(""));
-                    modifiedProperties.add(PropertyName.TITLE.toString());
+                    vertexElementMutation.setProperty(PropertyName.TITLE.toString(), title, new Visibility(""));
                     if (concept != null) {
-                        vertex.setProperty(PropertyName.CONCEPT_TYPE.toString(), concept.getId(), new Visibility(""));
-                        modifiedProperties.add(PropertyName.CONCEPT_TYPE.toString());
+                        vertexElementMutation.setProperty(PropertyName.CONCEPT_TYPE.toString(), concept.getId(), new Visibility(""));
                     }
+                } else {
+                    vertexElementMutation = vertex.prepareMutation();
                 }
 
                 if (termMention.getPropertyValue() != null) {
                     Map<String, Object> properties = termMention.getPropertyValue();
                     for (String key : properties.keySet()) {
-                        vertex.setProperty(key, properties.get(key), new Visibility(""));
-                        modifiedProperties.add(key);
+                        vertexElementMutation.setProperty(key, properties.get(key), new Visibility(""));
                     }
                 }
 
-                // TODO get auditing working
-//                if (newVertex) {
-//                    auditRepository.auditEntity(AuditAction.CREATE.toString(), vertex.getId(), artifactGraphVertexId, title, concept.getId().toString(), termMention.getProcess(), "", getUser());
-//                }
-
-                for (String property : modifiedProperties) {
-                    auditRepository.auditEntityProperties(AuditAction.UPDATE.toString(), vertex, property, termMention.getProcess(), "", getUser());
+                if (!(vertexElementMutation instanceof ExistingElementMutation)) {
+                    vertex = vertexElementMutation.save();
                 }
+
+                auditRepository.auditVertexElementMutation(vertexElementMutation, vertex, termMention.getProcess(), getUser());
 
                 graph.addEdge(artifactGraphVertex, vertex, LabelName.RAW_HAS_ENTITY.toString(), new Visibility(""), getUser().getAuthorizations());
 

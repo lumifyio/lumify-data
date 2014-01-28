@@ -32,7 +32,6 @@ import com.altamiracorp.lumify.core.util.LumifyLoggerFactory;
 import com.altamiracorp.lumify.core.util.RowKeyHelper;
 import com.altamiracorp.securegraph.*;
 import com.altamiracorp.securegraph.property.StreamingPropertyValue;
-import com.google.common.collect.Lists;
 import com.google.inject.Inject;
 import org.apache.commons.io.IOUtils;
 import org.json.JSONObject;
@@ -119,15 +118,6 @@ public class DefaultLumifyTwitterProcessor extends BaseArtifactProcessor impleme
     }
 
     /**
-     * The list of properties modified during entity extraction.
-     */
-    private static final List<String> ENTITY_MODIFIED_PROPERTIES = Arrays.asList(
-            PropertyName.TITLE.toString(),
-            PropertyName.ROW_KEY.toString(),
-            PropertyName.CONCEPT_TYPE.toString()
-    );
-
-    /**
      * The URL Stream Creator.
      */
     private UrlStreamCreator urlStreamCreator;
@@ -161,7 +151,7 @@ public class DefaultLumifyTwitterProcessor extends BaseArtifactProcessor impleme
         String rowKey = RowKeyHelper.buildSHA256KeyString(jsonBytes);
 
 
-        ElementMutation<Vertex> artifact = findOrPrepareArtifactVertex(rowKey)
+        ElementMutation<Vertex> artifactMutation = findOrPrepareArtifactVertex(rowKey)
                 .setProperty(PropertyName.MIME_TYPE.toString(), TWEET_ARTIFACT_MIME_TYPE, visibility)
                 .setProperty(PropertyName.CONCEPT_TYPE.toString(), getOntologyRepository().getConceptByName(CONCEPT_TWEET).getId(), visibility)
                 .setProperty(PropertyName.TITLE.toString(), tweetText, visibility)
@@ -171,24 +161,25 @@ public class DefaultLumifyTwitterProcessor extends BaseArtifactProcessor impleme
                 .setProperty(PropertyName.ROW_KEY.toString(), rowKey, visibility);
 
         if (tweetCreatedAt != null) {
-            artifact.setProperty(PropertyName.PUBLISHED_DATE.toString(), new Date(tweetCreatedAt), visibility);
+            artifactMutation.setProperty(PropertyName.PUBLISHED_DATE.toString(), new Date(tweetCreatedAt), visibility);
         }
 
-        artifact.setProperty(PropertyName.TEXT.toString(), new StreamingPropertyValue(new ByteArrayInputStream(tweetText.getBytes()), String.class), visibility);
+        artifactMutation.setProperty(PropertyName.TEXT.toString(), new StreamingPropertyValue(new ByteArrayInputStream(tweetText.getBytes()), String.class), visibility);
 
-        Vertex tweet = artifact.save();
+        Vertex tweet = null;
+        if (!(artifactMutation instanceof ExistingElementMutation)) {
+            tweet = artifactMutation.save();
+            getAuditRepository().auditVertexElementMutation(artifactMutation, tweet, processId, user);
+        } else {
+            getAuditRepository().auditVertexElementMutation(artifactMutation, null, processId, user);
+            tweet = artifactMutation.save();
+        }
         getGraph().flush();
 
         String tweetId = tweet.getId().toString();
         LOGGER.info("Saved Tweet to Accumulo and as Graph Vertex: %s", tweetId);
 
-        List<String> modifiedProps = setOptionalProps(tweet, jsonTweet, OPTIONAL_TWEET_PROPERTY_MAP, visibility);
-        if (!modifiedProps.isEmpty()) {
-            AuditRepository auditRepo = getAuditRepository();
-            for (String prop : modifiedProps) {
-                auditRepo.auditEntityProperties(AuditAction.UPDATE.toString(), tweet, prop, processId, "", user);
-            }
-        }
+        getAuditRepository().auditVertexElementMutation(artifactMutation, tweet, processId, user);
 
         return tweet;
     }
@@ -210,33 +201,31 @@ public class DefaultLumifyTwitterProcessor extends BaseArtifactProcessor impleme
         Concept handleConcept = getOntologyRepository().getConceptByName(CONCEPT_TWITTER_HANDLE);
 
         Vertex userVertex = null;
+        ElementMutation<Vertex> userVertexMutation;
         Iterator<Vertex> userIterator = graph.query(lumifyUser.getAuthorizations()).has(PropertyName.TITLE.toString(), screenName).vertices().iterator();
         if (!userIterator.hasNext()) {
-            userVertex = graph.addVertex(visibility, lumifyUser.getAuthorizations());
+            userVertexMutation = graph.prepareVertex(visibility, lumifyUser.getAuthorizations());
         } else {
             // TODO what happens if userIterator contains multiple users
             userVertex = userIterator.next();
+            userVertexMutation = userVertex.prepareMutation();
         }
 
-        List<String> modifiedProps = Lists.newArrayList(
-                PropertyName.TITLE.toString(),
-                PropertyName.CONCEPT_TYPE.toString()
-        );
-        userVertex.setProperty(PropertyName.TITLE.toString(), screenName, visibility);
-        userVertex.setProperty(PropertyName.CONCEPT_TYPE.toString(), handleConcept.getId(), visibility);
+        userVertexMutation.setProperty(PropertyName.TITLE.toString(), screenName, visibility);
+        userVertexMutation.setProperty(PropertyName.CONCEPT_TYPE.toString(), handleConcept.getId(), visibility);
 
-        modifiedProps.addAll(setOptionalProps(userVertex, jsonUser, OPTIONAL_USER_PROPERTY_MAP, visibility));
-
-        // TODO fix auditing
-//        AuditRepository auditRepo = getAuditRepository();
-//        for (String prop : modifiedProps) {
-//            auditRepo.auditEntityProperties(AuditAction.UPDATE.toString(), userVertex, prop, processId, "", lumifyUser);
-//        }
+        if (!(userVertexMutation instanceof ExistingElementMutation)) {
+            userVertex = userVertexMutation.save();
+            getAuditRepository().auditVertexElementMutation(userVertexMutation, userVertex, processId, lumifyUser);
+        } else {
+            getAuditRepository().auditVertexElementMutation(userVertexMutation, userVertex, processId, lumifyUser);
+            userVertex = userVertexMutation.save();
+        }
 
         // create the relationship between the user and their tweet
         graph.addEdge(tweetVertex, userVertex, TWEETED_RELATIONSHIP, visibility, lumifyUser.getAuthorizations());
         String labelDispName = getOntologyRepository().getDisplayNameForLabel(TWEETED_RELATIONSHIP);
-//        auditRepo.auditRelationships(AuditAction.CREATE.toString(), userVertex, tweetVertex, labelDispName, processId, "", lumifyUser);
+        getAuditRepository().auditRelationships(AuditAction.CREATE.toString(), userVertex, tweetVertex, labelDispName, processId, "", lumifyUser);
 
         return userVertex;
     }
@@ -265,31 +254,30 @@ public class DefaultLumifyTwitterProcessor extends BaseArtifactProcessor impleme
                 String sign = mention.getMetadata().getSign().toLowerCase();
                 String rowKey = mention.getRowKey().toString();
 
-                boolean newVertex = false;
                 Vertex termVertex = null;
+                ElementMutation<Vertex> termVertexMutation;
                 Iterator<Vertex> userIterator = graph.query(user.getAuthorizations()).has(PropertyName.TITLE.toString(), sign).vertices().iterator();
                 if (!userIterator.hasNext()) {
-                    termVertex = graph.addVertex(visibility, user.getAuthorizations());
-                    newVertex = true;
+                    termVertexMutation = graph.prepareVertex(visibility, user.getAuthorizations());
                 } else {
                     // TODO what happens if userIterator contains multiple users
                     termVertex = userIterator.next();
+                    termVertexMutation = termVertex.prepareMutation();
                 }
 
-                termVertex.setProperty(PropertyName.TITLE.toString(), sign, visibility);
-                termVertex.setProperty(PropertyName.ROW_KEY.toString(), rowKey, visibility);
-                termVertex.setProperty(PropertyName.CONCEPT_TYPE.toString(), concept.getId(), visibility);
+                termVertexMutation.setProperty(PropertyName.TITLE.toString(), sign, visibility);
+                termVertexMutation.setProperty(PropertyName.ROW_KEY.toString(), rowKey, visibility);
+                termVertexMutation.setProperty(PropertyName.CONCEPT_TYPE.toString(), concept.getId(), visibility);
+
+                if (!(termVertexMutation instanceof ExistingElementMutation)) {
+                    termVertex = termVertexMutation.save();
+                    getAuditRepository().auditVertexElementMutation(termVertexMutation, termVertex, processId, user);
+                } else {
+                    getAuditRepository().auditVertexElementMutation(termVertexMutation, termVertex, processId, user);
+                    termVertex = termVertexMutation.save();
+                }
 
                 String termId = termVertex.getId().toString();
-
-                // TODO fix auditing
-//                if (newVertex) {
-//                    auditRepo.auditEntity(AuditAction.CREATE.toString(), termId, tweetVertex.getId().toString(),
-//                            sign, concept.getId(), processId, "", user);
-//                }
-//                for (String prop : ENTITY_MODIFIED_PROPERTIES) {
-//                    auditRepo.auditEntityProperties(AuditAction.UPDATE.toString(), termVertex, prop, processId, "", user);
-//                }
 
                 mention.getMetadata().setVertexId(termId);
                 getTermMentionRepository().save(mention, user.getModelUserContext());
@@ -297,13 +285,13 @@ public class DefaultLumifyTwitterProcessor extends BaseArtifactProcessor impleme
                 graph.addEdge(tweetVertex, termVertex, entityType.getRelationshipLabel(), visibility, user.getAuthorizations());
 
                 auditRepo.auditRelationships(AuditAction.CREATE.toString(), tweetVertex, termVertex, relDispName, processId, "", user);
+                graph.flush();
             }
-            graph.flush();
         }
     }
 
     @Override
-    public void retrieveProfileImage(final String processId, final JSONObject jsonTweet, final Vertex tweeterVertex) {
+    public void retrieveProfileImage(final String processId, final JSONObject jsonTweet, Vertex tweeterVertex) {
         Visibility visibility = new Visibility("");
         JSONObject tweeter = JSON_USER_PROPERTY.getFrom(jsonTweet);
         String screenName = JSON_SCREEN_NAME_PROPERTY.getFrom(tweeter);
@@ -326,30 +314,47 @@ public class DefaultLumifyTwitterProcessor extends BaseArtifactProcessor impleme
                 User user = getUser();
                 Graph graph = getGraph();
                 AuditRepository auditRepo = getAuditRepository();
+                StreamingPropertyValue raw = new StreamingPropertyValue(new ByteArrayInputStream(rawImg), byte[].class);
+                raw.searchIndex(false);
 
                 ElementMutation<Vertex> imageBuilder = findOrPrepareArtifactVertex(rowKey)
                         .setProperty(PropertyName.MIME_TYPE.toString(), PROFILE_IMAGE_MIME_TYPE, visibility)
                         .setProperty(PropertyName.CONCEPT_TYPE.toString(), CONCEPT_TWITTER_PROFILE_IMAGE, visibility)
                         .setProperty(PropertyName.TITLE.toString(), String.format(IMAGE_ARTIFACT_TITLE_FMT, screenName), visibility)
                         .setProperty(PropertyName.SOURCE.toString(), IMAGE_ARTIFACT_SOURCE, visibility)
-                        .setProperty(PropertyName.PROCESS.toString(), processId, visibility);
-                Vertex imageVertex = imageBuilder.save();
+                        .setProperty(PropertyName.PROCESS.toString(), processId, visibility)
+                        .setProperty(PropertyName.RAW.toString(), raw, visibility);
+
+                Vertex imageVertex = null;
+                if (!(imageBuilder instanceof ExistingElementMutation)) {
+                    imageVertex = imageBuilder.save();
+                    auditRepo.auditVertexElementMutation(imageBuilder, imageVertex, processId, user);
+                } else {
+                    auditRepo.auditVertexElementMutation(imageBuilder, imageVertex, processId, user);
+                    imageVertex = imageBuilder.save();
+                }
 
                 LOGGER.debug("Saved Twitter User [%s] Profile Photo to Accumulo and as graph vertex: %s", screenName, imageVertex.getId());
                 String labelDisplay = getOntologyRepository().getDisplayNameForLabel(ENTITY_HAS_IMAGE_HANDLE_PHOTO);
                 auditRepo.auditRelationships(AuditAction.CREATE.toString(), tweeterVertex, imageVertex, labelDisplay, processId, "", user);
 
-                tweeterVertex.setProperty(PropertyName.GLYPH_ICON.toString(), String.format(GLYPH_ICON_FMT, imageVertex.getId()), visibility);
-                imageVertex.setProperty(PropertyName.GLYPH_ICON.toString(), String.format(GLYPH_ICON_FMT, imageVertex.getId()), visibility);
-                auditRepo.auditEntityProperties(AuditAction.UPDATE.toString(), tweeterVertex, PropertyName.GLYPH_ICON.toString(),
-                        processId, "", user);
-                auditRepo.auditEntityProperties(AuditAction.UPDATE.toString(), imageVertex, PropertyName.GLYPH_ICON.toString(),
-                        processId, "", user);
+                ElementMutation<Vertex> tweeterVertexMutation = tweeterVertex.prepareMutation();
+                tweeterVertexMutation.setProperty(PropertyName.GLYPH_ICON.toString(), String.format(GLYPH_ICON_FMT, imageVertex.getId()), visibility);
+                imageBuilder.setProperty(PropertyName.GLYPH_ICON.toString(), String.format(GLYPH_ICON_FMT, imageVertex.getId()), visibility);
+
+                auditRepo.auditVertexElementMutation(tweeterVertexMutation, tweeterVertex, processId, user);
+                auditRepo.auditVertexElementMutation(imageBuilder, imageVertex, processId, user);
+
+                tweeterVertex = tweeterVertexMutation.save();
+                imageVertex = imageBuilder.save();
 
                 Iterator<Edge> edges = tweeterVertex.getEdges(imageVertex, Direction.IN, ENTITY_HAS_IMAGE_HANDLE_PHOTO, user.getAuthorizations()).iterator();
                 if (!edges.hasNext()) {
+                    String displayName = getOntologyRepository().getDisplayNameForLabel(ENTITY_HAS_IMAGE_HANDLE_PHOTO);
                     graph.addEdge(tweeterVertex, imageVertex, ENTITY_HAS_IMAGE_HANDLE_PHOTO, visibility, user.getAuthorizations());
+                    auditRepo.auditRelationships(AuditAction.CREATE.toString(), tweeterVertex, imageVertex, displayName, processId, "", user);
                 }
+                graph.flush();
             } catch (MalformedURLException mue) {
                 LOGGER.warn("Invalid Profile Photo URL [%s] for Twitter User [%s]: %s", imageUrl, screenName, mue.getMessage());
             } catch (IOException ioe) {
