@@ -80,9 +80,9 @@ public class CsvDocumentMapping implements DocumentMapping {
     private final String subject;
 
     /**
-     * The term mappings for this CSV.
+     * The entity mappings for this CSV.
      */
-    private final SortedSet<TermMapping> termMappings;
+    private final SortedSet<EntityMapping> entityMappings;
 
     /**
      * The relationship mappings for this CSV.
@@ -107,11 +107,11 @@ public class CsvDocumentMapping implements DocumentMapping {
         checkArgument(!entities.isEmpty(), "At least one entity mapping must be provided.");
         this.subject = subject != null ? subject.trim() : DEFAULT_SUBJECT;
         this.skipRows = skipRows != null && skipRows >= 0 ? skipRows : DEFAULT_SKIP_ROWS;
-        SortedSet<TermMapping> myTerms = new TreeSet<TermMapping>();
+        SortedSet<EntityMapping> myTerms = new TreeSet<EntityMapping>();
         for (Map.Entry<String, CsvEntityColumnMapping> entry : entities.entrySet()) {
-            myTerms.add(new TermMapping(entry.getKey(), entry.getValue()));
+            myTerms.add(new EntityMapping(entry.getKey(), entry.getValue()));
         }
-        this.termMappings = Collections.unmodifiableSortedSet(myTerms);
+        this.entityMappings = Collections.unmodifiableSortedSet(myTerms);
         List<CsvRelationshipMapping> myRels = new ArrayList<CsvRelationshipMapping>();
         if (relationships != null) {
             myRels.addAll(relationships);
@@ -134,10 +134,10 @@ public class CsvDocumentMapping implements DocumentMapping {
         return subject;
     }
 
-    @JsonProperty("terms")
+    @JsonProperty("entities")
     public Map<String, CsvEntityColumnMapping> getEntities() {
         Map<String, CsvEntityColumnMapping> map = new HashMap<String, CsvEntityColumnMapping>();
-        for (TermMapping tm : termMappings) {
+        for (EntityMapping tm : entityMappings) {
             map.put(tm.getKey(), tm.getMapping());
         }
         return Collections.unmodifiableMap(map);
@@ -189,7 +189,7 @@ public class CsvDocumentMapping implements DocumentMapping {
             termMap = new HashMap<String, TermMention>();
             lastCol = 0;
             skipLine = false;
-            for (TermMapping termMapping : termMappings) {
+            for (EntityMapping termMapping : entityMappings) {
                 CsvEntityColumnMapping colMapping = termMapping.getMapping();
                 // term mappings are ordered by column number; update offset
                 // so it is set to the start of the column for the current term
@@ -234,11 +234,11 @@ public class CsvDocumentMapping implements DocumentMapping {
         return results;
     }
 
-    private static class TermMapping implements Comparable<TermMapping> {
+    private static class EntityMapping implements Comparable<EntityMapping> {
         private final String key;
         private final CsvEntityColumnMapping mapping;
 
-        public TermMapping(String key, CsvEntityColumnMapping mapping) {
+        public EntityMapping(String key, CsvEntityColumnMapping mapping) {
             this.key = key;
             this.mapping = mapping;
         }
@@ -252,7 +252,7 @@ public class CsvDocumentMapping implements DocumentMapping {
         }
 
         @Override
-        public int compareTo(final TermMapping o) {
+        public int compareTo(final EntityMapping o) {
             return this.mapping.compareTo(o.mapping);
         }
     }
