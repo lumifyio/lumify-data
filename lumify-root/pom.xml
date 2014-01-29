@@ -51,7 +51,7 @@
         <altamira.bigtable.version>0.2.0-SNAPSHOT</altamira.bigtable.version>
         <altamira.miniweb.version>1.0-SNAPSHOT</altamira.miniweb.version>
         <ant.version>1.4.1</ant.version>
-        <atmosphere.version>2.0.1</atmosphere.version>
+        <atmosphere.version>2.0.5</atmosphere.version>
         <commons.cli.version>1.2</commons.cli.version>
         <commons.codec.version>1.8</commons.codec.version>
         <commons.compress.version>1.5</commons.compress.version>
@@ -66,8 +66,8 @@
         <inflector.version>0.7.0</inflector.version>
         <jackson.version>2.3.1</jackson.version>
         <jackson.annotations.version>2.3.0</jackson.annotations.version>
-        <javaee.version>6.0</javaee.version>
         <jetty.version>8.1.14.v20131031</jetty.version>
+        <jetty.javaee.version>3.0.0.v201112011016</jetty.javaee.version>
         <json.version>20130918</json.version>
         <kafka.version>0.8.0-wip4</kafka.version>
         <kryo.version>2.17</kryo.version>
@@ -368,13 +368,6 @@
 
             <!-- Provided Dependencies -->
             <dependency>
-                <groupId>javax</groupId>
-                <artifactId>javaee-web-api</artifactId>
-                <version>${javaee.version}</version>
-                <scope>provided</scope>
-            </dependency>
-
-            <dependency>
                 <groupId>org.eclipse.jetty</groupId>
                 <artifactId>jetty-server</artifactId>
                 <version>${jetty.version}</version>
@@ -396,6 +389,12 @@
                 <groupId>org.eclipse.jetty</groupId>
                 <artifactId>jetty-websocket</artifactId>
                 <version>${jetty.version}</version>
+                <scope>provided</scope>
+            </dependency>
+            <dependency>
+                <groupId>org.eclipse.jetty.orbit</groupId>
+                <artifactId>javax.servlet</artifactId>
+                <version>${jetty.javaee.version}</version>
                 <scope>provided</scope>
             </dependency>
 
