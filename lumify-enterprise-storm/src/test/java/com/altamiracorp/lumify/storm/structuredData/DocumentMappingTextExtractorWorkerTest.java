@@ -6,7 +6,7 @@ import static org.mockito.Mockito.*;
 import com.altamiracorp.lumify.core.ingest.AdditionalArtifactWorkData;
 import com.altamiracorp.lumify.core.ingest.ArtifactExtractedInfo;
 import com.altamiracorp.lumify.core.model.ontology.DisplayType;
-import com.altamiracorp.lumify.storm.structuredData.mapping.DocumentMapping;
+import com.altamiracorp.lumify.mapping.DocumentMapping;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import java.io.File;
 import java.io.InputStream;
