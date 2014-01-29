@@ -3,7 +3,7 @@ package com.altamiracorp.lumify.account.routes;
 import com.altamiracorp.lumify.account.AccountUserRepository;
 import com.altamiracorp.lumify.account.model.AccountUser;
 import com.altamiracorp.lumify.core.model.user.UserRepository;
-import com.altamiracorp.lumify.core.user.SystemUser;
+import com.altamiracorp.lumify.core.user.UserProvider;
 import com.altamiracorp.miniweb.HandlerChain;
 import com.altamiracorp.miniweb.utils.UrlUtils;
 import com.google.inject.Inject;
@@ -15,6 +15,7 @@ import java.util.Date;
 public class CreateAccount extends BaseRequestHandler {
     private UserRepository userRepository;
     private AccountUserRepository accountUserRepository;
+    private UserProvider userProvider;
 
     @Inject
     public void setAccountUserRepository(AccountUserRepository accountUserRepository) {
@@ -24,6 +25,11 @@ public class CreateAccount extends BaseRequestHandler {
     @Inject
     public void setUserRepository(UserRepository userRepository) {
         this.userRepository = userRepository;
+    }
+
+    @Inject
+    public void setUserProvider(UserProvider userProvider) {
+        this.userProvider = userProvider;
     }
 
     @Override
@@ -47,7 +53,7 @@ public class CreateAccount extends BaseRequestHandler {
             return;
         }
 
-        userRepository.addUser(user.getData().getEmail(), password, new SystemUser());
+        userRepository.addUser(user.getData().getEmail(), password, this.userProvider.getSystemUser());
 
         // expire the token
         user.getData().setTokenExpiration(new Date());

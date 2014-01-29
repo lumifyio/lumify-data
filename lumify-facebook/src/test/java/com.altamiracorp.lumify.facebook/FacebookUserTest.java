@@ -4,7 +4,7 @@ import com.altamiracorp.lumify.core.ingest.ArtifactExtractedInfo;
 import com.altamiracorp.lumify.core.model.audit.AuditRepository;
 import com.altamiracorp.lumify.core.model.ontology.Concept;
 import com.altamiracorp.lumify.core.model.ontology.OntologyRepository;
-import com.altamiracorp.lumify.core.user.SystemUser;
+import com.altamiracorp.lumify.core.user.User;
 import com.altamiracorp.lumify.core.util.RowKeyHelper;
 import com.altamiracorp.securegraph.*;
 import com.altamiracorp.securegraph.id.UUIDIdGenerator;
@@ -12,29 +12,29 @@ import com.altamiracorp.securegraph.inmemory.InMemoryAuthorizations;
 import com.altamiracorp.securegraph.inmemory.InMemoryGraph;
 import com.altamiracorp.securegraph.inmemory.InMemoryGraphConfiguration;
 import com.altamiracorp.securegraph.search.DefaultSearchIndex;
-import org.json.JSONException;
 import org.apache.commons.io.IOUtils;
 import org.apache.hadoop.fs.FSDataOutputStream;
 import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.Path;
+import org.json.JSONException;
 import org.json.JSONObject;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
-import static org.mockito.Matchers.any;
-import static org.junit.Assert.*;
-import static org.mockito.Mockito.*;
-import static org.powermock.api.mockito.PowerMockito.when;
+
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URL;
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
-import java.util.List;
+
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNull;
+import static org.mockito.Matchers.any;
+import static org.powermock.api.mockito.PowerMockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
 public class FacebookUserTest {
@@ -43,7 +43,7 @@ public class FacebookUserTest {
     @Mock
     OntologyRepository ontologyRepository;
     @Mock
-    SystemUser systemUser;
+    User systemUser;
     @Mock
     private Vertex postVertex;
     @Mock
@@ -84,10 +84,10 @@ public class FacebookUserTest {
     @Before
     public void setup() {
         InMemoryGraphConfiguration config = new InMemoryGraphConfiguration(new HashMap());
-        graph = new InMemoryGraph(config,new UUIDIdGenerator(config.getConfig()),new DefaultSearchIndex(config.getConfig()));
+        graph = new InMemoryGraph(config, new UUIDIdGenerator(config.getConfig()), new DefaultSearchIndex(config.getConfig()));
         authorizations = new InMemoryAuthorizations("");
 
-        graph.addVertex("FB-USER-12345",new Visibility(""), authorizations);
+        graph.addVertex("FB-USER-12345", new Visibility(""), authorizations);
         graph.prepareVertex(new Visibility(""), authorizations)
                 .setProperty("email", "facebookTestFull@lumify.io", new Visibility(""))
                 .setProperty("_conceptType", "48", new Visibility(""))
@@ -100,7 +100,7 @@ public class FacebookUserTest {
     }
 
     @Test
-    public void testNormalUserProcess () throws Exception {
+    public void testNormalUserProcess() throws Exception {
         facebookUser = new FacebookUser();
         when(systemUser.getAuthorizations()).thenReturn(authorizations);
         when(ontologyRepository.getConceptByName("facebookProfile")).thenReturn(facebookConcept);
@@ -113,14 +113,14 @@ public class FacebookUserTest {
         assertEquals("facebookTest", returnedVertex.getPropertyValue("displayName"));
     }
 
-    @Test (expected = RuntimeException.class)
-    public void testNullUserProcess () throws Exception {
+    @Test(expected = RuntimeException.class)
+    public void testNullUserProcess() throws Exception {
         facebookUser = new FacebookUser();
         returnedVertex = facebookUser.process(new JSONObject(), graph, auditRepository, ontologyRepository, systemUser);
     }
 
     @Test
-    public void testFullUserProcess () throws Exception {
+    public void testFullUserProcess() throws Exception {
         facebookUser = new FacebookUser();
         when(systemUser.getAuthorizations()).thenReturn(authorizations);
         when(ontologyRepository.getConceptByName("facebookProfile")).thenReturn(facebookConcept);
@@ -134,7 +134,7 @@ public class FacebookUserTest {
     }
 
     @Test
-    public void testSmallPictureArtifact () throws IOException {
+    public void testSmallPictureArtifact() throws IOException {
         facebookUser = new FacebookUser();
         returnedExtractedInfo = facebookUser.createProfilePhotoArtifact(normalUserObject, profileUser);
 
@@ -151,7 +151,7 @@ public class FacebookUserTest {
     }
 
     @Test
-    public void testHdfsPictureArtifact () throws IOException {
+    public void testHdfsPictureArtifact() throws IOException {
         facebookUser = new FacebookUser();
         facebookBolt.setHdfsFileSystem(fileSystem);
         when(facebookBolt.getFileSystem()).thenReturn(fileSystem);
@@ -171,8 +171,8 @@ public class FacebookUserTest {
 //        verify(rawFile).write(any(byte[].class));
     }
 
-    @Test (expected = JSONException.class)
-    public void testBadJsonPictureArtifact () {
+    @Test(expected = JSONException.class)
+    public void testBadJsonPictureArtifact() {
         facebookUser = new FacebookUser();
         URL imageUrl = getClass().getResource("big-picture-test.jpg");
         normalUserObject.put("pic", imageUrl);
@@ -180,7 +180,7 @@ public class FacebookUserTest {
     }
 
     @Test
-    public void testCreateProfilePictureVertex () throws Exception {
+    public void testCreateProfilePictureVertex() throws Exception {
         //TODO fix test for secure graph
 //        facebookUser = new FacebookUser();
 //        when(systemUser.getAuthorizations()).thenReturn(authorizations);
@@ -193,7 +193,7 @@ public class FacebookUserTest {
     }
 
     @Test
-    public void testCreateNewProfilePictureVertex () throws Exception {
+    public void testCreateNewProfilePictureVertex() throws Exception {
         //TODO fix test for secure graph
 //        facebookUser = new FacebookUser();
 //        when(systemUser.getAuthorizations()).thenReturn(authorizations);

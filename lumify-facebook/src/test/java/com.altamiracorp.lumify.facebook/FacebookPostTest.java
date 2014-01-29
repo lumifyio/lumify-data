@@ -4,19 +4,21 @@ import com.altamiracorp.lumify.core.ingest.ArtifactExtractedInfo;
 import com.altamiracorp.lumify.core.model.audit.AuditRepository;
 import com.altamiracorp.lumify.core.model.ontology.Concept;
 import com.altamiracorp.lumify.core.model.ontology.OntologyRepository;
-import com.altamiracorp.lumify.core.user.SystemUser;
-import com.altamiracorp.securegraph.*;
+import com.altamiracorp.lumify.core.user.User;
+import com.altamiracorp.securegraph.Graph;
+import com.altamiracorp.securegraph.Vertex;
+import com.altamiracorp.securegraph.VertexBuilder;
+import com.altamiracorp.securegraph.Visibility;
 import org.json.JSONObject;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
-import static org.mockito.Matchers.any;
-import static org.junit.Assert.*;
-import static org.mockito.Mockito.*;
-import static org.powermock.api.mockito.PowerMockito.when;
+
 import java.util.Iterator;
+
+import static org.junit.Assert.assertEquals;
 
 @RunWith(MockitoJUnitRunner.class)
 public class FacebookPostTest {
@@ -27,7 +29,7 @@ public class FacebookPostTest {
     @Mock
     OntologyRepository ontologyRepository;
     @Mock
-    SystemUser systemUser;
+    User systemUser;
     @Mock
     private Vertex postVertex;
     @Mock
@@ -65,7 +67,7 @@ public class FacebookPostTest {
     }
 
     @Test
-    public void testProcessNormalArtifact () throws Exception {
+    public void testProcessNormalArtifact() throws Exception {
         facebookPost = new FacebookPost();
         returnedExtractedInfo = facebookPost.processPostArtifact(normalPostObject);
         assertEquals("One day I will live at the White House", returnedExtractedInfo.getTitle());
@@ -74,7 +76,7 @@ public class FacebookPostTest {
     }
 
     @Test
-    public void testProcessEmptyArtifact () throws Exception {
+    public void testProcessEmptyArtifact() throws Exception {
         facebookPost = new FacebookPost();
         returnedExtractedInfo = facebookPost.processPostArtifact(emptyPostObject);
         assertEquals("Facebook Image Post", returnedExtractedInfo.getTitle());
@@ -83,7 +85,7 @@ public class FacebookPostTest {
     }
 
     @Test
-    public void testProcessLongArtifact () throws Exception {
+    public void testProcessLongArtifact() throws Exception {
         facebookPost = new FacebookPost();
         returnedExtractedInfo = facebookPost.processPostArtifact(longPostObject);
         assertEquals("One day I will live at the White House or maybe just a quite large house that is all white on the outside; as long as it has a nice big y...", returnedExtractedInfo.getTitle());
@@ -92,7 +94,7 @@ public class FacebookPostTest {
     }
 
     @Test
-    public void testProcessPostVertex () throws Exception {
+    public void testProcessPostVertex() throws Exception {
         //TODO fix test for secure graph
 //        facebookPost = new FacebookPost();
 //
