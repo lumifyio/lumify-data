@@ -4,7 +4,6 @@ class elasticsearch(
   $group = "hadoop",
   $installdir = "/usr/lib",
   $logdir = "/var/log/elasticsearch",
-  $datadir = "/var/lib/elasticsearch",
   $tmpdir = '/tmp'
 ) {
   include macro
@@ -16,8 +15,6 @@ class elasticsearch(
   $configdir = "/etc/elasticsearch-${version}"
   $configlink = "/etc/elasticsearch"
   $downloadpath = "${tmpdir}/elasticsearch-${version}.tar.gz"
-  $indexdir = "${datadir}/data"
-  $workdir = "${datadir}/work"
   $piddir = "/var/run/elasticsearch"
 
   if $interfaces =~ /eth1/ {
@@ -98,26 +95,6 @@ class elasticsearch(
     require => [Macro::Extract[$downloadpath], File[$logdir]],
   }
 
-  file { $datadir:
-    ensure => directory,
-    owner  => $user,
-    group  => $group,
-  }
-
-  file { $indexdir:
-    ensure  => directory,
-    owner   => $user,
-    group   => $group,
-    require => File[$datadir],
-  }
-
-  file { $workdir:
-    ensure  => directory,
-    owner   => $user,
-    group   => $group,
-    require => File[$datadir],
-  }
-
   file { $piddir:
     ensure  => directory,
     owner   => $user,
@@ -153,4 +130,35 @@ class elasticsearch(
     ensure  => file,
     content => template("elasticsearch/upstart.conf.erb")
   }
+
+  define install_plugin {
+    $source = "puppet:///modules/elasticsearch/${name}.tar.gz"
+    $dir = "${homedir}/plugins/${name}"
+    $tgz = "${dir}.tar.gz"
+
+    file { $tgz :
+      ensure => file,
+      source => $source,
+    } -> macro::extract { $tgz :
+      user => $user,
+      group => $group,
+      creates => $dir,
+    }
+  }
+
+  install_plugin { [ 'bigdesk', 'head' ] : }
+
+  define setup_data_directory {
+    file { [ "${name}/elasticsearch", "${name}/elasticsearch/data", "${name}/elasticsearch/work" ] :
+      ensure  => directory,
+      owner   => $user,
+      group   => $group,
+      mode    => 'u=rwx,g=rwx,o=',
+      require =>  [ File[$name], User[$user], Group[$group] ],
+    }
+  }
+
+  $data_dir_list = split($data_directories, ',')
+
+  setup_data_directory { $data_dir_list : }
 }
