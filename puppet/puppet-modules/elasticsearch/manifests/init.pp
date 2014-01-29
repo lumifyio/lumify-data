@@ -131,24 +131,21 @@ class elasticsearch(
     content => template("elasticsearch/upstart.conf.erb")
   }
 
-  define install_plugin {
-    $source = "puppet:///modules/elasticsearch/${name}.tar.gz"
-    $dir = "${homedir}/plugins/${name}"
-    $tgz = "${dir}.tar.gz"
-
-    file { $tgz :
+  define install_plugin ($plugins) {
+    file { "${plugins}/${name}.tar.gz" :
       ensure => file,
-      source => $source,
-    } -> macro::extract { $tgz :
-      user => $user,
-      group => $group,
-      creates => $dir,
+      source => "puppet:///modules/elasticsearch/${name}.tar.gz",
+    } -> macro::extract { "${plugins}/${name}.tar.gz" :
+      path => $plugins,
+      creates => "${plugins}/${name}",
     }
   }
 
-  install_plugin { [ 'bigdesk', 'head' ] : }
+  install_plugin { [ 'bigdesk', 'head' ] :
+    plugins => "${homedir}/plugins",
+  }
 
-  define setup_data_directory {
+  define setup_data_directory ($user, $group) {
     file { [ "${name}/elasticsearch", "${name}/elasticsearch/data", "${name}/elasticsearch/work" ] :
       ensure  => directory,
       owner   => $user,
@@ -160,5 +157,8 @@ class elasticsearch(
 
   $data_dir_list = split($data_directories, ',')
 
-  setup_data_directory { $data_dir_list : }
+  setup_data_directory { $data_dir_list :
+    user => $user,
+    group => $group,
+  }
 }
