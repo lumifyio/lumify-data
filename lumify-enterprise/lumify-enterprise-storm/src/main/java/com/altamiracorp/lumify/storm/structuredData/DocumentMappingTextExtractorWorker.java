@@ -11,7 +11,7 @@ import com.altamiracorp.lumify.core.model.ontology.DisplayType;
 import com.altamiracorp.lumify.core.util.LumifyLogger;
 import com.altamiracorp.lumify.core.util.LumifyLoggerFactory;
 import com.altamiracorp.lumify.core.util.ThreadedTeeInputStreamWorker;
-import com.altamiracorp.lumify.storm.structuredData.mapping.DocumentMapping;
+import com.altamiracorp.lumify.mapping.DocumentMapping;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import java.io.File;
 import java.io.IOException;
