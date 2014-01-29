@@ -144,8 +144,7 @@ path.conf: <%= @configlink %>
 
 # Path to directory where to store index data allocated for this node.
 #
-# TODO: @data_directories.collect {|d| "#{d}/elasticsearch/data"}.join(',')
-path.data: <%= @indexdir %>
+path.data: <%= @data_directories.split(',').collect {|d| "#{d}/elasticsearch/data"}.join(',') %>
 #
 # Can optionally include more than one location, causing data to be striped across
 # the locations (a la RAID 0) on a file level, favouring locations with most free
@@ -155,8 +154,7 @@ path.data: <%= @indexdir %>
 
 # Path to temporary files:
 #
-# TODO: @data_directories.first + '/elasticsearch/work'
-path.work: <%= @workdir %>
+path.work: <%= @data_directories.split(',').sort.first + '/elasticsearch/work' %>
 
 # Path to log files:
 #
