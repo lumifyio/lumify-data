@@ -2,7 +2,7 @@
     "type": "csv",
     "subject": "CSV Mapping Integration Test",
     "skipRows": 3,
-    "terms": {
+    "entities": {
         "person": {
             "signColumn": 0,
             "conceptLabel": "person",

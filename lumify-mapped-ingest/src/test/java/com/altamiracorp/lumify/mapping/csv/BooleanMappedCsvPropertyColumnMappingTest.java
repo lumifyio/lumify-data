@@ -42,7 +42,11 @@ public class BooleanMappedCsvPropertyColumnMappingTest {
         BooleanMappedCsvPropertyColumnMapping instance = new BooleanMappedCsvPropertyColumnMapping(TEST_INDEX, TEST_NAME, TEST_REQUIRED,
                 TEST_MAP, dfltVal);
         for (String key : TEST_MAP.keySet()) {
-            assertEquals(String.format("[%s]: ", testName), TEST_MAP.get(key), instance.fromString(key));
+            Boolean expected = TEST_MAP.get(key);
+            if (expected == null) {
+                expected = dfltVal;
+            }
+            assertEquals(String.format("[%s]: ", testName), expected, instance.fromString(key));
         }
         assertEquals(String.format("[%s] (default): ", testName), dfltVal, instance.fromString(TEST_NONEXISTENT_KEY));
     }

@@ -194,6 +194,8 @@ public class CsvDocumentMappingTest {
         int line1Term1Offset = lineOffset1;
         int line1Term2Offset = line1Term1Offset + fields1.get(0).length() + 1;
         int line1Term3Offset = line1Term2Offset + fields1.get(1).length() + fields1.get(2).length() + 2;
+        TermRelationship resolvedRel1 = new TermRelationship(line1entity1, line1entity2, LIVES_AT);
+        TermRelationship resolvedRel2 = new TermRelationship(line1entity3, line1entity1, KNOWS);
 
         PowerMockito.whenNew(LineReader.class).withArguments(mappingReader).thenReturn(lineReader);
         PowerMockito.whenNew(StringReader.class).withArguments(anyString()).thenReturn(strReader);
@@ -205,12 +207,12 @@ public class CsvDocumentMappingTest {
         when(entity1.mapTerm(fields1, line1Term1Offset, TEST_PROCESS_ID)).thenReturn(line1entity1);
         when(entity2.mapTerm(fields1, line1Term2Offset, TEST_PROCESS_ID)).thenReturn(line1entity2);
         when(entity3.mapTerm(fields1, line1Term3Offset, TEST_PROCESS_ID)).thenReturn(line1entity3);
+        when(rel1.createRelationship(line1entity1, line1entity2)).thenReturn(resolvedRel1);
+        when(rel2.createRelationship(line1entity3, line1entity1)).thenReturn(resolvedRel2);
 
         List<TermMention> expectedMentions = Arrays.asList(line1entity1, line1entity2, line1entity3);
-        List<TermRelationship> expectedRelationships = Arrays.asList(
-                new TermRelationship(line1entity1, line1entity2, LIVES_AT),
-                new TermRelationship(line1entity3, line1entity1, KNOWS)
-        );
+        List<TermRelationship> expectedRelationships = Arrays.asList(resolvedRel1, resolvedRel2);
+
         TermExtractionResult expected = new TermExtractionResult();
         expected.addAllTermMentions(expectedMentions);
         expected.addAllRelationships(expectedRelationships);
@@ -259,6 +261,12 @@ public class CsvDocumentMappingTest {
         int line3Term2Offset = line3Term1Offset + fields3.get(0).length() + 1;
         int line3Term3Offset = line3Term2Offset + fields3.get(1).length() + fields3.get(2).length() + 2;
 
+        TermRelationship resolvedRel1 = new TermRelationship(line1entity1, line1entity2, LIVES_AT);
+        TermRelationship resolvedRel2 = new TermRelationship(line1entity3, line1entity1, KNOWS);
+        TermRelationship resolvedRel3 = new TermRelationship(line2entity3, line2entity1, KNOWS);
+        TermRelationship resolvedRel4 = new TermRelationship(line3entity1, line3entity2, LIVES_AT);
+        TermRelationship resolvedRel5 = new TermRelationship(line3entity3, line3entity1, KNOWS);
+
         PowerMockito.whenNew(LineReader.class).withArguments(mappingReader).thenReturn(lineReader);
         PowerMockito.whenNew(StringReader.class).withArguments(anyString()).thenReturn(strReader);
         PowerMockito.whenNew(CsvListReader.class).withArguments(strReader, CsvPreference.EXCEL_PREFERENCE).thenReturn(csvReader);
@@ -275,6 +283,11 @@ public class CsvDocumentMappingTest {
         when(entity1.mapTerm(fields3, line3Term1Offset, TEST_PROCESS_ID)).thenReturn(line3entity1);
         when(entity2.mapTerm(fields3, line3Term2Offset, TEST_PROCESS_ID)).thenReturn(line3entity2);
         when(entity3.mapTerm(fields3, line3Term3Offset, TEST_PROCESS_ID)).thenReturn(line3entity3);
+        when(rel1.createRelationship(line1entity1, line1entity2)).thenReturn(resolvedRel1);
+        when(rel2.createRelationship(line1entity3, line1entity1)).thenReturn(resolvedRel2);
+        when(rel2.createRelationship(line2entity3, line2entity1)).thenReturn(resolvedRel3);
+        when(rel1.createRelationship(line3entity1, line3entity2)).thenReturn(resolvedRel4);
+        when(rel2.createRelationship(line3entity3, line3entity1)).thenReturn(resolvedRel5);
 
         List<TermMention> expectedMentions = Arrays.asList(
                 line1entity1, line1entity2, line1entity3,
@@ -282,11 +295,11 @@ public class CsvDocumentMappingTest {
                 line3entity1, line3entity2, line3entity3
         );
         List<TermRelationship> expectedRelationships = Arrays.asList(
-                new TermRelationship(line1entity1, line1entity2, LIVES_AT),
-                new TermRelationship(line1entity3, line1entity1, KNOWS),
-                new TermRelationship(line2entity3, line2entity1, KNOWS),
-                new TermRelationship(line3entity1, line3entity2, LIVES_AT),
-                new TermRelationship(line3entity3, line3entity1, KNOWS)
+                resolvedRel1,
+                resolvedRel2,
+                resolvedRel3,
+                resolvedRel4,
+                resolvedRel5
         );
         TermExtractionResult expected = new TermExtractionResult();
         expected.addAllTermMentions(expectedMentions);

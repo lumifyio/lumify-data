@@ -71,7 +71,6 @@ public class EntityConceptMappedCsvRelationshipMappingTest {
 
     @Test
     public void testLegalConstruction() {
-        String nonDefaultSep = "--";
         doTestConstructor("source mode", Mode.SOURCE, SOURCE_MAP, null, DEFAULT_SEPARATOR);
         doTestConstructor("target mode", Mode.TARGET, TARGET_MAP, null, DEFAULT_SEPARATOR);
         doTestConstructor("default all mode", Mode.ALL, DEFAULT_ALL_MAP, null, DEFAULT_SEPARATOR);
@@ -97,6 +96,6 @@ public class EntityConceptMappedCsvRelationshipMappingTest {
         String msg = String.format("[%s]: ", testName);
         assertEquals(msg, mapMode, instance.getMode());
         assertEquals(msg, labelMap, instance.getLabelMap());
-        assertEquals(msg, sep, expSep);
+        assertEquals(msg, expSep, instance.getSeparator());
     }
 }
