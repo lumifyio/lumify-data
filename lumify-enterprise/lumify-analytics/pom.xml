@@ -47,10 +47,6 @@
         </dependency>
         <dependency>
             <groupId>com.altamiracorp.lumify</groupId>
-            <artifactId>lumify-model-elasticsearch</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>com.altamiracorp.lumify</groupId>
             <artifactId>lumify-model-kafka</artifactId>
         </dependency>
         <dependency>
