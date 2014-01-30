@@ -319,7 +319,7 @@ public class DefaultLumifyTwitterProcessor extends BaseArtifactProcessor impleme
 
                 ElementMutation<Vertex> imageBuilder = findOrPrepareArtifactVertex(rowKey)
                         .setProperty(PropertyName.MIME_TYPE.toString(), PROFILE_IMAGE_MIME_TYPE, visibility)
-                        .setProperty(PropertyName.CONCEPT_TYPE.toString(), CONCEPT_TWITTER_PROFILE_IMAGE, visibility)
+                        .setProperty(PropertyName.CONCEPT_TYPE.toString(), getOntologyRepository().getConceptByName(CONCEPT_TWITTER_PROFILE_IMAGE).getId(), visibility)
                         .setProperty(PropertyName.TITLE.toString(), String.format(IMAGE_ARTIFACT_TITLE_FMT, screenName), visibility)
                         .setProperty(PropertyName.SOURCE.toString(), IMAGE_ARTIFACT_SOURCE, visibility)
                         .setProperty(PropertyName.PROCESS.toString(), processId, visibility)
