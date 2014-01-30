@@ -39,7 +39,7 @@ graph.zookeeperServers=<%= @zookeeper_nodes.values.collect {|node| node.split(':
 graph.serializer=com.altamiracorp.securegraph.accumulo.serializer.JavaValueSerializer
 graph.idgenerator=com.altamiracorp.securegraph.id.UUIDIdGenerator
 graph.search=com.altamiracorp.securegraph.elasticsearch.ElasticSearchSearchIndex
-graph.search.locations=<%= @hadoop_slaves[0] %>
+graph.search.locations=<%= @elasticsearch_locations.join(',') %>
 graph.search.indexName=securegraph
 
 # Object-detection
