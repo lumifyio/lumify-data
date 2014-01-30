@@ -71,11 +71,6 @@
             </dependency>
             <dependency>
                 <groupId>com.altamiracorp.lumify</groupId>
-                <artifactId>lumify-model-elasticsearch</artifactId>
-                <version>${lumify.public.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>com.altamiracorp.lumify</groupId>
                 <artifactId>lumify-model-kafka</artifactId>
                 <version>${lumify.public.version}</version>
             </dependency>
