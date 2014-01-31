@@ -13,6 +13,7 @@ import com.altamiracorp.lumify.core.util.LumifyLoggerFactory;
 import com.altamiracorp.lumify.core.util.ThreadedTeeInputStreamWorker;
 import com.altamiracorp.lumify.mapping.DocumentMapping;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.google.inject.Inject;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
@@ -68,6 +69,10 @@ public class DocumentMappingTextExtractorWorker
 
     @Override
     public void prepare(TextExtractionWorkerPrepareData data) {
-        jsonMapper = new ObjectMapper();
+    }
+
+    @Inject
+    public void setJsonMapper(final ObjectMapper mapper) {
+        jsonMapper = mapper;
     }
 }
