@@ -15,7 +15,7 @@ import java.util.List;
  * A mapping from a particular CSV column to an Entity.
  */
 @JsonInclude(Include.NON_EMPTY)
-@JsonTypeInfo(include=As.PROPERTY, property="conceptLabelType", use=Id.NAME, defaultImpl=ConstantCsvEntityColumnMapping.class)
+@JsonTypeInfo(include=As.PROPERTY, property="conceptType", use=Id.NAME, defaultImpl=ConstantCsvEntityColumnMapping.class)
 @JsonSubTypes({
     @Type(ConstantCsvEntityColumnMapping.class),
     @Type(ColumnLookupCsvEntityColumnMapping.class)

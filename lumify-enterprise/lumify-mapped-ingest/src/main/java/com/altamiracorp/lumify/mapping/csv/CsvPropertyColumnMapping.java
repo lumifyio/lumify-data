@@ -21,6 +21,7 @@ import java.util.List;
     @Type(BooleanCsvPropertyColumnMapping.class),
     @Type(BooleanMappedCsvPropertyColumnMapping.class),
     @Type(DateCsvPropertyColumnMapping.class),
+    @Type(DateMultiColumnCsvPropertyColumnMapping.class),
     @Type(DoubleCsvPropertyColumnMapping.class),
     @Type(GeoPointCsvPropertyColumnMapping.class),
     @Type(GeoCircleCsvPropertyColumnMapping.class),

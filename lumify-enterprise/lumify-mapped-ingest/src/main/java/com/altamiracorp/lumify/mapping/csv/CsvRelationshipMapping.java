@@ -13,7 +13,7 @@ import com.fasterxml.jackson.annotation.JsonTypeInfo.Id;
  * A mapping for a relationship between two Terms defined in
  * a CSV.
  */
-@JsonTypeInfo(include=As.PROPERTY, property="foo", use=Id.NAME, defaultImpl=ConstantCsvRelationshipMapping.class)
+@JsonTypeInfo(include=As.PROPERTY, property="labelType", use=Id.NAME, defaultImpl=ConstantCsvRelationshipMapping.class)
 @JsonSubTypes({
     @Type(ConstantCsvRelationshipMapping.class),
     @Type(EntityConceptMappedCsvRelationshipMapping.class)
