@@ -43,13 +43,6 @@
         <javax.ws.rs.api.version>2.0-rc3</javax.ws.rs.api.version>
         <mrunit.version>0.9.0-incubating</mrunit.version>
     </properties>
-    
-    <distributionManagement>
-        <site>
-            <id>site-docs</id>
-            <url>file:///</url>
-        </site>
-    </distributionManagement>
 
     <dependencyManagement>
         <dependencies>
