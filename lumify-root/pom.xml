@@ -126,7 +126,7 @@
     <repositories>
         <repository>
             <id>lumify-releases</id>
-            <url>http://bits.lumify.io/m2/</url>
+            <url>http://bits.lumify.io/m2/releases/</url>
         </repository>
         <repository>
             <snapshots>
@@ -134,7 +134,7 @@
                 <updatePolicy>always</updatePolicy>
             </snapshots>
             <id>lumify-snapshots</id>
-            <url>http://bits.lumify.io/m2/</url>
+            <url>http://bits.lumify.io/m2/snapshots/</url>
         </repository>
         <repository>
             <id>com.cloudera</id>
