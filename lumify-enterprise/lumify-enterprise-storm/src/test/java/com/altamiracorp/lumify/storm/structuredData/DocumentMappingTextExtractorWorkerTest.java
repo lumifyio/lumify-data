@@ -17,7 +17,6 @@ import org.mockito.Mock;
 import org.powermock.api.mockito.PowerMockito;
 import org.powermock.core.classloader.annotations.PrepareForTest;
 import org.powermock.modules.junit4.PowerMockRunner;
-import org.powermock.reflect.Whitebox;
 
 @RunWith(PowerMockRunner.class)
 @PrepareForTest({ DocumentMappingTextExtractorWorker.class })
@@ -51,7 +50,7 @@ public class DocumentMappingTextExtractorWorkerTest {
     @Test
     public void testDoWork() throws Exception {
         DocumentMappingTextExtractorWorker worker = new DocumentMappingTextExtractorWorker();
-        Whitebox.setInternalState(worker, ObjectMapper.class, jsonMapper);
+        worker.setJsonMapper(jsonMapper);
         when(data.getArchiveTempDir()).thenReturn(tempDir);
         when(data.getFileName()).thenReturn(INPUT_FILE_NAME);
         when(tempDir.isDirectory()).thenReturn(true);

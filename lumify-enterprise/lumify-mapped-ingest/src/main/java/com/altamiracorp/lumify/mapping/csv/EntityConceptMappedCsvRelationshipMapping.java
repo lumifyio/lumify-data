@@ -29,6 +29,7 @@ public class EntityConceptMappedCsvRelationshipMapping extends AbstractCsvRelati
     /**
      * The ontology repository.
      */
+    @JacksonInject
     private OntologyRepository ontologyRepository;
 
     /**
@@ -172,7 +173,6 @@ done
         return label;
     }
 
-    @JacksonInject
     public void setOntologyRepository(final OntologyRepository repo) {
         ontologyRepository = repo;
     }
@@ -217,14 +217,17 @@ done
             this.relationshipLabel = label.trim();
         }
 
+        @JsonProperty("source")
         public String getSourceConcept() {
             return sourceConcept;
         }
 
+        @JsonProperty("target")
         public String getTargetConcept() {
             return targetConcept;
         }
 
+        @JsonProperty("label")
         public String getRelationshipLabel() {
             return relationshipLabel;
         }
