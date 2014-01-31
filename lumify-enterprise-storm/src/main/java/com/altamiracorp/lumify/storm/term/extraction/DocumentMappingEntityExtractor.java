@@ -11,6 +11,7 @@ import com.altamiracorp.lumify.mapping.DocumentMapping;
 import com.altamiracorp.securegraph.Vertex;
 import com.altamiracorp.securegraph.property.StreamingPropertyValue;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.google.inject.Inject;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.Reader;
@@ -20,7 +21,7 @@ import java.text.ParseException;
 public class DocumentMappingEntityExtractor {
     private static final LumifyLogger LOGGER = LumifyLoggerFactory.getLogger(DocumentMappingEntityExtractor.class);
 
-    private static final ObjectMapper JSON_MAPPER = new ObjectMapper();
+    private ObjectMapper jsonMapper;
 
     public TermExtractionResult extract(Vertex artifactVertex, User user) throws IOException, ParseException {
         checkNotNull(artifactVertex);
@@ -31,7 +32,7 @@ public class DocumentMappingEntityExtractor {
 
         String mappingJsonString = (String) artifactVertex.getPropertyValue(PropertyName.MAPPING_JSON.toString());
         if (mappingJsonString != null) {
-            DocumentMapping mapping = JSON_MAPPER.readValue(mappingJsonString, DocumentMapping.class);
+            DocumentMapping mapping = jsonMapper.readValue(mappingJsonString, DocumentMapping.class);
             Object textVal = artifactVertex.getPropertyValue(PropertyName.TEXT.toString());
             Reader textReader;
             if (textVal instanceof StreamingPropertyValue) {
@@ -44,4 +45,8 @@ public class DocumentMappingEntityExtractor {
         return termExtractionResult;
     }
 
+    @Inject
+    public void setJsonMapper(final ObjectMapper mapper) {
+        this.jsonMapper = mapper;
+    }
 }

@@ -20,7 +20,6 @@ import org.mockito.Mock;
 import org.powermock.api.mockito.PowerMockito;
 import org.powermock.core.classloader.annotations.PrepareForTest;
 import org.powermock.modules.junit4.PowerMockRunner;
-import org.powermock.reflect.Whitebox;
 
 
 @RunWith(PowerMockRunner.class)
@@ -54,13 +53,13 @@ public class DocumentMappingEntityExtractorTest {
 
     @Before
     public void setup() throws Exception {
-        Whitebox.setInternalState(DocumentMappingEntityExtractor.class, ObjectMapper.class, jsonMapper);
         when(vertex.getId()).thenReturn(TEST_VERTEX_ID);
         when(vertex.getPropertyValue(PropertyName.ROW_KEY.toString())).thenReturn(TEST_ROW_KEY);
         when(vertex.getPropertyValue(PropertyName.MAPPING_JSON.toString())).thenReturn(TEST_JSON_MAPPING);
         when(jsonMapper.readValue(TEST_JSON_MAPPING, DocumentMapping.class)).thenReturn(docMapping);
 
         extractor = new DocumentMappingEntityExtractor();
+        extractor.setJsonMapper(jsonMapper);
     }
 
     @Test
