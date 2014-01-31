@@ -62,6 +62,24 @@ public class Import extends CommandLineBase {
 
         options.addOption(
                 OptionBuilder
+                        .withLongOpt("startline")
+                        .withDescription("The line number to start at.")
+                        .hasArg(true)
+                        .withArgName("number")
+                        .create()
+        );
+
+        options.addOption(
+                OptionBuilder
+                        .withLongOpt("startoffset")
+                        .withDescription("The byte offset to start at.")
+                        .hasArg(true)
+                        .withArgName("number")
+                        .create()
+        );
+
+        options.addOption(
+                OptionBuilder
                         .withLongOpt("flush")
                         .withDescription("Flush after each page")
                         .hasArg(false)
@@ -74,6 +92,16 @@ public class Import extends CommandLineBase {
     @Override
     protected int run(CommandLine cmd) throws Exception {
         Visibility visibility = new Visibility("");
+
+        long startLine = 0;
+        if (cmd.hasOption("startline")) {
+            startLine = Long.parseLong(cmd.getOptionValue("startline"));
+        }
+
+        Long startOffset = null;
+        if (cmd.hasOption("startoffset")) {
+            startOffset = Long.parseLong(cmd.getOptionValue("startoffset"));
+        }
 
         int pageCountToImport = Integer.MAX_VALUE;
         if (cmd.hasOption("pagecount")) {
@@ -96,19 +124,42 @@ public class Import extends CommandLineBase {
             throw new RuntimeException("wikipediaPage concept not found");
         }
 
-        FileInputStream fileInputStream = new FileInputStream(inputFile);
-        BZip2CompressorInputStream in = new BZip2CompressorInputStream(fileInputStream);
+        RandomAccessFile randomAccessFile = null;
+        InputStream in;
+        if (inputFile.getName().endsWith("bz2")) {
+            if (startOffset != null) {
+                throw new RuntimeException("start offset not supported for bz2 files");
+            }
+            FileInputStream fileInputStream = new FileInputStream(inputFile);
+            in = new BZip2CompressorInputStream(fileInputStream);
+        } else {
+            randomAccessFile = new RandomAccessFile(inputFile, "r");
+            if (startOffset != null) {
+                randomAccessFile.seek(startOffset);
+            }
+            in = new RandomAccessFileInputStream(randomAccessFile);
+        }
         BufferedReader reader = new BufferedReader(new InputStreamReader(in));
         try {
-            int lineNumber = 1;
+            long lineNumber = 1;
             int pageCount = 0;
             String line;
             StringBuilder page = null;
             Matcher m;
             String pageTitle = null;
+
+            if (startLine > 0) {
+                while (reader.readLine() != null && lineNumber < startLine) {
+                    if ((lineNumber % 100000) == 0) {
+                        LOGGER.info("Skipping line " + numberFormatter.format(lineNumber));
+                    }
+                    lineNumber++;
+                }
+            }
+
             while ((line = reader.readLine()) != null) {
                 if ((lineNumber % 100000) == 0) {
-                    System.out.println("Processing line " + numberFormatter.format(lineNumber));
+                    LOGGER.info("Processing line " + numberFormatter.format(lineNumber) + (randomAccessFile == null ? "" : " (offset: " + randomAccessFile.getFilePointer() + ")"));
                 }
                 if (page != null) {
                     page.append(line);
@@ -119,17 +170,15 @@ public class Import extends CommandLineBase {
                     pageTitle = null;
                     page.append(line);
                     page.append("\n");
-                } else if ((m = pageTitlePattern.matcher(line)) != null && m.matches()) {
+                } else if (line.contains("<title>") && (m = pageTitlePattern.matcher(line)) != null && m.matches()) {
                     pageTitle = m.group(1);
-                } else if (line.contains("</page>") && line.trim().equals("</page>")) {
+                } else if (page != null && line.contains("</page>") && line.trim().equals("</page>")) {
                     pageCount++;
                     if ((pageCount % 1000) == 0) {
-                        System.out.println("Processing page " + numberFormatter.format(pageCount));
+                        LOGGER.info("Processing page " + numberFormatter.format(pageCount));
                     }
 
-                    if (page == null) {
-                        LOGGER.error("Found end page without start page. Line %d", lineNumber);
-                    } else if (pageTitle == null) {
+                    if (pageTitle == null) {
                         LOGGER.error("Found end page without page title. Line %d", lineNumber);
                     } else {
                         String pageString = page.toString();

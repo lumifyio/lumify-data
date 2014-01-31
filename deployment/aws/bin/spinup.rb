@@ -18,6 +18,13 @@ REQUIRED_CONFIG_KEYS          = ['default_availability_zone',
                                  'default_ami'
                                 ]
 
+# http://docs.aws.amazon.com/AWSEC2/latest/UserGuide/placement-groups.html#concepts-placement-groups
+PLACEMENT_GROUP_TYPES         = ['c3.large', 'c3.xlarge', 'c3.2xlarge', 'c3.4xlarge', 'c3.8xlarge', 'cc2.8xlarge',
+                                 'cg1.4xlarge', 'g2.2xlarge',
+                                 'cr1.8xlarge',
+                                 'hi1.4xlarge', 'hs1.8xlarge', 'i2.xlarge', 'i2.2xlarge', 'i2.4xlarge', 'i2.8xlarge'
+                                ]
+
 def check_env
   missing_env_variables = REQUIRED_ENV_VARIABLES.select do |env_var|
     ENV[env_var] == nil || ENV[env_var].length == 0
@@ -170,8 +177,13 @@ def run_instance(instance_type, ip, name, options={})
   cmd << " \\\n  --subnet #{subnet}"
   cmd << " \\\n  --instance-type #{instance_type}"
   cmd << " \\\n  --availability-zone #{availability_zone}"
-  # TODO: why doesn't this work?
-  # cmd << " \\\n  --placement-group #{placement_group}" if placement_group
+  if placement_group
+    if PLACEMENT_GROUP_TYPES.include?(instance_type)
+      cmd << " \\\n  --placement-group #{placement_group}"
+    else
+      puts "WARNING: placement groups are not supported for instance type: #{instance_type}"
+    end
+  end
   cmd << " \\\n  --private-ip-address #{ip}"
 
   output = run(cmd)

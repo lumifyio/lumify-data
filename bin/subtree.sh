@@ -60,6 +60,7 @@ function _pull_subtree {
   local path=$(_subtree_config_value ${subtree} path)
   local branch=$(_subtree_config_value ${subtree} branch)
 
+  echo "git subtree pull --prefix=${path} ${url} ${branch}"
   (cd ${DIR}/.. && git subtree pull --prefix=${path} ${url} ${branch})
 }
 
@@ -70,6 +71,7 @@ function _push_subtree {
   local path=$(_subtree_config_value ${subtree} path)
   local branch=$(_subtree_config_value ${subtree} branch)
 
+  echo "git subtree push --prefix=${path} ${url} ${branch}"
   (cd ${DIR}/.. && git subtree push --prefix=${path} ${url} ${branch})
 }
 
