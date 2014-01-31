@@ -194,6 +194,7 @@ public class TermExtractionBolt extends BaseTextProcessingBolt {
                     getUser().getAuthorizations()
             );
         }
+        graph.flush();
     }
 
     private TermMentionWithGraphVertex findTermMentionWithGraphVertex(List<TermMentionWithGraphVertex> termMentionsWithGraphVertices, TermMention termMention) {
