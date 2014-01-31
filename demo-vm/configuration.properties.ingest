@@ -1,4 +1,4 @@
-p component
+# Map component
 map.provider=googlev3
 map.apiKey=AIzaSyCauz3KEz7k8zxOjPW4plTuVQv_CFGFMd4
 map.tileServer.hostName=localhost
