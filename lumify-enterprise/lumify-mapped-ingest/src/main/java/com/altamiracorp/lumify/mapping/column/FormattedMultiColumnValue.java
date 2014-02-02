@@ -16,6 +16,7 @@ import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import com.fasterxml.jackson.annotation.JsonTypeName;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.IllegalFormatConversionException;
 import java.util.List;
 
 /**
@@ -35,7 +36,7 @@ public class FormattedMultiColumnValue<T> extends AbstractConvertingColumnValue<
      * The column indices.  Values from these columns will be provided
      * to the format string in the order they appear in this list.
      */
-    private final List<Integer> columns;
+    private final List<ColumnValue<?>> columns;
 
     /**
      * The format string that will be provided the values for each row.
@@ -45,56 +46,50 @@ public class FormattedMultiColumnValue<T> extends AbstractConvertingColumnValue<
 
     /**
      * Create a new FormattedMultiColumnValue.
-     * @param cols the indices of the columns that will be provided to the formatter
+     * @param cols the columns that will be provided to the formatter
      * @param fmt the format string
      * @param xform the value transformer
      */
     @JsonCreator
-    public FormattedMultiColumnValue(@JsonProperty("indices") final List<Integer> cols,
+    public FormattedMultiColumnValue(@JsonProperty("columns") final List<ColumnValue<?>> cols,
             @JsonProperty("format") final String fmt,
             @JsonProperty(value="xform", required=false) final ValueTransformer<T> xform) {
         super(xform);
-        checkNotNull(cols, "at least one column index must be provided");
-        checkArgument(!cols.isEmpty(), "at least one column index must be provided");
-        for (Integer col : cols) {
-            checkArgument(col >= 0, "column indices must be >= 0");
-        }
+        checkNotNull(cols, "at least one column must be provided");
+        checkArgument(!cols.isEmpty(), "at least one column must be provided");
         checkNotNull(fmt, "format string must be provided");
         checkArgument(!fmt.trim().isEmpty(), "format string must be provided");
-        this.columns = Collections.unmodifiableList(new ArrayList<Integer>(cols));
+        this.columns = Collections.unmodifiableList(new ArrayList<ColumnValue<?>>(cols));
         this.format = fmt;
     }
 
     @Override
     protected String resolveInputValue(final List<String> row) {
         int colCount = columns.size();
-        String[] values = new String[colCount];
+        Object[] values = new Object[colCount];
         boolean foundValue = false;
         for (int idx=0; idx < colCount; idx++) {
-            values[idx] = getColumn(row, columns.get(idx));
-            foundValue = foundValue || (values[idx] != null && !values[idx].isEmpty());
+            values[idx] = columns.get(idx).getValue(row);
+            foundValue = foundValue || values[idx] != null;
         }
-        // cast values to an Object[] to trigger the varargs call
-        return foundValue ? String.format(format, (Object[]) values) : null;
-    }
-
-    private String getColumn(final List<String> row, final int col) {
-        String value;
-        try {
-            value = row.get(col);
-        } catch (IndexOutOfBoundsException iobe) {
-            value = null;
+        String fmtValue = null;
+        if (foundValue) {
+            try {
+                fmtValue = String.format(format, values);
+            } catch (IllegalFormatConversionException ifce) {
+                fmtValue = null;
+            }
         }
-        return value != null ? value : "";
+        return fmtValue;
     }
 
     @Override
     public int getSortColumn() {
-        return columns.get(0);
+        return columns.get(0).getSortColumn();
     }
 
-    @JsonProperty("indices")
-    public final List<Integer> getColumns() {
+    @JsonProperty("columns")
+    public final List<ColumnValue<?>> getColumns() {
         return columns;
     }
 
