@@ -16,20 +16,31 @@ import org.mockito.runners.MockitoJUnitRunner;
 
 @RunWith(MockitoJUnitRunner.class)
 public class FormattedMultiColumnValueTest {
-    private static final int COL1 = 0;
-    private static final int COL2 = 3;
-    private static final int COL3 = 7;
-    private static final List<Integer> TEST_COLUMNS = Arrays.asList(COL1, COL2, COL3);
-    private static final String TEST_FORMAT = "%s::%s::%s";
+    private static final int COL1_IDX = 3;
+    private static final int COL2_IDX = 7;
+    private static final int COL3_IDX = 10;
+    private static final String TEST_FORMAT = "%s::%d::%s";
 
+    @Mock
+    private ColumnValue<?> col1;
+    @Mock
+    private ColumnValue<?> col2;
+    @Mock
+    private ColumnValue<?> col3;
     @Mock
     private ValueTransformer<Object> xform;
 
+    private List<ColumnValue<?>> testColumns;
     private FormattedMultiColumnValue<Object> instance;
 
     @Before
+    @SuppressWarnings("unchecked")
     public void setup() {
-        instance = new FormattedMultiColumnValue<Object>(TEST_COLUMNS, TEST_FORMAT, xform);
+        when(col1.getSortColumn()).thenReturn(COL1_IDX);
+        when(col2.getSortColumn()).thenReturn(COL2_IDX);
+        when(col3.getSortColumn()).thenReturn(COL3_IDX);
+        testColumns = Arrays.asList(col1, col2, col3);
+        instance = new FormattedMultiColumnValue<Object>(testColumns, TEST_FORMAT, xform);
     }
 
     @Test
@@ -37,63 +48,49 @@ public class FormattedMultiColumnValueTest {
     public void testIllegalConstruction() {
         doTestConstructor("null columns", null, TEST_FORMAT, NullPointerException.class);
         doTestConstructor("empty columns", Collections.EMPTY_LIST, TEST_FORMAT, IllegalArgumentException.class);
-        doTestConstructor("negative columns", Arrays.asList(3, 5, -2, 17), TEST_FORMAT, IllegalArgumentException.class);
-        doTestConstructor("null format", TEST_COLUMNS, null, NullPointerException.class);
-        doTestConstructor("empty format", TEST_COLUMNS, "", IllegalArgumentException.class);
-        doTestConstructor("whitespace format", TEST_COLUMNS, "\n \t\t \n", IllegalArgumentException.class);
+        doTestConstructor("null format", testColumns, null, NullPointerException.class);
+        doTestConstructor("empty format", testColumns, "", IllegalArgumentException.class);
+        doTestConstructor("whitespace format", testColumns, "\n \t\t \n", IllegalArgumentException.class);
     }
 
     @Test
     public void testLegalConstruction() {
-        assertEquals(TEST_COLUMNS, instance.getColumns());
+        assertEquals(testColumns, instance.getColumns());
         assertEquals(TEST_FORMAT, instance.getFormat());
     }
 
     @Test
+    @SuppressWarnings("unchecked")
     public void testGetSortColumn() {
-        List<Integer> unsorted = Arrays.asList(COL2, COL1, COL3);
+        List<ColumnValue<?>> unsorted = Arrays.asList(col2, col1, col3);
         FormattedMultiColumnValue<Object> unsortedColumns = new FormattedMultiColumnValue<Object>(unsorted, TEST_FORMAT, xform);
-        assertEquals(TEST_COLUMNS.get(0).intValue(), instance.getSortColumn());
-        assertEquals(unsorted.get(0).intValue(), unsortedColumns.getSortColumn());
+        assertEquals(testColumns.get(0).getSortColumn(), instance.getSortColumn());
+        assertEquals(unsorted.get(0).getSortColumn(), unsortedColumns.getSortColumn());
     }
 
     @Test
     public void testResolveInputValue() {
-        Exception ex = new IndexOutOfBoundsException();
-        doTestResolveInputValue("all provided", "foo", "bar", "fizz", "foo::bar::fizz");
-        doTestResolveInputValue("1, empty, 3", "foo", "", "fizz", "foo::::fizz");
-        doTestResolveInputValue("1, 2, null", "foo", "bar", null, "foo::bar::");
-        doTestResolveInputValue("1, ex, ex", "foo", ex, ex, "foo::::");
-        doTestResolveInputValue("null, 2, null", null, "bar", null, "::bar::");
-        doTestResolveInputValue("empty, null, ex", "", null, ex, null);
+        doTestResolveInputValue("all provided", "foo", 2, "bar", "foo::2::bar");
+        doTestResolveInputValue("1, null, 3", "foo", null, "bar", "foo::null::bar");
+        doTestResolveInputValue("1, 2, null", "foo", 2, null, "foo::2::null");
+        doTestResolveInputValue("null, 2, null", null, 2, null, "null::2::null");
+        doTestResolveInputValue("empty, null, 3", "", null, "bar", "::null::bar");
         doTestResolveInputValue("null, null, null", null, null, null, null);
-        doTestResolveInputValue("empty, empty, empty", "", "", "", null);
-        doTestResolveInputValue("ex, ex, ex", ex, ex, ex, null);
+        doTestResolveInputValue("empty, null, empty", "", null, "", "::null::");
+        doTestResolveInputValue("invalid format", "foo", "not a number", "bar", null);
     }
 
     private void doTestResolveInputValue(final String testName, final Object col1val, final Object col2val, final Object col3val,
             final String expected) {
         List<String> row = mock(List.class);
-        if (col1val instanceof Throwable) {
-            when(row.get(COL1)).thenThrow((Throwable) col1val);
-        } else {
-            when(row.get(COL1)).thenReturn((String) col1val);
-        }
-        if (col2val instanceof Throwable) {
-            when(row.get(COL2)).thenThrow((Throwable) col2val);
-        } else {
-            when(row.get(COL2)).thenReturn((String) col2val);
-        }
-        if (col3val instanceof Throwable) {
-            when(row.get(COL3)).thenThrow((Throwable) col3val);
-        } else {
-            when(row.get(COL3)).thenReturn((String) col3val);
-        }
+        when(col1.getValue(row)).thenReturn(col1val);
+        when(col2.getValue(row)).thenReturn(col2val);
+        when(col3.getValue(row)).thenReturn(col3val);
         String resolved = instance.resolveInputValue(row);
         assertEquals(String.format("[%s]: ", testName), expected, resolved);
     }
 
-    private void doTestConstructor(final String testName, final List<Integer> cols, final String fmt,
+    private void doTestConstructor(final String testName, final List<ColumnValue<?>> cols, final String fmt,
             final Class<? extends Throwable> expError) {
         try {
             new FormattedMultiColumnValue<Object>(cols, fmt, xform);
