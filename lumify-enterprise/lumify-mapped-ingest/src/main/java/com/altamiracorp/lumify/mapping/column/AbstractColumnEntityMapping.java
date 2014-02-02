@@ -1,0 +1,136 @@
+package com.altamiracorp.lumify.mapping.column;
+
+import static com.google.common.base.Preconditions.checkNotNull;
+
+import com.altamiracorp.lumify.core.ingest.term.extraction.TermMention;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
+/**
+ * Base class for ColumnEntityMappings.
+ */
+public abstract class AbstractColumnEntityMapping implements ColumnEntityMapping {
+    /**
+     * The default value for the required property.
+     */
+    public static boolean DEFAULT_REQUIRED = false;
+
+    /**
+     * The default value for the useExisting property.
+     */
+    public static final boolean DEFAULT_USE_EXISTING = false;
+
+    /**
+     * The ColumnValue used as the sign of this entity.
+     */
+    private final ColumnValue<String> signColumn;
+
+    /**
+     * Is this entity required?
+     */
+    private final boolean required;
+
+    /**
+     * Should existing entities be used if found or should a
+     * new entity be created for each mapped column?
+     */
+    private final boolean useExisting;
+
+    /**
+     * The properties of this entity.
+     */
+    private final Map<String, ColumnValue<?>> properties;
+
+    /**
+     * Create a new ColumnEntityMapping.
+     * @param signCol the ColumnValue providing the sign of this entity
+     * @param props the properties of this entity
+     * @param useExisting should existing entities be reused? null for default
+     * @param required is this entity required? null for default
+     */
+    public AbstractColumnEntityMapping(final ColumnValue<String> signCol, final Map<String, ColumnValue<?>> props,
+            final Boolean useExisting, final Boolean required) {
+        checkNotNull(signCol, "sign column must be provided");
+        this.signColumn = signCol;
+        Map<String, ColumnValue<?>> myProps = new HashMap<String, ColumnValue<?>>();
+        if (props != null) {
+            myProps.putAll(props);
+        }
+        this.properties = Collections.unmodifiableMap(myProps);
+        this.useExisting = useExisting != null ? useExisting : DEFAULT_USE_EXISTING;
+        this.required = required != null ? required : DEFAULT_REQUIRED;
+    }
+
+    /**
+     * Get the URI of the ontology concept for this entity.
+     * @param row the input row
+     * @return the concept URI
+     */
+    protected abstract String getConceptURI(final List<String> row);
+
+    public final ColumnValue<String> getSignColumn() {
+        return signColumn;
+    }
+
+    @Override
+    public final boolean isRequired() {
+        return required;
+    }
+
+    public final boolean isUseExisting() {
+        return useExisting;
+    }
+
+    public final Map<String, ColumnValue<?>> getProperties() {
+        return properties;
+    }
+
+    @Override
+    public final int getSortColumn() {
+        return signColumn.getSortColumn();
+    }
+
+    /**
+     * Generate a TermMention, with all associated properties, from the columns
+     * of a row in a columnar document.
+     * @param row the columns of the input row
+     * @param offset the current document offset
+     * @param processId the ID of the process reading this document
+     * @return the generated TermMention
+     */
+    @Override
+    public final TermMention mapTerm(final List<String> row, final int offset, final String processId) {
+        String sign = signColumn.getValue(row);
+        String conceptURI = getConceptURI(row);
+        TermMention mention;
+        if (sign == null || sign.trim().isEmpty() || conceptURI == null) {
+            if (required) {
+                throw new IllegalArgumentException(String.format("Sign and Concept URI for entity in column %d are required.",
+                        getSortColumn()));
+            } else {
+                mention = null;
+            }
+        } else {
+            TermMention.Builder builder = new TermMention.Builder()
+                    .start(offset)
+                    .end(offset + sign.length())
+                    .sign(sign)
+                    .ontologyClassUri(conceptURI)
+                    .useExisting(useExisting)
+                    .resolved(true)
+                    .process(processId);
+            for (Map.Entry<String, ColumnValue<?>> prop : properties.entrySet()) {
+                builder.setProperty(prop.getKey(), prop.getValue().getValue(row));
+            }
+            mention = builder.build();
+        }
+        return mention;
+    }
+
+    @Override
+    public int compareTo(final ColumnEntityMapping o) {
+        return getSortColumn() - o.getSortColumn();
+    }
+}

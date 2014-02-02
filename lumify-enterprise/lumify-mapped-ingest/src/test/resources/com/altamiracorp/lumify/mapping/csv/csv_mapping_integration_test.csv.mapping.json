@@ -4,158 +4,190 @@
     "skipRows": 3,
     "entities": {
         "person": {
-            "signColumn": 0,
-            "conceptLabel": "person",
+            "signColumn": { "index": 0 },
+            "conceptURI": "person",
             "useExisting": false,
-            "properties": [
-                {
-                    "dataType": "date",
-                    "name": "Birth Date",
-                    "required": true,
-                    "column": 1
+            "properties": {
+                "Birth Date": {
+					"type": "required",
+					"column": {
+						"index": 1,
+						"xform": { "dataType": "date" }
+					}
                 },
-                {
-                    "dataType": "string",
-                    "name": "Gender",
-                    "required": true,
-                    "column": 2
+                "Gender": {
+					"type": "required",
+					"column": { "index": 2 }
                 },
-                {
-                    "dataType": "boolean",
-                    "name": "Deceased",
-                    "required": true,
-                    "column": 3
+                "Deceased": {
+					"type": "required",
+					"column": {
+						"index": 3,
+						"xform": { "dataType": "boolean" }
+					}
                 },
-                {
-                    "dataType": "integer",
-                    "name": "Height_ft",
-                    "required": true,
-                    "column": 4
+                "Height_ft": {
+					"type": "required",
+					"column": {
+						"index": 4,
+						"xform": { "dataType": "integer" }
+					}
                 },
-                {
-                    "dataType": "integer",
-                    "name": "Height_in",
-                    "column": 5
+                "Height_in": {
+					"index": 5,
+					"xform": { "dataType": "integer" }
                 },
-                {
-                    "dataType": "double",
-                    "name": "Weight_lbs",
-                    "column": 6
+                "Weight_lbs": {
+					"index": 6,
+					"xform": { "dataType": "double" }
                 },
-                {
-                    "dataType": "geopoint",
-                    "name": "Home Address",
-                    "latitudeColumn": 7,
-                    "longitudeColumn": 8,
-                    "altitudeColumn": 9,
-                    "required": true
+                "Home Address": {
+					"type": "required",
+					"column": {
+						"type": "geopoint",
+						"latitudeColumn": {
+							"index": 7,
+							"xform": { "dataType": "double" }
+						},
+						"longitudeColumn": {
+							"index": 8,
+							"xform": { "dataType": "double" }
+						},
+						"altitudeColumn": {
+							"index": 9,
+							"xform": { "dataType": "double" }
+						}
+					}
                 },
-                {
-                    "dataType": "geocircle",
-                    "name": "Home Area",
-                    "latitudeColumn": 10,
-                    "longitudeColumn": 11,
-                    "radiusColumn": 12,
-                    "required": true
+                "Home Area": {
+					"type": "required",
+					"column": {
+						"type": "geocircle",
+						"latitudeColumn": {
+							"index": 10,
+							"xform": { "dataType": "double" }
+						},
+						"longitudeColumn": {
+							"index": 11,
+							"xform": { "dataType": "double" }
+						},
+						"radiusColumn": {
+							"index": 12,
+							"xform": { "dataType": "double" }
+						}
+					}
                 },
-                {
-                    "dataType": "integer",
-                    "name": "Test Number",
-                    "column": 29,
-                    "required": true
+                "Test Number": {
+					"type": "required",
+					"column": {
+						"index": 29,
+						"xform": { "dataType": "integer" }
+					}
                 }
-            ]
+            }
         },
         "employer": {
-            "signColumn": 13,
-            "conceptLabel": "organization",
+            "signColumn": { "index": 13 },
+            "conceptURI": "organization",
             "required": true,
-            "properties": [
-                {
-                    "dataType": "geopoint",
-                    "name": "Location",
-                    "required": false,
-                    "latitudeColumn": 14,
-                    "longitudeColumn": 15
+            "properties": {
+                "Location": {
+					"type": "geopoint",
+					"latitudeColumn": {
+						"index": 14,
+						"xform": { "dataType": "double" }
+					},
+					"longitudeColumn": {
+						"index": 15,
+						"xform": { "dataType": "double" }
+					}
                 },
-                {
-                    "dataType": "double",
-                    "name": "Earnings",
-                    "required": true,
-                    "column": 16
+                "Earnings": {
+					"type": "required",
+					"column": {
+						"index": 16,
+						"xform": { "dataType": "double" }
+					}
                 },
-                {
-                    "dataType": "integer",
-                    "name": "Test Number",
-                    "column": 29,
-                    "required": true
+                "Test Number": {
+					"type": "required",
+					"column": {
+						"index": 29,
+						"xform": { "dataType": "integer" }
+					}
                 }
-            ]
+            }
         },
         "home": {
-            "signColumn": 17,
-            "conceptLabel": "location",
+            "signColumn": { "index": 17 },
+            "conceptURI": "location",
             "useExisting": true,
-            "properties": [
-                {
-                    "dataType": "string",
-                    "name": "City Name",
-                    "column": 18
+            "properties": {
+                "City Name": { "index": 18 },
+                "Population": {
+					"type": "required",
+					"column": {
+						"index": 19,
+						"xform": { "dataType": "long" }
+					}
                 },
-                {
-                    "dataType": "long",
-                    "name": "Population",
-                    "required": true,
-                    "column": 19
-                },
-                {
-                    "dataType": "integer",
-                    "name": "Test Number",
-                    "column": 29,
-                    "required": true
+                "Test Number": {
+					"type": "required",
+					"column": {
+						"index": 29,
+						"xform": { "dataType": "integer" }
+					}
                 }
-            ]
+            }
         },
         "twitter": {
-            "signColumn": 20,
-            "conceptLabel": "twitterUser",
+            "signColumn": { "index": 20 },
+            "conceptURI": "twitterUser",
             "useExisting": true,
-            "properties": [
-                {
-                    "dataType": "long",
-                    "name": "Friend Count",
-                    "column": 21
+            "properties": {
+                "Friend Count": {
+					"index": 21,
+					"xform": { "dataType": "long" }
                 },
-                {
-                    "dataType": "boolean",
-                    "name": "hasProfilePic",
-                    "column": 22
+                "hasProfilePic": {
+					"index": 22,
+					"xform": { "dataType": "boolean" }
                 },
-                {
-                    "dataType": "date",
-                    "name": "Last Tweeted At",
-                    "format": "yyyyMMdd-HHmmss",
-                    "column": 23
+                "Last Tweeted At": {
+					"index": 23,
+					"xform": {
+						"dataType": "date",
+						"format": "yyyyMMdd-HHmmss"
+					}
                 },
-                {
-                    "dataType": "geocircle",
-                    "name": "Last Tweeted From",
-                    "latitudeColumn": 24,
-                    "longitudeColumn": 25,
-                    "radiusColumn": 26
+                "Last Tweeted From": {
+                    "type": "geocircle",
+                    "latitudeColumn": {
+						"index": 24,
+						"xform": { "dataType": "double" }
+					},
+                    "longitudeColumn": {
+						"index": 25,
+						"xform": { "dataType": "double" }
+					},
+                    "radiusColumn": {
+						"index": 26,
+						"xform": { "dataType": "double" }
+					}
                 },
-                {
-                    "dataType": "integer",
-                    "name": "Test Number",
-                    "column": 29,
-                    "required": true
+                "Test Number": {
+					"type": "required",
+					"column": {
+						"index": 29,
+						"xform": { "dataType": "integer" }
+					}
                 }
-            ]
+            }
         },
         "facebook": {
-            "signColumn": 27,
+            "signColumn": { "index": 27 },
             "required": true,
-            "conceptLabel": "facebookAccount",
+            "conceptURI": "facebookAccount",
             "useExisting": true
         }
     },
