@@ -163,7 +163,7 @@ public class TermExtractionBolt extends BaseTextProcessingBolt {
                 graph.addEdge(artifactGraphVertex, vertex, LabelName.RAW_HAS_ENTITY.toString(), new Visibility(""), getUser().getAuthorizations());
 
                 String labelDisplayName = ontologyRepository.getDisplayNameForLabel(LabelName.RAW_HAS_ENTITY.toString());
-                auditRepository.auditRelationship(AuditAction.CREATE.toString(), artifactGraphVertex, vertex, labelDisplayName, termMention.getProcess(), "", getUser());
+                auditRepository.auditRelationship(AuditAction.CREATE, artifactGraphVertex, vertex, labelDisplayName, termMention.getProcess(), "", getUser());
 
                 termMentionModel.getMetadata().setVertexId(vertex.getId().toString());
             }
