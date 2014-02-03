@@ -12,7 +12,6 @@ import com.altamiracorp.lumify.core.util.LumifyLoggerFactory;
 import com.altamiracorp.lumify.core.util.RowKeyHelper;
 import com.altamiracorp.securegraph.*;
 import com.altamiracorp.securegraph.type.GeoPoint;
-import com.beust.jcommander.internal.Lists;
 import org.apache.commons.io.IOUtils;
 import org.json.JSONObject;
 
@@ -22,10 +21,8 @@ import java.io.InputStream;
 import java.net.URL;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
 import java.util.Date;
 import java.util.Iterator;
-import java.util.List;
 
 import static com.altamiracorp.lumify.facebook.FacebookConstants.*;
 
@@ -97,7 +94,7 @@ public class FacebookUser {
             }
             graph.addEdge(userVertex, emailVertex, EMAIL_RELATIONSHIP, visibility, user.getAuthorizations());
             String labelDisplayName = ontologyRepository.getDisplayNameForLabel(EMAIL_RELATIONSHIP);
-            auditRepository.auditRelationships(AuditAction.CREATE.toString(), userVertex, emailVertex, labelDisplayName, PROCESS, "", user);
+            auditRepository.auditRelationship(AuditAction.CREATE, userVertex, emailVertex, labelDisplayName, PROCESS, "", user);
             graph.flush();
         }
 
@@ -171,7 +168,7 @@ public class FacebookUser {
             graph.addEdge(userVertex, pictureVertex, ENTITY_HAS_IMAGE_PROFILE_PHOTO, visibility, user.getAuthorizations());
         }
 
-        auditRepository.auditRelationships(AuditAction.CREATE.toString(), userVertex, pictureVertex, labelDisplay, PROCESS, "", user);
+        auditRepository.auditRelationship(AuditAction.CREATE, userVertex, pictureVertex, labelDisplay, PROCESS, "", user);
         LOGGER.info("Saving Facebook picture to accumulo and as graph vertex: %s", pictureVertex.getId());
     }
 

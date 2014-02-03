@@ -1,7 +1,7 @@
 #!/bin/bash
 
 HOST=ci.lumify.io
-BASE_DIR=/var/www/maven/com/altamiracorp
+BASE_DIR=/var/www/maven/snapshots/com/altamiracorp
 
 function _download {
   local subdir=$1
@@ -17,7 +17,11 @@ _download lumify/lumify-enterprise-tools "*with-dependencies.jar" lumify-enterpr
 _download lumify/lumify-storm            "*with-dependencies.jar" lumify-storm-1.0-SNAPSHOT-jar-with-dependencies.jar
 _download lumify/lumify-enterprise-storm "*with-dependencies.jar" lumify-enterprise-storm-1.0-SNAPSHOT-jar-with-dependencies.jar
 _download lumify/lumify-twitter          "*with-dependencies.jar" lumify-twitter-1.0-SNAPSHOT-jar-with-dependencies.jar
-_download lumify/lumify-web              "*.war"                  lumify.war
+_download lumify/lumify-facebook         "*with-dependencies.jar" lumify-facebook-1.0-SNAPSHOT-jar-with-dependencies.jar
+_download lumify/lumify-wikipedia        "*with-dependencies.jar" lumify-wikipedia-1.0-SNAPSHOT-jar-with-dependencies.jar
+_download lumify/lumify-web-war          "*.war"                  lumify.war
 _download lumify/lumify-account-web      "*.war"                  account.war
-_download bigtable/bigtable-ui           "*.war"                  bigtable-ui.war
+_download bigtable/bigtable-ui-war       "*.war"                  bigtable-ui.war
 _download jmxui/jmx-ui                   "*.war"                  jmx-ui.war
+
+md5sum *.jar *.war

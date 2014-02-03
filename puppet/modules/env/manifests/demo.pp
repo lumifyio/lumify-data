@@ -81,6 +81,12 @@ class env::demo {
     mode => 'u=rwx,g=r,o=r',
   }
 
+  file { '/opt/storm/lib/imageio-1.1.jar' :
+    source => 'puppet:///modules/env/common/imageio-1.1.jar',
+    owner => 'storm',
+    mode => 'u=r,g=r,o=r',
+  }
+
   package { [ 'nodejs', 'npm', 'zip' ] :
     ensure => present,
   }
