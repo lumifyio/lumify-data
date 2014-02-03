@@ -147,7 +147,7 @@ public class ConceptMappedColumnRelationshipMapping extends AbstractColumnRelati
         String label = null;
         if (labelMap != null && !labelMap.isEmpty()) {
             for (Concept con = concept; label == null && con != null; con = ontologyRepository.getParentConcept(con)) {
-                label = labelMap.get(con.getId().toString());
+                label = labelMap.get(con.getTitle());
             }
         }
         return label;
@@ -172,7 +172,7 @@ done
     private String findSourceTargetLabel(final Concept srcConcept, final Concept tgtConcept) {
         String label = null;
         for (Concept src = srcConcept; label == null && src != null; src = ontologyRepository.getParentConcept(src)) {
-            label = findLabel(sourceTargetMap.get(src.getId().toString()), tgtConcept);
+            label = findLabel(sourceTargetMap.get(src.getTitle()), tgtConcept);
         }
         return label;
     }
