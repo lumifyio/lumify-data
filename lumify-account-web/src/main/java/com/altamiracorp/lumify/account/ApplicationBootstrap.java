@@ -3,6 +3,7 @@ package com.altamiracorp.lumify.account;
 import com.altamiracorp.bigtable.model.ModelSession;
 import com.altamiracorp.bigtable.model.user.accumulo.AccumuloUserContext;
 import com.altamiracorp.lumify.account.model.AccountUser;
+import com.altamiracorp.lumify.core.config.Configuration;
 import com.google.inject.AbstractModule;
 import com.google.inject.Guice;
 import com.google.inject.Injector;
@@ -56,13 +57,12 @@ public class ApplicationBootstrap extends AbstractModule implements ServletConte
     private ModelSession createModelSession(Map<String, Object> properties) {
         ModelSession modelSession = (ModelSession) createClassInstanceFromConfig(CONFIG_MODEL_SESSION);
         modelSession.init(properties);
-        //modelSession.deleteTable(DemoAccountUser.TABLE_NAME, new AccumuloUserContext(new Authorizations()));
         modelSession.initializeTable(AccountUser.TABLE_NAME, new AccumuloUserContext(new Authorizations()));
         return modelSession;
     }
 
     private Map loadModelProperties() {
-        String fileName = "/opt/lumify/config/configuration.properties";
+        String fileName = Configuration.CONFIGURATION_LOCATION + "configuration.properties";
 
         try {
             Properties properties = new Properties();
@@ -93,7 +93,7 @@ public class ApplicationBootstrap extends AbstractModule implements ServletConte
     }
 
     private Class getClassFromConfig(String configKey) {
-        String className = (String) this.context.getInitParameter(configKey);
+        String className = this.context.getInitParameter(configKey);
         if (className == null) {
             throw new RuntimeException("Could not find config: " + configKey);
         }

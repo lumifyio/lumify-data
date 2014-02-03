@@ -11,17 +11,6 @@
 
     <name>All Lumify</name>
     
-    <distributionManagement>
-        <repository>
-            <id>bits.lumify.io</id>
-            <url>file:///var/www/maven/</url>
-        </repository>
-        <site>
-            <id>temp-site</id>
-            <url>file:///tmp/lumify.io</url>
-        </site>
-    </distributionManagement>
-    
     <modules>
         <module>lumify-root</module>
         <module>lumify-public</module>

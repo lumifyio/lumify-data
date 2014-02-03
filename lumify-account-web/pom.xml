@@ -21,13 +21,6 @@
         <developerConnection>scm:git:ssh://git@github.com/altamiracorp/lumify-all.git</developerConnection>
     </scm>
 
-    <distributionManagement>
-        <repository>
-            <id>bits.lumify.io</id>
-            <url>file:///var/www/maven/</url>
-        </repository>
-    </distributionManagement>
-
     <properties>
         <commons.email.version>1.3.2</commons.email.version>
         <lumify.version>1.0-SNAPSHOT</lumify.version>
@@ -37,7 +30,7 @@
     <repositories>
         <repository>
             <id>ext-releases</id>
-            <url>http://bits.lumify.io/m2/</url>
+            <url>http://bits.lumify.io/m2/releases/</url>
         </repository>
         <repository>
             <snapshots>
@@ -45,7 +38,7 @@
                 <updatePolicy>always</updatePolicy>
             </snapshots>
             <id>ext-snapshots</id>
-            <url>http://bits.lumify.io/m2/</url>
+            <url>http://bits.lumify.io/m2/snapshots/</url>
         </repository>
         <repository>
             <id>com.cloudera</id>
