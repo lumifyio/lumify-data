@@ -33,11 +33,6 @@ public class AbstractConvertingColumnValueTest {
         instance = new TestImpl<Object>(xform);
     }
 
-    @Test(expected=NullPointerException.class)
-    public void testIllegalConstruction() {
-        new TestImpl<Object>(null);
-    }
-
     @Test
     public void testLegalConstruction() {
         assertEquals(xform, instance.getValueXform());
