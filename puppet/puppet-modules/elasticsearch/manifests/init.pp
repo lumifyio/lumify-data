@@ -143,6 +143,7 @@ class elasticsearch(
 
   install_plugin { [ 'bigdesk', 'head' ] :
     plugins => "${homedir}/plugins",
+    require => Macro::Extract[$downloadpath],
   }
 
   define setup_data_directory ($user, $group) {
