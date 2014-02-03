@@ -63,7 +63,7 @@ public class GeoPointColumnValue implements ColumnValue<GeoPoint> {
 
     @JsonProperty("altitudeColumn")
     public final ColumnValue<Double> getAltitudeColumn() {
-        return altitudeColumn.getDelegate();
+        return altitudeColumn != null ? altitudeColumn.getDelegate() : null;
     }
 
     @Override
