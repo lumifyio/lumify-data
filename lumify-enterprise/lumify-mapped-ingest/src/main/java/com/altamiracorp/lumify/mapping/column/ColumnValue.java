@@ -18,6 +18,8 @@ import java.util.List;
  */
 @JsonTypeInfo(include=As.PROPERTY, property="type", use=Id.NAME, defaultImpl=SingleColumnValue.class)
 @JsonSubTypes({
+    @Type(ConstantColumnValue.class),
+    @Type(FallbackColumnValue.class),
     @Type(FormattedMultiColumnValue.class),
     @Type(GeoCircleColumnValue.class),
     @Type(GeoPointColumnValue.class),
