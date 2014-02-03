@@ -94,7 +94,7 @@ public class FacebookUser {
             }
             graph.addEdge(userVertex, emailVertex, EMAIL_RELATIONSHIP, visibility, user.getAuthorizations());
             String labelDisplayName = ontologyRepository.getDisplayNameForLabel(EMAIL_RELATIONSHIP);
-            auditRepository.auditRelationship(AuditAction.CREATE.toString(), userVertex, emailVertex, labelDisplayName, PROCESS, "", user);
+            auditRepository.auditRelationship(AuditAction.CREATE, userVertex, emailVertex, labelDisplayName, PROCESS, "", user);
             graph.flush();
         }
 
@@ -168,7 +168,7 @@ public class FacebookUser {
             graph.addEdge(userVertex, pictureVertex, ENTITY_HAS_IMAGE_PROFILE_PHOTO, visibility, user.getAuthorizations());
         }
 
-        auditRepository.auditRelationship(AuditAction.CREATE.toString(), userVertex, pictureVertex, labelDisplay, PROCESS, "", user);
+        auditRepository.auditRelationship(AuditAction.CREATE, userVertex, pictureVertex, labelDisplay, PROCESS, "", user);
         LOGGER.info("Saving Facebook picture to accumulo and as graph vertex: %s", pictureVertex.getId());
     }
 
