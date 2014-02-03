@@ -82,6 +82,11 @@
             <artifactId>tess4j</artifactId>
         </dependency>
         <dependency>
+            <groupId>com.sun.media.imageio</groupId>
+            <artifactId>imageio</artifactId>
+            <scope>provided</scope>
+        </dependency>
+        <dependency>
             <groupId>org.apache.commons</groupId>
             <artifactId>commons-compress</artifactId>
         </dependency>
