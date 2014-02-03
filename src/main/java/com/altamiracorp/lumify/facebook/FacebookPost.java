@@ -85,7 +85,7 @@ public class FacebookPost {
         }
         graph.addEdge(authorVertex, posting, POSTED_RELATIONSHIP, visibility, user.getAuthorizations());
         String postedRelationshipLabelDisplayName = ontologyRepository.getDisplayNameForLabel(POSTED_RELATIONSHIP);
-        auditRepository.auditRelationships(AuditAction.CREATE.toString(), posting, authorVertex, postedRelationshipLabelDisplayName, PROCESS, "", user);
+        auditRepository.auditRelationship(AuditAction.CREATE.toString(), posting, authorVertex, postedRelationshipLabelDisplayName, PROCESS, "", user);
         graph.flush();
 
         if (post.get(TAGGEED_UIDS) instanceof JSONObject) {
@@ -107,7 +107,7 @@ public class FacebookPost {
                 }
                 graph.addEdge(posting, taggedVertex, MENTIONED_RELATIONSHIP, visibility, user.getAuthorizations());
                 String mentionedRelationshipLabelDisplayName = ontologyRepository.getDisplayNameForLabel(MENTIONED_RELATIONSHIP);
-                auditRepository.auditRelationships(AuditAction.CREATE.toString(), posting, taggedVertex, mentionedRelationshipLabelDisplayName, PROCESS, "", user);
+                auditRepository.auditRelationship(AuditAction.CREATE.toString(), posting, taggedVertex, mentionedRelationshipLabelDisplayName, PROCESS, "", user);
                 graph.flush();
             }
         }
