@@ -112,7 +112,6 @@ function _accumulo_start {
     local ready='no'
     while [ "${ready}" != 'yes' ]; do
       echo "ssh to $(_accumulomaster) and as the accumulo user run: /usr/lib/accumulo/bin/accumulo init"
-      echo '  while there also run the accumulo shell and run the following: setauths -u root -s "ontology"'
       echo "then type 'yes' and press return"
       read ready
     done
@@ -124,6 +123,15 @@ function _accumulo_start {
     echo ${node}
     ssh ${SSH_OPTS} ${node} su - accumulo -c '/usr/lib/accumulo/bin/start-here.sh'
   done
+
+  if [ "${INIT_ACCUMULO}" = 'true' ]; then
+    local ready='no'
+    while [ "${ready}" != 'yes' ]; do
+      echo "ssh to $(_accumulomaster) and as the accumulo user run: /usr/lib/accumulo/bin/accumulo shell -u root -e \"setauths -u root -s 'ontology'\""
+      echo "then type 'yes' and press return"
+      read ready
+    done
+  fi
 }
 
 function _accumulo_stop {

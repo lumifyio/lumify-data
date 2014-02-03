@@ -123,6 +123,23 @@
 		<rdfs:range rdf:resource="http://altamiracorp.com/datatype/string"/>
 	</owl:DatatypeProperty>
 	
+	<!-- Additional Properties for location entity type -->
+	<owl:DatatypeProperty rdf:about="city">
+		<rdfs:label xml:lang="en">City</rdfs:label>
+		<rdfs:domain rdf:resource="http://altamiracorp.com/ontology/location"/>
+		<rdfs:range rdf:resource="http://altamiracorp.com/datatype/string"/>
+	</owl:DatatypeProperty>
+	<owl:DatatypeProperty rdf:about="adminDistrict">
+		<rdfs:label xml:lang="en">Administrative District</rdfs:label>
+		<rdfs:domain rdf:resource="http://altamiracorp.com/ontology/location"/>
+		<rdfs:range rdf:resource="http://altamiracorp.com/datatype/string"/>
+	</owl:DatatypeProperty>
+	<owl:DatatypeProperty rdf:about="country">
+		<rdfs:label xml:lang="en">Country</rdfs:label>
+		<rdfs:domain rdf:resource="http://altamiracorp.com/ontology/location"/>
+		<rdfs:range rdf:resource="http://altamiracorp.com/datatype/string"/>
+	</owl:DatatypeProperty>
+	
 	<!-- Concept: Terrorist Attack::Assassination -->
 	<owl:Class rdf:about="assassination">
 		<rdfs:label xml:lang="en">Assassination</rdfs:label>
