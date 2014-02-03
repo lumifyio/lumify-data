@@ -22,6 +22,7 @@
             <scope>runtime</scope>
             <excludes>
                 <exclude>storm:storm</exclude>
+                <exclude>com.sun.media.imageio:imageio</exclude>
             </excludes>
         </dependencySet>
     </dependencySets>

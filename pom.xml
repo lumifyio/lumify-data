@@ -28,7 +28,6 @@
         <boilerpipe.version>1.1.0</boilerpipe.version>
         <clavin.version>1.1.0-Altamira</clavin.version>
         <commons.httpclient.version>3.1</commons.httpclient.version>
-        <imageio.version>1.1</imageio.version>
         <libphonenumber.version>5.7</libphonenumber.version>
         <lumify.public.version>1.0-SNAPSHOT</lumify.public.version>
         <lumify.twitter.version>1.0-SNAPSHOT</lumify.twitter.version>
@@ -115,29 +114,11 @@
                 <artifactId>nekohtml</artifactId>
                 <version>${nekohtml.version}</version>
             </dependency>
-
-            <!--
-                 imageio needs to be excluded and marked provided because imageio has
-                 special entries within it's MANIFEST.MF file which are required.
-             -->
             <dependency>
                 <groupId>net.sourceforge.tess4j</groupId>
                 <artifactId>tess4j</artifactId>
                 <version>${tess4j.version}</version>
-                <exclusions>
-                    <exclusion>
-                        <groupId>com.sun.media.imageio</groupId>
-                        <artifactId>imageio</artifactId>
-                    </exclusion>
-                </exclusions>
             </dependency>
-            <dependency>
-                <groupId>com.sun.media.imageio</groupId>
-                <artifactId>imageio</artifactId>
-                <version>${imageio.version}</version>
-                <scope>provided</scope>
-            </dependency>
-
             <dependency>
                 <groupId>org.apache.opennlp</groupId>
                 <artifactId>opennlp-tools</artifactId>
