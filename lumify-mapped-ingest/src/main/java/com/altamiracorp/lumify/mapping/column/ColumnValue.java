@@ -21,6 +21,7 @@ import java.util.List;
     @Type(FormattedMultiColumnValue.class),
     @Type(GeoCircleColumnValue.class),
     @Type(GeoPointColumnValue.class),
+    @Type(MappedMultiColumnValue.class),
     @Type(RequiredColumnValue.class),
     @Type(SingleColumnValue.class)
 })
