@@ -70,6 +70,7 @@
         <inflector.version>0.7.0</inflector.version>
         <jackson.version>2.3.1</jackson.version>
         <jackson.annotations.version>2.3.0</jackson.annotations.version>
+        <jackson.guice.version>2.3.1</jackson.guice.version>
         <jetty.version>8.1.14.v20131031</jetty.version>
         <jetty.javaee.version>3.0.0.v201112011016</jetty.javaee.version>
         <json.version>20130918</json.version>
@@ -221,6 +222,11 @@
                 <groupId>com.fasterxml.jackson.core</groupId>
                 <artifactId>jackson-databind</artifactId>
                 <version>${jackson.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.fasterxml.jackson.module</groupId>
+                <artifactId>jackson-module-guice</artifactId>
+                <version>${jackson.guice.version}</version>
             </dependency>
             <dependency>
                 <groupId>com.google.guava</groupId>

@@ -1,0 +1,419 @@
+<rdf:RDF xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+         xmlns:owl="http://www.w3.org/2002/07/owl#"
+         xmlns:rdfs="http://www.w3.org/2000/01/rdf-schema#"
+         xmlns:atc="http://altamiracorp.com/ontology#">
+    <owl:Ontology rdf:about="">
+        <owl:versionInfo xml:lang="en">Version 3.8</owl:versionInfo>
+    </owl:Ontology>
+    
+	<!-- Concept: Event::Terrorist Attack -->
+	<owl:Class rdf:about="terroristAttack">
+		<rdfs:label xml:lang="en">Terrorist Attack</rdfs:label>
+		<atc:property atc:name="glyphIconFileName">glyphicons_290_skull@2x.png</atc:property>
+		<rdfs:subClassOf rdf:resource="http://altamiracorp.com/ontology/event"/>
+	</owl:Class>
+	<owl:DatatypeProperty rdf:about="eventId">
+		<rdfs:label xml:lang="en">Event ID</rdfs:label>
+		<rdfs:domain rdf:resource="#terroristAttack"/>
+		<rdfs:range rdf:resource="http://altamiracorp.com/datatype/string"/>
+	</owl:DatatypeProperty>
+	<owl:DatatypeProperty rdf:about="summary">
+		<rdfs:label xml:lang="en">Summary</rdfs:label>
+		<rdfs:domain rdf:resource="#terroristAttack"/>
+		<rdfs:range rdf:resource="http://altamiracorp.com/datatype/string"/>
+	</owl:DatatypeProperty>
+	<owl:DatatypeProperty rdf:about="successful">
+		<rdfs:label xml:lang="en">Successful?</rdfs:label>
+		<rdfs:domain rdf:resource="#terroristAttack"/>
+		<rdfs:range rdf:resource="http://altamiracorp.com/datatype/boolean"/>
+	</owl:DatatypeProperty>
+	<owl:DatatypeProperty rdf:about="suicide">
+		<rdfs:label xml:lang="en">Suicide?</rdfs:label>
+		<rdfs:domain rdf:resource="#terroristAttack"/>
+		<rdfs:range rdf:resource="http://altamiracorp.com/datatype/boolean"/>
+	</owl:DatatypeProperty>
+	<owl:DatatypeProperty rdf:about="numPerps">
+		<rdfs:label xml:lang="en"># of Perpetrators</rdfs:label>
+		<rdfs:domain rdf:resource="#terroristAttack"/>
+		<rdfs:range rdf:resource="http://altamiracorp.com/datatype/double"/>
+	</owl:DatatypeProperty>
+	<owl:DatatypeProperty rdf:about="numPerpsCaptured">
+		<rdfs:label xml:lang="en"># of Perpetrators Captured</rdfs:label>
+		<rdfs:domain rdf:resource="#terroristAttack"/>
+		<rdfs:range rdf:resource="http://altamiracorp.com/datatype/double"/>
+	</owl:DatatypeProperty>
+	<owl:DatatypeProperty rdf:about="numKilled">
+		<rdfs:label xml:lang="en">Total Fatalities</rdfs:label>
+		<rdfs:domain rdf:resource="#terroristAttack"/>
+		<rdfs:range rdf:resource="http://altamiracorp.com/datatype/double"/>
+	</owl:DatatypeProperty>
+	<owl:DatatypeProperty rdf:about="numUsKilled">
+		<rdfs:label xml:lang="en">US Fatalities</rdfs:label>
+		<rdfs:domain rdf:resource="#terroristAttack"/>
+		<rdfs:range rdf:resource="http://altamiracorp.com/datatype/double"/>
+	</owl:DatatypeProperty>
+	<owl:DatatypeProperty rdf:about="numPerpsKilled">
+		<rdfs:label xml:lang="en">Perpetrator Fatalities</rdfs:label>
+		<rdfs:domain rdf:resource="#terroristAttack"/>
+		<rdfs:range rdf:resource="http://altamiracorp.com/datatype/double"/>
+	</owl:DatatypeProperty>
+	<owl:DatatypeProperty rdf:about="numWounded">
+		<rdfs:label xml:lang="en">Total Wounded</rdfs:label>
+		<rdfs:domain rdf:resource="#terroristAttack"/>
+		<rdfs:range rdf:resource="http://altamiracorp.com/datatype/double"/>
+	</owl:DatatypeProperty>
+	<owl:DatatypeProperty rdf:about="numUsWounded">
+		<rdfs:label xml:lang="en">US Wounded</rdfs:label>
+		<rdfs:domain rdf:resource="#terroristAttack"/>
+		<rdfs:range rdf:resource="http://altamiracorp.com/datatype/double"/>
+	</owl:DatatypeProperty>
+	<owl:DatatypeProperty rdf:about="numPerpsWounded">
+		<rdfs:label xml:lang="en">Perpetrators Wounded</rdfs:label>
+		<rdfs:domain rdf:resource="#terroristAttack"/>
+		<rdfs:range rdf:resource="http://altamiracorp.com/datatype/double"/>
+	</owl:DatatypeProperty>
+	<owl:DatatypeProperty rdf:about="numKilled">
+		<rdfs:label xml:lang="en">Total Fatalities</rdfs:label>
+		<rdfs:domain rdf:resource="#terroristAttack"/>
+		<rdfs:range rdf:resource="http://altamiracorp.com/datatype/double"/>
+	</owl:DatatypeProperty>
+	<owl:DatatypeProperty rdf:about="numUsKilled">
+		<rdfs:label xml:lang="en">US Fatalities</rdfs:label>
+		<rdfs:domain rdf:resource="#terroristAttack"/>
+		<rdfs:range rdf:resource="http://altamiracorp.com/datatype/double"/>
+	</owl:DatatypeProperty>
+	<owl:DatatypeProperty rdf:about="responsibilityClaimed">
+		<rdfs:label xml:lang="en">Responsibility Claimed?</rdfs:label>
+		<rdfs:domain rdf:resource="#terroristAttack"/>
+		<rdfs:range rdf:resource="http://altamiracorp.com/datatype/boolean"/>
+	</owl:DatatypeProperty>
+	<owl:DatatypeProperty rdf:about="responsibilityClaimMethod">
+		<rdfs:label xml:lang="en">Responsibility Claim Method</rdfs:label>
+		<rdfs:domain rdf:resource="#terroristAttack"/>
+		<rdfs:range rdf:resource="http://altamiracorp.com/datatype/string"/>
+	</owl:DatatypeProperty>
+	<owl:DatatypeProperty rdf:about="competingClaims">
+		<rdfs:label xml:lang="en">Competing Responsiblity Claims?</rdfs:label>
+		<rdfs:domain rdf:resource="#terroristAttack"/>
+		<rdfs:range rdf:resource="http://altamiracorp.com/datatype/boolean"/>
+	</owl:DatatypeProperty>
+	<owl:DatatypeProperty rdf:about="weaponType">
+		<rdfs:label xml:lang="en">Weapon Type</rdfs:label>
+		<rdfs:domain rdf:resource="#terroristAttack"/>
+		<rdfs:range rdf:resource="http://altamiracorp.com/datatype/string"/>
+	</owl:DatatypeProperty>
+	<owl:DatatypeProperty rdf:about="weaponSubtype">
+		<rdfs:label xml:lang="en">Weapon Sub-type</rdfs:label>
+		<rdfs:domain rdf:resource="#terroristAttack"/>
+		<rdfs:range rdf:resource="http://altamiracorp.com/datatype/string"/>
+	</owl:DatatypeProperty>
+	<owl:DatatypeProperty rdf:about="propertyDamage">
+		<rdfs:label xml:lang="en">Property Damage?</rdfs:label>
+		<rdfs:domain rdf:resource="#terroristAttack"/>
+		<rdfs:range rdf:resource="http://altamiracorp.com/datatype/boolean"/>
+	</owl:DatatypeProperty>
+	<owl:DatatypeProperty rdf:about="propertyDamageValue">
+		<rdfs:label xml:lang="en">Property Value</rdfs:label>
+		<rdfs:domain rdf:resource="#terroristAttack"/>
+		<rdfs:range rdf:resource="http://altamiracorp.com/datatype/currency"/>
+	</owl:DatatypeProperty>
+	<owl:DatatypeProperty rdf:about="reportSource">
+		<rdfs:label xml:lang="en">Report Source</rdfs:label>
+		<rdfs:domain rdf:resource="#terroristAttack"/>
+		<rdfs:range rdf:resource="http://altamiracorp.com/datatype/string"/>
+	</owl:DatatypeProperty>
+	
+	<!-- Concept: Terrorist Attack::Assassination -->
+	<owl:Class rdf:about="assassination">
+		<rdfs:label xml:lang="en">Assassination</rdfs:label>
+		<atc:property atc:name="glyphIconFileName">crimescene@2x.png</atc:property>
+		<rdfs:subClassOf rdf:resource="#terroristAttack"/>
+	</owl:Class>
+	
+	<!-- Concept: Terrorist Attack::Hijacking -->
+	<owl:Class rdf:about="hijacking">
+		<rdfs:label xml:lang="en">Hijacking</rdfs:label>
+		<atc:property atc:name="glyphIconFileName">glyphicons_290_skull@2x.png</atc:property>
+		<rdfs:subClassOf rdf:resource="#terroristAttack"/>
+	</owl:Class>
+	
+	<!-- Concept: Terrorist Attack::Hostage Taking -->
+	<owl:Class rdf:about="hostageTaking">
+		<rdfs:label xml:lang="en">Hostage Taking</rdfs:label>
+		<atc:property atc:name="glyphIconFileName">abduction@2x.png</atc:property>
+		<rdfs:subClassOf rdf:resource="#terroristAttack"/>
+	</owl:Class>
+	
+	<!-- Concept: Terrorist Attack::Bombing -->
+	<owl:Class rdf:about="bombing">
+		<rdfs:label xml:lang="en">Bombing</rdfs:label>
+		<atc:property atc:name="glyphIconFileName">glyphicons_289_bomb@2x.png</atc:property>
+		<rdfs:subClassOf rdf:resource="#terroristAttack"/>
+	</owl:Class>
+	
+	<!-- Concept: Terrorist Attack::Armed Assault -->
+	<owl:Class rdf:about="armedAssault">
+		<rdfs:label xml:lang="en">Armed Assault</rdfs:label>
+		<atc:property atc:name="glyphIconFileName">glyphicons_281_bullets@2x.png</atc:property>
+		<rdfs:subClassOf rdf:resource="#terroristAttack"/>
+	</owl:Class>
+	
+	<!-- Concept: Terrorist Attack::Unarmed Assault -->
+	<owl:Class rdf:about="unarmedAssault">
+		<rdfs:label xml:lang="en">Unarmed Assault</rdfs:label>
+		<atc:property atc:name="glyphIconFileName">robbery@2x.png</atc:property>
+		<rdfs:subClassOf rdf:resource="#terroristAttack"/>
+	</owl:Class>
+	
+	<!-- Concept: Terrorist Attack::Facility/Infrastructure Attack -->
+	<owl:Class rdf:about="facilityInfrastructureAttack">
+		<rdfs:label xml:lang="en">Facility/Infrastructure Attack</rdfs:label>
+		<atc:property atc:name="glyphIconFileName">glyphicons_089_building@2x.png</atc:property>
+		<rdfs:subClassOf rdf:resource="#terroristAttack"/>
+	</owl:Class>
+	
+	<!-- Concept: Organization::Terrorist Group -->
+	<owl:Class rdf:about="terroristGroup">
+		<rdfs:label xml:lang="en">Terrorist Group</rdfs:label>
+		<atc:property atc:name="glyphIconFileName">glyphicons_043_group@2x.png</atc:property>
+		<rdfs:subClassOf rdf:resource="http://altamiracorp.com/ontology/organization"/>
+	</owl:Class>
+	
+	<!-- Concept: Terrorist Group::Violent Political Party -->
+	<owl:Class rdf:about="violentPoliticalParty">
+		<rdfs:label xml:lang="en">Violent Political Party</rdfs:label>
+		<atc:property atc:name="glyphIconFileName">glyphicons_043_group@2x.png</atc:property>
+		<rdfs:subClassOf rdf:resource="#terroristGroup"/>
+	</owl:Class>
+	
+	<!-- Concept: Organization::Government -->
+	<owl:Class rdf:about="governmentOrg">
+		<rdfs:label xml:lang="en">Government</rdfs:label>
+		<atc:property atc:name="glyphIconFileName">congress@2x.png</atc:property>
+		<rdfs:subClassOf rdf:resource="http://altamiracorp.com/ontology/organization"/>
+	</owl:Class>
+	
+	<!-- Concept: Organization::Government::Diplomatic -->
+	<owl:Class rdf:about="diplomaticOrg">
+		<rdfs:label xml:lang="en">Diplomatic</rdfs:label>
+		<atc:property atc:name="glyphIconFileName">glyphicons_353_nameplate_alt@2x.png</atc:property>
+		<rdfs:subClassOf rdf:resource="#governmentOrg"/>
+	</owl:Class>
+	
+	<!-- Concept: Organization::Government::Police -->
+	<owl:Class rdf:about="policeOrg">
+		<rdfs:label xml:lang="en">Police</rdfs:label>
+		<atc:property atc:name="glyphIconFileName">police.png</atc:property>
+		<rdfs:subClassOf rdf:resource="#governmentOrg"/>
+	</owl:Class>
+	
+	<!-- Concept: Organization::Military -->
+	<owl:Class rdf:about="military">
+		<rdfs:label xml:lang="en">Military</rdfs:label>
+		<atc:property atc:name="glyphIconFileName">army@2x.png</atc:property>
+		<rdfs:subClassOf rdf:resource="http://altamiracorp.com/ontology/organization"/>
+	</owl:Class>
+	
+	<!-- Concept: Organization::Educational Institution -->
+	<owl:Class rdf:about="educationalInstitution">
+		<rdfs:label xml:lang="en">Education</rdfs:label>
+		<atc:property atc:name="glyphIconFileName">school@2x.png</atc:property>
+		<rdfs:subClassOf rdf:resource="http://altamiracorp.com/ontology/organization"/>
+	</owl:Class>
+	
+	<!-- Concept: Organization::Media -->
+	<owl:Class rdf:about="media">
+		<rdfs:label xml:lang="en">Media</rdfs:label>
+		<atc:property atc:name="glyphIconFileName">glyphicons_008_film@2x.png</atc:property>
+		<rdfs:subClassOf rdf:resource="http://altamiracorp.com/ontology/organization"/>
+	</owl:Class>
+	
+	<!-- Concept: Organization::Religion -->
+	<owl:Class rdf:about="religionOrg">
+		<rdfs:label xml:lang="en">Religion</rdfs:label>
+		<atc:property atc:name="glyphIconFileName">glyphicons_302_temple_christianity_church@2x.png</atc:property>
+		<rdfs:subClassOf rdf:resource="http://altamiracorp.com/ontology/organization"/>
+	</owl:Class>
+	
+	<!-- Concept: Infrastructure -->
+	<owl:Class rdf:about="infrastructure">
+		<rdfs:label xml:lang="en">Infrastructure</rdfs:label>
+		<atc:property atc:name="glyphIconFileName">glyphicons_371_global@2x.png</atc:property>
+		<rdfs:subClassOf rdf:resource="http://altamiracorp.com/ontology/entity"/>
+	</owl:Class>
+	
+	<!-- Concept: Infrastructure::Emergency Response -->
+	<owl:Class rdf:about="emergencyResponse">
+		<rdfs:label xml:lang="en">Emergency Response</rdfs:label>
+		<atc:property atc:name="glyphIconFileName">glyphicons_298_hospital@2x.png</atc:property>
+		<rdfs:subClassOf rdf:resource="#infrastructure"/>
+	</owl:Class>
+	
+	<!-- Concept: Infrastructure::Food Supply -->
+	<owl:Class rdf:about="foodSupply">
+		<rdfs:label xml:lang="en">Food Supply</rdfs:label>
+		<atc:property atc:name="glyphIconFileName">glyphicons_276_cutlery@2x.png</atc:property>
+		<rdfs:subClassOf rdf:resource="#infrastructure"/>
+	</owl:Class>
+	
+	<!-- Concept: Infrastructure::Water Supply -->
+	<owl:Class rdf:about="waterSupply">
+		<rdfs:label xml:lang="en">Water Supply</rdfs:label>
+		<atc:property atc:name="glyphIconFileName">watertower@2x.png</atc:property>
+		<rdfs:subClassOf rdf:resource="#infrastructure"/>
+	</owl:Class>
+	
+	<!-- Concept: Infrastructure::Public Area -->
+	<owl:Class rdf:about="publicArea">
+		<rdfs:label xml:lang="en">Public Area</rdfs:label>
+		<atc:property atc:name="glyphIconFileName">communitycentre@2x.png</atc:property>
+		<rdfs:subClassOf rdf:resource="#infrastructure"/>
+	</owl:Class>
+	
+	<!-- Concept: Infrastructure::Telecommunications -->
+	<owl:Class rdf:about="telecommunications">
+		<rdfs:label xml:lang="en">Telecommunications</rdfs:label>
+		<atc:property atc:name="glyphIconFileName">glyphicons_441_phone_alt@2x.png</atc:property>
+		<rdfs:subClassOf rdf:resource="#infrastructure"/>
+	</owl:Class>
+	
+	<!-- Concept: Infrastructure::Transportation -->
+	<owl:Class rdf:about="transportation">
+		<rdfs:label xml:lang="en">Transportation</rdfs:label>
+		<atc:property atc:name="glyphIconFileName">glyphicons_026_road@2x.png</atc:property>
+		<rdfs:subClassOf rdf:resource="#infrastructure"/>
+	</owl:Class>
+	
+	<!-- Concept: Transportation::Air Travel -->
+	<owl:Class rdf:about="airTravel">
+		<rdfs:label xml:lang="en">Air Travel</rdfs:label>
+		<atc:property atc:name="glyphIconFileName">glyphicons_038_airplane@2x.png</atc:property>
+		<rdfs:subClassOf rdf:resource="#transportation"/>
+	</owl:Class>
+	
+	<!-- Concept: Transportation::Maritime -->
+	<owl:Class rdf:about="maritime">
+		<rdfs:label xml:lang="en">Maritime</rdfs:label>
+		<atc:property atc:name="glyphIconFileName">glyphicons_243_anchor@2x.png</atc:property>
+		<rdfs:subClassOf rdf:resource="#transportation"/>
+	</owl:Class>
+	
+	<!-- Concept: Infrastructure::Utilities -->
+	<owl:Class rdf:about="utilities">
+		<rdfs:label xml:lang="en">Utilities</rdfs:label>
+		<atc:property atc:name="glyphIconFileName">powerlinepole@2x.png</atc:property>
+		<rdfs:subClassOf rdf:resource="#infrastructure"/>
+	</owl:Class>
+	
+	<!-- Concept: Person::Government Official -->
+	<owl:Class rdf:about="governmentOfficial">
+		<rdfs:label xml:lang="en">Government Official</rdfs:label>
+		<atc:property atc:name="glyphIconFileName">congress@2x.png</atc:property>
+		<rdfs:subClassOf rdf:resource="http://altamiracorp.com/ontology/person"/>
+	</owl:Class>
+	
+	<!-- Concept: Government Official::Diplomat -->
+	<owl:Class rdf:about="diplomat">
+		<rdfs:label xml:lang="en">Diplomat</rdfs:label>
+		<atc:property atc:name="glyphIconFileName">glyphicons_353_nameplate_alt@2x.png</atc:property>
+		<rdfs:subClassOf rdf:resource="#governmentOfficial"/>
+	</owl:Class>
+	
+	<!-- Concept: Government Official::Police -->
+	<owl:Class rdf:about="policeOfficial">
+		<rdfs:label xml:lang="en">Police</rdfs:label>
+		<atc:property atc:name="glyphIconFileName">police.png</atc:property>
+		<rdfs:subClassOf rdf:resource="#governmentOfficial"/>
+	</owl:Class>
+	
+	<!-- Concept: Person::Religious Figure -->
+	<owl:Class rdf:about="religiousFigure">
+		<rdfs:label xml:lang="en">Religious Figure</rdfs:label>
+		<atc:property atc:name="glyphIconFileName">glyphicons_302_temple_christianity_church@2x.png</atc:property>
+		<rdfs:subClassOf rdf:resource="http://altamiracorp.com/ontology/person"/>
+	</owl:Class>
+	
+	<!-- Relationship: TERRORIST_GROUP perpetrated TERRORIST_ATTACK -->
+	<owl:ObjectProperty rdf:about="terroristGroupPerpetratedAttack">
+		<rdfs:label xml:lang="en">perpetrated</rdfs:label>
+		<rdfs:domain rdf:resource="#terroristGroup"/>
+		<rdfs:range rdf:resource="#terroristAttack"/>
+	</owl:ObjectProperty>
+	
+	<!-- Relationship: TERRORIST_GROUP is associated with TERRORIST_GROUP -->
+	<owl:ObjectProperty rdf:about="terroristGroupIsAssociatedWithTerroristGroup">
+		<rdfs:label xml:lang="en">is associated with</rdfs:label>
+		<rdfs:domain rdf:resource="#terroristGroup"/>
+		<rdfs:range rdf:resource="#terroristGroup"/>
+	</owl:ObjectProperty>
+	
+	<!-- Relationship: TERRORIST_GROUP is subgroup of TERRORIST_GROUP -->
+	<owl:ObjectProperty rdf:about="terroristGroupIsSubgroupOfTerroristGroup">
+		<rdfs:label xml:lang="en">is subgroup of</rdfs:label>
+		<rdfs:domain rdf:resource="#terroristGroup"/>
+		<rdfs:range rdf:resource="#terroristGroup"/>
+	</owl:ObjectProperty>
+	
+	<!-- Relationship: TERRORIST_ATTACK occurred at LOCATION -->
+	<owl:ObjectProperty rdf:about="terroristAttackOccurredAtLocation">
+		<rdfs:label xml:lang="en">occurred at</rdfs:label>
+		<rdfs:domain rdf:resource="#terroristAttack"/>
+		<rdfs:range rdf:resource="http://altamiracorp.com/ontology/location"/>
+	</owl:ObjectProperty>
+	
+	<!-- Relationship: TERRORIST_GROUP targeted LOCATION -->
+	<owl:ObjectProperty rdf:about="terroristGroupTargetedLocation">
+		<rdfs:label xml:lang="en">targeted</rdfs:label>
+		<rdfs:domain rdf:resource="#terroristGroup"/>
+		<rdfs:range rdf:resource="http://altamiracorp.com/ontology/location"/>
+	</owl:ObjectProperty>
+	
+	<!-- Relationship: TERRORIST_GROUP targeted LOCATION -->
+	<owl:ObjectProperty rdf:about="terroristGroupTargetedEntity">
+		<rdfs:label xml:lang="en">targeted</rdfs:label>
+		<rdfs:domain rdf:resource="#terroristGroup"/>
+		<rdfs:range rdf:resource="http://altamiracorp.com/ontology/entity"/>
+	</owl:ObjectProperty>
+	
+	<!-- Relationship: TERRORIST_ATTACK targeted ORGANIZATION -->
+	<owl:ObjectProperty rdf:about="terroristAttackTargetedOrganization">
+		<rdfs:label xml:lang="en">targeted</rdfs:label>
+		<rdfs:domain rdf:resource="#terroristGroup"/>
+		<rdfs:range rdf:resource="http://altamiracorp.com/ontology/organization"/>
+	</owl:ObjectProperty>
+	
+	<!-- Relationship: TERRORIST_ATTACK targeted INFRASTRUCTURE -->
+	<owl:ObjectProperty rdf:about="terroristAttackTargetedInfrastructure">
+		<rdfs:label xml:lang="en">targeted</rdfs:label>
+		<rdfs:domain rdf:resource="#terroristGroup"/>
+		<rdfs:range rdf:resource="#infrastructure"/>
+	</owl:ObjectProperty>
+	
+	<!-- Relationship: TERRORIST_ATTACK targeted PERSON -->
+	<owl:ObjectProperty rdf:about="terroristAttackTargetedPerson">
+		<rdfs:label xml:lang="en">targeted</rdfs:label>
+		<rdfs:domain rdf:resource="#terroristGroup"/>
+		<rdfs:range rdf:resource="http://altamiracorp.com/ontology/person"/>
+	</owl:ObjectProperty>
+	
+	<!-- Relationship: ORGANIZATION has nationality COUNTRY -->
+	<owl:ObjectProperty rdf:about="organizationHasNationalityCountry">
+		<rdfs:label xml:lang="en">has nationality</rdfs:label>
+		<rdfs:domain rdf:resource="http://altamiracorp.com/ontology/organization"/>
+		<rdfs:range rdf:resource="http://altamiracorp.com/ontology/country"/>
+	</owl:ObjectProperty>
+	
+	<!-- Relationship: PERSON has nationality COUNTRY -->
+	<owl:ObjectProperty rdf:about="personHasNationalityCountry">
+		<rdfs:label xml:lang="en">has nationality</rdfs:label>
+		<rdfs:domain rdf:resource="http://altamiracorp.com/ontology/person"/>
+		<rdfs:range rdf:resource="http://altamiracorp.com/ontology/country"/>
+	</owl:ObjectProperty>
+	
+	<!-- Relationship: INFRASTRUCTURE has nationality COUNTRY -->
+	<owl:ObjectProperty rdf:about="infrastructureHasNationalityCountry">
+		<rdfs:label xml:lang="en">has nationality</rdfs:label>
+		<rdfs:domain rdf:resource="#infrastructure"/>
+		<rdfs:range rdf:resource="http://altamiracorp.com/ontology/country"/>
+	</owl:ObjectProperty>
+</rdf:RDF>
