@@ -10,10 +10,7 @@ import com.altamiracorp.lumify.core.user.User;
 import com.altamiracorp.lumify.core.util.LumifyLogger;
 import com.altamiracorp.lumify.core.util.LumifyLoggerFactory;
 import com.altamiracorp.lumify.core.util.RowKeyHelper;
-import com.altamiracorp.securegraph.ElementMutation;
-import com.altamiracorp.securegraph.Graph;
-import com.altamiracorp.securegraph.Vertex;
-import com.altamiracorp.securegraph.Visibility;
+import com.altamiracorp.securegraph.*;
 import com.altamiracorp.securegraph.type.GeoPoint;
 import org.json.JSONObject;
 
@@ -75,9 +72,9 @@ public class FacebookPost {
         Vertex queryVertex = graph.getVertex(authorVid, user.getAuthorizations());
         if (queryVertex == null) {
             ElementMutation<Vertex> authorBuilder = graph.prepareVertex(authorVid, visibility, user.getAuthorizations());
-            authorBuilder.setProperty(PROFILE_ID, author_uid, visibility);
-            authorBuilder.setProperty(PropertyName.TITLE.toString(), author_uid, visibility);
-            authorBuilder.setProperty(PropertyName.CONCEPT_TYPE.toString(), profileConceptId, visibility);
+            authorBuilder.setProperty(PROFILE_ID, new Text(author_uid, TextIndex.EXACT_MATCH), visibility);
+            authorBuilder.setProperty(PropertyName.TITLE.toString(), new Text(author_uid), visibility);
+            authorBuilder.setProperty(PropertyName.CONCEPT_TYPE.toString(), new Text(profileConceptId, TextIndex.EXACT_MATCH), visibility);
             authorVertex = authorBuilder.save();
             auditRepository.auditVertexElementMutation(authorBuilder, authorVertex, PROCESS, user);
         } else {
@@ -97,9 +94,9 @@ public class FacebookPost {
                 Vertex nextQueryVertex = graph.getVertex(taggedVid, user.getAuthorizations());
                 if (nextQueryVertex == null) {
                     ElementMutation<Vertex> taggedBuilder = graph.prepareVertex(taggedVid, visibility, user.getAuthorizations());
-                    taggedBuilder.setProperty(PROFILE_ID, next, visibility);
-                    taggedBuilder.setProperty(PropertyName.TITLE.toString(), next, visibility);
-                    taggedBuilder.setProperty(PropertyName.CONCEPT_TYPE.toString(), profileConceptId, visibility);
+                    taggedBuilder.setProperty(PROFILE_ID, new Text(next, TextIndex.EXACT_MATCH), visibility);
+                    taggedBuilder.setProperty(PropertyName.TITLE.toString(), new Text(next), visibility);
+                    taggedBuilder.setProperty(PropertyName.CONCEPT_TYPE.toString(), new Text(profileConceptId, TextIndex.EXACT_MATCH), visibility);
                     taggedVertex = taggedBuilder.save();
                     auditRepository.auditVertexElementMutation(taggedBuilder, taggedVertex, PROCESS, user);
                 } else {

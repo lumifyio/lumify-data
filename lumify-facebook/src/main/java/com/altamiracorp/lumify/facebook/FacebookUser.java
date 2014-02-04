@@ -46,7 +46,7 @@ public class FacebookUser {
             LOGGER.error("Could not find user in system, with given profile_id.");
             throw new RuntimeException();
         } else {
-            Iterable <Object> titles = queryVertex.getPropertyValues(PropertyName.TITLE.toString());
+            Iterable<Object> titles = queryVertex.getPropertyValues(PropertyName.TITLE.toString());
             for (Object title : titles) {
                 if (title.toString().equals(name)) {
                     userVertex = queryVertex;
@@ -58,14 +58,14 @@ public class FacebookUser {
         }
 
         ElementMutation<Vertex> userVertexMutation = userVertex.prepareMutation();
-        userVertexMutation.setProperty(PropertyName.DISPLAY_NAME.toString(), username, visibility);
-        userVertexMutation.setProperty(PropertyName.TITLE.toString(), name, visibility);
+        userVertexMutation.setProperty(PropertyName.DISPLAY_NAME.toString(), new Text(username), visibility);
+        userVertexMutation.setProperty(PropertyName.TITLE.toString(), new Text(name), visibility);
 
         //get relationships for vertex and write audit message for each post
 
         if (userJson.has(SEX) && !userJson.getString(SEX).equals(JSONObject.NULL)) {
             String gender = userJson.getString(SEX);
-            userVertexMutation.setProperty(GENDER, gender, visibility);
+            userVertexMutation.setProperty(GENDER, new Text(gender, TextIndex.EXACT_MATCH), visibility);
         }
 
         if (userJson.has(EMAIL) && !userJson.getString(EMAIL).equals(JSONObject.NULL)) {
@@ -76,13 +76,17 @@ public class FacebookUser {
             Vertex queryEmailVertex = emailIterator.next();
             if (queryEmailVertex == null) {
                 ElementMutation<Vertex> emailBuilder = graph.prepareVertex(visibility, user.getAuthorizations());
-                emailBuilder.setProperty(PropertyName.TITLE.toString(), email, visibility);
-                emailBuilder.setProperty(PropertyName.CONCEPT_TYPE.toString(), emailConcept.getId(), visibility);
+                emailBuilder.setProperty(PropertyName.TITLE.toString(), new Text(email), visibility);
+                Object emailConceptId = emailConcept.getId();
+                if (emailConceptId instanceof String) {
+                    emailConceptId = new Text((String) emailConceptId, TextIndex.EXACT_MATCH);
+                }
+                emailBuilder.setProperty(PropertyName.CONCEPT_TYPE.toString(), emailConceptId, visibility);
                 emailVertex = emailBuilder.save();
                 auditRepository.auditVertexElementMutation(emailBuilder, emailVertex, PROCESS, user);
             } else {
                 while (queryEmailVertex != null) {
-                    Iterable <Object> titles = queryVertex.getPropertyValues(PropertyName.TITLE.toString());
+                    Iterable<Object> titles = queryVertex.getPropertyValues(PropertyName.TITLE.toString());
                     for (Object title : titles) {
                         if (title.toString().equals(name)) {
                             emailVertex = queryEmailVertex;
@@ -112,7 +116,7 @@ public class FacebookUser {
                 birthdayFormat = new SimpleDateFormat(BIRTHDAY_FORMAT + "/yyyy");
             }
             Date birthday = birthdayFormat.parse(birthday_date);
-            userVertexMutation.setProperty(BIRTHDAY.toString(), birthday.getTime(), visibility);
+            userVertexMutation.setProperty(BIRTHDAY, birthday, visibility);
         }
         //create and save profile picture
         auditRepository.auditVertexElementMutation(userVertexMutation, userVertex, PROCESS, user);
@@ -153,8 +157,8 @@ public class FacebookUser {
         Visibility visibility = new Visibility("");
         ElementMutation<Vertex> userVertexMutation = userVertex.prepareMutation();
         ElementMutation<Vertex> pictureVertexMutation = pictureVertex.prepareMutation();
-        userVertexMutation.setProperty(PropertyName.GLYPH_ICON.toString(), "/artifact/" + pictureVertex.getId() + "/raw", visibility);
-        pictureVertexMutation.setProperty(PropertyName.GLYPH_ICON.toString(), "/artifact/" + pictureVertex.getId() + "/raw", visibility);
+        userVertexMutation.setProperty(PropertyName.GLYPH_ICON.toString(), new Text("/artifact/" + pictureVertex.getId() + "/raw", TextIndex.EXACT_MATCH), visibility);
+        pictureVertexMutation.setProperty(PropertyName.GLYPH_ICON.toString(), new Text("/artifact/" + pictureVertex.getId() + "/raw", TextIndex.EXACT_MATCH), visibility);
 
         auditRepository.auditVertexElementMutation(userVertexMutation, userVertex, PROCESS, user);
         auditRepository.auditVertexElementMutation(pictureVertexMutation, pictureVertex, PROCESS, user);
@@ -172,7 +176,7 @@ public class FacebookUser {
         LOGGER.info("Saving Facebook picture to accumulo and as graph vertex: %s", pictureVertex.getId());
     }
 
-    public String generateUserVertexId (String profileId) {
+    public String generateUserVertexId(String profileId) {
         return FACEBOOK_VERTEX_ID + profileId;
     }
 }
