@@ -133,11 +133,19 @@ public class TermExtractionBolt extends BaseTextProcessingBolt {
             if (termMention.isResolved()) {
                 String title = termMention.getSign();
                 ElementMutation<Vertex> vertexElementMutation;
-                vertex = trySingle(graph.query(getUser().getAuthorizations())
-                        .has(PropertyName.TITLE.toString(), title)
-                        .vertices());
+                if (termMention.getId() != null) {
+                    vertex = graph.getVertex(termMention.getId(), getUser().getAuthorizations());
+                } else {
+                    vertex = trySingle(graph.query(getUser().getAuthorizations())
+                            .has(PropertyName.TITLE.toString(), title)
+                            .vertices());
+                }
                 if (!termMention.getUseExisting() || vertex == null) {
-                    vertexElementMutation = graph.prepareVertex(new Visibility(""), getUser().getAuthorizations());
+                    if (termMention.getId() != null) {
+                        vertexElementMutation = graph.prepareVertex(termMention.getId(), new Visibility(""), getUser().getAuthorizations());
+                    } else {
+                        vertexElementMutation = graph.prepareVertex(new Visibility(""), getUser().getAuthorizations());
+                    }
                     title = termMention.getSign();
                     vertexElementMutation.setProperty(PropertyName.TITLE.toString(), title, new Visibility(""));
                     if (concept != null) {
@@ -159,6 +167,7 @@ public class TermExtractionBolt extends BaseTextProcessingBolt {
                 }
 
                 auditRepository.auditVertexElementMutation(vertexElementMutation, vertex, termMention.getProcess(), getUser());
+                vertex = vertexElementMutation.save();
 
                 graph.addEdge(artifactGraphVertex, vertex, LabelName.RAW_HAS_ENTITY.toString(), new Visibility(""), getUser().getAuthorizations());
 
@@ -170,8 +179,9 @@ public class TermExtractionBolt extends BaseTextProcessingBolt {
 
             termMentionRepository.save(termMentionModel, FlushFlag.NO_FLUSH, getUser().getModelUserContext());
             results.add(new TermMentionWithGraphVertex(termMentionModel, vertex));
+            graph.flush();
         }
-        graph.flush();
+
         termMentionRepository.flush();
         return results;
     }
