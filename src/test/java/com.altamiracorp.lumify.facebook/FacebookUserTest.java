@@ -89,8 +89,8 @@ public class FacebookUserTest {
 
         graph.addVertex("FB-USER-12345", new Visibility(""), authorizations);
         graph.prepareVertex(new Visibility(""), authorizations)
-                .setProperty("email", "facebookTestFull@lumify.io", new Visibility(""))
-                .setProperty("_conceptType", "48", new Visibility(""))
+                .setProperty("email", new Text("facebookTestFull@lumify.io"), new Visibility(""))
+                .setProperty("_conceptType", new Text("48", TextIndex.EXACT_MATCH), new Visibility(""))
                 .save();
         graph.addVertex("FB-USER-67890", new Visibility(""), authorizations);
         graph.flush();
