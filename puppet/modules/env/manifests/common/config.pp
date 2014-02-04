@@ -26,15 +26,19 @@ class env::common::config {
   $storm_supervisor_slots_ports = hiera_array('storm_supervisor_slots_ports')
   $authentication_provider = hiera('authentication_provider')
   $clavin_index_dir = hiera('clavin_index_dir')
-  file { '/opt/lumify/config/configuration.properties' :
-    ensure => file,
-    content => template('env/cluster/configuration.properties.erb'),
-    require => File['/opt/lumify/config'],
+
+  define config_file {
+    file { "/opt/lumify/config/${name}" :
+      ensure => file,
+      content => template("env/common/${name}.erb"),
+    }
   }
 
-  file { '/opt/lumify/config/credentials.properties-EXAMPLE' :
-    ensure => file,
-    source => 'puppet:///modules/env/cluster/credentials.properties-EXAMPLE',
+  config_file { [
+      'lumify.properties',
+      'lumify-enterprise.properties',
+      'lumify-clavin.properties'
+    ] :
     require => File['/opt/lumify/config'],
   }
 }

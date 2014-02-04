@@ -11,3 +11,4 @@ node_modules/
 *.swp
 coverage-error.log
 npm-debug.log
+*PASSWORDS.properties
