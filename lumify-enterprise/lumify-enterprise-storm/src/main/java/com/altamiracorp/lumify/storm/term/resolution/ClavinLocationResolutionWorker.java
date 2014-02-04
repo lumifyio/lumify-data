@@ -161,7 +161,9 @@ public class ClavinLocationResolutionWorker implements TermResolutionWorker {
                 for (TermMention termMention : termExtractionResult.getTermMentions()) {
                     loc = resolvedLocationOffsetMap.get(termMention.getStart());
                     if (TARGET_ONTOLOGY_URI.equalsIgnoreCase(termMention.getOntologyClassUri()) && loc != null) {
+                        int id = loc.getGeoname().getGeonameID();
                         resolvedMention = new TermMention.Builder(termMention)
+                                .id(String.valueOf(id))
                                 .resolved(true)
                                 .useExisting(true)
                                 .sign(toSign(loc))
