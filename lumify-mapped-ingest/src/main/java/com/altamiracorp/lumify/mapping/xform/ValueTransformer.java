@@ -21,6 +21,7 @@ import com.fasterxml.jackson.annotation.JsonTypeInfo.Id;
     @Type(DoubleValueTransformer.class),
     @Type(IntegerValueTransformer.class),
     @Type(LongValueTransformer.class),
+    @Type(ReplacingValueTransformer.class),
     @Type(StringMappedValueTransformer.class),
     @Type(StringValueTransformer.class)
 })

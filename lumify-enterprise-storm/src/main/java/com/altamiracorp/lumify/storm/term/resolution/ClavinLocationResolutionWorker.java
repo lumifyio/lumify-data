@@ -2,6 +2,10 @@
  * To change this license header, choose License Headers in Project Properties.
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
+ *//*
+ * To change this license header, choose License Headers in Project Properties.
+ * To change this template file, choose Tools | Templates
+ * and open the template in the editor.
  */
 
 package com.altamiracorp.lumify.storm.term.resolution;
@@ -10,6 +14,8 @@ import com.altamiracorp.lumify.core.config.Configuration;
 import com.altamiracorp.lumify.core.ingest.term.extraction.TermExtractionResult;
 import com.altamiracorp.lumify.core.ingest.term.extraction.TermMention;
 import com.altamiracorp.lumify.core.ingest.term.extraction.TermResolutionWorker;
+import com.altamiracorp.lumify.core.model.ontology.Concept;
+import com.altamiracorp.lumify.core.model.ontology.OntologyRepository;
 import com.altamiracorp.lumify.core.model.ontology.PropertyName;
 import com.altamiracorp.lumify.core.user.User;
 import com.altamiracorp.lumify.core.util.LumifyLogger;
@@ -20,12 +26,14 @@ import com.bericotech.clavin.gazetteer.GeoName;
 import com.bericotech.clavin.resolver.LuceneLocationResolver;
 import com.bericotech.clavin.resolver.ResolvedLocation;
 import com.google.inject.Inject;
-
 import java.io.File;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 /**
  * This TermResolutionWorker uses the CLAVIN processor to refine
@@ -87,6 +95,8 @@ public class ClavinLocationResolutionWorker implements TermResolutionWorker {
     private LuceneLocationResolver resolver;
     private boolean fuzzy;
     private ClavinOntologyMapper ontologyMapper;
+    private OntologyRepository ontologyRepo;
+    private Set<String> targetConcepts;
 
     @Override
     public void prepare(Map conf, User user) throws Exception {
@@ -133,6 +143,14 @@ public class ClavinLocationResolutionWorker implements TermResolutionWorker {
             fuzzy = DEFAULT_FUZZY_MATCHING;
         }
         resolver = new LuceneLocationResolver(indexDirectory, maxHitDepth, maxContextWindow);
+
+        Set<String> tCon = new HashSet<String>();
+        Concept rootConcept = ontologyRepo.getConceptByName(TARGET_ONTOLOGY_URI);
+        List<Concept> concepts = ontologyRepo.getAllLeafNodesByConcept(rootConcept);
+        for (Concept con : concepts) {
+            tCon.add(con.getTitle());
+        }
+        targetConcepts = Collections.unmodifiableSet(tCon);
     }
 
     @Override
@@ -160,10 +178,10 @@ public class ClavinLocationResolutionWorker implements TermResolutionWorker {
                 TermMention resolvedMention;
                 for (TermMention termMention : termExtractionResult.getTermMentions()) {
                     loc = resolvedLocationOffsetMap.get(termMention.getStart());
-                    if (TARGET_ONTOLOGY_URI.equalsIgnoreCase(termMention.getOntologyClassUri()) && loc != null) {
-                        int id = loc.getGeoname().getGeonameID();
+                    if (isLocation(termMention) && loc != null) {
+                        String id = String.format("CLAVIN-%d", loc.getGeoname().getGeonameID());
                         resolvedMention = new TermMention.Builder(termMention)
-                                .id(String.valueOf(id))
+                                .id(id)
                                 .resolved(true)
                                 .useExisting(true)
                                 .sign(toSign(loc))
@@ -195,14 +213,23 @@ public class ClavinLocationResolutionWorker implements TermResolutionWorker {
         this.ontologyMapper = mapper;
     }
 
-    private static List<LocationOccurrence> getLocationOccurrencesFromTermMentions(List<TermMention> termMentions) {
+    @Inject
+    public void setOntologyRepository(final OntologyRepository repository) {
+        this.ontologyRepo = repository;
+    }
+
+    private boolean isLocation(final TermMention mention) {
+        return targetConcepts.contains(mention.getOntologyClassUri());
+    }
+
+    private List<LocationOccurrence> getLocationOccurrencesFromTermMentions(final List<TermMention> termMentions) {
         List<LocationOccurrence> locationOccurrences = new ArrayList<LocationOccurrence>();
 
-        for (TermMention termMention : termMentions)
-            if (TARGET_ONTOLOGY_URI.equalsIgnoreCase(termMention.getOntologyClassUri())) {
+        for (TermMention termMention : termMentions) {
+            if (isLocation(termMention)) {
                 locationOccurrences.add(new LocationOccurrence(termMention.getSign(), termMention.getStart()));
             }
-
+        }
         return locationOccurrences;
     }
 }
