@@ -36,7 +36,7 @@ public class VideoBolt extends BaseArtifactProcessingBolt {
     protected void onAfterGraphVertexCreated(Vertex vertex) {
         super.onAfterGraphVertexCreated(vertex);
 
-        workQueueRepository.pushProcessedVideo((String) vertex.getPropertyValue(PropertyName.ROW_KEY.toString(), 0));
+        workQueueRepository.pushProcessedVideo(vertex.getId());
     }
 
     @Override
