@@ -27,8 +27,7 @@ public class DocumentMappingEntityExtractor {
         checkNotNull(artifactVertex);
         checkNotNull(user);
         TermExtractionResult termExtractionResult = new TermExtractionResult();
-        String artifactRowKey = (String) artifactVertex.getPropertyValue(PropertyName.ROW_KEY.toString());
-        LOGGER.debug("Processing graph vertex [%s] for artifact: %s", artifactVertex.getId(), artifactRowKey);
+        LOGGER.debug("Processing graph vertex [%s]", artifactVertex.getId());
 
         String mappingJsonString = (String) artifactVertex.getPropertyValue(PropertyName.MAPPING_JSON.toString());
         if (mappingJsonString != null) {
