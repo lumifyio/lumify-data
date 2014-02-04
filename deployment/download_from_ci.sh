@@ -3,25 +3,34 @@
 HOST=ci.lumify.io
 BASE_DIR=/var/www/maven/snapshots/com/altamiracorp
 
+FILE_LIST=
+
 function _download {
   local subdir=$1
   local name_match=$2
   local local_filename=$3
 
   local remote_filename=$(ssh ${HOST} find ${BASE_DIR}/${subdir} -name "${name_match}" | sort | tail -1)
-  scp ${HOST}:${remote_filename} ${local_filename}
+  if [ "${remote_filename}" ]; then
+    scp ${HOST}:${remote_filename} ${local_filename}
+    FILE_LIST="${FILE_LIST} ${local_filename}"
+  else
+    echo "ERROR: no artifact found for ${subdir}"
+  fi
 }
 
 
-_download lumify/lumify-enterprise-tools "*with-dependencies.jar" lumify-enterprise-tools-1.0-SNAPSHOT-jar-with-dependencies.jar
-_download lumify/lumify-storm            "*with-dependencies.jar" lumify-storm-1.0-SNAPSHOT-jar-with-dependencies.jar
-_download lumify/lumify-enterprise-storm "*with-dependencies.jar" lumify-enterprise-storm-1.0-SNAPSHOT-jar-with-dependencies.jar
-_download lumify/lumify-twitter          "*with-dependencies.jar" lumify-twitter-1.0-SNAPSHOT-jar-with-dependencies.jar
-_download lumify/lumify-facebook         "*with-dependencies.jar" lumify-facebook-1.0-SNAPSHOT-jar-with-dependencies.jar
-_download lumify/lumify-wikipedia        "*with-dependencies.jar" lumify-wikipedia-1.0-SNAPSHOT-jar-with-dependencies.jar
+_download lumify/lumify-enterprise-tools "*with-dependencies.jar" lumify-enterprise-tools.jar
+_download lumify/lumify-storm            "*with-dependencies.jar" lumify-storm.jar
+_download lumify/lumify-enterprise-storm "*with-dependencies.jar" lumify-enterprise-storm.jar
+_download lumify/lumify-twitter          "*with-dependencies.jar" lumify-twitter.jar
+_download lumify/lumify-facebook         "*with-dependencies.jar" lumify-facebook.jar
+_download lumify/lumify-wikipedia        "*with-dependencies.jar" lumify-wikipedia.jar
 _download lumify/lumify-web-war          "*.war"                  lumify.war
 _download lumify/lumify-account-web      "*.war"                  account.war
 _download bigtable/bigtable-ui-war       "*.war"                  bigtable-ui.war
-_download jmxui/jmx-ui                   "*.war"                  jmx-ui.war
+_download jmxui/jmx-ui-webapp            "*.war"                  jmx-ui.war
 
-md5sum *.jar *.war
+for file in ${FILE_LIST}; do
+  md5sum ${file} | awk '{printf "https://ci.lumify.io/fingerprint/%s/? %s\n", $1, $2}'
+done
