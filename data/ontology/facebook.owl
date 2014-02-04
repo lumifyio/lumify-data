@@ -111,6 +111,7 @@
 <!-- Concept: Facebook profile Image -->
 	<owl:Class rdf:about="facebookProfileImage">
         <rdfs:label xml:lang="en">Facebook Profile Image</rdfs:label>
+        <atc:property atc:name="displayType">image</atc:property>
         <atc:property atc:name="_color">rgb(70, 97, 159)</atc:property>
         <rdfs:subClassOf rdf:resource="http://altamiracorp.com/ontology/entity"/>
     </owl:Class>
