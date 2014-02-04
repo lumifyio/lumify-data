@@ -67,8 +67,17 @@ Vagrant.configure('2') do |config|
   config.vm.define "demo" do |demo|
     demo.vm.provision :shell, :inline => "mkdir -p /data0 /opt/lumify /opt/lumify/logs"
     demo.vm.provision :puppet do |puppet|
-      configure_puppet(puppet, 'demo_vm.pp')
+      configure_puppet(puppet, 'demo_opensource_vm.pp')
     end
-    demo.vm.provision :shell, :path => "demo-vm/configure-vm.sh"
+    demo.vm.provision :shell, :path => "demo-vm/configure-vm.sh", :args => "sample-data-html.tgz" 
+  end
+
+  # used to create the downloadable enterprise demo VM
+  config.vm.define "demo-enterprise" do |demo|
+    demo.vm.provision :shell, :inline => "mkdir -p /data0 /opt/lumify /opt/lumify/logs"
+    demo.vm.provision :puppet do |puppet|
+      configure_puppet(puppet, 'demo_enterprise_vm.pp')
+    end
+    demo.vm.provision :shell, :path => "demo-vm/configure-vm.sh", :args => "chechen-terrorists.tgz"
   end
 end

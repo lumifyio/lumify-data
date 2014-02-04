@@ -25,23 +25,27 @@ Built on $(date +'%Y-%m-%d')
 
 EOM
 
+if [ "$1" == '' ]; then
+  echo "Must provide sample tar file name"
+  exit 1
+fi
+
 mkdir -p /opt/lumify/config
 cp /vagrant/demo-vm/configuration.properties.ingest /opt/lumify/config/configuration.properties
+/opt/lumify/format.sh
 
 # run maven
-su - vagrant -c 'cd /vagrant && cd lumify-root && mvn clean install && cd ../ &&  mvn install -P storm-jar,web-war -DskipTests' 2>&1 \
+su - vagrant -c 'cd /vagrant && cd lumify-root && mvn clean install && cd ../ && bin/080_Ontology.sh &&  mvn package -P storm-jar,web-war -DskipTests' 2>&1 \
   | tee /vagrant/mvn.log \
   | grep '\[INFO\] Building'
 
 # deploy the webapp
 cp /vagrant/deployment/lumify.xml /opt/jetty/contexts
-cp /vagrant/lumify-public/lumify-web/target/lumify-web-1.0-SNAPSHOT.war /opt/jetty/webapps/lumify.war
+cp /vagrant/lumify-public/lumify-web-war/target/lumify-web-war-1.0-SNAPSHOT.war /opt/jetty/webapps/lumify.war
 
-# restore sample data
-cp /vagrant/demo-vm/sample-data-html.tgz /opt/lumify
-/opt/lumify/format.sh
-cd /vagrant/lumify-root/ && mvn install && cd /vagrant/ && mvn package -DskipTests && /vagrant/bin/080_Ontology.sh
-tar xvf /opt/lumify/sample-data-html.tgz -C /opt/lumify/
+# ingest sample data
+cp /vagrant/demo-vm/$1 /opt/lumify
+tar xvf /opt/lumify/$1 -C /opt/lumify
 sudo -u hdfs hadoop fs -mkdir /lumify/data/unknown/
 sudo -u hdfs hadoop fs -put /opt/lumify/import/* /lumify/data/unknown/
 rm -rf /opt/lumify/import
@@ -55,8 +59,3 @@ rm -rf /opt/lumify/import
 /opt/storm/bin/storm jar \
  /vagrant/lumify-enterprise/lumify-enterprise-storm/target/lumify-enterprise-storm-1.0-SNAPSHOT-jar-with-dependencies.jar \
  com.altamiracorp.lumify.storm.StormEnterpriseRunner 
-
-echo 'Please kill storm enterprise topology to and replace configuration.properties when data is done ingesting'
-
-sleep 5
-
