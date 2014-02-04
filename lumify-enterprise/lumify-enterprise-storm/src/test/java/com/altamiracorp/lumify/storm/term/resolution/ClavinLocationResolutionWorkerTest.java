@@ -7,9 +7,16 @@
 package com.altamiracorp.lumify.storm.term.resolution;
 
 
+import static com.altamiracorp.lumify.storm.term.resolution.ClavinLocationResolutionWorker.*;
+import static org.hamcrest.CoreMatchers.instanceOf;
+import static org.junit.Assert.*;
+import static org.mockito.Mockito.*;
+
 import com.altamiracorp.lumify.core.config.Configuration;
 import com.altamiracorp.lumify.core.ingest.term.extraction.TermExtractionResult;
 import com.altamiracorp.lumify.core.ingest.term.extraction.TermMention;
+import com.altamiracorp.lumify.core.model.ontology.Concept;
+import com.altamiracorp.lumify.core.model.ontology.OntologyRepository;
 import com.altamiracorp.lumify.core.model.ontology.PropertyName;
 import com.altamiracorp.lumify.core.user.User;
 import com.altamiracorp.securegraph.type.GeoPoint;
@@ -32,14 +39,6 @@ import org.powermock.api.mockito.PowerMockito;
 import org.powermock.core.classloader.annotations.PrepareForTest;
 import org.powermock.modules.junit4.PowerMockRunner;
 import org.powermock.reflect.Whitebox;
-
-import java.io.File;
-import java.util.*;
-
-import static com.altamiracorp.lumify.storm.term.resolution.ClavinLocationResolutionWorker.*;
-import static org.hamcrest.CoreMatchers.instanceOf;
-import static org.junit.Assert.*;
-import static org.mockito.Mockito.*;
 
 @RunWith(PowerMockRunner.class)
 @PrepareForTest({ClavinLocationResolutionWorker.class, Configuration.class, File.class})
@@ -84,6 +83,11 @@ public class ClavinLocationResolutionWorkerTest {
 
     @Mock
     private LuceneLocationResolver luceneLocationResolver;
+
+    @Mock
+    private OntologyRepository ontologyRepo;
+    @Mock
+    private Concept locationConcept;
 
     @Mock
     private File indexDirectory;
@@ -148,8 +152,13 @@ public class ClavinLocationResolutionWorkerTest {
         PowerMockito.whenNew(LuceneLocationResolver.class).withArguments(eq(indexDirectory), anyInt(), anyInt()).
                 thenReturn(luceneLocationResolver);
 
+        when(ontologyRepo.getConceptByName(ONT_LOCATION)).thenReturn(locationConcept);
+        when(ontologyRepo.getAllLeafNodesByConcept(locationConcept)).thenReturn(Arrays.asList(locationConcept));
+        when(locationConcept.getTitle()).thenReturn(ONT_LOCATION);
+
         instance = new ClavinLocationResolutionWorker();
         instance.setOntologyMapper(mapper);
+        instance.setOntologyRepository(ontologyRepo);
 
         locationMention1 = new TermMention.Builder()
                 .start(10)
