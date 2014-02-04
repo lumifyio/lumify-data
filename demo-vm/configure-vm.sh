@@ -30,18 +30,20 @@ if [ "$1" == '' ]; then
   exit 1
 fi
 
-mkdir -p /opt/lumify/config
-cp /vagrant/demo-vm/configuration.properties.ingest /opt/lumify/config/configuration.properties
+cd /vagrant && bin/config.sh enterprise
 /opt/lumify/format.sh
 
 # run maven
-su - vagrant -c 'cd /vagrant && cd lumify-root && mvn clean install && cd ../ && bin/080_Ontology.sh &&  mvn package -P storm-jar,web-war -DskipTests' 2>&1 \
+su - vagrant -c 'cd /vagrant && cd lumify-root && mvn clean install && cd .. &&  mvn package -P storm-jar,web-war -DskipTests' 2>&1 \
   | tee /vagrant/mvn.log \
   | grep '\[INFO\] Building'
 
 # deploy the webapp
 cp /vagrant/deployment/lumify.xml /opt/jetty/contexts
 cp /vagrant/lumify-public/lumify-web-war/target/lumify-web-war-1.0-SNAPSHOT.war /opt/jetty/webapps/lumify.war
+
+# load the ontology
+su - vagrant -c 'cd /vagrant && bin/080_Ontology.sh'
 
 # ingest sample data
 cp /vagrant/demo-vm/$1 /opt/lumify
