@@ -28,17 +28,17 @@ import java.util.Date;
  * A JSON property whose String value is formatted as a Twitter
  * timestamp: <code>EEE MMM dd HH:mm:ss ZZZZZ yyyy</code>.
  */
-public class TwitterDateJsonProperty extends JsonProperty<Long, String> {
+public class TwitterDateJsonProperty extends JsonProperty<Date, String> {
     /**
      * The class logger.
      */
     private static final LumifyLogger LOGGER = LumifyLoggerFactory.getLogger(TwitterDateJsonProperty.class);
-    
+
     /**
      * The Twitter Date format string.
      */
     private static final String TWITTER_DATE_FORMAT_STR = "EEE MMM dd HH:mm:ss ZZZZZ yyyy";
-    
+
     /**
      * ThreadLocal DateFormat for Twitter dates.  This minimizes creation of
      * non-thread-safe SimpleDateFormat objects and eliminates the need for
@@ -53,7 +53,7 @@ public class TwitterDateJsonProperty extends JsonProperty<Long, String> {
             return sdf;
         }
     };
-    
+
     /**
      * Create a new TwitterDateJsonProperty.
      * @param key the property key
@@ -63,18 +63,19 @@ public class TwitterDateJsonProperty extends JsonProperty<Long, String> {
     }
 
     @Override
-    protected Long fromJSON(final String jsonValue) {
+    protected Date fromJSON(final String jsonValue) {
+        Date date;
         try {
-            Date date = TWITTER_DATE_FORMAT.get().parse(jsonValue);
-            return date != null ? date.getTime() : null;
+            date = TWITTER_DATE_FORMAT.get().parse(jsonValue);
         } catch (ParseException pe) {
             LOGGER.trace("Error parsing Twitter date from value: %s", jsonValue, pe);
-            return null;
+            date = null;
         }
+        return date;
     }
 
     @Override
-    protected String toJSON(final Long value) {
-        return value != null ? TWITTER_DATE_FORMAT.get().format(new Date(value)) : null;
+    protected String toJSON(final Date value) {
+        return value != null ? TWITTER_DATE_FORMAT.get().format(value) : null;
     }
 }

@@ -81,8 +81,8 @@ public class FacebookStreamingSpout extends BaseRichSpout {
             for (int i = 0; i < postArray.length(); i++) {
                 JSONObject post = postArray.getJSONObject(i);
                 String userQuery = "SELECT " + userPermissions + " FROM user WHERE uid = ";
-                if (post.get(TAGGEED_UIDS) instanceof JSONObject) {
-                    Iterator keys = post.getJSONObject(TAGGEED_UIDS).keys();
+                if (post.get(TAGGED_UIDS) instanceof JSONObject) {
+                    Iterator keys = post.getJSONObject(TAGGED_UIDS).keys();
                     while (keys.hasNext()) {
                         String taggedQuery = userQuery + keys.next();
                         facebookUserArray.put(facebook.executeFQL(taggedQuery));

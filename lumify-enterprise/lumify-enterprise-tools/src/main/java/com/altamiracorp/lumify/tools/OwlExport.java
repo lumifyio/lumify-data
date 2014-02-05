@@ -1,10 +1,32 @@
 package com.altamiracorp.lumify.tools;
 
+import static com.altamiracorp.lumify.core.model.ontology.OntologyLumifyProperties.*;
+import static com.altamiracorp.lumify.core.model.properties.LumifyProperties.*;
+
 import com.altamiracorp.bigtable.model.ModelSession;
 import com.altamiracorp.lumify.core.cmdline.CommandLineBase;
-import com.altamiracorp.lumify.core.model.ontology.*;
+import com.altamiracorp.lumify.core.model.ontology.Concept;
+import com.altamiracorp.lumify.core.model.ontology.OntologyProperty;
+import com.altamiracorp.lumify.core.model.ontology.OntologyRepository;
+import com.altamiracorp.lumify.core.model.ontology.PropertyType;
+import com.altamiracorp.lumify.core.model.ontology.Relationship;
 import com.altamiracorp.lumify.core.util.ModelUtil;
 import com.google.inject.Inject;
+import java.io.FileOutputStream;
+import java.io.OutputStream;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
+import javax.xml.parsers.DocumentBuilder;
+import javax.xml.parsers.DocumentBuilderFactory;
+import javax.xml.transform.OutputKeys;
+import javax.xml.transform.Transformer;
+import javax.xml.transform.TransformerFactory;
+import javax.xml.transform.dom.DOMSource;
+import javax.xml.transform.stream.StreamResult;
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.OptionBuilder;
 import org.apache.commons.cli.Options;
@@ -13,27 +35,21 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 
-import javax.xml.parsers.DocumentBuilder;
-import javax.xml.parsers.DocumentBuilderFactory;
-import javax.xml.transform.OutputKeys;
-import javax.xml.transform.Transformer;
-import javax.xml.transform.TransformerFactory;
-import javax.xml.transform.dom.DOMSource;
-import javax.xml.transform.stream.StreamResult;
-import java.io.FileOutputStream;
-import java.io.OutputStream;
-import java.util.ArrayList;
-import java.util.List;
-
 public class OwlExport extends CommandLineBase {
+    private static final Namespace NS_RDF = Namespace.getNamespace("rdf", "http://www.w3.org/1999/02/22-rdf-syntax-ns#");
+    private static final Namespace NS_OWL = Namespace.getNamespace("owl", "http://www.w3.org/2002/07/owl#");
+    private static final Namespace NS_RDFS = Namespace.getNamespace("rdfs", "http://www.w3.org/2000/01/rdf-schema#");
+    private static final Namespace NS_ATC = Namespace.getNamespace("atc", "http://altamiracorp.com/ontology#");
+    public static final String NS_XML_URI = "http://www.w3.org/XML/1998/namespace";
+    private static final Set<String> EXPORT_SKIP_PROPERTIES = Collections.unmodifiableSet(new HashSet<String>(Arrays.asList(
+            ONTOLOGY_TITLE.getKey(),
+            DISPLAY_NAME.getKey(),
+            CONCEPT_TYPE.getKey()
+    )));
+
     private OntologyRepository ontologyRepository;
     private ModelSession modelSession;
     private String outFileName;
-    private Namespace NS_RDF = Namespace.getNamespace("rdf", "http://www.w3.org/1999/02/22-rdf-syntax-ns#");
-    private Namespace NS_OWL = Namespace.getNamespace("owl", "http://www.w3.org/2002/07/owl#");
-    private Namespace NS_RDFS = Namespace.getNamespace("rdfs", "http://www.w3.org/2000/01/rdf-schema#");
-    private Namespace NS_ATC = Namespace.getNamespace("atc", "http://altamiracorp.com/ontology#");
-    public static String NS_XML_URI = "http://www.w3.org/XML/1998/namespace";
 
     public static void main(String[] args) throws Exception {
         int res = new OwlExport().run(args);
@@ -147,22 +163,15 @@ public class OwlExport extends CommandLineBase {
         classElem.appendChild(createLabelElement(doc, concept.getDisplayName()));
 
         for (com.altamiracorp.securegraph.Property property : concept.getVertex().getProperties()) {
-            if (property.getName().equals(PropertyName.ONTOLOGY_TITLE.toString())) {
-                continue;
+            if (!EXPORT_SKIP_PROPERTIES.contains(property.getName())) {
+                classElem.appendChild(createPropertyElement(doc, property.getName(), property.getValue().toString()));
             }
-            if (property.getName().equals(PropertyName.DISPLAY_NAME.toString())) {
-                continue;
-            }
-            if (property.getName().equals(PropertyName.CONCEPT_TYPE.toString())) {
-                continue;
-            }
-            classElem.appendChild(createPropertyElement(doc, property.getName(), property.getValue().toString()));
         }
         if (parentConcept != null) {
             classElem.appendChild(createSubClassOfElement(doc, parentConcept));
         }
 
-        List<OntologyProperty> properties = ontologyRepository.getPropertiesByConceptIdNoRecursion(concept.getId().toString());
+        List<OntologyProperty> properties = ontologyRepository.getPropertiesByConceptIdNoRecursion(concept.getId());
         for (OntologyProperty property : properties) {
             elems.add(createDatatypePropertyElement(doc, property, concept));
         }
