@@ -1,8 +1,10 @@
 package com.altamiracorp.lumify.storm.video;
 
+import static com.altamiracorp.lumify.core.model.properties.MediaLumifyProperties.VIDEO_PREVIEW_IMAGE;
+import static com.altamiracorp.lumify.core.util.CollectionUtil.toList;
+
 import backtype.storm.tuple.Tuple;
 import com.altamiracorp.lumify.core.model.artifactThumbnails.ArtifactThumbnailRepository;
-import com.altamiracorp.lumify.core.model.ontology.PropertyName;
 import com.altamiracorp.lumify.core.model.videoFrames.VideoFrame;
 import com.altamiracorp.lumify.core.model.videoFrames.VideoFrameRepository;
 import com.altamiracorp.lumify.core.model.workQueue.WorkQueueRepository;
@@ -14,18 +16,17 @@ import com.altamiracorp.securegraph.Vertex;
 import com.altamiracorp.securegraph.Visibility;
 import com.altamiracorp.securegraph.property.StreamingPropertyValue;
 import com.google.inject.Inject;
-import org.json.JSONObject;
-
-import javax.imageio.ImageIO;
-import java.awt.*;
+import java.awt.Graphics;
+import java.awt.Image;
 import java.awt.image.BufferedImage;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import javax.imageio.ImageIO;
+import org.json.JSONObject;
 
-import static com.altamiracorp.lumify.core.util.CollectionUtil.toList;
 
 public class VideoPreviewBolt extends BaseLumifyBolt {
     private static final LumifyLogger LOGGER = LumifyLoggerFactory.getLogger(VideoPreviewBolt.class);
@@ -58,7 +59,7 @@ public class VideoPreviewBolt extends BaseLumifyBolt {
         Visibility visibility = new Visibility("");
         StreamingPropertyValue spv = new StreamingPropertyValue(new ByteArrayInputStream(out.toByteArray()), byte[].class);
         spv.searchIndex(false);
-        artifactVertex.setProperty(PropertyName.VIDEO_PREVIEW_IMAGE.toString(), spv, visibility);
+        VIDEO_PREVIEW_IMAGE.setProperty(artifactVertex, spv, visibility);
         graph.flush();
     }
 

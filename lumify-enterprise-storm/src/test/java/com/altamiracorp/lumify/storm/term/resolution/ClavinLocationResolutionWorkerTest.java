@@ -7,6 +7,8 @@
 package com.altamiracorp.lumify.storm.term.resolution;
 
 
+import static com.altamiracorp.lumify.core.model.properties.EntityLumifyProperties.GEO_LOCATION;
+import static com.altamiracorp.lumify.core.model.properties.EntityLumifyProperties.GEO_LOCATION_DESCRIPTION;
 import static com.altamiracorp.lumify.storm.term.resolution.ClavinLocationResolutionWorker.*;
 import static org.hamcrest.CoreMatchers.instanceOf;
 import static org.junit.Assert.*;
@@ -17,7 +19,6 @@ import com.altamiracorp.lumify.core.ingest.term.extraction.TermExtractionResult;
 import com.altamiracorp.lumify.core.ingest.term.extraction.TermMention;
 import com.altamiracorp.lumify.core.model.ontology.Concept;
 import com.altamiracorp.lumify.core.model.ontology.OntologyRepository;
-import com.altamiracorp.lumify.core.model.ontology.PropertyName;
 import com.altamiracorp.lumify.core.user.User;
 import com.altamiracorp.securegraph.type.GeoPoint;
 import com.bericotech.clavin.extractor.LocationOccurrence;
@@ -136,13 +137,13 @@ public class ClavinLocationResolutionWorkerTest {
 
     static {
         Map<String, Object> aldieProps = new HashMap<String, Object>();
-        aldieProps.put(PropertyName.GEO_LOCATION.toString(), ALDIE_POINT);
-        aldieProps.put(PropertyName.GEO_LOCATION_DESCRIPTION.toString(), ALDIE);
+        aldieProps.put(GEO_LOCATION.getKey(), GEO_LOCATION.wrap(ALDIE_POINT));
+        aldieProps.put(GEO_LOCATION_DESCRIPTION.getKey(), GEO_LOCATION_DESCRIPTION.wrap(ALDIE));
         ALDIE_PROPS = Collections.unmodifiableMap(aldieProps);
 
         Map<String, Object> dcProps = new HashMap<String, Object>();
-        dcProps.put(PropertyName.GEO_LOCATION.toString(), WASHINGTON_POINT);
-        dcProps.put(PropertyName.GEO_LOCATION_DESCRIPTION.toString(), WASHINGTON);
+        dcProps.put(GEO_LOCATION.getKey(), GEO_LOCATION.wrap(WASHINGTON_POINT));
+        dcProps.put(GEO_LOCATION_DESCRIPTION.getKey(), GEO_LOCATION_DESCRIPTION.wrap(WASHINGTON));
         WASHINGTON_PROPS = Collections.unmodifiableMap(dcProps);
     }
 
