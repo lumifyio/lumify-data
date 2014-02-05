@@ -139,7 +139,7 @@ public class TermExtractionBolt extends BaseTextProcessingBolt {
                     }
                     Object conceptId = concept.getId();
                     if (conceptId instanceof String) {
-                        conceptId = new Text((String) conceptId, TextIndex.EXACT_MATCH);
+                        conceptId = new Text((String) conceptId, TextIndexHint.EXACT_MATCH);
                     }
                     vertexElementMutation.setProperty(PropertyName.TITLE.toString(), new Text(title), new Visibility(""));
                     vertexElementMutation.setProperty(PropertyName.CONCEPT_TYPE.toString(), conceptId, new Visibility(""));
