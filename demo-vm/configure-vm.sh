@@ -25,13 +25,19 @@ Built on $(date +'%Y-%m-%d')
 
 EOM
 
-if [ "$1" == '' ]; then
-  echo "Must provide sample tar file name"
+if [ "$2" == '' ]; then
+  echo "Must provide name of tar file for sample data" 
   exit 1
 fi
 
+
 cd /vagrant && bin/config.sh enterprise
-/opt/lumify/format.sh
+
+if [ "$1" == 'opensource' ]; then
+  cp /vagrant/demo-vm/demo-opensource.properties /opt/lumify/config/
+fi
+
+su - vagrant -c '/opt/lumify/format.sh'
 
 # run maven
 su - vagrant -c 'cd /vagrant && cd lumify-root && mvn clean install && cd .. &&  mvn package -P storm-jar,web-war -DskipTests' 2>&1 \
@@ -46,8 +52,8 @@ cp /vagrant/lumify-public/lumify-web-war/target/lumify-web-war-1.0-SNAPSHOT.war 
 su - vagrant -c 'cd /vagrant && bin/080_Ontology.sh'
 
 # ingest sample data
-cp /vagrant/demo-vm/$1 /opt/lumify
-tar xvf /opt/lumify/$1 -C /opt/lumify
+cp /vagrant/demo-vm/$2 /opt/lumify
+tar xvf /opt/lumify/$2 -C /opt/lumify
 sudo -u hdfs hadoop fs -mkdir /lumify/data/unknown/
 sudo -u hdfs hadoop fs -put /opt/lumify/import/* /lumify/data/unknown/
 rm -rf /opt/lumify/import

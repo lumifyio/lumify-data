@@ -10,12 +10,22 @@ function _download {
   local name_match=$2
   local local_filename=$3
 
-  local remote_filename=$(ssh ${HOST} find ${BASE_DIR}/${subdir} -name "${name_match}" | sort | tail -1)
+  local remote_filename=$(ssh root@${HOST} find ${BASE_DIR}/${subdir} -name "${name_match}" | sort | tail -1)
   if [ "${remote_filename}" ]; then
-    scp ${HOST}:${remote_filename} ${local_filename}
+    scp root@${HOST}:${remote_filename} ${local_filename}
     FILE_LIST="${FILE_LIST} ${local_filename}"
   else
     echo "ERROR: no artifact found for ${subdir}"
+  fi
+}
+
+function _md5 {
+  local file=$1
+
+  if [ "$(uname)" = 'Linux' ]; then
+    md5sum ${file} | awk '{printf "https://ci.lumify.io/fingerprint/%s/? %s\n", $1, $2}'
+  else
+    md5 ${file} | awk '{printf "https://ci.lumify.io/fingerprint/%s/? %s\n", $4, $2}'
   fi
 }
 
@@ -32,5 +42,5 @@ _download bigtable/bigtable-ui-war       "*.war"                  bigtable-ui.wa
 _download jmxui/jmx-ui-webapp            "*.war"                  jmx-ui.war
 
 for file in ${FILE_LIST}; do
-  md5sum ${file} | awk '{printf "https://ci.lumify.io/fingerprint/%s/? %s\n", $1, $2}'
+  _md5 ${file}
 done
