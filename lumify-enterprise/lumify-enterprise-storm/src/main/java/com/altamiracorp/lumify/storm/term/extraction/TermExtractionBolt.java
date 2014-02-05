@@ -158,15 +158,15 @@ public class TermExtractionBolt extends BaseTextProcessingBolt {
                 if (!(vertexElementMutation instanceof ExistingElementMutation)) {
                     vertex = vertexElementMutation.save();
                     auditRepository.auditVertexElementMutation(vertexElementMutation, vertex, termMention.getProcess(), getUser());
-
-                    graph.addEdge(artifactGraphVertex, vertex, LabelName.RAW_HAS_ENTITY.toString(), new Visibility(""), getUser().getAuthorizations());
-
-                    String labelDisplayName = ontologyRepository.getDisplayNameForLabel(LabelName.RAW_HAS_ENTITY.toString());
-                    auditRepository.auditRelationship(AuditAction.CREATE, artifactGraphVertex, vertex, labelDisplayName, termMention.getProcess(), "", getUser());
                 } else {
                     auditRepository.auditVertexElementMutation(vertexElementMutation, vertex, termMention.getProcess(), getUser());
                     vertex = vertexElementMutation.save();
                 }
+
+                graph.addEdge(artifactGraphVertex, vertex, LabelName.RAW_HAS_ENTITY.toString(), new Visibility(""), getUser().getAuthorizations());
+
+                String labelDisplayName = ontologyRepository.getDisplayNameForLabel(LabelName.RAW_HAS_ENTITY.toString());
+                auditRepository.auditRelationship(AuditAction.CREATE, artifactGraphVertex, vertex, labelDisplayName, termMention.getProcess(), "", getUser());
 
                 termMentionModel.getMetadata().setVertexId(vertex.getId().toString());
             }
