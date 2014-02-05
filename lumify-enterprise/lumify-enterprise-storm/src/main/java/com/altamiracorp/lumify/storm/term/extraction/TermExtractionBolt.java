@@ -141,6 +141,7 @@ public class TermExtractionBolt extends BaseTextProcessingBolt {
                     if (conceptId instanceof String) {
                         conceptId = new Text((String) conceptId, TextIndex.EXACT_MATCH);
                     }
+                    vertexElementMutation.setProperty(PropertyName.TITLE.toString(), new Text(title), new Visibility(""));
                     vertexElementMutation.setProperty(PropertyName.CONCEPT_TYPE.toString(), conceptId, new Visibility(""));
                 } else {
                     vertexElementMutation = vertex.prepareMutation();
@@ -154,13 +155,18 @@ public class TermExtractionBolt extends BaseTextProcessingBolt {
                     }
                 }
 
-                vertex = vertexElementMutation.save();
-                auditRepository.auditVertexElementMutation(vertexElementMutation, vertex, termMention.getProcess(), getUser());
+                if (!(vertexElementMutation instanceof ExistingElementMutation)) {
+                    vertex = vertexElementMutation.save();
+                    auditRepository.auditVertexElementMutation(vertexElementMutation, vertex, termMention.getProcess(), getUser());
 
-                graph.addEdge(artifactGraphVertex, vertex, LabelName.RAW_HAS_ENTITY.toString(), new Visibility(""), getUser().getAuthorizations());
+                    graph.addEdge(artifactGraphVertex, vertex, LabelName.RAW_HAS_ENTITY.toString(), new Visibility(""), getUser().getAuthorizations());
 
-                String labelDisplayName = ontologyRepository.getDisplayNameForLabel(LabelName.RAW_HAS_ENTITY.toString());
-                auditRepository.auditRelationship(AuditAction.CREATE, artifactGraphVertex, vertex, labelDisplayName, termMention.getProcess(), "", getUser());
+                    String labelDisplayName = ontologyRepository.getDisplayNameForLabel(LabelName.RAW_HAS_ENTITY.toString());
+                    auditRepository.auditRelationship(AuditAction.CREATE, artifactGraphVertex, vertex, labelDisplayName, termMention.getProcess(), "", getUser());
+                } else {
+                    auditRepository.auditVertexElementMutation(vertexElementMutation, vertex, termMention.getProcess(), getUser());
+                    vertex = vertexElementMutation.save();
+                }
 
                 termMentionModel.getMetadata().setVertexId(vertex.getId().toString());
             }
