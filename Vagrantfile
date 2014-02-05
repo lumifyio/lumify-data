@@ -69,7 +69,7 @@ Vagrant.configure('2') do |config|
     demo.vm.provision :puppet do |puppet|
       configure_puppet(puppet, 'demo_opensource_vm.pp')
     end
-    demo.vm.provision :shell, :path => "demo-vm/configure-vm.sh", :args => "sample-data-html.tgz" 
+    demo.vm.provision :shell, :path => "demo-vm/configure-vm.sh", :args => "opensource sample-data-html.tgz" 
   end
 
   # used to create the downloadable enterprise demo VM
@@ -78,6 +78,6 @@ Vagrant.configure('2') do |config|
     demo.vm.provision :puppet do |puppet|
       configure_puppet(puppet, 'demo_enterprise_vm.pp')
     end
-    demo.vm.provision :shell, :path => "demo-vm/configure-vm.sh", :args => "chechen-terrorists.tgz"
+    demo.vm.provision :shell, :path => "demo-vm/configure-vm.sh", :args => "enterprise chechen-terrorists.tgz"
   end
 end
