@@ -50,6 +50,7 @@ class accumulo(
   file { $homelink:
     ensure  => link,
     target  => $homedir,
+    force => true,
     require => Macro::Extract[$downloadpath],
   }
 

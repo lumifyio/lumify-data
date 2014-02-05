@@ -29,7 +29,7 @@ _download lumify/lumify-wikipedia        "*with-dependencies.jar" lumify-wikiped
 _download lumify/lumify-web-war          "*.war"                  lumify.war
 _download lumify/lumify-account-web      "*.war"                  account.war
 _download bigtable/bigtable-ui-war       "*.war"                  bigtable-ui.war
-_download jmxui/jmx-ui                   "*.war"                  jmx-ui.war
+_download jmxui/jmx-ui-webapp            "*.war"                  jmx-ui.war
 
 for file in ${FILE_LIST}; do
   md5sum ${file} | awk '{printf "https://ci.lumify.io/fingerprint/%s/? %s\n", $1, $2}'

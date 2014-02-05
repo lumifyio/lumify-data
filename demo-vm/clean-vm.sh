@@ -1,6 +1,11 @@
 #!/bin/bash
 
-sudo cp /vagrant/demo-vm/configuration.properties /opt/lumify/config/configuration.properties
+if [ "$1" == '' ]; then
+  echo "ERROR: Please specify enterprise or public"
+  exit 1
+fi
+
+(rm -f /opt/lumify/config/* && cd /vagrant && bin/config.sh $1)
 
 /opt/lumify/stop.sh
 

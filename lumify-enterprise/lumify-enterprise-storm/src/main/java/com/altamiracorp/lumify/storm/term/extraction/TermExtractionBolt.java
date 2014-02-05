@@ -1,20 +1,11 @@
 package com.altamiracorp.lumify.storm.term.extraction;
 
-import static com.altamiracorp.lumify.core.util.CollectionUtil.*;
-import static com.google.common.base.Preconditions.*;
-
 import backtype.storm.task.OutputCollector;
 import backtype.storm.task.TopologyContext;
 import backtype.storm.tuple.Tuple;
 import com.altamiracorp.bigtable.model.FlushFlag;
 import com.altamiracorp.lumify.core.bootstrap.InjectHelper;
-import com.altamiracorp.lumify.core.ingest.term.extraction.TermExtractionAdditionalWorkData;
-import com.altamiracorp.lumify.core.ingest.term.extraction.TermExtractionResult;
-import com.altamiracorp.lumify.core.ingest.term.extraction.TermExtractionWorker;
-import com.altamiracorp.lumify.core.ingest.term.extraction.TermMention;
-import com.altamiracorp.lumify.core.ingest.term.extraction.TermRelationship;
-import com.altamiracorp.lumify.core.ingest.term.extraction.TermResolutionWorker;
-import com.altamiracorp.lumify.core.ingest.term.extraction.TermWorker;
+import com.altamiracorp.lumify.core.ingest.term.extraction.*;
 import com.altamiracorp.lumify.core.model.audit.AuditAction;
 import com.altamiracorp.lumify.core.model.ontology.Concept;
 import com.altamiracorp.lumify.core.model.ontology.LabelName;
@@ -26,17 +17,16 @@ import com.altamiracorp.lumify.core.util.LumifyLoggerFactory;
 import com.altamiracorp.lumify.core.util.ThreadedInputStreamProcess;
 import com.altamiracorp.lumify.core.util.ThreadedTeeInputStreamWorker;
 import com.altamiracorp.lumify.storm.BaseTextProcessingBolt;
-import com.altamiracorp.securegraph.ElementMutation;
-import com.altamiracorp.securegraph.Vertex;
-import com.altamiracorp.securegraph.Visibility;
+import com.altamiracorp.securegraph.*;
 import com.google.common.collect.Lists;
-import java.io.InputStream;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.List;
-import java.util.Map;
-import java.util.ServiceLoader;
 import org.json.JSONObject;
+
+import java.io.InputStream;
+import java.util.*;
+
+import static com.altamiracorp.lumify.core.util.CollectionUtil.trySingle;
+import static com.google.common.base.Preconditions.checkNotNull;
+import static com.google.common.base.Preconditions.checkState;
 
 public class TermExtractionBolt extends BaseTextProcessingBolt {
     private static final LumifyLogger LOGGER = LumifyLoggerFactory.getLogger(TermExtractionBolt.class);
@@ -147,8 +137,12 @@ public class TermExtractionBolt extends BaseTextProcessingBolt {
                     } else {
                         vertexElementMutation = graph.prepareVertex(new Visibility(""), getUser().getAuthorizations());
                     }
-                    vertexElementMutation.setProperty(PropertyName.TITLE.toString(), title, new Visibility(""));
-                    vertexElementMutation.setProperty(PropertyName.CONCEPT_TYPE.toString(), concept.getId(), new Visibility(""));
+                    Object conceptId = concept.getId();
+                    if (conceptId instanceof String) {
+                        conceptId = new Text((String) conceptId, TextIndex.EXACT_MATCH);
+                    }
+                    vertexElementMutation.setProperty(PropertyName.TITLE.toString(), new Text(title), new Visibility(""));
+                    vertexElementMutation.setProperty(PropertyName.CONCEPT_TYPE.toString(), conceptId, new Visibility(""));
                 } else {
                     vertexElementMutation = vertex.prepareMutation();
                 }
@@ -156,17 +150,23 @@ public class TermExtractionBolt extends BaseTextProcessingBolt {
                 if (termMention.getPropertyValue() != null) {
                     Map<String, Object> properties = termMention.getPropertyValue();
                     for (String key : properties.keySet()) {
+                        // TODO should we wrap these properties in secure graph Text classes?
                         vertexElementMutation.setProperty(key, properties.get(key), new Visibility(""));
                     }
                 }
 
-                vertex = vertexElementMutation.save();
-                auditRepository.auditVertexElementMutation(vertexElementMutation, vertex, termMention.getProcess(), getUser());
+                if (!(vertexElementMutation instanceof ExistingElementMutation)) {
+                    vertex = vertexElementMutation.save();
+                    auditRepository.auditVertexElementMutation(vertexElementMutation, vertex, termMention.getProcess(), getUser());
 
-                graph.addEdge(artifactGraphVertex, vertex, LabelName.RAW_HAS_ENTITY.toString(), new Visibility(""), getUser().getAuthorizations());
+                    graph.addEdge(artifactGraphVertex, vertex, LabelName.RAW_HAS_ENTITY.toString(), new Visibility(""), getUser().getAuthorizations());
 
-                String labelDisplayName = ontologyRepository.getDisplayNameForLabel(LabelName.RAW_HAS_ENTITY.toString());
-                auditRepository.auditRelationship(AuditAction.CREATE, artifactGraphVertex, vertex, labelDisplayName, termMention.getProcess(), "", getUser());
+                    String labelDisplayName = ontologyRepository.getDisplayNameForLabel(LabelName.RAW_HAS_ENTITY.toString());
+                    auditRepository.auditRelationship(AuditAction.CREATE, artifactGraphVertex, vertex, labelDisplayName, termMention.getProcess(), "", getUser());
+                } else {
+                    auditRepository.auditVertexElementMutation(vertexElementMutation, vertex, termMention.getProcess(), getUser());
+                    vertex = vertexElementMutation.save();
+                }
 
                 termMentionModel.getMetadata().setVertexId(vertex.getId().toString());
             }
