@@ -37,7 +37,7 @@ if [ "$1" == 'opensource' ]; then
   cp /vagrant/demo-vm/demo-opensource.properties /opt/lumify/config/
 fi
 
-/opt/lumify/format.sh
+su - vagrant -c '/opt/lumify/format.sh'
 
 # run maven
 su - vagrant -c 'cd /vagrant && cd lumify-root && mvn clean install && cd .. &&  mvn package -P storm-jar,web-war -DskipTests' 2>&1 \
