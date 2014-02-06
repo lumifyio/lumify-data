@@ -1,22 +1,26 @@
 package com.altamiracorp.lumify.facebook;
 
+import com.altamiracorp.lumify.core.model.properties.DateLumifyProperty;
+import com.altamiracorp.lumify.core.model.properties.TextLumifyProperty;
+import com.altamiracorp.securegraph.TextIndexHint;
+
 public interface FacebookConstants {
     public static final String POST_CONCEPT = "document";
     public static final String NAME = "name";
     public static final String UID = "uid";
     public static final String SEX = "sex";
-    public static final String GENDER = "gender";
+    public static final TextLumifyProperty GENDER = new TextLumifyProperty("gender", TextIndexHint.EXACT_MATCH);
     public static final String EMAIL = "email";
     public static final String EMAIL_ADDRESS = "emailAddress";
     public static final String EMAIL_RELATIONSHIP = "personHasEmailAddress";
     public static final String BIRTHDAY_DATE = "birthday_date";
-    public static final String BIRTHDAY = "birthday";
+    public static final DateLumifyProperty BIRTHDAY = new DateLumifyProperty("birthday");
     public static final String PIC = "pic";
     public static final String BIRTHDAY_FORMAT = "MM/dd";
     public static final String USERNAME = "username";
     public static final String FACEBOOK_PROFILE_IMAGE = "facebookProfileImage";
     public static final String GZIP_EXTENSION = ".gz";
-    public static final String PROFILE_ID = "profileId";
+    public static final TextLumifyProperty PROFILE_ID = new TextLumifyProperty("profileId", TextIndexHint.EXACT_MATCH);
     public static final String COORDS = "coords";
     public static final String TIMESTAMP = "timestamp";
     public static final String POSTED_RELATIONSHIP = "postPostedByProfile";
@@ -34,7 +38,7 @@ public interface FacebookConstants {
     public static final String LONGITUDE = "facebook.longitude";
     public static final String DISTANCE = "facebook.distance";
     public static final String AUTHOR_UID = "author_uid";
-    public static final String TAGGEED_UIDS = "tagged_uids";
+    public static final String TAGGED_UIDS = "tagged_uids";
     public static final String ENTITY_HAS_IMAGE_PROFILE_PHOTO = "entityHasImageFacebookProfileImage";
     public static final String PROFILE_CONTAINS_IMAGE_OF_ENTITY ="facebookProfileImageContainsImageOfEntity";
     public static final String FACEBOOK_VERTEX_ID = "FB-USER-";

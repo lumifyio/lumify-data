@@ -1,20 +1,28 @@
 package com.altamiracorp.lumify.facebook;
 
+import static com.altamiracorp.lumify.core.model.ontology.OntologyLumifyProperties.CONCEPT_TYPE;
+import static com.altamiracorp.lumify.core.model.properties.EntityLumifyProperties.GEO_LOCATION;
+import static com.altamiracorp.lumify.core.model.properties.LumifyProperties.*;
+import static com.altamiracorp.lumify.facebook.FacebookConstants.*;
+
 import com.altamiracorp.lumify.core.ingest.ArtifactExtractedInfo;
 import com.altamiracorp.lumify.core.model.audit.AuditAction;
 import com.altamiracorp.lumify.core.model.audit.AuditRepository;
 import com.altamiracorp.lumify.core.model.ontology.Concept;
 import com.altamiracorp.lumify.core.model.ontology.OntologyRepository;
-import com.altamiracorp.lumify.core.model.ontology.PropertyName;
 import com.altamiracorp.lumify.core.user.User;
 import com.altamiracorp.lumify.core.util.LumifyLogger;
 import com.altamiracorp.lumify.core.util.LumifyLoggerFactory;
 import com.altamiracorp.lumify.core.util.RowKeyHelper;
-import com.altamiracorp.securegraph.*;
+import com.altamiracorp.securegraph.Direction;
+import com.altamiracorp.securegraph.Edge;
+import com.altamiracorp.securegraph.ElementMutation;
+import com.altamiracorp.securegraph.Graph;
+import com.altamiracorp.securegraph.Text;
+import com.altamiracorp.securegraph.TextIndexHint;
+import com.altamiracorp.securegraph.Vertex;
+import com.altamiracorp.securegraph.Visibility;
 import com.altamiracorp.securegraph.type.GeoPoint;
-import org.apache.commons.io.IOUtils;
-import org.json.JSONObject;
-
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -23,8 +31,8 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.Iterator;
-
-import static com.altamiracorp.lumify.facebook.FacebookConstants.*;
+import org.apache.commons.io.IOUtils;
+import org.json.JSONObject;
 
 public class FacebookUser {
     private static final LumifyLogger LOGGER = LumifyLoggerFactory.getLogger(FacebookBolt.class);
@@ -46,9 +54,9 @@ public class FacebookUser {
             LOGGER.error("Could not find user in system, with given profile_id.");
             throw new RuntimeException();
         } else {
-            Iterable<Object> titles = queryVertex.getPropertyValues(PropertyName.TITLE.toString());
-            for (Object title : titles) {
-                if (title.toString().equals(name)) {
+            Iterable<String> titles = TITLE.getPropertyValues(queryVertex);;
+            for (String title : titles) {
+                if (title.equals(name)) {
                     userVertex = queryVertex;
                     LOGGER.info("Vertex previously processed: ", userVertex.getId());
                     return userVertex;
@@ -58,14 +66,14 @@ public class FacebookUser {
         }
 
         ElementMutation<Vertex> userVertexMutation = userVertex.prepareMutation();
-        userVertexMutation.setProperty(PropertyName.DISPLAY_NAME.toString(), new Text(username), visibility);
-        userVertexMutation.setProperty(PropertyName.TITLE.toString(), new Text(name), visibility);
+        DISPLAY_NAME.setProperty(userVertexMutation, username, visibility);
+        TITLE.setProperty(userVertexMutation, name, visibility);
 
         //get relationships for vertex and write audit message for each post
 
         if (userJson.has(SEX) && !userJson.getString(SEX).equals(JSONObject.NULL)) {
             String gender = userJson.getString(SEX);
-            userVertexMutation.setProperty(GENDER, new Text(gender, TextIndexHint.EXACT_MATCH), visibility);
+            GENDER.setProperty(userVertexMutation, gender, visibility);
         }
 
         if (userJson.has(EMAIL) && !userJson.getString(EMAIL).equals(JSONObject.NULL)) {
@@ -76,19 +84,15 @@ public class FacebookUser {
             Vertex queryEmailVertex = emailIterator.next();
             if (queryEmailVertex == null) {
                 ElementMutation<Vertex> emailBuilder = graph.prepareVertex(visibility, user.getAuthorizations());
-                emailBuilder.setProperty(PropertyName.TITLE.toString(), new Text(email), visibility);
-                Object emailConceptId = emailConcept.getId();
-                if (emailConceptId instanceof String) {
-                    emailConceptId = new Text((String) emailConceptId, TextIndexHint.EXACT_MATCH);
-                }
-                emailBuilder.setProperty(PropertyName.CONCEPT_TYPE.toString(), emailConceptId, visibility);
+                TITLE.setProperty(emailBuilder, email, visibility);
+                CONCEPT_TYPE.setProperty(emailBuilder, emailConcept.getId(), visibility);
                 emailVertex = emailBuilder.save();
                 auditRepository.auditVertexElementMutation(emailBuilder, emailVertex, PROCESS, user);
             } else {
                 while (queryEmailVertex != null) {
-                    Iterable<Object> titles = queryVertex.getPropertyValues(PropertyName.TITLE.toString());
-                    for (Object title : titles) {
-                        if (title.toString().equals(name)) {
+                    Iterable<String> titles = TITLE.getPropertyValues(queryVertex);
+                    for (String title : titles) {
+                        if (title.equals(name)) {
                             emailVertex = queryEmailVertex;
                             break;
                         }
@@ -105,7 +109,7 @@ public class FacebookUser {
         if (userJson.has(COORDS) && !userJson.get(COORDS).equals(JSONObject.NULL)) {
             JSONObject coordinates = userJson.getJSONObject(COORDS);
             GeoPoint geo = new GeoPoint(coordinates.getDouble("latitude"), coordinates.getDouble("longitude"));
-            userVertexMutation.setProperty(PropertyName.GEO_LOCATION.toString(), geo, visibility);
+            GEO_LOCATION.setProperty(userVertexMutation, geo, visibility);
         }
 
         if (userJson.has(BIRTHDAY_DATE) && (userJson.get(BIRTHDAY_DATE) instanceof String)) {
@@ -116,7 +120,7 @@ public class FacebookUser {
                 birthdayFormat = new SimpleDateFormat(BIRTHDAY_FORMAT + "/yyyy");
             }
             Date birthday = birthdayFormat.parse(birthday_date);
-            userVertexMutation.setProperty(BIRTHDAY, birthday, visibility);
+            BIRTHDAY.setProperty(userVertexMutation, birthday, visibility);
         }
         //create and save profile picture
         auditRepository.auditVertexElementMutation(userVertexMutation, userVertex, PROCESS, user);
@@ -157,8 +161,9 @@ public class FacebookUser {
         Visibility visibility = new Visibility("");
         ElementMutation<Vertex> userVertexMutation = userVertex.prepareMutation();
         ElementMutation<Vertex> pictureVertexMutation = pictureVertex.prepareMutation();
-        userVertexMutation.setProperty(PropertyName.GLYPH_ICON.toString(), new Text("/artifact/" + pictureVertex.getId() + "/raw", TextIndexHint.EXACT_MATCH), visibility);
-        pictureVertexMutation.setProperty(PropertyName.GLYPH_ICON.toString(), new Text("/artifact/" + pictureVertex.getId() + "/raw", TextIndexHint.EXACT_MATCH), visibility);
+        // TO-DO: Change GLYPH_ICON to ENTITY_IMAGE_URL
+        userVertexMutation.setProperty(GLYPH_ICON.getKey(), new Text("/artifact/" + pictureVertex.getId() + "/raw", TextIndexHint.EXACT_MATCH), visibility);
+        pictureVertexMutation.setProperty(GLYPH_ICON.getKey(), new Text("/artifact/" + pictureVertex.getId() + "/raw", TextIndexHint.EXACT_MATCH), visibility);
 
         auditRepository.auditVertexElementMutation(userVertexMutation, userVertex, PROCESS, user);
         auditRepository.auditVertexElementMutation(pictureVertexMutation, pictureVertex, PROCESS, user);

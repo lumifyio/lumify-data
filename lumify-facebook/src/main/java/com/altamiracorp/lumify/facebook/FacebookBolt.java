@@ -1,20 +1,20 @@
 package com.altamiracorp.lumify.facebook;
 
+import static com.altamiracorp.lumify.core.model.properties.LumifyProperties.*;
+import static com.altamiracorp.lumify.facebook.FacebookConstants.*;
+
 import backtype.storm.tuple.Tuple;
 import com.altamiracorp.lumify.core.ingest.ArtifactExtractedInfo;
-import static com.altamiracorp.lumify.facebook.FacebookConstants.*;
-import com.altamiracorp.lumify.core.model.ontology.PropertyName;
 import com.altamiracorp.lumify.core.user.User;
 import com.altamiracorp.lumify.core.util.LumifyLogger;
 import com.altamiracorp.lumify.core.util.LumifyLoggerFactory;
 import com.altamiracorp.lumify.storm.BaseLumifyBolt;
 import com.altamiracorp.securegraph.Vertex;
 import com.altamiracorp.securegraph.Visibility;
-import org.apache.hadoop.fs.FileSystem;
-import org.json.JSONObject;
-
 import java.io.ByteArrayInputStream;
 import java.io.InputStream;
+import org.apache.hadoop.fs.FileSystem;
+import org.json.JSONObject;
 
 public class FacebookBolt extends BaseLumifyBolt {
     private static final LumifyLogger LOGGER = LumifyLoggerFactory.getLogger(FacebookBolt.class);
@@ -40,7 +40,7 @@ public class FacebookBolt extends BaseLumifyBolt {
             ArtifactExtractedInfo postExtractedInfo = facebookPost.processPostArtifact(jsonObject);
             setSavedArtifact(postExtractedInfo);
             Vertex post = facebookPost.processPostVertex(jsonObject, savedArtifact, graph, auditRepository, ontologyRepository, getUser());
-            post.setProperty(PropertyName.DISPLAY_TYPE.toString(), POST_CONCEPT, new Visibility(""));
+            DISPLAY_TYPE.setProperty(post, POST_CONCEPT, new Visibility(""));
             InputStream in = new ByteArrayInputStream(jsonObject.getString(MESSAGE).getBytes());
             graph.flush();
             workQueueRepository.pushArtifactHighlight(post.getId().toString());
@@ -49,7 +49,8 @@ public class FacebookBolt extends BaseLumifyBolt {
             LOGGER.info("Facebook tuple is a user: %s", name);
             FacebookUser facebookUser = new FacebookUser();
             Vertex userVertex = facebookUser.process(jsonObject, graph, auditRepository, ontologyRepository, getUser());
-            if (userVertex.getPropertyValue(PropertyName.GLYPH_ICON.toString(), 0) == null) {
+            // TO-DO: Replace GLYPH_ICON with ENTITY_IMAGE_URL
+            if (userVertex.getPropertyValue(GLYPH_ICON.getKey()) == null) {
                 ArtifactExtractedInfo profilePicExtractedInfo = facebookUser.createProfilePhotoArtifact(jsonObject, userVertex);
                 setSavedArtifact(profilePicExtractedInfo);
                 facebookUser.createProfilePhotoVertex(savedArtifact, userVertex, graph, auditRepository, ontologyRepository, getUser());

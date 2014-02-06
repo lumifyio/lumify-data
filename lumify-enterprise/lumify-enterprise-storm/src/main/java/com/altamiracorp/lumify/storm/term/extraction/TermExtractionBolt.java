@@ -1,15 +1,26 @@
 package com.altamiracorp.lumify.storm.term.extraction;
 
+import static com.altamiracorp.lumify.core.model.ontology.OntologyLumifyProperties.CONCEPT_TYPE;
+import static com.altamiracorp.lumify.core.model.properties.LumifyProperties.TITLE;
+import static com.altamiracorp.lumify.core.util.CollectionUtil.trySingle;
+import static com.google.common.base.Preconditions.checkNotNull;
+import static com.google.common.base.Preconditions.checkState;
+
 import backtype.storm.task.OutputCollector;
 import backtype.storm.task.TopologyContext;
 import backtype.storm.tuple.Tuple;
 import com.altamiracorp.bigtable.model.FlushFlag;
 import com.altamiracorp.lumify.core.bootstrap.InjectHelper;
-import com.altamiracorp.lumify.core.ingest.term.extraction.*;
+import com.altamiracorp.lumify.core.ingest.term.extraction.TermExtractionAdditionalWorkData;
+import com.altamiracorp.lumify.core.ingest.term.extraction.TermExtractionResult;
+import com.altamiracorp.lumify.core.ingest.term.extraction.TermExtractionWorker;
+import com.altamiracorp.lumify.core.ingest.term.extraction.TermMention;
+import com.altamiracorp.lumify.core.ingest.term.extraction.TermRelationship;
+import com.altamiracorp.lumify.core.ingest.term.extraction.TermResolutionWorker;
+import com.altamiracorp.lumify.core.ingest.term.extraction.TermWorker;
 import com.altamiracorp.lumify.core.model.audit.AuditAction;
 import com.altamiracorp.lumify.core.model.ontology.Concept;
 import com.altamiracorp.lumify.core.model.ontology.LabelName;
-import com.altamiracorp.lumify.core.model.ontology.PropertyName;
 import com.altamiracorp.lumify.core.model.termMention.TermMentionModel;
 import com.altamiracorp.lumify.core.model.termMention.TermMentionRowKey;
 import com.altamiracorp.lumify.core.util.LumifyLogger;
@@ -17,16 +28,18 @@ import com.altamiracorp.lumify.core.util.LumifyLoggerFactory;
 import com.altamiracorp.lumify.core.util.ThreadedInputStreamProcess;
 import com.altamiracorp.lumify.core.util.ThreadedTeeInputStreamWorker;
 import com.altamiracorp.lumify.storm.BaseTextProcessingBolt;
-import com.altamiracorp.securegraph.*;
+import com.altamiracorp.securegraph.ElementMutation;
+import com.altamiracorp.securegraph.ExistingElementMutation;
+import com.altamiracorp.securegraph.Vertex;
+import com.altamiracorp.securegraph.Visibility;
 import com.google.common.collect.Lists;
-import org.json.JSONObject;
-
 import java.io.InputStream;
-import java.util.*;
-
-import static com.altamiracorp.lumify.core.util.CollectionUtil.trySingle;
-import static com.google.common.base.Preconditions.checkNotNull;
-import static com.google.common.base.Preconditions.checkState;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.List;
+import java.util.Map;
+import java.util.ServiceLoader;
+import org.json.JSONObject;
 
 public class TermExtractionBolt extends BaseTextProcessingBolt {
     private static final LumifyLogger LOGGER = LumifyLoggerFactory.getLogger(TermExtractionBolt.class);
@@ -77,7 +90,8 @@ public class TermExtractionBolt extends BaseTextProcessingBolt {
         termExtractionAdditionalWorkData.setVertex(artifactGraphVertex);
 
         // run all extraction processes and merge the results
-        List<ThreadedTeeInputStreamWorker.WorkResult<TermExtractionResult>> termExtractionResults = termExtractionStreamProcess.doWork(textIn, termExtractionAdditionalWorkData);
+        List<ThreadedTeeInputStreamWorker.WorkResult<TermExtractionResult>> termExtractionResults =
+                termExtractionStreamProcess.doWork(textIn, termExtractionAdditionalWorkData);
         TermExtractionResult termExtractionResult = new TermExtractionResult();
         mergeTextExtractedInfos(termExtractionResult, termExtractionResults);
 
@@ -92,7 +106,8 @@ public class TermExtractionBolt extends BaseTextProcessingBolt {
         workQueueRepository.pushArtifactHighlight(artifactGraphVertex.getId().toString());
     }
 
-    private void mergeTextExtractedInfos(TermExtractionResult termExtractionResult, List<ThreadedTeeInputStreamWorker.WorkResult<TermExtractionResult>> results) throws Exception {
+    private void mergeTextExtractedInfos(TermExtractionResult termExtractionResult,
+            List<ThreadedTeeInputStreamWorker.WorkResult<TermExtractionResult>> results) throws Exception {
         for (ThreadedTeeInputStreamWorker.WorkResult<TermExtractionResult> result : results) {
             if (result.getError() != null) {
                 throw result.getError();
@@ -116,7 +131,7 @@ public class TermExtractionBolt extends BaseTextProcessingBolt {
                 LOGGER.error("Could not find ontology graph vertex '%s'", termMention.getOntologyClassUri());
                 continue;
             }
-            termMentionModel.getMetadata().setConceptGraphVertexId(concept.getId().toString());
+            termMentionModel.getMetadata().setConceptGraphVertexId(concept.getId());
 
             if (termMention.isResolved()) {
                 String title = termMention.getSign();
@@ -126,8 +141,8 @@ public class TermExtractionBolt extends BaseTextProcessingBolt {
                         vertex = graph.getVertex(termMention.getId(), getUser().getAuthorizations());
                     } else {
                         vertex = trySingle(graph.query(getUser().getAuthorizations())
-                                .has(PropertyName.TITLE.toString(), title)
-                                .has(PropertyName.CONCEPT_TYPE.toString(), concept.getId())
+                                .has(TITLE.getKey(), title)
+                                .has(CONCEPT_TYPE.getKey(), concept.getId())
                                 .vertices());
                     }
                 }
@@ -137,12 +152,8 @@ public class TermExtractionBolt extends BaseTextProcessingBolt {
                     } else {
                         vertexElementMutation = graph.prepareVertex(new Visibility(""), getUser().getAuthorizations());
                     }
-                    Object conceptId = concept.getId();
-                    if (conceptId instanceof String) {
-                        conceptId = new Text((String) conceptId, TextIndexHint.EXACT_MATCH);
-                    }
-                    vertexElementMutation.setProperty(PropertyName.TITLE.toString(), new Text(title), new Visibility(""));
-                    vertexElementMutation.setProperty(PropertyName.CONCEPT_TYPE.toString(), conceptId, new Visibility(""));
+                    TITLE.setProperty(vertexElementMutation, title, new Visibility(""));
+                    CONCEPT_TYPE.setProperty(vertexElementMutation, concept.getId(), new Visibility(""));
                 } else {
                     vertexElementMutation = vertex.prepareMutation();
                 }
@@ -151,6 +162,8 @@ public class TermExtractionBolt extends BaseTextProcessingBolt {
                     Map<String, Object> properties = termMention.getPropertyValue();
                     for (String key : properties.keySet()) {
                         // TODO should we wrap these properties in secure graph Text classes?
+                        // GS - No.  Leave it up to the property generator to provide Text objects if they
+                        // want index control; see CLAVIN for example
                         vertexElementMutation.setProperty(key, properties.get(key), new Visibility(""));
                     }
                 }

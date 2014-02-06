@@ -10,13 +10,15 @@
 
 package com.altamiracorp.lumify.storm.term.resolution;
 
+import static com.altamiracorp.lumify.core.model.properties.EntityLumifyProperties.GEO_LOCATION;
+import static com.altamiracorp.lumify.core.model.properties.EntityLumifyProperties.GEO_LOCATION_DESCRIPTION;
+
 import com.altamiracorp.lumify.core.config.Configuration;
 import com.altamiracorp.lumify.core.ingest.term.extraction.TermExtractionResult;
 import com.altamiracorp.lumify.core.ingest.term.extraction.TermMention;
 import com.altamiracorp.lumify.core.ingest.term.extraction.TermResolutionWorker;
 import com.altamiracorp.lumify.core.model.ontology.Concept;
 import com.altamiracorp.lumify.core.model.ontology.OntologyRepository;
-import com.altamiracorp.lumify.core.model.ontology.PropertyName;
 import com.altamiracorp.lumify.core.user.User;
 import com.altamiracorp.lumify.core.util.LumifyLogger;
 import com.altamiracorp.lumify.core.util.LumifyLoggerFactory;
@@ -186,9 +188,9 @@ public class ClavinLocationResolutionWorker implements TermResolutionWorker {
                                 .useExisting(true)
                                 .sign(toSign(loc))
                                 .ontologyClassUri(ontologyMapper.getOntologyClassUri(loc, termMention.getOntologyClassUri()))
-                                .setProperty(PropertyName.GEO_LOCATION.toString(),
-                                        new GeoPoint(loc.getGeoname().getLatitude(), loc.getGeoname().getLongitude()))
-                                .setProperty(PropertyName.GEO_LOCATION_DESCRIPTION.toString(), termMention.getSign())
+                                .setProperty(GEO_LOCATION.getKey(),
+                                        GEO_LOCATION.wrap(new GeoPoint(loc.getGeoname().getLatitude(), loc.getGeoname().getLongitude())))
+                                .setProperty(GEO_LOCATION_DESCRIPTION.getKey(), GEO_LOCATION_DESCRIPTION.wrap(termMention.getSign()))
                                 .process(processId)
                                 .build();
                         updateMap.put(termMention, resolvedMention);

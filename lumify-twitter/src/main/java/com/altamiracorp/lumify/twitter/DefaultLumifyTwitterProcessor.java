@@ -16,6 +16,12 @@
 
 package com.altamiracorp.lumify.twitter;
 
+import static com.altamiracorp.lumify.core.model.ontology.OntologyLumifyProperties.*;
+import static com.altamiracorp.lumify.core.model.properties.EntityLumifyProperties.*;
+import static com.altamiracorp.lumify.core.model.properties.LumifyProperties.*;
+import static com.altamiracorp.lumify.core.model.properties.RawLumifyProperties.*;
+import static com.altamiracorp.lumify.twitter.TwitterConstants.*;
+
 import com.altamiracorp.bigtable.model.FlushFlag;
 import com.altamiracorp.lumify.core.ingest.BaseArtifactProcessor;
 import com.altamiracorp.lumify.core.ingest.term.extraction.TermRegexFinder;
@@ -24,26 +30,36 @@ import com.altamiracorp.lumify.core.model.audit.AuditAction;
 import com.altamiracorp.lumify.core.model.audit.AuditRepository;
 import com.altamiracorp.lumify.core.model.ontology.Concept;
 import com.altamiracorp.lumify.core.model.ontology.OntologyRepository;
-import com.altamiracorp.lumify.core.model.ontology.PropertyName;
+import com.altamiracorp.lumify.core.model.properties.LumifyProperty;
 import com.altamiracorp.lumify.core.model.termMention.TermMentionModel;
 import com.altamiracorp.lumify.core.user.User;
 import com.altamiracorp.lumify.core.util.LumifyLogger;
 import com.altamiracorp.lumify.core.util.LumifyLoggerFactory;
 import com.altamiracorp.lumify.core.util.RowKeyHelper;
-import com.altamiracorp.securegraph.*;
+import com.altamiracorp.securegraph.Direction;
+import com.altamiracorp.securegraph.Edge;
+import com.altamiracorp.securegraph.ElementMutation;
+import com.altamiracorp.securegraph.ExistingElementMutation;
+import com.altamiracorp.securegraph.Graph;
+import com.altamiracorp.securegraph.Text;
+import com.altamiracorp.securegraph.TextIndexHint;
+import com.altamiracorp.securegraph.Vertex;
+import com.altamiracorp.securegraph.Visibility;
 import com.altamiracorp.securegraph.property.StreamingPropertyValue;
 import com.google.inject.Inject;
-import org.apache.commons.io.IOUtils;
-import org.json.JSONObject;
-
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.MalformedURLException;
-import java.util.*;
-
-import static com.altamiracorp.lumify.twitter.TwitterConstants.*;
+import java.util.Collections;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+import org.apache.commons.io.IOUtils;
+import org.json.JSONObject;
 
 /**
  * Default implementation of the LumifyTwitterProcessor.
@@ -88,27 +104,31 @@ public class DefaultLumifyTwitterProcessor extends BaseArtifactProcessor impleme
      * The Map of Lumify property keys to optional properties to extract
      * from a Tweet JSONObject.
      */
-    private static final Map<String, JsonProperty<?, ?>> OPTIONAL_TWEET_PROPERTY_MAP;
+    @SuppressWarnings("unchecked")
+    private static final Map<LumifyProperty, JsonProperty> OPTIONAL_TWEET_PROPERTY_MAP;
 
     /**
      * The Map of Lumify property keys to optional properties to extract
      * from a Twitter User JSONObject.
      */
-    private static final Map<String, JsonProperty<?, ?>> OPTIONAL_USER_PROPERTY_MAP;
+    @SuppressWarnings("unchecked")
+    private static final Map<LumifyProperty, JsonProperty> OPTIONAL_USER_PROPERTY_MAP;
 
     /**
      * Initialize the Optional Property maps.
      */
     static {
-        Map<String, JsonProperty<?, ?>> optTweetMap = new HashMap<String, JsonProperty<?, ?>>();
-        optTweetMap.put(PropertyName.GEO_LOCATION.toString(), JSON_COORDINATES_PROPERTY);
+        @SuppressWarnings("unchecked")
+        Map<LumifyProperty, JsonProperty> optTweetMap = new HashMap<LumifyProperty, JsonProperty>();
+        optTweetMap.put(GEO_LOCATION, JSON_COORDINATES_PROPERTY);
         optTweetMap.put(LUMIFY_FAVORITE_COUNT_PROPERTY, JSON_FAVORITE_COUNT_PROPERTY);
         optTweetMap.put(LUMIFY_RETWEET_COUNT_PROPERTY, JSON_RETWEET_COUNT_PROPERTY);
         OPTIONAL_TWEET_PROPERTY_MAP = Collections.unmodifiableMap(optTweetMap);
 
-        Map<String, JsonProperty<?, ?>> optUserMap = new HashMap<String, JsonProperty<?, ?>>();
-        optUserMap.put(PropertyName.DISPLAY_NAME.toString(), JSON_DISPLAY_NAME_PROPERTY);
-        optUserMap.put(PropertyName.GEO_LOCATION.toString(), JSON_COORDINATES_PROPERTY);
+        @SuppressWarnings("unchecked")
+        Map<LumifyProperty, JsonProperty> optUserMap = new HashMap<LumifyProperty, JsonProperty>();
+        optUserMap.put(DISPLAY_NAME, JSON_DISPLAY_NAME_PROPERTY);
+        optUserMap.put(GEO_LOCATION, JSON_COORDINATES_PROPERTY);
         optUserMap.put(LUMIFY_STATUS_COUNT_PROPERTY, JSON_STATUS_COUNT_PROPERTY);
         optUserMap.put(LUMIFY_FOLLOWER_COUNT_PROPERTY, JSON_FOLLOWERS_COUNT_PROPERTY);
         optUserMap.put(LUMIFY_FOLLOWING_COUNT_PROPERTY, JSON_FRIENDS_COUNT_PROPERTY);
@@ -138,7 +158,7 @@ public class DefaultLumifyTwitterProcessor extends BaseArtifactProcessor impleme
         User user = getUser();
 
         String tweetText = JSON_TEXT_PROPERTY.getFrom(jsonTweet);
-        Long tweetCreatedAt = JSON_CREATED_AT_PROPERTY.getFrom(jsonTweet);
+        Date tweetCreatedAt = JSON_CREATED_AT_PROPERTY.getFrom(jsonTweet);
         String tweeterScreenName = JSON_SCREEN_NAME_PROPERTY.getFrom(JSON_USER_PROPERTY.getFrom(jsonTweet));
 
         // at minimum, the tweet text and user screen name must be set or this object cannot be
@@ -151,26 +171,26 @@ public class DefaultLumifyTwitterProcessor extends BaseArtifactProcessor impleme
         String rowKey = RowKeyHelper.buildSHA256KeyString(jsonBytes);
 
 
-        Object conceptId = getOntologyRepository().getConceptByName(CONCEPT_TWEET).getId();
-        if (conceptId instanceof String) {
-            conceptId = new Text((String) conceptId, TextIndexHint.EXACT_MATCH);
-        }
-        ElementMutation<Vertex> artifactMutation = findOrPrepareArtifactVertex(rowKey)
-                .setProperty(PropertyName.MIME_TYPE.toString(), new Text(TWEET_ARTIFACT_MIME_TYPE), visibility)
-                .setProperty(PropertyName.CONCEPT_TYPE.toString(), conceptId, visibility)
-                .setProperty(PropertyName.TITLE.toString(), new Text(tweetText), visibility)
-                .setProperty(PropertyName.AUTHOR.toString(), new Text(tweeterScreenName), visibility)
-                .setProperty(PropertyName.SOURCE.toString(), new Text(TWITTER_SOURCE), visibility)
-                .setProperty(PropertyName.PROCESS.toString(), new Text(processId, TextIndexHint.EXACT_MATCH), visibility)
-                .setProperty(PropertyName.ROW_KEY.toString(), new Text(rowKey, TextIndexHint.EXACT_MATCH), visibility);
+        Concept concept = getOntologyRepository().getConceptByName(CONCEPT_TWEET);
+        ElementMutation<Vertex> artifactMutation = findOrPrepareArtifactVertex(rowKey);
+        CONCEPT_TYPE.setProperty(artifactMutation, concept.getId(), visibility);
+        TITLE.setProperty(artifactMutation, tweetText, visibility);
+        SOURCE.setProperty(artifactMutation, TWITTER_SOURCE, visibility);
+        AUTHOR.setProperty(artifactMutation, tweeterScreenName, visibility);
+        MIME_TYPE.setProperty(artifactMutation, TWEET_ARTIFACT_MIME_TYPE, visibility);
+        ROW_KEY.setProperty(artifactMutation, rowKey, visibility);
+        PROCESS.setProperty(artifactMutation, processId, visibility);
 
         if (tweetCreatedAt != null) {
-            artifactMutation.setProperty(PropertyName.PUBLISHED_DATE.toString(), new Date(tweetCreatedAt), visibility);
+            PUBLISHED_DATE.setProperty(artifactMutation, tweetCreatedAt, visibility);
         }
 
-        artifactMutation.setProperty(PropertyName.TEXT.toString(), new StreamingPropertyValue(new ByteArrayInputStream(tweetText.getBytes()), String.class), visibility);
+        TEXT.setProperty(artifactMutation, new StreamingPropertyValue(new ByteArrayInputStream(tweetText.getBytes(TWITTER_CHARSET)),
+                String.class), visibility);
 
-        Vertex tweet = null;
+        setOptionalProps(artifactMutation, jsonTweet, OPTIONAL_TWEET_PROPERTY_MAP, visibility);
+
+        Vertex tweet;
         if (!(artifactMutation instanceof ExistingElementMutation)) {
             tweet = artifactMutation.save();
             getAuditRepository().auditVertexElementMutation(artifactMutation, tweet, processId, user);
@@ -206,7 +226,8 @@ public class DefaultLumifyTwitterProcessor extends BaseArtifactProcessor impleme
 
         Vertex userVertex = null;
         ElementMutation<Vertex> userVertexMutation;
-        Iterator<Vertex> userIterator = graph.query(lumifyUser.getAuthorizations()).has(PropertyName.TITLE.toString(), screenName).vertices().iterator();
+        Iterator<Vertex> userIterator = graph.query(lumifyUser.getAuthorizations()).
+                has(TITLE.getKey(), screenName).vertices().iterator();
         if (!userIterator.hasNext()) {
             userVertexMutation = graph.prepareVertex(visibility, lumifyUser.getAuthorizations());
         } else {
@@ -215,12 +236,10 @@ public class DefaultLumifyTwitterProcessor extends BaseArtifactProcessor impleme
             userVertexMutation = userVertex.prepareMutation();
         }
 
-        userVertexMutation.setProperty(PropertyName.TITLE.toString(), new Text(screenName), visibility);
-        Object handleConceptId = handleConcept.getId();
-        if (handleConceptId instanceof String) {
-            handleConceptId = new Text((String) handleConceptId, TextIndexHint.EXACT_MATCH);
-        }
-        userVertexMutation.setProperty(PropertyName.CONCEPT_TYPE.toString(), handleConceptId, visibility);
+        TITLE.setProperty(userVertexMutation, screenName, visibility);
+        CONCEPT_TYPE.setProperty(userVertexMutation, handleConcept.getId(), visibility);
+
+        setOptionalProps(userVertexMutation, jsonUser, OPTIONAL_USER_PROPERTY_MAP, visibility);
 
         if (!(userVertexMutation instanceof ExistingElementMutation)) {
             userVertex = userVertexMutation.save();
@@ -264,7 +283,7 @@ public class DefaultLumifyTwitterProcessor extends BaseArtifactProcessor impleme
 
                 Vertex termVertex = null;
                 ElementMutation<Vertex> termVertexMutation;
-                Iterator<Vertex> userIterator = graph.query(user.getAuthorizations()).has(PropertyName.TITLE.toString(), sign).vertices().iterator();
+                Iterator<Vertex> userIterator = graph.query(user.getAuthorizations()).has(TITLE.getKey(), sign).vertices().iterator();
                 if (!userIterator.hasNext()) {
                     termVertexMutation = graph.prepareVertex(visibility, user.getAuthorizations());
                 } else {
@@ -273,13 +292,9 @@ public class DefaultLumifyTwitterProcessor extends BaseArtifactProcessor impleme
                     termVertexMutation = termVertex.prepareMutation();
                 }
 
-                termVertexMutation.setProperty(PropertyName.TITLE.toString(), new Text(sign), visibility);
-                termVertexMutation.setProperty(PropertyName.ROW_KEY.toString(), new Text(rowKey, TextIndexHint.EXACT_MATCH), visibility);
-                Object conceptId = concept.getId();
-                if (conceptId instanceof String) {
-                    conceptId = new Text((String) conceptId, TextIndexHint.EXACT_MATCH);
-                }
-                termVertexMutation.setProperty(PropertyName.CONCEPT_TYPE.toString(), conceptId, visibility);
+                TITLE.setProperty(termVertexMutation, sign, visibility);
+                ROW_KEY.setProperty(termVertexMutation, rowKey, visibility);
+                CONCEPT_TYPE.setProperty(termVertexMutation, concept.getId(), visibility);
 
                 if (!(termVertexMutation instanceof ExistingElementMutation)) {
                     termVertex = termVertexMutation.save();
@@ -329,17 +344,14 @@ public class DefaultLumifyTwitterProcessor extends BaseArtifactProcessor impleme
                 StreamingPropertyValue raw = new StreamingPropertyValue(new ByteArrayInputStream(rawImg), byte[].class);
                 raw.searchIndex(false);
 
-                Object conceptId = getOntologyRepository().getConceptByName(CONCEPT_TWITTER_PROFILE_IMAGE).getId();
-                if (conceptId instanceof String) {
-                    conceptId = new Text((String) conceptId, TextIndexHint.EXACT_MATCH);
-                }
-                ElementMutation<Vertex> imageBuilder = findOrPrepareArtifactVertex(rowKey)
-                        .setProperty(PropertyName.MIME_TYPE.toString(), new Text(PROFILE_IMAGE_MIME_TYPE), visibility)
-                        .setProperty(PropertyName.CONCEPT_TYPE.toString(), conceptId, visibility)
-                        .setProperty(PropertyName.TITLE.toString(), new Text(String.format(IMAGE_ARTIFACT_TITLE_FMT, screenName)), visibility)
-                        .setProperty(PropertyName.SOURCE.toString(), new Text(IMAGE_ARTIFACT_SOURCE), visibility)
-                        .setProperty(PropertyName.PROCESS.toString(), new Text(processId), visibility)
-                        .setProperty(PropertyName.RAW.toString(), raw, visibility);
+                Concept concept = getOntologyRepository().getConceptByName(CONCEPT_TWITTER_PROFILE_IMAGE);
+                ElementMutation<Vertex> imageBuilder = findOrPrepareArtifactVertex(rowKey);
+                CONCEPT_TYPE.setProperty(imageBuilder, concept.getId(), visibility);
+                TITLE.setProperty(imageBuilder, String.format(IMAGE_ARTIFACT_TITLE_FMT, screenName), visibility);
+                SOURCE.setProperty(imageBuilder, IMAGE_ARTIFACT_SOURCE, visibility);
+                MIME_TYPE.setProperty(imageBuilder, PROFILE_IMAGE_MIME_TYPE, visibility);
+                PROCESS.setProperty(imageBuilder, processId, visibility);
+                RAW.setProperty(imageBuilder, raw, visibility);
 
                 Vertex imageVertex = null;
                 if (!(imageBuilder instanceof ExistingElementMutation)) {
@@ -354,9 +366,10 @@ public class DefaultLumifyTwitterProcessor extends BaseArtifactProcessor impleme
                 String labelDisplay = getOntologyRepository().getDisplayNameForLabel(ENTITY_HAS_IMAGE_HANDLE_PHOTO);
                 auditRepo.auditRelationship(AuditAction.CREATE, tweeterVertex, imageVertex, labelDisplay, processId, "", user);
 
+                // TO-DO: Replace GLYPH_ICON with ENTITY_IMAGE_URL
                 ElementMutation<Vertex> tweeterVertexMutation = tweeterVertex.prepareMutation();
-                tweeterVertexMutation.setProperty(PropertyName.GLYPH_ICON.toString(), new Text(String.format(GLYPH_ICON_FMT, imageVertex.getId()), TextIndexHint.EXACT_MATCH), visibility);
-                imageBuilder.setProperty(PropertyName.GLYPH_ICON.toString(), new Text(String.format(GLYPH_ICON_FMT, imageVertex.getId()), TextIndexHint.EXACT_MATCH), visibility);
+                tweeterVertexMutation.setProperty(GLYPH_ICON.getKey(), new Text(String.format(GLYPH_ICON_FMT, imageVertex.getId()), TextIndexHint.EXACT_MATCH), visibility);
+                imageBuilder.setProperty(GLYPH_ICON.getKey(), new Text(String.format(GLYPH_ICON_FMT, imageVertex.getId()), TextIndexHint.EXACT_MATCH), visibility);
 
                 auditRepo.auditVertexElementMutation(tweeterVertexMutation, tweeterVertex, processId, user);
                 auditRepo.auditVertexElementMutation(imageBuilder, imageVertex, processId, user);
@@ -398,18 +411,16 @@ public class DefaultLumifyTwitterProcessor extends BaseArtifactProcessor impleme
      * @param vertex   the target vertex
      * @param srcObj   the JSON object containing the property values
      * @param optProps the map of Lumify property key to JsonProperty used to extract the value from the source object
-     * @return the list of property keys that were modified
+     * @param visibility the visibility for all optional properties
      */
-    private List<String> setOptionalProps(final Vertex vertex, final JSONObject srcObj,
-                                          final Map<String, JsonProperty<?, ?>> optProps, Visibility visibility) {
-        List<String> modifiedProps = new ArrayList<String>(optProps.size());
-        for (Map.Entry<String, JsonProperty<?, ?>> optProp : optProps.entrySet()) {
+    @SuppressWarnings("unchecked") // we don't know the generic types of each Lumify and JsonProperty, need to use raw types
+    private void setOptionalProps(final ElementMutation<Vertex> vertex, final JSONObject srcObj,
+                                          final Map<LumifyProperty, JsonProperty> optProps, Visibility visibility) {
+        for (Map.Entry<LumifyProperty, JsonProperty> optProp : optProps.entrySet()) {
             Object value = optProp.getValue().getFrom(srcObj);
             if (value != null) {
-                vertex.setProperty(optProp.getKey(), value, visibility);
-                modifiedProps.add(optProp.getKey());
+                optProp.getKey().setProperty(vertex, value, visibility);
             }
         }
-        return modifiedProps;
     }
 }

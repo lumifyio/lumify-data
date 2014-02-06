@@ -1,23 +1,27 @@
 package com.altamiracorp.lumify.facebook;
 
+import static com.altamiracorp.lumify.core.model.ontology.OntologyLumifyProperties.CONCEPT_TYPE;
+import static com.altamiracorp.lumify.core.model.properties.EntityLumifyProperties.GEO_LOCATION;
+import static com.altamiracorp.lumify.core.model.properties.LumifyProperties.TITLE;
+import static com.altamiracorp.lumify.facebook.FacebookConstants.*;
+
 import com.altamiracorp.lumify.core.ingest.ArtifactExtractedInfo;
 import com.altamiracorp.lumify.core.model.audit.AuditAction;
 import com.altamiracorp.lumify.core.model.audit.AuditRepository;
 import com.altamiracorp.lumify.core.model.ontology.Concept;
 import com.altamiracorp.lumify.core.model.ontology.OntologyRepository;
-import com.altamiracorp.lumify.core.model.ontology.PropertyName;
 import com.altamiracorp.lumify.core.user.User;
 import com.altamiracorp.lumify.core.util.LumifyLogger;
 import com.altamiracorp.lumify.core.util.LumifyLoggerFactory;
 import com.altamiracorp.lumify.core.util.RowKeyHelper;
-import com.altamiracorp.securegraph.*;
+import com.altamiracorp.securegraph.ElementMutation;
+import com.altamiracorp.securegraph.Graph;
+import com.altamiracorp.securegraph.Vertex;
+import com.altamiracorp.securegraph.Visibility;
 import com.altamiracorp.securegraph.type.GeoPoint;
-import org.json.JSONObject;
-
 import java.util.Date;
 import java.util.Iterator;
-
-import static com.altamiracorp.lumify.facebook.FacebookConstants.*;
+import org.json.JSONObject;
 
 public class FacebookPost {
     private static final LumifyLogger LOGGER = LumifyLoggerFactory.getLogger(FacebookBolt.class);
@@ -72,9 +76,9 @@ public class FacebookPost {
         Vertex queryVertex = graph.getVertex(authorVid, user.getAuthorizations());
         if (queryVertex == null) {
             ElementMutation<Vertex> authorBuilder = graph.prepareVertex(authorVid, visibility, user.getAuthorizations());
-            authorBuilder.setProperty(PROFILE_ID, new Text(author_uid, TextIndexHint.EXACT_MATCH), visibility);
-            authorBuilder.setProperty(PropertyName.TITLE.toString(), new Text(author_uid), visibility);
-            authorBuilder.setProperty(PropertyName.CONCEPT_TYPE.toString(), new Text(profileConceptId, TextIndexHint.EXACT_MATCH), visibility);
+            PROFILE_ID.setProperty(authorBuilder, author_uid, visibility);
+            TITLE.setProperty(authorBuilder, author_uid, visibility);
+            CONCEPT_TYPE.setProperty(authorBuilder, profileConceptId, visibility);
             authorVertex = authorBuilder.save();
             auditRepository.auditVertexElementMutation(authorBuilder, authorVertex, PROCESS, user);
         } else {
@@ -85,8 +89,8 @@ public class FacebookPost {
         auditRepository.auditRelationship(AuditAction.CREATE, posting, authorVertex, postedRelationshipLabelDisplayName, PROCESS, "", user);
         graph.flush();
 
-        if (post.get(TAGGEED_UIDS) instanceof JSONObject) {
-            Iterator tagged = post.getJSONObject(TAGGEED_UIDS).keys();
+        if (post.get(TAGGED_UIDS) instanceof JSONObject) {
+            Iterator tagged = post.getJSONObject(TAGGED_UIDS).keys();
             while (tagged.hasNext()) {
                 String next = tagged.next().toString();
                 Vertex taggedVertex;
@@ -94,9 +98,9 @@ public class FacebookPost {
                 Vertex nextQueryVertex = graph.getVertex(taggedVid, user.getAuthorizations());
                 if (nextQueryVertex == null) {
                     ElementMutation<Vertex> taggedBuilder = graph.prepareVertex(taggedVid, visibility, user.getAuthorizations());
-                    taggedBuilder.setProperty(PROFILE_ID, new Text(next, TextIndexHint.EXACT_MATCH), visibility);
-                    taggedBuilder.setProperty(PropertyName.TITLE.toString(), new Text(next), visibility);
-                    taggedBuilder.setProperty(PropertyName.CONCEPT_TYPE.toString(), new Text(profileConceptId, TextIndexHint.EXACT_MATCH), visibility);
+                    PROFILE_ID.setProperty(taggedBuilder, next, visibility);
+                    TITLE.setProperty(taggedBuilder, next, visibility);
+                    CONCEPT_TYPE.setProperty(taggedBuilder, profileConceptId, visibility);
                     taggedVertex = taggedBuilder.save();
                     auditRepository.auditVertexElementMutation(taggedBuilder, taggedVertex, PROCESS, user);
                 } else {
@@ -113,7 +117,7 @@ public class FacebookPost {
             JSONObject coordinates = post.getJSONObject(COORDS);
             GeoPoint geo = new GeoPoint(coordinates.getDouble("latitude"), coordinates.getDouble("longitude"));
             ElementMutation<Vertex> postingMutation = posting.prepareMutation();
-            postingMutation.setProperty(PropertyName.GEO_LOCATION.toString(), geo, visibility);
+            GEO_LOCATION.setProperty(postingMutation, geo, visibility);
             auditRepository.auditVertexElementMutation(postingMutation, posting, PROCESS, user);
             posting = postingMutation.save();
         }

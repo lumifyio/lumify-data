@@ -1,19 +1,29 @@
 package com.altamiracorp.lumify.core.util;
 
-import com.altamiracorp.lumify.core.model.ontology.PropertyName;
+import static com.altamiracorp.lumify.core.model.properties.EntityLumifyProperties.*;
+
 import com.altamiracorp.lumify.core.security.VisibilityTranslator;
-import com.altamiracorp.securegraph.*;
+import com.altamiracorp.securegraph.Direction;
+import com.altamiracorp.securegraph.Edge;
+import com.altamiracorp.securegraph.Element;
+import com.altamiracorp.securegraph.ElementMutation;
+import com.altamiracorp.securegraph.Property;
+import com.altamiracorp.securegraph.Text;
+import com.altamiracorp.securegraph.Vertex;
+import com.altamiracorp.securegraph.Visibility;
 import com.altamiracorp.securegraph.property.StreamingPropertyValue;
 import com.altamiracorp.securegraph.type.GeoPoint;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.Map;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import java.util.Date;
-import java.util.HashMap;
-import java.util.Map;
-
 public class GraphUtil {
+    private static final String VISIBILITY_PROPERTY = "_visibility";
+    private static final String VISIBILITY_SOURCE_PROPERTY = "_visibilitySource";
+
     public static JSONArray toJson(Iterable<? extends Element> elements) {
         JSONArray result = new JSONArray();
         for (Element element : elements) {
@@ -88,30 +98,32 @@ public class GraphUtil {
 
         Object value = property.getValue();
         if (value instanceof Text) {
-            value = ((Text) value).getText();
-        }
-
-        if (value instanceof Date) {
+            result.put("value", ((Text) value).getText());
+        } else if (value instanceof Date) {
             result.put("value", ((Date) value).getTime());
         } else if (value instanceof GeoPoint) {
             GeoPoint geoPoint = (GeoPoint) property.getValue();
             result.put("latitude", geoPoint.getLatitude());
             result.put("longitude", geoPoint.getLongitude());
+            if (geoPoint.getAltitude() != null) {
+                result.put("altitude", geoPoint.getAltitude());
+            }
         } else {
             result.put("value", value);
         }
 
         if (property.getVisibility() != null) {
-            result.put(PropertyName.VISIBILITY.toString(), property.getVisibility().toString());
+            result.put(VISIBILITY_PROPERTY, property.getVisibility().toString());
         }
-        if (property.getMetadata() != null) {
-            result.put(PropertyName.VISIBILITY_SOURCE.toString(), property.getMetadata().get(PropertyName.VISIBILITY_SOURCE.toString()));
+        if (property.getMetadata() != null && property.getMetadata().get(VISIBILITY_SOURCE_PROPERTY) != null) {
+            result.put(VISIBILITY_SOURCE_PROPERTY, property.getMetadata().get(VISIBILITY_SOURCE_PROPERTY));
         }
 
         return result;
     }
 
-    public static ElementMutation setProperty(Element element, String propertyName, Object value, String visibilitySource, VisibilityTranslator visibilityTranslator) {
+    public static <T extends Element> ElementMutation<T> setProperty(T element, String propertyName, Object value, String visibilitySource,
+            VisibilityTranslator visibilityTranslator) {
         Property oldProperty = element.getProperty(propertyName);
         Map<String, Object> propertyMetadata;
         if (oldProperty != null) {
@@ -119,15 +131,15 @@ public class GraphUtil {
         } else {
             propertyMetadata = new HashMap<String, Object>();
         }
-        ElementMutation elementMutation = element.prepareMutation();
+        ElementMutation<T> elementMutation = element.prepareMutation();
 
         Visibility visibility = visibilityTranslator.toVisibility(visibilitySource);
-        propertyMetadata.put(PropertyName.VISIBILITY_SOURCE.toString(), visibilitySource);
+        propertyMetadata.put(VISIBILITY_SOURCE_PROPERTY, visibilitySource);
 
-        if (propertyName.equals(PropertyName.GEO_LOCATION.toString())) {
+        if (GEO_LOCATION.getKey().equals(propertyName)) {
             GeoPoint geoPoint = (GeoPoint) value;
-            elementMutation.setProperty(PropertyName.GEO_LOCATION.toString(), geoPoint, propertyMetadata, visibility);
-            elementMutation.setProperty(PropertyName.GEO_LOCATION_DESCRIPTION.toString(), "", propertyMetadata, visibility);
+            GEO_LOCATION.setProperty(elementMutation, geoPoint, propertyMetadata, visibility);
+            GEO_LOCATION_DESCRIPTION.setProperty(elementMutation, "", propertyMetadata, visibility);
         } else {
             elementMutation.setProperty(propertyName, value, propertyMetadata, visibility);
         }
