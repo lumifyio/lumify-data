@@ -103,7 +103,7 @@ function bundle_storm {
 }
 
 
-test_ssh root@${elastic_ip}
+[ "${elastic_ip}" != '-' ] && test_ssh root@${elastic_ip}
 
 FILE_LIST=${HOSTS_FILE}
 
@@ -138,7 +138,11 @@ case ${component} in
     ;;
 esac
 
-scp ${SSH_OPTS} ${FILE_LIST} root@${elastic_ip}:
+if [ "${elastic_ip}" != '-' ]; then
+  scp ${SSH_OPTS} ${FILE_LIST} root@${elastic_ip}:
+else
+  cp ${FILE_LIST} ~root
+fi
 
 for file in ${FILE_LIST}; do
   case ${file} in

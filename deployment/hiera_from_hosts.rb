@@ -16,11 +16,18 @@ end
 
 def get(cluster, regex, type)
   array = cluster.select{|k,v| k.match(regex)}.collect{|k,v| v[type]}.flatten
-  array.size == 1 ? array.first : array
+  if array.size == 0
+    nil
+  elsif array.size == 1
+    array.first
+  else
+    array
+  end
 end
 
 hiera = Hash.new
-hiera['proxy_url'] = 'http://' + get(cluster, /puppet/, :ip) + ':8080'
+proxy = get(cluster, /proxy/, :ip)
+hiera['proxy_url'] = 'http://' + proxy + ':8080' if proxy
 hiera['hadoop_masters'] = cluster['namenode'][:ip].to_a
 hiera['hadoop_slaves'] = get(cluster, /node\d{2}/, :ip)
 hiera['accumulo_example_config'] = '3GB/native-standalone'

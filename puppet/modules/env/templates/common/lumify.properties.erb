@@ -37,5 +37,5 @@ graph.idgenerator=com.altamiracorp.securegraph.id.UUIDIdGenerator
 graph.search=com.altamiracorp.securegraph.elasticsearch.ElasticSearchSearchIndex
 graph.search.locations=<%= @elasticsearch_locations.join(',') %>
 graph.search.indexName=securegraph
-graph.hdfs.rootDir=hdfs://lumify/
+graph.hdfs.rootDir=hdfs://<%= @hadoop_masters[0] %>/
 graph.hdfs.dataDir=secureGraph

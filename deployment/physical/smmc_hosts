@@ -1,8 +1,9 @@
-192.168.203.201  nic-hadoop-smmc01.nearinfinity.com  puppet www
-192.168.203.202  nic-hadoop-smmc02.nearinfinity.com  osm maptileserver
-192.168.203.203  nic-hadoop-smmc03.nearinfinity.com  namenode jobtracker
-192.168.203.204  nic-hadoop-smmc04.nearinfinity.com  secondarynamenode accumulomaster
-192.168.203.205  nic-hadoop-smmc05.nearinfinity.com  node01 zk01
-192.168.203.206  nic-hadoop-smmc06.nearinfinity.com  node02 zk02
-192.168.203.207  nic-hadoop-smmc07.nearinfinity.com  node03 zk03
-192.168.203.208  nic-hadoop-smmc08.nearinfinity.com  node04
+10.0.1.200  puppet.361.lumify.io  puppet
+10.0.1.201  smmc01.361.lumify.io  osm maptileserver
+10.0.1.202  smmc02.361.lumify.io  namenode jobtracker stormmaster
+10.0.1.203  smmc03.361.lumify.io  secondarynamenode accumulomaster
+10.0.1.204  smmc04.361.lumify.io  node04 zk04
+10.0.1.205  smmc05.361.lumify.io  node05 zk05
+10.0.1.206  smmc06.361.lumify.io  node06 zk06
+10.0.1.207  smmc07.361.lumify.io  node07
+10.0.1.208  smmc08.361.lumify.io  node08 www08
