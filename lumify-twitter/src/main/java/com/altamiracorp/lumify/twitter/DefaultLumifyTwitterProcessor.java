@@ -153,7 +153,7 @@ public class DefaultLumifyTwitterProcessor extends BaseArtifactProcessor impleme
 
         Object conceptId = getOntologyRepository().getConceptByName(CONCEPT_TWEET).getId();
         if (conceptId instanceof String) {
-            conceptId = new Text((String) conceptId, TextIndex.EXACT_MATCH);
+            conceptId = new Text((String) conceptId, TextIndexHint.EXACT_MATCH);
         }
         ElementMutation<Vertex> artifactMutation = findOrPrepareArtifactVertex(rowKey)
                 .setProperty(PropertyName.MIME_TYPE.toString(), new Text(TWEET_ARTIFACT_MIME_TYPE), visibility)
@@ -161,8 +161,8 @@ public class DefaultLumifyTwitterProcessor extends BaseArtifactProcessor impleme
                 .setProperty(PropertyName.TITLE.toString(), new Text(tweetText), visibility)
                 .setProperty(PropertyName.AUTHOR.toString(), new Text(tweeterScreenName), visibility)
                 .setProperty(PropertyName.SOURCE.toString(), new Text(TWITTER_SOURCE), visibility)
-                .setProperty(PropertyName.PROCESS.toString(), new Text(processId, TextIndex.EXACT_MATCH), visibility)
-                .setProperty(PropertyName.ROW_KEY.toString(), new Text(rowKey, TextIndex.EXACT_MATCH), visibility);
+                .setProperty(PropertyName.PROCESS.toString(), new Text(processId, TextIndexHint.EXACT_MATCH), visibility)
+                .setProperty(PropertyName.ROW_KEY.toString(), new Text(rowKey, TextIndexHint.EXACT_MATCH), visibility);
 
         if (tweetCreatedAt != null) {
             artifactMutation.setProperty(PropertyName.PUBLISHED_DATE.toString(), new Date(tweetCreatedAt), visibility);
@@ -218,7 +218,7 @@ public class DefaultLumifyTwitterProcessor extends BaseArtifactProcessor impleme
         userVertexMutation.setProperty(PropertyName.TITLE.toString(), new Text(screenName), visibility);
         Object handleConceptId = handleConcept.getId();
         if (handleConceptId instanceof String) {
-            handleConceptId = new Text((String) handleConceptId, TextIndex.EXACT_MATCH);
+            handleConceptId = new Text((String) handleConceptId, TextIndexHint.EXACT_MATCH);
         }
         userVertexMutation.setProperty(PropertyName.CONCEPT_TYPE.toString(), handleConceptId, visibility);
 
@@ -274,10 +274,10 @@ public class DefaultLumifyTwitterProcessor extends BaseArtifactProcessor impleme
                 }
 
                 termVertexMutation.setProperty(PropertyName.TITLE.toString(), new Text(sign), visibility);
-                termVertexMutation.setProperty(PropertyName.ROW_KEY.toString(), new Text(rowKey, TextIndex.EXACT_MATCH), visibility);
+                termVertexMutation.setProperty(PropertyName.ROW_KEY.toString(), new Text(rowKey, TextIndexHint.EXACT_MATCH), visibility);
                 Object conceptId = concept.getId();
                 if (conceptId instanceof String) {
-                    conceptId = new Text((String) conceptId, TextIndex.EXACT_MATCH);
+                    conceptId = new Text((String) conceptId, TextIndexHint.EXACT_MATCH);
                 }
                 termVertexMutation.setProperty(PropertyName.CONCEPT_TYPE.toString(), conceptId, visibility);
 
@@ -331,7 +331,7 @@ public class DefaultLumifyTwitterProcessor extends BaseArtifactProcessor impleme
 
                 Object conceptId = getOntologyRepository().getConceptByName(CONCEPT_TWITTER_PROFILE_IMAGE).getId();
                 if (conceptId instanceof String) {
-                    conceptId = new Text((String) conceptId, TextIndex.EXACT_MATCH);
+                    conceptId = new Text((String) conceptId, TextIndexHint.EXACT_MATCH);
                 }
                 ElementMutation<Vertex> imageBuilder = findOrPrepareArtifactVertex(rowKey)
                         .setProperty(PropertyName.MIME_TYPE.toString(), new Text(PROFILE_IMAGE_MIME_TYPE), visibility)
@@ -355,8 +355,8 @@ public class DefaultLumifyTwitterProcessor extends BaseArtifactProcessor impleme
                 auditRepo.auditRelationship(AuditAction.CREATE, tweeterVertex, imageVertex, labelDisplay, processId, "", user);
 
                 ElementMutation<Vertex> tweeterVertexMutation = tweeterVertex.prepareMutation();
-                tweeterVertexMutation.setProperty(PropertyName.GLYPH_ICON.toString(), new Text(String.format(GLYPH_ICON_FMT, imageVertex.getId()), TextIndex.EXACT_MATCH), visibility);
-                imageBuilder.setProperty(PropertyName.GLYPH_ICON.toString(), new Text(String.format(GLYPH_ICON_FMT, imageVertex.getId()), TextIndex.EXACT_MATCH), visibility);
+                tweeterVertexMutation.setProperty(PropertyName.GLYPH_ICON.toString(), new Text(String.format(GLYPH_ICON_FMT, imageVertex.getId()), TextIndexHint.EXACT_MATCH), visibility);
+                imageBuilder.setProperty(PropertyName.GLYPH_ICON.toString(), new Text(String.format(GLYPH_ICON_FMT, imageVertex.getId()), TextIndexHint.EXACT_MATCH), visibility);
 
                 auditRepo.auditVertexElementMutation(tweeterVertexMutation, tweeterVertex, processId, user);
                 auditRepo.auditVertexElementMutation(imageBuilder, imageVertex, processId, user);

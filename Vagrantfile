@@ -55,6 +55,15 @@ Vagrant.configure('2') do |config|
     rpm.vm.provision :shell, :path => "lumify-rpms/configure-vm.sh"
   end
 
+  # used to manage the local SMMC cluster
+  config.vm.define "puppet" do |puppet|
+    puppet.vm.hostname = 'puppet'
+    puppet.vm.network :public_network, :ip => '10.0.1.200'
+    puppet.vm.provision :shell, :inline => "yum install -y git"
+    puppet.vm.provision :shell, :inline => "cd /vagrant/deployment && ./push.sh - physical/smmc_hosts"
+    puppet.vm.provision :shell, :inline => "cd && ./init.sh smmc_hosts local"
+  end
+
   # used for development including closed source enterprise features
   config.vm.define "dev", :primary => true do |dev|
     dev.vm.provision :shell, :inline => "mkdir -p /data0 /opt/lumify /opt/lumify/logs"
@@ -69,7 +78,7 @@ Vagrant.configure('2') do |config|
     demo.vm.provision :puppet do |puppet|
       configure_puppet(puppet, 'demo_opensource_vm.pp')
     end
-    demo.vm.provision :shell, :path => "demo-vm/configure-vm.sh", :args => "sample-data-html.tgz" 
+    demo.vm.provision :shell, :path => "demo-vm/configure-vm.sh", :args => "opensource sample-data-html.tgz" 
   end
 
   # used to create the downloadable enterprise demo VM
@@ -78,6 +87,6 @@ Vagrant.configure('2') do |config|
     demo.vm.provision :puppet do |puppet|
       configure_puppet(puppet, 'demo_enterprise_vm.pp')
     end
-    demo.vm.provision :shell, :path => "demo-vm/configure-vm.sh", :args => "chechen-terrorists.tgz"
+    demo.vm.provision :shell, :path => "demo-vm/configure-vm.sh", :args => "enterprise chechen-terrorists.tgz"
   end
 end

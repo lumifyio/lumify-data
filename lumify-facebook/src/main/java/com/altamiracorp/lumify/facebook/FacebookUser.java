@@ -65,7 +65,7 @@ public class FacebookUser {
 
         if (userJson.has(SEX) && !userJson.getString(SEX).equals(JSONObject.NULL)) {
             String gender = userJson.getString(SEX);
-            userVertexMutation.setProperty(GENDER, new Text(gender, TextIndex.EXACT_MATCH), visibility);
+            userVertexMutation.setProperty(GENDER, new Text(gender, TextIndexHint.EXACT_MATCH), visibility);
         }
 
         if (userJson.has(EMAIL) && !userJson.getString(EMAIL).equals(JSONObject.NULL)) {
@@ -79,7 +79,7 @@ public class FacebookUser {
                 emailBuilder.setProperty(PropertyName.TITLE.toString(), new Text(email), visibility);
                 Object emailConceptId = emailConcept.getId();
                 if (emailConceptId instanceof String) {
-                    emailConceptId = new Text((String) emailConceptId, TextIndex.EXACT_MATCH);
+                    emailConceptId = new Text((String) emailConceptId, TextIndexHint.EXACT_MATCH);
                 }
                 emailBuilder.setProperty(PropertyName.CONCEPT_TYPE.toString(), emailConceptId, visibility);
                 emailVertex = emailBuilder.save();
@@ -157,8 +157,8 @@ public class FacebookUser {
         Visibility visibility = new Visibility("");
         ElementMutation<Vertex> userVertexMutation = userVertex.prepareMutation();
         ElementMutation<Vertex> pictureVertexMutation = pictureVertex.prepareMutation();
-        userVertexMutation.setProperty(PropertyName.GLYPH_ICON.toString(), new Text("/artifact/" + pictureVertex.getId() + "/raw", TextIndex.EXACT_MATCH), visibility);
-        pictureVertexMutation.setProperty(PropertyName.GLYPH_ICON.toString(), new Text("/artifact/" + pictureVertex.getId() + "/raw", TextIndex.EXACT_MATCH), visibility);
+        userVertexMutation.setProperty(PropertyName.GLYPH_ICON.toString(), new Text("/artifact/" + pictureVertex.getId() + "/raw", TextIndexHint.EXACT_MATCH), visibility);
+        pictureVertexMutation.setProperty(PropertyName.GLYPH_ICON.toString(), new Text("/artifact/" + pictureVertex.getId() + "/raw", TextIndexHint.EXACT_MATCH), visibility);
 
         auditRepository.auditVertexElementMutation(userVertexMutation, userVertex, PROCESS, user);
         auditRepository.auditVertexElementMutation(pictureVertexMutation, pictureVertex, PROCESS, user);

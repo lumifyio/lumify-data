@@ -72,9 +72,9 @@ public class FacebookPost {
         Vertex queryVertex = graph.getVertex(authorVid, user.getAuthorizations());
         if (queryVertex == null) {
             ElementMutation<Vertex> authorBuilder = graph.prepareVertex(authorVid, visibility, user.getAuthorizations());
-            authorBuilder.setProperty(PROFILE_ID, new Text(author_uid, TextIndex.EXACT_MATCH), visibility);
+            authorBuilder.setProperty(PROFILE_ID, new Text(author_uid, TextIndexHint.EXACT_MATCH), visibility);
             authorBuilder.setProperty(PropertyName.TITLE.toString(), new Text(author_uid), visibility);
-            authorBuilder.setProperty(PropertyName.CONCEPT_TYPE.toString(), new Text(profileConceptId, TextIndex.EXACT_MATCH), visibility);
+            authorBuilder.setProperty(PropertyName.CONCEPT_TYPE.toString(), new Text(profileConceptId, TextIndexHint.EXACT_MATCH), visibility);
             authorVertex = authorBuilder.save();
             auditRepository.auditVertexElementMutation(authorBuilder, authorVertex, PROCESS, user);
         } else {
@@ -94,9 +94,9 @@ public class FacebookPost {
                 Vertex nextQueryVertex = graph.getVertex(taggedVid, user.getAuthorizations());
                 if (nextQueryVertex == null) {
                     ElementMutation<Vertex> taggedBuilder = graph.prepareVertex(taggedVid, visibility, user.getAuthorizations());
-                    taggedBuilder.setProperty(PROFILE_ID, new Text(next, TextIndex.EXACT_MATCH), visibility);
+                    taggedBuilder.setProperty(PROFILE_ID, new Text(next, TextIndexHint.EXACT_MATCH), visibility);
                     taggedBuilder.setProperty(PropertyName.TITLE.toString(), new Text(next), visibility);
-                    taggedBuilder.setProperty(PropertyName.CONCEPT_TYPE.toString(), new Text(profileConceptId, TextIndex.EXACT_MATCH), visibility);
+                    taggedBuilder.setProperty(PropertyName.CONCEPT_TYPE.toString(), new Text(profileConceptId, TextIndexHint.EXACT_MATCH), visibility);
                     taggedVertex = taggedBuilder.save();
                     auditRepository.auditVertexElementMutation(taggedBuilder, taggedVertex, PROCESS, user);
                 } else {
