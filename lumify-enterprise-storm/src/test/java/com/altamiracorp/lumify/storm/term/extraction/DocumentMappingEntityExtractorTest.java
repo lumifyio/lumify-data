@@ -9,6 +9,7 @@ import static org.mockito.Mockito.*;
 import com.altamiracorp.lumify.core.ingest.term.extraction.TermExtractionResult;
 import com.altamiracorp.lumify.core.user.User;
 import com.altamiracorp.lumify.mapping.DocumentMapping;
+import com.altamiracorp.securegraph.Text;
 import com.altamiracorp.securegraph.Vertex;
 import com.altamiracorp.securegraph.property.StreamingPropertyValue;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -57,7 +58,7 @@ public class DocumentMappingEntityExtractorTest {
     public void setup() throws Exception {
         when(vertex.getId()).thenReturn(TEST_VERTEX_ID);
         when(vertex.getPropertyValue(ROW_KEY.getKey())).thenReturn(TEST_ROW_KEY);
-        when(vertex.getPropertyValue(MAPPING_JSON.getKey())).thenReturn(TEST_JSON_MAPPING);
+        when(vertex.getPropertyValue(MAPPING_JSON.getKey())).thenReturn(new Text(TEST_JSON_MAPPING));
         when(jsonMapper.readValue(TEST_JSON_MAPPING, DocumentMapping.class)).thenReturn(docMapping);
 
         extractor = new DocumentMappingEntityExtractor();

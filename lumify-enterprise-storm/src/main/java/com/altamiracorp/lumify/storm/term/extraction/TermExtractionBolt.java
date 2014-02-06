@@ -131,7 +131,7 @@ public class TermExtractionBolt extends BaseTextProcessingBolt {
                 LOGGER.error("Could not find ontology graph vertex '%s'", termMention.getOntologyClassUri());
                 continue;
             }
-            termMentionModel.getMetadata().setConceptGraphVertexId(concept.getId().toString());
+            termMentionModel.getMetadata().setConceptGraphVertexId(concept.getId());
 
             if (termMention.isResolved()) {
                 String title = termMention.getSign();
@@ -162,6 +162,8 @@ public class TermExtractionBolt extends BaseTextProcessingBolt {
                     Map<String, Object> properties = termMention.getPropertyValue();
                     for (String key : properties.keySet()) {
                         // TODO should we wrap these properties in secure graph Text classes?
+                        // GS - No.  Leave it up to the property generator to provide Text objects if they
+                        // want index control; see CLAVIN for example
                         vertexElementMutation.setProperty(key, properties.get(key), new Visibility(""));
                     }
                 }
