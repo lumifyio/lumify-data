@@ -53,7 +53,13 @@ setup
 service jetty stop && rm -f /opt/jetty/logs/* && service jetty start && tail -f /opt/jetty/logs/*
 ```
 
-- web brose to https://demo.lumify.io/admin/uploadOntology.html and upload `dev-ontology.zip`
+- web browse to https://demo.lumify.io/admin/uploadOntology.html and upload `dev-ontology.zip`
+
+- OPTIONAL: import wikipedia data
+
+```
+java -cp lumify-wikipedia.jar:/opt/storm/storm-0.8.1.jar com.altamiracorp.lumify.wikipedia.Import -in /data0/enwiki-20140102-pages-articles.xml
+```
 
 - ssh from the puppet server to storm nimbus server and run:
 
