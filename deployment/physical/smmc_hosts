@@ -1,9 +1,9 @@
-10.0.1.200  puppet  puppet
-10.0.1.201  smmc01  osm maptileserver
-10.0.1.202  smmc02  namenode jobtracker stormmaster
-10.0.1.203  smmc03  secondarynamenode accumulomaster
-10.0.1.204  smmc04  node04 zk04
-10.0.1.205  smmc05  node05 zk05
-10.0.1.206  smmc06  node06 zk06
-10.0.1.207  smmc07  node07
-10.0.1.208  smmc08  node08 www08
+10.0.1.200  puppet.361.lumify.io  puppet
+10.0.1.201  smmc01.361.lumify.io  osm maptileserver
+10.0.1.202  smmc02.361.lumify.io  namenode jobtracker stormmaster
+10.0.1.203  smmc03.361.lumify.io  secondarynamenode accumulomaster
+10.0.1.204  smmc04.361.lumify.io  node04 zk04
+10.0.1.205  smmc05.361.lumify.io  node05 zk05
+10.0.1.206  smmc06.361.lumify.io  node06 zk06
+10.0.1.207  smmc07.361.lumify.io  node07
+10.0.1.208  smmc08.361.lumify.io  node08 www08
