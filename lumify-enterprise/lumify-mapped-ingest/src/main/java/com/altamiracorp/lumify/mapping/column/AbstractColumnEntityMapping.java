@@ -23,6 +23,11 @@ public abstract class AbstractColumnEntityMapping implements ColumnEntityMapping
     public static final boolean DEFAULT_USE_EXISTING = false;
 
     /**
+     * The ColumnValue used as the ID of this entity.
+     */
+    private final ColumnValue<?> idColumn;
+
+    /**
      * The ColumnValue used as the sign of this entity.
      */
     private final ColumnValue<String> signColumn;
@@ -45,14 +50,16 @@ public abstract class AbstractColumnEntityMapping implements ColumnEntityMapping
 
     /**
      * Create a new ColumnEntityMapping.
+     * @param idCol the ColumnValue providing the ID of this entity; if null, the system will use an auto-generated ID
      * @param signCol the ColumnValue providing the sign of this entity
      * @param props the properties of this entity
      * @param useExisting should existing entities be reused? null for default
      * @param required is this entity required? null for default
      */
-    public AbstractColumnEntityMapping(final ColumnValue<String> signCol, final Map<String, ColumnValue<?>> props,
+    public AbstractColumnEntityMapping(final ColumnValue<?> idCol, final ColumnValue<String> signCol, final Map<String, ColumnValue<?>> props,
             final Boolean useExisting, final Boolean required) {
         checkNotNull(signCol, "sign column must be provided");
+        this.idColumn = idCol;
         this.signColumn = signCol;
         Map<String, ColumnValue<?>> myProps = new HashMap<String, ColumnValue<?>>();
         if (props != null) {
@@ -69,6 +76,10 @@ public abstract class AbstractColumnEntityMapping implements ColumnEntityMapping
      * @return the concept URI
      */
     protected abstract String getConceptURI(final List<String> row);
+
+    public final ColumnValue<?> getIdColumn() {
+        return idColumn;
+    }
 
     public final ColumnValue<String> getSignColumn() {
         return signColumn;
@@ -102,6 +113,7 @@ public abstract class AbstractColumnEntityMapping implements ColumnEntityMapping
      */
     @Override
     public final TermMention mapTerm(final List<String> row, final int offset, final String processId) {
+        Object id = idColumn != null ? idColumn.getValue(row) : null;
         String sign = signColumn.getValue(row);
         String conceptURI = getConceptURI(row);
         TermMention mention;
@@ -114,6 +126,7 @@ public abstract class AbstractColumnEntityMapping implements ColumnEntityMapping
             }
         } else {
             TermMention.Builder builder = new TermMention.Builder()
+                    .id(id)
                     .start(offset)
                     .end(offset + sign.length())
                     .sign(sign)

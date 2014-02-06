@@ -27,6 +27,7 @@ public class ConceptLookupColumnEntityMapping extends AbstractColumnEntityMappin
 
     /**
      * Create a new ConstantConceptColumnEntityMapping.
+     * @param idCol the ColumnValue providing the ID of this entity; null for auto-generated ID
      * @param signCol the ColumnValue providing the sign of this entity
      * @param concept the ColumnValue providing the concept URI for this entity
      * @param props the properties of this entity
@@ -34,12 +35,13 @@ public class ConceptLookupColumnEntityMapping extends AbstractColumnEntityMappin
      * @param required is this entity required? null for default
      */
     @JsonCreator
-    public ConceptLookupColumnEntityMapping(@JsonProperty("signColumn") final ColumnValue<String> signCol,
+    public ConceptLookupColumnEntityMapping(@JsonProperty("idColumn") final ColumnValue<?> idCol,
+            @JsonProperty("signColumn") final ColumnValue<String> signCol,
             @JsonProperty("conceptColumn") final ColumnValue<String> concept,
             @JsonProperty(value="properties", required=false) final Map<String, ColumnValue<?>> props,
             @JsonProperty(value="useExisting", required=false) final Boolean useExisting,
             @JsonProperty(value="required", required=false) final Boolean required) {
-        super(signCol, props, useExisting, required);
+        super(idCol, signCol, props, useExisting, required);
         checkNotNull(concept, "Concept column must be provided");
         this.conceptColumn = concept;
     }
