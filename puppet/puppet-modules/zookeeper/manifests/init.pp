@@ -8,7 +8,9 @@ class zookeeper {
 
   $zookeeper_nodes = hiera_hash('zookeeper_nodes')
 
-  if $interfaces =~ /eth1/ {
+  if $interfaces =~ /bond0/ { # support smmc
+    $zookeeper_node_ip = $ipaddress_bond0
+  } else if $interfaces =~ /eth1/ { # support dev vm
     $zookeeper_node_ip = $ipaddress_eth1
   } else {
     $zookeeper_node_ip = $ipaddress_eth0
