@@ -66,4 +66,10 @@ rm -rf /opt/lumify/import
  com.altamiracorp.lumify.storm.StormRunner
 /opt/storm/bin/storm jar \
  /vagrant/lumify-enterprise/lumify-enterprise-storm/target/lumify-enterprise-storm-1.0-SNAPSHOT-jar-with-dependencies.jar \
- com.altamiracorp.lumify.storm.StormEnterpriseRunner 
+ com.altamiracorp.lumify.storm.StormEnterpriseRunner
+
+if [ "$1" == 'opensource' ]; then
+  sleep 5
+  echo 'Don't forget to stop storm enterprise before exporting the vm'
+fi
+fi

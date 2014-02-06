@@ -5,7 +5,7 @@ if [ "$1" == '' ]; then
   exit 1
 fi
 
-(rm -f /opt/lumify/config/* && cd /vagrant && bin/config.sh $1)
+(rm -f /opt/lumify/config/*.properties && cd /vagrant && bin/config.sh $1)
 
 /opt/lumify/stop.sh
 

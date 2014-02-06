@@ -1,4 +1,11 @@
-#!/bin/bash -eu
+#!/bin/bash 
+
+if [ "$1" == '' ]; then
+  echo 'ERROR: Must specify which VM you would like to export'
+  exit 1
+fi
+
+VM_NAME="$1"
 
 SOURCE="${BASH_SOURCE[0]}"
 while [ -h "$SOURCE" ]; do
@@ -30,19 +37,18 @@ function _remove_vm_shared_folder {
   VBoxManage sharedfolder remove ${id} --name ${name}
 }
 
-
-id=$(cat ${DIR}/../.vagrant/machines/demo/virtualbox/id)
+id=$(cat ${DIR}/../.vagrant/machines/${VM_NAME}/virtualbox/id)
 version=$(date +'%Y-%m-%d')
-ova_filename=${DIR}/lumify-${version}.ova
+ova_filename=${DIR}/lumify-${VM_NAME}-${version}.ova
 
-vagrant halt demo
+vagrant halt ${VM_NAME} 
 
 for name in $(_get_vm_property ${id} 'SharedFolderNameMachineMapping[0-9]'); do
   _remove_vm_shared_folder ${id} ${name}
 done
 
 original_vm_name=$(_get_vm_property ${id} name)
-_set_vm_property ${id} name lumify-demo
+_set_vm_property ${id} name lumify-${VM_NAME}
 
 rm -f ${ova_filename}
 VBoxManage export ${id} \
