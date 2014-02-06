@@ -11,6 +11,7 @@ fs.provider=com.altamiracorp.lumify.fs.hdfs.HdfsSession
 #work-queue-repository=com.altamiracorp.lumify.model.KafkaWorkQueueRepository
 work-queue-repository=com.altamiracorp.lumify.model.bigtablequeue.BigTableWorkQueueRepository
 work-queue-repository.tableprefix=atc_accumuloqueue_
+security.visibilityTranslator=com.altamiracorp.lumify.core.security.DirectVisibilityTranslator
 
 # Application-wide
 hadoop.url=hdfs://<%= @hadoop_masters[0] %>:8020
