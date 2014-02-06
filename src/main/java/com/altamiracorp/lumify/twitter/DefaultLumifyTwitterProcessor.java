@@ -16,50 +16,40 @@
 
 package com.altamiracorp.lumify.twitter;
 
-import static com.altamiracorp.lumify.core.model.ontology.OntologyLumifyProperties.*;
-import static com.altamiracorp.lumify.core.model.properties.EntityLumifyProperties.*;
-import static com.altamiracorp.lumify.core.model.properties.LumifyProperties.*;
-import static com.altamiracorp.lumify.core.model.properties.RawLumifyProperties.*;
-import static com.altamiracorp.lumify.twitter.TwitterConstants.*;
-
 import com.altamiracorp.bigtable.model.FlushFlag;
 import com.altamiracorp.lumify.core.ingest.BaseArtifactProcessor;
-import com.altamiracorp.lumify.core.ingest.term.extraction.TermRegexFinder;
 import com.altamiracorp.lumify.core.json.JsonProperty;
 import com.altamiracorp.lumify.core.model.audit.AuditAction;
 import com.altamiracorp.lumify.core.model.audit.AuditRepository;
 import com.altamiracorp.lumify.core.model.ontology.Concept;
 import com.altamiracorp.lumify.core.model.ontology.OntologyRepository;
+import com.altamiracorp.lumify.core.model.properties.LumifyProperties;
 import com.altamiracorp.lumify.core.model.properties.LumifyProperty;
 import com.altamiracorp.lumify.core.model.termMention.TermMentionModel;
+import com.altamiracorp.lumify.core.model.termMention.TermMentionRowKey;
 import com.altamiracorp.lumify.core.user.User;
 import com.altamiracorp.lumify.core.util.LumifyLogger;
 import com.altamiracorp.lumify.core.util.LumifyLoggerFactory;
 import com.altamiracorp.lumify.core.util.RowKeyHelper;
-import com.altamiracorp.securegraph.Direction;
-import com.altamiracorp.securegraph.Edge;
-import com.altamiracorp.securegraph.ElementMutation;
-import com.altamiracorp.securegraph.ExistingElementMutation;
-import com.altamiracorp.securegraph.Graph;
-import com.altamiracorp.securegraph.Text;
-import com.altamiracorp.securegraph.TextIndexHint;
-import com.altamiracorp.securegraph.Vertex;
-import com.altamiracorp.securegraph.Visibility;
+import com.altamiracorp.securegraph.*;
 import com.altamiracorp.securegraph.property.StreamingPropertyValue;
 import com.google.inject.Inject;
-import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.net.MalformedURLException;
-import java.util.Collections;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
 import org.apache.commons.io.IOUtils;
+import org.json.JSONArray;
 import org.json.JSONObject;
+
+import java.io.*;
+import java.net.MalformedURLException;
+import java.net.URLEncoder;
+import java.util.*;
+
+import static com.altamiracorp.lumify.core.model.ontology.OntologyLumifyProperties.CONCEPT_TYPE;
+import static com.altamiracorp.lumify.core.model.properties.EntityLumifyProperties.GEO_LOCATION;
+import static com.altamiracorp.lumify.core.model.properties.EntityLumifyProperties.SOURCE;
+import static com.altamiracorp.lumify.core.model.properties.LumifyProperties.*;
+import static com.altamiracorp.lumify.core.model.properties.RawLumifyProperties.*;
+import static com.altamiracorp.lumify.twitter.TwitterConstants.*;
+import static com.google.common.base.Preconditions.checkNotNull;
 
 /**
  * Default implementation of the LumifyTwitterProcessor.
@@ -113,6 +103,10 @@ public class DefaultLumifyTwitterProcessor extends BaseArtifactProcessor impleme
      */
     @SuppressWarnings("unchecked")
     private static final Map<LumifyProperty, JsonProperty> OPTIONAL_USER_PROPERTY_MAP;
+
+    private static final String TWITTER_USER_PREFIX = "twitter-user-";
+    private static final String TWITTER_HASHTAG_PREFIX = "twitter-hashtag-";
+    private static final String TWITTER_URL_PREFIX = "twitter-url-";
 
     /**
      * Initialize the Optional Property maps.
@@ -224,15 +218,13 @@ public class DefaultLumifyTwitterProcessor extends BaseArtifactProcessor impleme
 
         Concept handleConcept = getOntologyRepository().getConceptByName(CONCEPT_TWITTER_HANDLE);
 
-        Vertex userVertex = null;
+        String id = TWITTER_USER_PREFIX + jsonUser.get("id");
+        Vertex userVertex = graph.getVertex(id, lumifyUser.getAuthorizations());
         ElementMutation<Vertex> userVertexMutation;
-        Iterator<Vertex> userIterator = graph.query(lumifyUser.getAuthorizations()).
-                has(TITLE.getKey(), screenName).vertices().iterator();
-        if (!userIterator.hasNext()) {
-            userVertexMutation = graph.prepareVertex(visibility, lumifyUser.getAuthorizations());
+        if (userVertex == null) {
+            userVertexMutation = graph.prepareVertex(id, visibility, lumifyUser.getAuthorizations());
         } else {
             // TODO what happens if userIterator contains multiple users
-            userVertex = userIterator.next();
             userVertexMutation = userVertex.prepareMutation();
         }
 
@@ -273,22 +265,49 @@ public class DefaultLumifyTwitterProcessor extends BaseArtifactProcessor impleme
 
             Concept concept = ontRepo.getConceptByName(entityType.getConceptName());
             Vertex conceptVertex = concept.getVertex();
-            String relLabel = entityType.getRelationshipLabel();
-            String relDispName = ontRepo.getDisplayNameForLabel(relLabel);
+            String relDispName = conceptVertex.getPropertyValue(LumifyProperties.DISPLAY_NAME.getKey(), 0).toString();
 
-            List<TermMentionModel> mentions = TermRegexFinder.find(tweetId, conceptVertex, tweetText, entityType.getTermRegex());
+            JSONArray entities = jsonTweet.getJSONObject("entities").getJSONArray(entityType.getJsonKey());
+            List<TermMentionModel> mentions = new ArrayList<TermMentionModel>();
+
+            for (int i = 0; i < entities.length(); i++) {
+                JSONObject entity = entities.getJSONObject(i);
+                String id;
+                String sign = entity.getString(entityType.getSignKey());
+                if (entityType.getConceptName().equals(CONCEPT_TWITTER_MENTION)) {
+                    id = TWITTER_USER_PREFIX + entity.get("id");
+                } else if (entityType.getConceptName().equals(CONCEPT_TWITTER_HASHTAG)) {
+                    sign = sign.toLowerCase();
+                    id = TWITTER_HASHTAG_PREFIX + sign;
+                } else {
+                    try {
+                        id = URLEncoder.encode(TWITTER_URL_PREFIX + sign, "UTF-8");
+                    } catch (UnsupportedEncodingException e) {
+                        throw new RuntimeException("URL id could not be UTF-8 encoded");
+                    }
+                }
+                checkNotNull(sign, "Term sign cannot be null");
+                JSONArray indices = entity.getJSONArray("indices");
+                TermMentionRowKey termMentionRowKey = new TermMentionRowKey(tweetId, indices.getLong(0), indices.getLong(1));
+                TermMentionModel termMention = new TermMentionModel(termMentionRowKey);
+                termMention.getMetadata()
+                        .setSign(sign)
+                        .setOntologyClassUri((String) conceptVertex.getPropertyValue(LumifyProperties.DISPLAY_NAME.getKey(), 0))
+                        .setConceptGraphVertexId(concept.getId())
+                        .setVertexId(id);
+                mentions.add(termMention);
+            }
+
             for (TermMentionModel mention : mentions) {
                 String sign = mention.getMetadata().getSign().toLowerCase();
                 String rowKey = mention.getRowKey().toString();
+                String id = mention.getMetadata().getGraphVertexId();
 
-                Vertex termVertex = null;
                 ElementMutation<Vertex> termVertexMutation;
-                Iterator<Vertex> userIterator = graph.query(user.getAuthorizations()).has(TITLE.getKey(), sign).vertices().iterator();
-                if (!userIterator.hasNext()) {
-                    termVertexMutation = graph.prepareVertex(visibility, user.getAuthorizations());
+                Vertex termVertex = graph.getVertex(id, user.getAuthorizations());
+                if (termVertex == null) {
+                    termVertexMutation = graph.prepareVertex(id, visibility, user.getAuthorizations());
                 } else {
-                    // TODO what happens if userIterator contains multiple users
-                    termVertex = userIterator.next();
                     termVertexMutation = termVertex.prepareMutation();
                 }
 
@@ -408,14 +427,15 @@ public class DefaultLumifyTwitterProcessor extends BaseArtifactProcessor impleme
      * Sets optional properties on a Vertex, returning all property keys that were
      * modified.
      *
-     * @param vertex   the target vertex
-     * @param srcObj   the JSON object containing the property values
-     * @param optProps the map of Lumify property key to JsonProperty used to extract the value from the source object
+     * @param vertex     the target vertex
+     * @param srcObj     the JSON object containing the property values
+     * @param optProps   the map of Lumify property key to JsonProperty used to extract the value from the source object
      * @param visibility the visibility for all optional properties
      */
-    @SuppressWarnings("unchecked") // we don't know the generic types of each Lumify and JsonProperty, need to use raw types
+    @SuppressWarnings("unchecked")
+    // we don't know the generic types of each Lumify and JsonProperty, need to use raw types
     private void setOptionalProps(final ElementMutation<Vertex> vertex, final JSONObject srcObj,
-                                          final Map<LumifyProperty, JsonProperty> optProps, Visibility visibility) {
+                                  final Map<LumifyProperty, JsonProperty> optProps, Visibility visibility) {
         for (Map.Entry<LumifyProperty, JsonProperty> optProp : optProps.entrySet()) {
             Object value = optProp.getValue().getFrom(srcObj);
             if (value != null) {
