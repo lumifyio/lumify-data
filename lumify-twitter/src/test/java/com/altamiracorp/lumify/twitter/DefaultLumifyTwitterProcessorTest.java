@@ -16,6 +16,9 @@
 
 package com.altamiracorp.lumify.twitter;
 
+import static com.altamiracorp.lumify.twitter.TwitterConstants.*;
+import static org.mockito.Mockito.when;
+
 import com.altamiracorp.bigtable.model.user.ModelUserContext;
 import com.altamiracorp.lumify.core.ingest.term.extraction.TermRegexFinder;
 import com.altamiracorp.lumify.core.model.audit.AuditRepository;
@@ -29,6 +32,7 @@ import com.altamiracorp.lumify.core.util.LumifyLogger;
 import com.altamiracorp.securegraph.Graph;
 import com.altamiracorp.securegraph.Vertex;
 import com.altamiracorp.securegraph.type.GeoPoint;
+import java.util.Date;
 import org.json.JSONObject;
 import org.junit.Before;
 import org.junit.BeforeClass;
@@ -37,9 +41,6 @@ import org.mockito.Mock;
 import org.powermock.core.classloader.annotations.PrepareForTest;
 import org.powermock.modules.junit4.PowerMockRunner;
 import org.powermock.reflect.Whitebox;
-
-import static com.altamiracorp.lumify.twitter.TwitterConstants.*;
-import static org.mockito.Mockito.when;
 
 /**
  * Abstract base class for testing Twitter bolts.
@@ -55,7 +56,7 @@ public class DefaultLumifyTwitterProcessorTest {
     private static final Integer TEST_USER_FOLLOWERS_COUNT = 362;
     private static final Integer TEST_USER_FRIENDS_COUNT = 480;
     // "Fri May 18 14:48:35 +0000 2012"
-    private static final Long TEST_USER_CREATED = 1337352515000L;
+    private static final Date TEST_USER_CREATED = new Date(1337352515000L);
     private static final String TEST_USER_DESCRIPTION =
             "Ya desde peque\\u00f1o supe dar ah\\u00ed donde hac\\u00eda da\\u00f1o." +
                     "Y no me refiero al tabaco,cateto, yo respeto al que consume y consumo con " +
@@ -66,7 +67,7 @@ public class DefaultLumifyTwitterProcessorTest {
     private static final String TEST_TWEET_TEXT =
             "I'm at Target (2300 W. Ben White Blvd., S. Lamar Blvd., Austin) w\\/ 3 others http://t.co/eGSHZkXH #shopping";
     // "Thu Dec 19 22:07:04 +0000 2013"
-    private static final Long TEST_TWEET_CREATED = 1387490824000L;
+    private static final Date TEST_TWEET_CREATED = new Date(1387490824000L);
     private static final GeoPoint TEST_TWEET_COORDS = new GeoPoint(30.2500d, -97.7500d);
     private static final Integer TEST_TWEET_FAVORITE_COUNT = 42;
     private static final Integer TEST_TWEET_RETWEET_COUNT = 27;
