@@ -17,7 +17,9 @@ class elasticsearch(
   $downloadpath = "${tmpdir}/elasticsearch-${version}.tar.gz"
   $piddir = "/var/run/elasticsearch"
 
-  if $interfaces =~ /eth1/ {
+  if $interfaces =~ /bond0/ {
+    $es_node_ip = $ipaddress_bond0
+  } elsif $interfaces =~ /eth1/ {
     $es_node_ip = $ipaddress_eth1
   } else {
     $es_node_ip = $ipaddress_eth0
