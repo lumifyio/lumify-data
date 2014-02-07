@@ -2,8 +2,8 @@
 
 hosts_file=$1
 
-if [ "$(id -un)" != 'root' ]; then
-  echo "$0 must be run as root!"
+if [ "$(id -un)" = 'vagrant' ]; then
+  echo "you probably don't want to run $0 as vagrant!"
   exit 1
 fi
 
@@ -19,14 +19,19 @@ fi
 if ssh-add -l | grep -q ${HOME}/.ssh/id_rsa; then
   echo "our key is already loaded"
 else
-  echo "loading out key"
+  echo "loading our key"
   ssh-add
 fi
 
 for host in $(awk '!/puppet|osm/ {print $1}' ${hosts_file}); do
-  ssh -o PasswordAuthentication=no ${host} hostname &>/dev/null
+  ssh -o PasswordAuthentication=no root@${host} hostname &>/dev/null
   if [ $? -ne 0 ]; then
     echo "copying our public key to ${host}"
-    ssh-copy-id ${host}
+    which ssh-copy-id &>/dev/null
+    if [ $? -eq 0 ]; then
+      ssh-copy-id root@${host}
+    else
+      cat ${HOME}/.ssh/id_rsa.pub | ssh root@${host} 'cat >> ${HOME}/.ssh/authorized_keys'
+    fi
   fi
 done
