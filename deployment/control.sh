@@ -37,73 +37,73 @@ function _hadoop_start {
     done
   fi
 
-  ssh ${SSH_OPTS} $(_namenode) service hadoop-hdfs-namenode start
-  ssh ${SSH_OPTS} $(_secondarynamenode) service hadoop-hdfs-secondarynamenode start
+  ssh ${SSH_OPTS} root@$(_namenode) service hadoop-hdfs-namenode start
+  ssh ${SSH_OPTS} root@$(_secondarynamenode) service hadoop-hdfs-secondarynamenode start
 
   for node in $(_nodes); do
     echo ${node}
     if [ "${FORMAT_HDFS}" = 'true' ]; then
       for n in 1 2 3; do
-        ssh ${SSH_OPTS} ${node} mkdir -p /data${n}/hadoop/tmp
-        ssh ${SSH_OPTS} ${node} chown -R hdfs:hadoop /data${n}/hadoop
-        ssh ${SSH_OPTS} ${node} mkdir -p /data${n}/hdfs/data /data${n}/hdfs/name
-        ssh ${SSH_OPTS} ${node} chown -R hdfs:hadoop /data${n}/hdfs
-        ssh ${SSH_OPTS} ${node} mkdir -p /data${n}/mapred/local
-        ssh ${SSH_OPTS} ${node} chown -R mapred:hadoop /data${n}/mapred
+        ssh ${SSH_OPTS} root@${node} mkdir -p /data${n}/hadoop/tmp
+        ssh ${SSH_OPTS} root@${node} chown -R hdfs:hadoop /data${n}/hadoop
+        ssh ${SSH_OPTS} root@${node} mkdir -p /data${n}/hdfs/data /data${n}/hdfs/name
+        ssh ${SSH_OPTS} root@${node} chown -R hdfs:hadoop /data${n}/hdfs
+        ssh ${SSH_OPTS} root@${node} mkdir -p /data${n}/mapred/local
+        ssh ${SSH_OPTS} root@${node} chown -R mapred:hadoop /data${n}/mapred
       done
     fi
-    ssh ${SSH_OPTS} ${node} service hadoop-hdfs-datanode start
-    ssh ${SSH_OPTS} ${node} service hadoop-0.20-mapreduce-tasktracker start
+    ssh ${SSH_OPTS} root@${node} service hadoop-hdfs-datanode start
+    ssh ${SSH_OPTS} root@${node} service hadoop-0.20-mapreduce-tasktracker start
   done
 
-  ssh ${SSH_OPTS} ${_namenode} service hadoop-0.20-mapreduce-jobtracker start
+  ssh ${SSH_OPTS} root@$(_namenode) service hadoop-0.20-mapreduce-jobtracker start
 }
 
 function _hadoop_stop {
-  ssh ${SSH_OPTS} ${namenode} service hadoop-0.20-mapreduce-jobtracker stop
+  ssh ${SSH_OPTS} root@$(_namenode) service hadoop-0.20-mapreduce-jobtracker stop
 
-  ssh ${SSH_OPTS} $(_namenode) service hadoop-hdfs-namenode stop
-  ssh ${SSH_OPTS} $(_secondarynamenode) service hadoop-hdfs-secondarynamenode stop
+  ssh ${SSH_OPTS} root@$(_namenode) service hadoop-hdfs-namenode stop
+  ssh ${SSH_OPTS} root@$(_secondarynamenode) service hadoop-hdfs-secondarynamenode stop
 
   for node in $(_nodes); do
     echo ${node}
-    ssh ${SSH_OPTS} ${node} service hadoop-0.20-mapreduce-tasktracker stop
-    ssh ${SSH_OPTS} ${node} service hadoop-hdfs-datanode stop
+    ssh ${SSH_OPTS} root@${node} service hadoop-0.20-mapreduce-tasktracker stop
+    ssh ${SSH_OPTS} root@${node} service hadoop-hdfs-datanode stop
   done
 }
 
 function _hadoop_status {
-  ssh ${SSH_OPTS} $(_namenode) service hadoop-hdfs-namenode status
-  ssh ${SSH_OPTS} $(_secondarynamenode) service hadoop-hdfs-secondarynamenode status
+  ssh ${SSH_OPTS} root@$(_namenode) service hadoop-hdfs-namenode status
+  ssh ${SSH_OPTS} root@$(_secondarynamenode) service hadoop-hdfs-secondarynamenode status
 
   for node in $(_nodes); do
     echo -n "${node}: "
-    ssh ${SSH_OPTS} ${node} service hadoop-hdfs-datanode status
+    ssh ${SSH_OPTS} root@${node} service hadoop-hdfs-datanode status
     echo -n "${node}: "
-    ssh ${SSH_OPTS} ${node} service hadoop-0.20-mapreduce-tasktracker status
+    ssh ${SSH_OPTS} root@${node} service hadoop-0.20-mapreduce-tasktracker status
   done
 
-  ssh ${SSH_OPTS} ${namenode} service hadoop-0.20-mapreduce-jobtracker status
+  ssh ${SSH_OPTS} root@$(_namenode) service hadoop-0.20-mapreduce-jobtracker status
 }
 
 function _zookeeper_start {
   for zk in $(_zk_servers); do
     echo ${zk}
-    ssh ${SSH_OPTS} ${zk} service zookeeper-server start
+    ssh ${SSH_OPTS} root@${zk} service zookeeper-server start
   done
 }
 
 function _zookeeper_stop {
   for zk in $(_zk_servers); do
     echo ${zk}
-    ssh ${SSH_OPTS} ${zk} service zookeeper-server stop
+    ssh ${SSH_OPTS} root@${zk} service zookeeper-server stop
   done
 }
 
 function _zookeeper_status {
   for zk in $(_zk_servers); do
     echo -n "${zk}: "
-    ssh ${SSH_OPTS} ${zk} service zookeeper-server status
+    ssh ${SSH_OPTS} root@${zk} service zookeeper-server status
   done
 }
 
@@ -117,11 +117,11 @@ function _accumulo_start {
     done
   fi
 
-  ssh ${SSH_OPTS} $(_accumulomaster) su - accumulo -c '/usr/lib/accumulo/bin/start-here.sh'
+  ssh ${SSH_OPTS} root@$(_accumulomaster) su - accumulo -c '/usr/lib/accumulo/bin/start-here.sh'
 
   for node in $(_nodes); do
     echo ${node}
-    ssh ${SSH_OPTS} ${node} su - accumulo -c '/usr/lib/accumulo/bin/start-here.sh'
+    ssh ${SSH_OPTS} root@${node} su - accumulo -c '/usr/lib/accumulo/bin/start-here.sh'
   done
 
   if [ "${INIT_ACCUMULO}" = 'true' ]; then
@@ -135,11 +135,11 @@ function _accumulo_start {
 }
 
 function _accumulo_stop {
-  ssh ${SSH_OPTS} $(_accumulomaster) su - accumulo -c '/usr/lib/accumulo/bin/stop-here.sh'
+  ssh ${SSH_OPTS} root@$(_accumulomaster) su - accumulo -c '/usr/lib/accumulo/bin/stop-here.sh'
 
   for node in $(_nodes); do
     echo ${node}
-    ssh ${SSH_OPTS} ${node} su - accumulo -c '/usr/lib/accumulo/bin/stop-here.sh'
+    ssh ${SSH_OPTS} root@${node} su - accumulo -c '/usr/lib/accumulo/bin/stop-here.sh'
   done
 }
 
@@ -150,72 +150,72 @@ function _accumulo_status {
 function _elasticsearch_start {
   for node in $(_nodes); do
     echo -n "${node}: "
-    ssh ${SSH_OPTS} ${node} initctl start elasticsearch
+    ssh ${SSH_OPTS} root@${node} initctl start elasticsearch
   done
 }
 
 function _elasticsearch_stop {
   for node in $(_nodes); do
     echo -n "${node}: "
-    ssh ${SSH_OPTS} ${node} initctl stop elasticsearch
+    ssh ${SSH_OPTS} root@${node} initctl stop elasticsearch
   done
 }
 
 function _elasticsearch_status {
   for node in $(_nodes); do
     echo -n "${node}: "
-    ssh ${SSH_OPTS} ${node} initctl status elasticsearch
+    ssh ${SSH_OPTS} root@${node} initctl status elasticsearch
   done
 }
 
 function _kafka_start {
   for kafka in $(_kafka_servers); do
     echo -n "${kafka}: "
-    ssh ${SSH_OPTS} ${kafka} initctl start kafka
+    ssh ${SSH_OPTS} root@${kafka} initctl start kafka
   done
 }
 
 function _kafka_stop {
   for kafka in $(_kafka_servers); do
     echo -n "${kafka}: "
-    ssh ${SSH_OPTS} ${kafka} initctl stop kafka
+    ssh ${SSH_OPTS} root@${kafka} initctl stop kafka
   done
 }
 
 function _kafka_status {
   for kafka in $(_kafka_servers); do
     echo -n "${kafka}: "
-    ssh ${SSH_OPTS} ${kafka} initctl status kafka
+    ssh ${SSH_OPTS} root@${kafka} initctl status kafka
   done
 }
 
 function _storm_start {
-  ssh ${SSH_OPTS} $(_stormmaster) initctl start storm-nimbus
-  ssh ${SSH_OPTS} $(_stormmaster) initctl start storm-ui
+  ssh ${SSH_OPTS} root@$(_stormmaster) initctl start storm-nimbus
+  ssh ${SSH_OPTS} root@$(_stormmaster) initctl start storm-ui
 
   for node in $(_nodes); do
     echo -n "${node}: "
-    ssh ${SSH_OPTS} ${node} initctl start storm-supervisor
+    ssh ${SSH_OPTS} root@${node} initctl start storm-supervisor
   done
 }
 
 function _storm_stop {
   for node in $(_nodes); do
     echo -n "${node}: "
-    ssh ${SSH_OPTS} ${node} initctl stop storm-supervisor
+    ssh ${SSH_OPTS} root@${node} initctl stop storm-supervisor
   done
 
-  ssh ${SSH_OPTS} $(_stormmaster) initctl stop storm-ui
-  ssh ${SSH_OPTS} $(_stormmaster) initctl stop storm-nimbus
+  ssh ${SSH_OPTS} root@$(_stormmaster) initctl stop storm-ui
+  ssh ${SSH_OPTS} root@$(_stormmaster) initctl stop storm-nimbus
 }
 
 function _storm_status {
-  ssh ${SSH_OPTS} $(_stormmaster) initctl status storm-ui
-  ssh ${SSH_OPTS} $(_stormmaster) initctl status storm-nimbus
+  ssh ${SSH_OPTS} root@$(_stormmaster) initctl status storm-ui
+  ssh ${SSH_OPTS} root@$(_stormmaster) initctl status storm-nimbus
 
   for node in $(_nodes); do
     echo -n "${node}: "
-    ssh ${SSH_OPTS} ${node} initctl status storm-supervisor
+    ssh ${SSH_OPTS} root@${node} initctl status storm-supervisor
   done
 }
 
@@ -254,7 +254,7 @@ function _run {
 
   for host in $(awk "/${pattern}/ {print \$1}" ${HOSTS_FILE}); do
     echo ${host}
-    echo "${command_and_args}" | ssh ${SSH_OPTS} ${host} bash -s
+    echo "${command_and_args}" | ssh ${SSH_OPTS} root@${host} bash -s
   done
 }
 
