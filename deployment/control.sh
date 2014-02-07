@@ -43,13 +43,13 @@ function _hadoop_start {
   for node in $(_nodes); do
     echo ${node}
     if [ "${FORMAT_HDFS}" = 'true' ]; then
-      for n in 1 2 3; do
-        ssh ${SSH_OPTS} root@${node} mkdir -p /data${n}/hadoop/tmp
-        ssh ${SSH_OPTS} root@${node} chown -R hdfs:hadoop /data${n}/hadoop
-        ssh ${SSH_OPTS} root@${node} mkdir -p /data${n}/hdfs/data /data${n}/hdfs/name
-        ssh ${SSH_OPTS} root@${node} chown -R hdfs:hadoop /data${n}/hdfs
-        ssh ${SSH_OPTS} root@${node} mkdir -p /data${n}/mapred/local
-        ssh ${SSH_OPTS} root@${node} chown -R mapred:hadoop /data${n}/mapred
+      for data in $(ssh ${SSH_OPTS} root@${node} mount | awk '/\/data[1-3]/ {print $3}'); do
+        ssh ${SSH_OPTS} root@${node} mkdir -p ${data}/hadoop/tmp
+        ssh ${SSH_OPTS} root@${node} chown -R hdfs:hadoop ${data}/hadoop
+        ssh ${SSH_OPTS} root@${node} mkdir -p ${data}/hdfs/data ${data}/hdfs/name
+        ssh ${SSH_OPTS} root@${node} chown -R hdfs:hadoop ${data}/hdfs
+        ssh ${SSH_OPTS} root@${node} mkdir -p ${data}/mapred/local
+        ssh ${SSH_OPTS} root@${node} chown -R mapred:hadoop ${data}/mapred
       done
     fi
     ssh ${SSH_OPTS} root@${node} service hadoop-hdfs-datanode start
