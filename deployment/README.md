@@ -58,7 +58,7 @@ service jetty stop && rm -f /opt/jetty/logs/* && service jetty start && tail -f 
 - OPTIONAL: import wikipedia data
 
 ```
-java -cp lumify-wikipedia.jar:/opt/storm/storm-0.8.1.jar com.altamiracorp.lumify.wikipedia.Import -in /data0/enwiki-20140102-pages-articles.xml
+java -cp lumify-wikipedia.jar:/opt/storm/storm-0.8.1.jar com.altamiracorp.lumify.wikipedia.storm.Import -in /data0/enwiki-20140102-pages-articles.xml
 ```
 
 - ssh from the puppet server to storm nimbus server and run:
@@ -73,7 +73,7 @@ n=5
   com.altamiracorp.lumify.storm.StormEnterpriseRunner -tpb $((${n} * 8)) -w $((${n} * 2)) -ph $((${n} * 4))
 
 /opt/storm/bin/storm jar lumify-wikipedia-1.0-SNAPSHOT-jar-with-dependencies.jar \
-  com.altamiracorp.lumify.wikipedia.StormRunner -tpb $((${n} * 8)) -w $((${n} * 2)) -ph $((${n} * 4))
+  com.altamiracorp.lumify.wikipedia.storm.StormRunner -tpb $((${n} * 8)) -w $((${n} * 2)) -ph $((${n} * 4))
 ```
 
 turning it off
