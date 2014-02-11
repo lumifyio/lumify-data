@@ -1,12 +1,13 @@
 package com.altamiracorp.lumify.mapping.column;
 
-import static com.google.common.base.Preconditions.checkNotNull;
-
 import com.altamiracorp.lumify.core.ingest.term.extraction.TermMention;
+
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+
+import static com.google.common.base.Preconditions.checkNotNull;
 
 /**
  * Base class for ColumnEntityMappings.
@@ -50,14 +51,15 @@ public abstract class AbstractColumnEntityMapping implements ColumnEntityMapping
 
     /**
      * Create a new ColumnEntityMapping.
-     * @param idCol the ColumnValue providing the ID of this entity; if null, the system will use an auto-generated ID
-     * @param signCol the ColumnValue providing the sign of this entity
-     * @param props the properties of this entity
+     *
+     * @param idCol       the ColumnValue providing the ID of this entity; if null, the system will use an auto-generated ID
+     * @param signCol     the ColumnValue providing the sign of this entity
+     * @param props       the properties of this entity
      * @param useExisting should existing entities be reused? null for default
-     * @param required is this entity required? null for default
+     * @param required    is this entity required? null for default
      */
     public AbstractColumnEntityMapping(final ColumnValue<?> idCol, final ColumnValue<String> signCol, final Map<String, ColumnValue<?>> props,
-            final Boolean useExisting, final Boolean required) {
+                                       final Boolean useExisting, final Boolean required) {
         checkNotNull(signCol, "sign column must be provided");
         this.idColumn = idCol;
         this.signColumn = signCol;
@@ -72,6 +74,7 @@ public abstract class AbstractColumnEntityMapping implements ColumnEntityMapping
 
     /**
      * Get the URI of the ontology concept for this entity.
+     *
      * @param row the input row
      * @return the concept URI
      */
@@ -106,8 +109,9 @@ public abstract class AbstractColumnEntityMapping implements ColumnEntityMapping
     /**
      * Generate a TermMention, with all associated properties, from the columns
      * of a row in a columnar document.
-     * @param row the columns of the input row
-     * @param offset the current document offset
+     *
+     * @param row       the columns of the input row
+     * @param offset    the current document offset
      * @param processId the ID of the process reading this document
      * @return the generated TermMention
      */

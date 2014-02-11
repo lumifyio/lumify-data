@@ -1,9 +1,5 @@
 package com.altamiracorp.lumify.storm.term.extraction;
 
-import static com.altamiracorp.lumify.core.model.properties.RawLumifyProperties.MAPPING_JSON;
-import static com.altamiracorp.lumify.core.model.properties.RawLumifyProperties.TEXT;
-import static com.google.common.base.Preconditions.*;
-
 import com.altamiracorp.lumify.core.ingest.term.extraction.TermExtractionResult;
 import com.altamiracorp.lumify.core.user.User;
 import com.altamiracorp.lumify.core.util.LumifyLogger;
@@ -13,9 +9,14 @@ import com.altamiracorp.securegraph.Vertex;
 import com.altamiracorp.securegraph.property.StreamingPropertyValue;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.inject.Inject;
+
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.text.ParseException;
+
+import static com.altamiracorp.lumify.core.model.properties.RawLumifyProperties.MAPPING_JSON;
+import static com.altamiracorp.lumify.core.model.properties.RawLumifyProperties.TEXT;
+import static com.google.common.base.Preconditions.checkNotNull;
 
 public class DocumentMappingEntityExtractor {
     private static final LumifyLogger LOGGER = LumifyLoggerFactory.getLogger(DocumentMappingEntityExtractor.class);

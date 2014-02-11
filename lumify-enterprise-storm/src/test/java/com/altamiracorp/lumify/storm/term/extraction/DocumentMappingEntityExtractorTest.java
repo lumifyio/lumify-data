@@ -1,11 +1,5 @@
 package com.altamiracorp.lumify.storm.term.extraction;
 
-import static com.altamiracorp.lumify.core.model.properties.LumifyProperties.ROW_KEY;
-import static com.altamiracorp.lumify.core.model.properties.RawLumifyProperties.MAPPING_JSON;
-import static com.altamiracorp.lumify.core.model.properties.RawLumifyProperties.TEXT;
-import static org.junit.Assert.*;
-import static org.mockito.Mockito.*;
-
 import com.altamiracorp.lumify.core.ingest.term.extraction.TermExtractionResult;
 import com.altamiracorp.lumify.core.user.User;
 import com.altamiracorp.lumify.mapping.DocumentMapping;
@@ -13,9 +7,6 @@ import com.altamiracorp.securegraph.Text;
 import com.altamiracorp.securegraph.Vertex;
 import com.altamiracorp.securegraph.property.StreamingPropertyValue;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.io.StringReader;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -24,9 +15,19 @@ import org.powermock.api.mockito.PowerMockito;
 import org.powermock.core.classloader.annotations.PrepareForTest;
 import org.powermock.modules.junit4.PowerMockRunner;
 
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.io.StringReader;
+
+import static com.altamiracorp.lumify.core.model.properties.LumifyProperties.ROW_KEY;
+import static com.altamiracorp.lumify.core.model.properties.RawLumifyProperties.MAPPING_JSON;
+import static com.altamiracorp.lumify.core.model.properties.RawLumifyProperties.TEXT;
+import static org.junit.Assert.assertEquals;
+import static org.mockito.Mockito.*;
+
 
 @RunWith(PowerMockRunner.class)
-@PrepareForTest({ DocumentMappingEntityExtractor.class })
+@PrepareForTest({DocumentMappingEntityExtractor.class})
 public class DocumentMappingEntityExtractorTest {
     private static final String TEST_VERTEX_ID = "testVertexId";
     private static final String TEST_ROW_KEY = "testRowKey";
