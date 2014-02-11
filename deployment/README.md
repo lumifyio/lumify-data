@@ -50,7 +50,7 @@ setup
 - ssh from the puppet server to the web server and run:
 
 ```
-service jetty stop && rm -f /opt/jetty/logs/* && service jetty start && tail -f /opt/jetty/logs/*
+service jetty stop && rm -f /opt/jetty/logs/* && service jetty start && tail -100f /opt/jetty/logs/*
 ```
 
 - web browse to https://demo.lumify.io/admin/uploadOntology.html and upload `dev-ontology.zip`
