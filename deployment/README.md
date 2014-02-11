@@ -26,7 +26,7 @@ aws-deploy
 1. ssh to the puppet server (forwarding your ssh agent): `ssh -A root@<puppet-server-elastic-ip>`
 1. install our software on the puppet server and via puppet on all the other cluster nodes: `./init.sh cluster_name_hosts`
 1. monitor the progress of the other nodes: `tail -f run_puppet.*.log`
-1. configure ssh for the proxy users: `./setup_ssh.ssh cluster_name_hosts`
+1. configure ssh for the proxy users: `./setup_ssh.sh cluster_name_hosts`
 1. start and perform initial setup of our services: `./control.sh cluster_name_hosts first`
 1. ssh from the puppet server to the Hadoop namenode and Accumulo master servers when prompted to format and init
 
@@ -47,11 +47,13 @@ setup
 
 1. web browse to https://demo.lumify.io/admin/uploadOntology.html and upload `dev-ontology.zip`
 
-1. OPTIONAL: import wikipedia data
+1. **(OPTIONAL)** import Wikipedia data with storm or map/reduce:
 
         java -cp lumify-wikipedia.jar:/opt/storm/storm-0.8.1.jar com.altamiracorp.lumify.wikipedia.storm.Import -in /data0/enwiki-20140102-pages-articles.xml
 
-1. ssh from the puppet server to storm nimbus server and run:
+        hadoop jar lumify-wikipedia-mr.jar /lumify/enwiki-20140102-pages-articles.MR.txt
+
+1. ssh from the puppet server to the storm nimbus server and run:
 
         n=5
 
