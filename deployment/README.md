@@ -18,11 +18,9 @@ aws-deploy
 1. manually configure an Elastic IP for the web server
 1. add a security group to the web server that allows inbound traffic:
 
-```
-ec2-describe-instances --filter 'tag:aliases=www*' | awk '/^INSTANCE/ {print $2} /^GROUP/ {print $2, $3}'
-ec2-describe-group --filter 'group-name=http*'
-ec2-modify-instance-attribute <instance id> --group-id <existing group id> --group-id <existing group id> --group-id <new group id>
-```
+        ec2-describe-instances --filter 'tag:aliases=www*' | awk '/^INSTANCE/ {print $2} /^GROUP/ {print $2, $3}'
+        ec2-describe-group --filter 'group-name=http*'
+        ec2-modify-instance-attribute <instance id> --group-id <existing group id> --group-id <existing group id> --group-id <new group id>
 
 1. push our software to the puppet server: `./push.sh <puppet-server-elastic-ip> ../aws/cluster_name_hosts`
 1. ssh to the puppet server (forwarding your ssh agent): `ssh -A root@<puppet-server-elastic-ip>`
@@ -35,46 +33,36 @@ ec2-modify-instance-attribute <instance id> --group-id <existing group id> --gro
 setup
 =====
 
-- ssh from the puppet server to the namenode and run:
+1. ssh from the puppet server to the namenode and run:
 
-```
-/root/setup_config.sh
-```
+        /root/setup_config.sh
 
-- ssh from the puppet server to one of the kafka servers and run:
+1. ssh from the puppet server to one of the kafka servers and run:
 
-```
-/opt/lumify/kafka-clear.sh --zookeeper 10.0.3.101:2181
-```
+        /opt/lumify/kafka-clear.sh --zookeeper 10.0.3.101:2181
 
-- ssh from the puppet server to the web server and run:
+1. ssh from the puppet server to the web server and run:
 
-```
-service jetty stop && rm -f /opt/jetty/logs/* && service jetty start && tail -100f /opt/jetty/logs/*
-```
+        service jetty stop && rm -f /opt/jetty/logs/* && service jetty start && tail -100f /opt/jetty/logs/*
 
-- web browse to https://demo.lumify.io/admin/uploadOntology.html and upload `dev-ontology.zip`
+1. web browse to https://demo.lumify.io/admin/uploadOntology.html and upload `dev-ontology.zip`
 
-- OPTIONAL: import wikipedia data
+1. OPTIONAL: import wikipedia data
 
-```
-java -cp lumify-wikipedia.jar:/opt/storm/storm-0.8.1.jar com.altamiracorp.lumify.wikipedia.storm.Import -in /data0/enwiki-20140102-pages-articles.xml
-```
+        java -cp lumify-wikipedia.jar:/opt/storm/storm-0.8.1.jar com.altamiracorp.lumify.wikipedia.storm.Import -in /data0/enwiki-20140102-pages-articles.xml
 
-- ssh from the puppet server to storm nimbus server and run:
+1. ssh from the puppet server to storm nimbus server and run:
 
-```
-n=5
+        n=5
 
-/opt/storm/bin/storm jar lumify-storm-1.0-SNAPSHOT-jar-with-dependencies.jar \
-  com.altamiracorp.lumify.storm.StormRunner -tpb $((${n} * 8)) -w $((${n} * 2)) -ph $((${n} * 4))
+        /opt/storm/bin/storm jar lumify-storm-1.0-SNAPSHOT-jar-with-dependencies.jar \
+          com.altamiracorp.lumify.storm.StormRunner -tpb $((${n} * 8)) -w $((${n} * 2)) -ph $((${n} * 4))
 
-/opt/storm/bin/storm jar lumify-enterprise-storm-1.0-SNAPSHOT-jar-with-dependencies.jar \
-  com.altamiracorp.lumify.storm.StormEnterpriseRunner -tpb $((${n} * 8)) -w $((${n} * 2)) -ph $((${n} * 4))
+        /opt/storm/bin/storm jar lumify-enterprise-storm-1.0-SNAPSHOT-jar-with-dependencies.jar \
+          com.altamiracorp.lumify.storm.StormEnterpriseRunner -tpb $((${n} * 8)) -w $((${n} * 2)) -ph $((${n} * 4))
 
-/opt/storm/bin/storm jar lumify-wikipedia-1.0-SNAPSHOT-jar-with-dependencies.jar \
-  com.altamiracorp.lumify.wikipedia.storm.StormRunner -tpb $((${n} * 8)) -w $((${n} * 2)) -ph $((${n} * 4))
-```
+        /opt/storm/bin/storm jar lumify-wikipedia-1.0-SNAPSHOT-jar-with-dependencies.jar \
+          com.altamiracorp.lumify.wikipedia.storm.StormRunner -tpb $((${n} * 8)) -w $((${n} * 2)) -ph $((${n} * 4))
 
 turning it off
 ==============
