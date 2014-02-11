@@ -49,7 +49,7 @@ function setup_local {
 EO_PUPPET_CONF
 
   heading 'install PuppetLabs modules'
-  puppet module install puppetlabs/firewall
+  puppet module install puppetlabs/firewall --version 0.4.2
   puppet module install puppetlabs/ntp
 
   heading 'install our configuration and modules, start the puppetmaster service'
