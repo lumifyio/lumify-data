@@ -35,7 +35,8 @@ _download lumify/lumify-storm            "*with-dependencies.jar" lumify-storm.j
 _download lumify/lumify-enterprise-storm "*with-dependencies.jar" lumify-enterprise-storm.jar
 _download lumify/lumify-twitter          "*with-dependencies.jar" lumify-twitter.jar
 _download lumify/lumify-facebook         "*with-dependencies.jar" lumify-facebook.jar
-_download lumify/lumify-wikipedia        "*with-dependencies.jar" lumify-wikipedia.jar
+_download lumify/lumify-wikipedia-storm  "*with-dependencies.jar" lumify-wikipedia-storm.jar
+_download lumify/lumify-wikipedia-mr     "*with-dependencies.jar" lumify-wikipedia-mr.jar
 _download lumify/lumify-web-war          "*.war"                  lumify.war
 _download lumify/lumify-account-web      "*.war"                  account.war
 _download bigtable/bigtable-ui-war       "*.war"                  bigtable-ui.war
