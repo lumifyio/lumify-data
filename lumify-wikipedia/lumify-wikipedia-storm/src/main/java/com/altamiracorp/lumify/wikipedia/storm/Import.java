@@ -1,9 +1,4 @@
-package com.altamiracorp.lumify.wikipedia;
-
-import static com.altamiracorp.lumify.core.model.ontology.OntologyLumifyProperties.*;
-import static com.altamiracorp.lumify.core.model.properties.EntityLumifyProperties.*;
-import static com.altamiracorp.lumify.core.model.properties.LumifyProperties.*;
-import static com.altamiracorp.lumify.core.model.properties.RawLumifyProperties.*;
+package com.altamiracorp.lumify.wikipedia.storm;
 
 import com.altamiracorp.bigtable.model.FlushFlag;
 import com.altamiracorp.lumify.core.cmdline.CommandLineBase;
@@ -14,27 +9,30 @@ import com.altamiracorp.lumify.core.model.ontology.OntologyRepository;
 import com.altamiracorp.lumify.core.model.workQueue.WorkQueueRepository;
 import com.altamiracorp.lumify.core.util.LumifyLogger;
 import com.altamiracorp.lumify.core.util.LumifyLoggerFactory;
+import com.altamiracorp.lumify.wikipedia.RandomAccessFileInputStream;
+import com.altamiracorp.lumify.wikipedia.WikipediaConstants;
 import com.altamiracorp.securegraph.Graph;
 import com.altamiracorp.securegraph.Vertex;
 import com.altamiracorp.securegraph.VertexBuilder;
 import com.altamiracorp.securegraph.Visibility;
 import com.altamiracorp.securegraph.property.StreamingPropertyValue;
 import com.google.inject.Inject;
-import java.io.BufferedReader;
-import java.io.ByteArrayInputStream;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.io.RandomAccessFile;
-import java.text.DecimalFormat;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.OptionBuilder;
 import org.apache.commons.cli.Options;
 import org.apache.commons.compress.compressors.bzip2.BZip2CompressorInputStream;
 import org.json.JSONObject;
+
+import java.io.*;
+import java.text.DecimalFormat;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+
+import static com.altamiracorp.lumify.core.model.ontology.OntologyLumifyProperties.CONCEPT_TYPE;
+import static com.altamiracorp.lumify.core.model.properties.EntityLumifyProperties.SOURCE;
+import static com.altamiracorp.lumify.core.model.properties.LumifyProperties.TITLE;
+import static com.altamiracorp.lumify.core.model.properties.RawLumifyProperties.MIME_TYPE;
+import static com.altamiracorp.lumify.core.model.properties.RawLumifyProperties.RAW;
 
 public class Import extends CommandLineBase {
     private static final LumifyLogger LOGGER = LumifyLoggerFactory.getLogger(Import.class);
@@ -208,7 +206,9 @@ public class Import extends CommandLineBase {
                     if (pageTitle == null) {
                         LOGGER.error("Found end page without page title. Line %d", lineNumber);
                     } else {
-                        Vertex wikipediaPageVertex = savePageVertex(page, pageTitle, wikipediaPageConcept);
+                        String pageString = page.toString();
+                        page = null;
+                        Vertex wikipediaPageVertex = savePageVertex(pageString, pageTitle, wikipediaPageConcept);
                         if (flush || pageCount < 100) { // We call flush for the first 100 so that we can saturate the storm topology otherwise we'll get vertex not found problems.
                             this.graph.flush();
                         }
@@ -232,8 +232,7 @@ public class Import extends CommandLineBase {
         return 0;
     }
 
-    private Vertex savePageVertex(StringBuilder page, String pageTitle, Concept wikipediaPageConcept) {
-        String pageString = page.toString();
+    private Vertex savePageVertex(String pageString, String pageTitle, Concept wikipediaPageConcept) {
         String wikipediaPageVertexId = WikipediaBolt.getWikipediaPageVertexId(pageTitle);
         StreamingPropertyValue rawPropertyValue = new StreamingPropertyValue(new ByteArrayInputStream(pageString.getBytes()), byte[].class);
         rawPropertyValue.store(true);
