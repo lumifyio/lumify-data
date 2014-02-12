@@ -1,0 +1,21 @@
+# redis-server - control of the redis server process
+#
+# Start and stop a redis server
+author "Altamira Technologies"
+description "Controls a Redis server"
+
+# This "start on" is not a mistake...
+# CentOS does not emit all of the standard events properly.
+# If it did, then we should probably be saying "start on net-device-up"
+start on stopped rc RUNLEVEL=[345]
+
+# What user and group to run as
+# I would like to do the next two steps but our version of upstart does not support it
+# setuid <%= @user %>
+# setgid <%= @group %>
+umask 0007
+
+respawn
+respawn limit 5 10
+
+exec su -s /bin/sh -c 'exec "$0" "$@"' <%= @user %> -- <%= @bin %>/redis-server <%= @conf %>
