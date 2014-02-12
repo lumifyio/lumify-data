@@ -75,10 +75,9 @@ class env::demo {
     mode => 'u=rw,g=r,o=r',
   }
 
-  file { '/etc/hosts' :
-    source => 'puppet:///modules/env/dev/hosts',
-    owner => 'vagrant',
-    mode => 'u=rwx,g=r,o=r',
+  host { 'lumify-vm.lumify.io' :
+    ip => $ipaddress_eth0,
+    host_aliases => 'lumify-vm',
   }
 
   file { '/opt/storm/lib/imageio-1.1.jar' :

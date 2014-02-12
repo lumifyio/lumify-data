@@ -4,5 +4,5 @@
 :yaml:
   :datadir: /vagrant/puppet/hiera
 :hierarchy:
-  - "%{ipaddress_eth1}"
+  - vm
   - common

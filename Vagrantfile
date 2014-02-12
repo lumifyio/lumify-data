@@ -1,7 +1,25 @@
 # -*- mode: ruby -*-
 # vi: set ft=ruby :
 
-HOSTNAME="lumify-vm.nearinfinity.com"
+HOSTNAME = "lumify-vm.lumify.io"
+
+FORWARD_PORTS = {
+  [8020, 40400, 50070]         => 'hadoop namenode',
+  [50090, 56456]               => 'hadoop secondarynamenode',
+  [8021, 37567, 50030]         => 'hadoop jobtracker',
+  [50010, 50020, 50075, 51244] => 'hadoop datanaode',
+  [34081, 50060]               => 'hadoop tasktracker',
+  [2181, 2888, 3888]           => 'zookeepr',
+  9997                         => 'accumulo tserver',
+  9999                         => 'accumulo master',
+  [4560, 50095]                => 'accumulo monitor',
+  [9200, 9300]                 => 'elasticsearch',
+  9092                         => 'kafka',
+  8081                         => 'storm ui',
+  6627                         => 'storm nimbus',
+  [6700, 6701, 6702, 6703]     => 'storm supervisor',
+  [8080, 8443]                 => 'jetty',
+}
 
 def configure_puppet(puppet, manifest_file)
   puppet.manifests_path = 'puppet/manifests'
@@ -20,12 +38,13 @@ Vagrant.configure('2') do |config|
   # Create a forwarded port mapping which allows access to a specific port
   # within the machine from a port on the host machine. In the example below,
   # accessing "localhost:8080" will access port 80 on the guest machine.
-  config.vm.network :forwarded_port, :guest => 8080, :host => 8080
-  config.vm.network :forwarded_port, :guest => 8443, :host => 8443
+  FORWARD_PORTS.keys.flatten.each do |port|
+    config.vm.network :forwarded_port, :guest => port, :host => port, :auto_correct => true
+  end
 
   # Create a private network, which allows host-only access to the machine
   # using a specific IP.
-  config.vm.network :private_network, :ip => '192.168.33.10'
+  # config.vm.network :private_network, :ip => '192.168.33.10'
 
   # Create a public network, which generally matched to bridged network.
   # Bridged networks make the machine appear as another physical device on
@@ -72,6 +91,14 @@ Vagrant.configure('2') do |config|
     end
   end
 
+  # used for automated integration testing
+  config.vm.define "test" do |test|
+    test.vm.provision :shell, :inline => "mkdir -p /data0 /opt/lumify /opt/lumify/logs"
+    test.vm.provision :puppet do |puppet|
+      configure_puppet(puppet, 'dev_vm.pp')
+    end
+  end
+
   # used to create the downloadable open source demo VM
   config.vm.define "demo-opensource" do |demo|
     demo.vm.provision :shell, :inline => "mkdir -p /data0 /opt/lumify /opt/lumify/logs"
@@ -81,7 +108,7 @@ Vagrant.configure('2') do |config|
     demo.vm.provision :shell, :path => "demo-vm/configure-vm.sh", :args => "opensource sample-data-html.tgz" 
   end
 
-  # used to create the downloadable enterprise demo VM
+  # used to create an enterprise demo VM
   config.vm.define "demo-enterprise" do |demo|
     demo.vm.provision :shell, :inline => "mkdir -p /data0 /opt/lumify /opt/lumify/logs"
     demo.vm.provision :puppet do |puppet|
