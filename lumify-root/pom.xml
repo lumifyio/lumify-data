@@ -118,6 +118,7 @@
         <plugin.pmd.version>3.0.1</plugin.pmd.version>
         <plugin.sonar.version>4.0</plugin.sonar.version>
         <plugin.taglist.version>2.4</plugin.taglist.version>
+        <plugin.template.resgen.version>0.9</plugin.template.resgen.version>
     </properties>
 
     <modules>
@@ -620,14 +621,14 @@
                     <executions>
                         <execution>
                             <id>create-build-number</id>
-                            <phase>validate</phase>
+                            <phase>initialize</phase>
                             <goals>
                                 <goal>create</goal>
                             </goals>
                         </execution>
                         <execution>
                             <id>create-formatted-timestamp</id>
-                            <phase>validate</phase>
+                            <phase>initialize</phase>
                             <goals>
                                 <goal>create-timestamp</goal>
                             </goals>
@@ -637,6 +638,32 @@
                             </configuration>
                         </execution>
                     </executions>
+                </plugin>
+                <plugin>
+                    <groupId>com.shankyank.mojo</groupId>
+                    <artifactId>template-resgen-maven-plugin</artifactId>
+                    <version>${plugin.template.resgen.version}</version>
+                    <executions>
+                        <execution>
+                            <id>gen-build-properties</id>
+                            <goals>
+                                <goal>generate-resource</goal>
+                            </goals>
+                            <configuration>
+                                <template>lumify/lumify-build.properties</template>
+                                <outputFileName>META-INF/lumify/${project.artifactId}-build.properties</outputFileName>
+                                <templateEncoding>UTF-8</templateEncoding>
+                                <outputEncoding>UTF-8</outputEncoding>
+                            </configuration>
+                        </execution>
+                    </executions>
+                    <dependencies>
+                        <dependency>
+                            <groupId>com.altamiracorp.lumify</groupId>
+                            <artifactId>lumify-build-tools</artifactId>
+                            <version>${project.version}</version>
+                        </dependency>
+                    </dependencies>
                 </plugin>
                 <!-- Cobertura: Code Coverage Check -->
                 <plugin>
@@ -908,6 +935,10 @@
             <plugin>
                 <artifactId>buildnumber-maven-plugin</artifactId>
                 <groupId>org.codehaus.mojo</groupId>
+            </plugin>
+            <plugin>
+                <groupId>com.shankyank.mojo</groupId>
+                <artifactId>template-resgen-maven-plugin</artifactId>
             </plugin>
         </plugins>
     </build>
