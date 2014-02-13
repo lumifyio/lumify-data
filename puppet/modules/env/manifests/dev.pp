@@ -1,7 +1,4 @@
 class env::dev {
-  # TODO: move to demo?
-  include env::common::config
-
   file { '/etc/yum.repos.d/lumify.repo' :
     source => 'puppet:///modules/env/dev/lumify.repo',
     owner => 'vagrant',

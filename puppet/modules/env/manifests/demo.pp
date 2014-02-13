@@ -2,71 +2,43 @@ class env::demo {
   require buildtools
   require java
 
+  include env::common::config
   include repo::cloudera::cdh4
-
   include ::zookeeper
   include role::hadoop::pseudo
   include role::accumulo::pseudo
   include ::hue
-
   include role::elasticsearch::pseudo
-
   include ::kafka
   include role::storm::master
   include role::storm::supervisor
 
-  # TODO: configure firewall rules
+  # no firewall for local vms
   service { 'iptables' :
     enable => false,
     ensure => 'stopped',
   }
 
-  file { '/opt/lumify/start.sh' :
-    source => 'puppet:///modules/env/dev/start.sh',
-    owner => 'vagrant',
-    mode => 'u=rwx,g=,o=',
+  define install_script ($type='dev') {
+    file { "/opt/lumify/${name}" :
+      source => "puppet:///modules/env/${type}/${name}",
+      owner => 'vagrant',
+      mode => 'u=rwx,g=,o=',
+    }
   }
 
-  file { '/opt/lumify/status.sh' :
-    source => 'puppet:///modules/env/dev/status.sh',
-    owner => 'vagrant',
-    mode => 'u=rwx,g=,o=',
-  }
+  install_script { [
+    'format.sh',
+    'start.sh',
+    'stop.sh',
+    'status.sh',
+    'shell.sh',
+    'storm-run.sh',
+    'storm-kill.sh'
+  ] : }
 
-  file { '/opt/lumify/stop.sh' :
-    source => 'puppet:///modules/env/dev/stop.sh',
-    owner => 'vagrant',
-    mode => 'u=rwx,g=,o=',
-  }
-
-  file { '/opt/lumify/format.sh' :
-    source => 'puppet:///modules/env/dev/format.sh',
-    owner => 'vagrant',
-    mode => 'u=rwx,g=,o=',
-  }
-
-  file { '/opt/lumify/shell.sh' :
-    source => 'puppet:///modules/env/dev/shell.sh',
-    owner => 'vagrant',
-    mode => 'u=rwx,g=,o=',
-  }
-
-  file { '/opt/lumify/storm-kill.sh' :
-    source => 'puppet:///modules/env/dev/storm-kill.sh',
-    owner => 'vagrant',
-    mode => 'u=rwx,g=,o=',
-  }
-
-  file { '/opt/lumify/storm-run.sh' :
-    source => 'puppet:///modules/env/dev/storm-run.sh',
-    owner => 'vagrant',
-    mode => 'u=rwx,g=,o=',
-  }
-
-  file { '/opt/lumify/kafka-clear.sh' :
-    source => 'puppet:///modules/env/common/kafka-clear.sh',
-    owner => 'vagrant',
-    mode => 'u=rwx,g=,o=',
+  install_script { 'kafka-clear.sh' :
+    type => 'common'
   }
 
   file { '/etc/sysctl.conf' :

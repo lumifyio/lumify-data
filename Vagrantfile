@@ -93,7 +93,7 @@ Vagrant.configure('2') do |config|
 
   # used for automated integration testing
   config.vm.define "test" do |test|
-    test.vm.provision :shell, :inline => "mkdir -p /data0 /opt/lumify /opt/lumify/logs"
+    test.vm.provision :shell, :inline => "mkdir -p /data0"
     test.vm.provision :puppet do |puppet|
       configure_puppet(puppet, 'dev_vm.pp')
     end
