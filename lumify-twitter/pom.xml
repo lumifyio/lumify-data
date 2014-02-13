@@ -109,7 +109,7 @@
             <artifactId>hbc-core</artifactId>
             <version>${twitter.hbc.version}</version>
         </dependency>
-        
+
         <!-- Test Dependencies -->
         <dependency>
             <groupId>com.altamiracorp.lumify</groupId>
@@ -121,22 +121,6 @@
     </dependencies>
 
     <build>
-        <resources>
-            <resource>
-                <directory>src/main/resources</directory>
-                <filtering>true</filtering>
-                <includes>
-                    <include>**/lumify-build.properties</include>
-                </includes>
-            </resource>
-            <resource>
-                <directory>src/main/resources</directory>
-                <filtering>false</filtering>
-                <excludes>
-                    <exclude>**/lumify-build.properties</exclude>
-                </excludes>
-            </resource>
-        </resources>
         <plugins>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
