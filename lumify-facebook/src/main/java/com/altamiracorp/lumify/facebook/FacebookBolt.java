@@ -43,7 +43,7 @@ public class FacebookBolt extends BaseLumifyBolt {
             DISPLAY_TYPE.setProperty(post, POST_CONCEPT, new Visibility(""));
             InputStream in = new ByteArrayInputStream(jsonObject.getString(MESSAGE).getBytes());
             graph.flush();
-            workQueueRepository.pushArtifactHighlight(post.getId().toString());
+            workQueueRepository.pushTextHighlight(post.getId().toString());
         } else {
             name = jsonObject.getString(USERNAME);
             LOGGER.info("Facebook tuple is a user: %s", name);

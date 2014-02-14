@@ -127,7 +127,7 @@ function _accumulo_start {
   if [ "${INIT_ACCUMULO}" = 'true' ]; then
     local ready='no'
     while [ "${ready}" != 'yes' ]; do
-      echo "ssh to $(_accumulomaster) and as the accumulo user run: /usr/lib/accumulo/bin/accumulo shell -u root -e \"setauths -u root -s 'ontology'\""
+      echo "ssh to $(_accumulomaster) and as the accumulo user run: /usr/lib/accumulo/bin/accumulo shell -u root -e \"setauths -u root -s 'ontology,user,workspace'\""
       echo "then type 'yes' and press return"
       read ready
     done
