@@ -701,13 +701,13 @@ public class DefaultLumifyTwitterProcessorTest {
 //    @Test
 //    public void testFinalizeTweetVertex_NullId() {
 //        instance.finalizeTweetVertex(TEST_PROCESS_ID, null);
-//        verify(workQueueRepository, never()).pushTextHighlight(anyString());
+//        verify(workQueueRepository, never()).pushArtifactHighlight(anyString());
 //    }
 //
 //    @Test
 //    public void testFinalizeTweetVertex() {
 //        instance.finalizeTweetVertex(TEST_PROCESS_ID, TWEET_VERTEX_ID);
-//        verify(workQueueRepository).pushTextHighlight(TWEET_VERTEX_ID);
+//        verify(workQueueRepository).pushArtifactHighlight(TWEET_VERTEX_ID);
 //    }
 //
 //    private void doRetreiveProfileImageExceptionTest(final Class<? extends Throwable> throwableClass) throws Exception {
