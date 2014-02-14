@@ -1,7 +1,7 @@
 ---
 # proxy_url: 'http://nic-isa:8080'
 hadoop_masters:
-  - localhost
+  - %{ipaddress_eth0}
 hadoop_slaves:
   - localhost
 accumulo_example_config: 512MB/native-standalone
