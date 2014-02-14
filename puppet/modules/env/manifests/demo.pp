@@ -47,9 +47,9 @@ class env::demo {
     mode => 'u=rw,g=r,o=r',
   }
 
-  host { 'lumify-vm.lumify.io' :
+  host { 'lumify-vm' :
     ip => $ipaddress_eth0,
-    host_aliases => 'lumify-vm',
+    host_aliases => 'lumify-vm.lumify.io',
   }
 
   file { '/opt/storm/lib/imageio-1.1.jar' :
