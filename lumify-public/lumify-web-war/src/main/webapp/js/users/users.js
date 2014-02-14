@@ -71,7 +71,7 @@ define([
 
         this.onUserSelected = function(event, data) {
             this.$node.find('.active').removeClass('active');
-            this.$node.find('.conversation-' + data.rowKey).addClass('active')
+            this.$node.find('.conversation-' + data.id).addClass('active')
         };
 
         this.onNewUserOnline = function (evt, userData) {
@@ -103,7 +103,7 @@ define([
 
             $usersList.find('.active').removeClass('active');
             activeChat.addClass('active');
-            this.trigger(document, 'userSelected', {rowKey:to});
+            this.trigger(document, 'userSelected', {id:to});
         };
 
         this.onChatMessage = function (evt, message) {

@@ -57,7 +57,7 @@ define([
                 rowKey: userData.id,
                 users: [userData]
             };
-            this.openChats[chat.id] = chat;
+            this.openChats[chat.rowKey] = chat;
             this.trigger(document, 'chatCreated', chat);
         };
 
