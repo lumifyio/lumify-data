@@ -4,7 +4,7 @@ and on the command line clone them.](http://en.wikipedia.org/wiki/The_one_ring#I
 This repo includes [git subtrees](https://github.com/git/git/blob/master/contrib/subtree/git-subtree.txt)
 including the following:
 
-Open Source components
+Open Source components:
 
 - [lumify-public](https://github.com/altamiracorp/lumify)
 - [lumify-twitter](https://github.com/altamiracorp/lumify-twitter)
