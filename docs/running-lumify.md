@@ -4,21 +4,12 @@
 
     /opt/lumify/format.sh
 
+
 ### Accumulo Authorizations
 
 Authorize the user that web application connects with to view data with the `ontology` security label.
 
     /usr/lib/accumulo/bin/accumulo shell -u root -p password -e "setauths -u root -s 'ontology'"
-
-
-### HDFS Config Directory
-
-Populate the `/lumify/config' directory in HDFS.
-
-    hadoop fs -mkdir /lumify/config
-    hadoop fs -put /vagrant/config/knownEntities /lumify/config
-    hadoop fs -put /vagrant/config/opencv /lumify/config
-    hadoop fs -put /vagrant/config/opennlp /lumify/config
 
 
 ### Local Config Directory
