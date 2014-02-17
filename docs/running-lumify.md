@@ -1,5 +1,8 @@
-
 ## Common Setup
+
+### Format
+
+    /opt/lumify/format.sh
 
 ### Accumulo Authorizations
 
