@@ -9,7 +9,17 @@
 
 Authorize the user that web application connects with to view data with the `ontology`, `user`, and `workspace` security labels.
 
+    /usr/lib/accumulo/bin/accumulo shell -u root -p password -e 'setauths -u root -s "ontology"'
+
+
+### HDFS Config Directory
+
+Populate the `/lumify/config' directory in HDFS.
+
     /usr/lib/accumulo/bin/accumulo shell -u root -p password -e "setauths -u root -s 'ontology,user,workspace'"
+    hadoop fs -put /vagrant/config/knownEntities /lumify/config
+    hadoop fs -put /vagrant/config/opencv /lumify/config
+    hadoop fs -put /vagrant/config/opennlp /lumify/config
 
 
 ### Local Config Directory
