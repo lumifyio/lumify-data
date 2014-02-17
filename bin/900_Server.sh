@@ -10,13 +10,16 @@ DIR="$(cd -P "$(dirname "$SOURCE")" && pwd)"
 
 classpath=$(${DIR}/classpath.sh lumify-public/lumify-web-server)
 if [ $? -ne 0 ]; then
-    echo "${classpath}"
+  echo "${classpath}"
   exit
 fi
-  
+
+[ "${DEBUG_PORT}" ] || DEBUG_PORT=12345
+[ "$1" = '-d' ] && debug_option="-agentlib:jdwp=transport=dt_socket,server=y,suspend=y,address=${DEBUG_PORT}"
+
 cd ${DIR}/../lumify-public
 
-java \
+java ${debug_option} \
 -Dfile.encoding=UTF-8 \
 -Djava.awt.headless=true \
 -Djava.security.krb5.realm= \
