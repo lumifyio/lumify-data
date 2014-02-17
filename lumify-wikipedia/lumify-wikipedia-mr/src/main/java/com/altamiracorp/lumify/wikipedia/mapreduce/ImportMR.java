@@ -13,6 +13,7 @@ import com.altamiracorp.lumify.core.util.LumifyLogger;
 import com.altamiracorp.lumify.core.util.LumifyLoggerFactory;
 import com.altamiracorp.lumify.model.bigtablequeue.BigTableWorkQueueRepository;
 import com.altamiracorp.lumify.model.bigtablequeue.model.QueueItem;
+import com.altamiracorp.lumify.model.bigtablequeue.model.QueueItemRowKey;
 import com.altamiracorp.lumify.wikipedia.InternalLinkWithOffsets;
 import com.altamiracorp.lumify.wikipedia.TextConverter;
 import com.altamiracorp.securegraph.*;
@@ -24,13 +25,22 @@ import com.altamiracorp.securegraph.accumulo.mapreduce.ElementMapper;
 import com.altamiracorp.securegraph.id.IdGenerator;
 import com.altamiracorp.securegraph.property.StreamingPropertyValue;
 import com.altamiracorp.securegraph.util.MapUtils;
+import org.apache.accumulo.core.client.AccumuloException;
+import org.apache.accumulo.core.client.AccumuloSecurityException;
+import org.apache.accumulo.core.client.TableNotFoundException;
+import org.apache.accumulo.core.client.mapreduce.lib.partition.RangePartitioner;
 import org.apache.accumulo.core.client.security.tokens.AuthenticationToken;
+import org.apache.accumulo.core.data.Mutation;
+import org.apache.accumulo.core.util.TextUtil;
+import org.apache.commons.codec.binary.Base64;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.conf.Configured;
+import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.io.LongWritable;
 import org.apache.hadoop.io.Text;
 import org.apache.hadoop.mapreduce.Job;
+import org.apache.hadoop.mapreduce.Reducer;
 import org.apache.hadoop.mapreduce.lib.input.FileInputFormat;
 import org.apache.hadoop.mapreduce.lib.input.TextInputFormat;
 import org.apache.hadoop.util.Tool;
@@ -47,12 +57,12 @@ import org.sweble.wikitext.engine.PageId;
 import org.sweble.wikitext.engine.PageTitle;
 import org.sweble.wikitext.engine.utils.SimpleWikiConfiguration;
 
+import java.io.BufferedOutputStream;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
+import java.io.PrintStream;
 import java.text.SimpleDateFormat;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.*;
 
 import static com.altamiracorp.lumify.core.model.ontology.OntologyLumifyProperties.CONCEPT_TYPE;
 import static com.altamiracorp.lumify.core.model.properties.EntityLumifyProperties.SOURCE;
@@ -68,6 +78,10 @@ public class ImportMR extends Configured implements Tool {
     public static final String WIKIPEDIA_ID_PREFIX = "WIKIPEDIA_";
     public static final String WIKIPEDIA_LINK_ID_PREFIX = "WIKIPEDIA_LINK_";
     public static final String WIKIPEDIA_PAGE_CONCEPT_NAME = "wikipediaPage";
+    public static final String CONFIG_WIKIPEDIA_PAGE_CONCEPT_ID = "wikipediaPageConceptId";
+    public static final String CONFIG_WIKIPEDIA_PAGE_INTERNAL_WIKIPEDIA_PAGE_RELATIONSHIP_ID = "wikipediaPageInternalLinkWikipediaPageRelationshipId";
+    public static final String CONFIG_HIGHLIGHT_WORK_QUEUE_TABLE_NAME = "highlightWorkQueueTableName";
+    public static final char KEY_SPLIT = '\u001f';
 
     public static class ImportMRMapper extends ElementMapper<LongWritable, Text> {
         public static final String TEXT_XPATH = "/page/revision/text/text()";
@@ -87,7 +101,6 @@ public class ImportMR extends Configured implements Tool {
         private Compiler compiler;
         private String highlightWorkQueueTableName;
         private AccumuloGraph graph;
-        private OntologyRepository ontologyRepository;
 
         public ImportMRMapper() {
             this.textXPath = XPathFactory.instance().compile(TEXT_XPATH, Filters.text());
@@ -100,25 +113,11 @@ public class ImportMR extends Configured implements Tool {
             super.setup(context);
             this.configurationMap = toMap(context.getConfiguration());
             this.graph = (AccumuloGraph) new GraphFactory().createGraph(MapUtils.getAllWithPrefix(this.configurationMap, "graph"));
-            UserProvider userProvider = new DefaultUserProvider();
-            this.ontologyRepository = new OntologyRepository(graph, userProvider);
             this.visibility = new Visibility("");
             this.authorizations = new AccumuloAuthorizations();
-
-            Concept wikipediaPageConcept = ontologyRepository.getConceptByName("wikipediaPage");
-            if (wikipediaPageConcept == null) {
-                throw new RuntimeException("wikipediaPage concept not found");
-            }
-            this.wikipediaPageConceptId = wikipediaPageConcept.getId();
-
-            Relationship wikipediaPageInternalLinkWikipediaPageRelationship = ontologyRepository.getRelationship("wikipediaPageInternalLinkWikipediaPage");
-            if (wikipediaPageInternalLinkWikipediaPageRelationship == null) {
-                throw new RuntimeException("wikipediaPageInternalLinkWikipediaPage concept not found");
-            }
-            this.wikipediaPageInternalLinkWikipediaPageRelationshipId = wikipediaPageInternalLinkWikipediaPageRelationship.getId();
-
-            String tablePrefix = BigTableWorkQueueRepository.getTablePrefix(configurationMap);
-            this.highlightWorkQueueTableName = BigTableWorkQueueRepository.getTableName(tablePrefix, WorkQueueRepository.ARTIFACT_HIGHLIGHT_QUEUE_NAME);
+            this.wikipediaPageConceptId = context.getConfiguration().get(CONFIG_WIKIPEDIA_PAGE_CONCEPT_ID);
+            this.wikipediaPageInternalLinkWikipediaPageRelationshipId = context.getConfiguration().get(CONFIG_WIKIPEDIA_PAGE_INTERNAL_WIKIPEDIA_PAGE_RELATIONSHIP_ID);
+            this.highlightWorkQueueTableName = context.getConfiguration().get(CONFIG_HIGHLIGHT_WORK_QUEUE_TABLE_NAME);
 
             try {
                 config = new SimpleWikiConfiguration("classpath:/org/sweble/wikitext/engine/SimpleWikiConfiguration.xml");
@@ -131,14 +130,6 @@ public class ImportMR extends Configured implements Tool {
         @Override
         protected IdGenerator getIdGenerator() {
             return this.graph.getIdGenerator();
-        }
-
-        protected static Map toMap(Configuration configuration) {
-            Map map = new HashMap();
-            for (Map.Entry<String, String> entry : configuration) {
-                map.put(entry.getKey(), entry.getValue());
-            }
-            return map;
         }
 
         @Override
@@ -222,11 +213,11 @@ public class ImportMR extends Configured implements Tool {
                         .setSign(link.getLink().getTarget())
                         .setVertexId(linkedPageVertex.getId().toString())
                         .setOntologyClassUri(WIKIPEDIA_PAGE_CONCEPT_NAME);
-                context.write(new Text(TermMentionModel.TABLE_NAME), AccumuloSession.createMutationFromRow(termMention));
+                context.write(getKey(TermMentionModel.TABLE_NAME, termMention.getRowKey().toString().getBytes()), AccumuloSession.createMutationFromRow(termMention));
             }
 
             QueueItem workQueueItem = BigTableWorkQueueRepository.createVertexIdQueueItem(highlightWorkQueueTableName, pageVertex.getId());
-            context.write(new Text(highlightWorkQueueTableName), AccumuloSession.createMutationFromRow(workQueueItem));
+            context.write(getKey(highlightWorkQueueTableName, workQueueItem.getRowKey().toString().getBytes()), AccumuloSession.createMutationFromRow(workQueueItem));
         }
 
         private String textToString(org.jdom2.Text text) {
@@ -234,6 +225,38 @@ public class ImportMR extends Configured implements Tool {
                 return "";
             }
             return text.getText();
+        }
+
+        @Override
+        protected void saveDataMutation(Context context, Text dataTableName, Mutation m) throws IOException, InterruptedException {
+            context.write(getKey(dataTableName.toString(), m.getRow()), m);
+        }
+
+        @Override
+        protected void saveEdgeMutation(Context context, Text edgesTableName, Mutation m) throws IOException, InterruptedException {
+            context.write(getKey(edgesTableName.toString(), m.getRow()), m);
+        }
+
+        @Override
+        protected void saveVertexMutation(Context context, Text verticesTableName, Mutation m) throws IOException, InterruptedException {
+            context.write(getKey(verticesTableName.toString(), m.getRow()), m);
+        }
+    }
+
+    public static class ImportMRReducer extends Reducer<Text, Mutation, Text, Mutation> {
+        @Override
+        protected void reduce(Text keyText, Iterable<Mutation> values, Context context) throws IOException, InterruptedException {
+            String key = keyText.toString();
+            context.setStatus(key);
+            int keySplitLocation = key.indexOf(KEY_SPLIT);
+            if (keySplitLocation < 0) {
+                throw new IOException("Invalid key: " + keyText);
+            }
+            String tableNameString = key.substring(0, keySplitLocation);
+            Text tableName = new Text(tableNameString);
+            for (Mutation m : values) {
+                context.write(tableName, m);
+            }
         }
     }
 
@@ -255,6 +278,20 @@ public class ImportMR extends Configured implements Tool {
         Configuration conf = getConfiguration(args, lumifyConfig);
         AccumuloGraphConfiguration accumuloGraphConfiguration = new AccumuloGraphConfiguration(conf, "graph.");
 
+        Map configurationMap = toMap(conf);
+        AccumuloGraph graph = (AccumuloGraph) new GraphFactory().createGraph(MapUtils.getAllWithPrefix(configurationMap, "graph"));
+        UserProvider userProvider = new DefaultUserProvider();
+        OntologyRepository ontologyRepository = new OntologyRepository(graph, userProvider);
+
+        String highlightWorkQueueTableName = getHighlightWorkQueueTableName(configurationMap, graph);
+        conf.set(CONFIG_HIGHLIGHT_WORK_QUEUE_TABLE_NAME, highlightWorkQueueTableName);
+
+        String wikipediaPageConceptId = getWikipediaPageConceptId(ontologyRepository);
+        conf.set(CONFIG_WIKIPEDIA_PAGE_CONCEPT_ID, wikipediaPageConceptId);
+
+        String wikipediaPageInternalLinkWikipediaPageRelationshipId = getWikipediaPageInternalLinkWikipediaPageRelationshipId(ontologyRepository);
+        conf.set(CONFIG_WIKIPEDIA_PAGE_INTERNAL_WIKIPEDIA_PAGE_RELATIONSHIP_ID, wikipediaPageInternalLinkWikipediaPageRelationshipId);
+
         Job job = new Job(conf, "wikipediaImport");
 
         String instanceName = accumuloGraphConfiguration.getAccumuloInstanceName();
@@ -263,12 +300,93 @@ public class ImportMR extends Configured implements Tool {
         AuthenticationToken authorizationToken = accumuloGraphConfiguration.getAuthenticationToken();
         AccumuloElementOutputFormat.setOutputInfo(job, instanceName, zooKeepers, principal, authorizationToken);
 
+        if (job.getConfiguration().get("mapred.job.tracker").equals("local")) {
+            LOGGER.warn("!!!!!! Running in local mode !!!!!!");
+        } else {
+            List<Text> splits = new ArrayList<Text>();
+            splits.addAll(getSplits(graph, graph.getVerticesTableName()));
+            splits.addAll(getSplits(graph, graph.getEdgesTableName()));
+            splits.addAll(getSplits(graph, graph.getDataTableName()));
+            splits.addAll(getSplits(graph, TermMentionModel.TABLE_NAME));
+            splits.addAll(getHighlightWorkQueueSplits(highlightWorkQueueTableName));
+            Collections.sort(splits);
+
+            Path splitFile = new Path("/tmp/wikipediaImport_splits.txt");
+            FileSystem fs = FileSystem.get(conf);
+            PrintStream out = new PrintStream(new BufferedOutputStream(fs.create(splitFile)));
+            for (Text split : splits) {
+                out.println(new String(Base64.encodeBase64(TextUtil.getBytes(split))));
+            }
+            out.close();
+
+            job.setPartitionerClass(RangePartitioner.class);
+            RangePartitioner.setSplitFile(job, splitFile.toString());
+            job.setNumReduceTasks(splits.size() + 1);
+        }
+
         job.setJarByClass(ImportMR.class);
         job.setMapperClass(ImportMRMapper.class);
+        job.setReducerClass(ImportMRReducer.class);
         job.setInputFormatClass(TextInputFormat.class);
         job.setOutputFormatClass(AccumuloElementOutputFormat.class);
         FileInputFormat.addInputPath(job, new Path(conf.get("in")));
         return job.waitForCompletion(true) ? 0 : 1;
+    }
+
+    private Collection<Text> getHighlightWorkQueueSplits(String highlightWorkQueueTableName) {
+        ArrayList<Text> splits = new ArrayList<Text>();
+        long minute = 60L * 60L * 1000L * 1000L;
+        for (long i = 0; i < 4 * 60 * minute; i += 10 * minute) {
+            byte[] key = new QueueItemRowKey(System.nanoTime() + i).toString().getBytes();
+            splits.add(getKey(highlightWorkQueueTableName, key));
+        }
+        return splits;
+    }
+
+    private Collection<Text> getSplits(AccumuloGraph graph, String tableName) throws TableNotFoundException, AccumuloSecurityException, AccumuloException {
+        Collection<Text> splits = graph.getConnector().tableOperations().listSplits(tableName, 100);
+        if (splits.size() == 0) {
+            throw new RuntimeException("Could not find splits on table: " + tableName);
+        }
+        List<Text> tableNamePrefixedSplits = new ArrayList<Text>();
+        for (Text split : splits) {
+            Text splitName = getKey(tableName, TextUtil.getBytes(split));
+            tableNamePrefixedSplits.add(splitName);
+        }
+        return tableNamePrefixedSplits;
+    }
+
+    private static Text getKey(String tableName, byte[] key) {
+        return new Text(tableName + KEY_SPLIT + new String(Base64.encodeBase64(key)));
+    }
+
+    private String getWikipediaPageInternalLinkWikipediaPageRelationshipId(OntologyRepository ontologyRepository) {
+        Relationship wikipediaPageInternalLinkWikipediaPageRelationship = ontologyRepository.getRelationship("wikipediaPageInternalLinkWikipediaPage");
+        if (wikipediaPageInternalLinkWikipediaPageRelationship == null) {
+            throw new RuntimeException("wikipediaPageInternalLinkWikipediaPage concept not found");
+        }
+        return wikipediaPageInternalLinkWikipediaPageRelationship.getId();
+    }
+
+    private String getWikipediaPageConceptId(OntologyRepository ontologyRepository) {
+        Concept wikipediaPageConcept = ontologyRepository.getConceptByName("wikipediaPage");
+        if (wikipediaPageConcept == null) {
+            throw new RuntimeException("wikipediaPage concept not found");
+        }
+        return wikipediaPageConcept.getId();
+    }
+
+    private String getHighlightWorkQueueTableName(Map configurationMap, AccumuloGraph graph) throws IOException {
+        String tablePrefix = BigTableWorkQueueRepository.getTablePrefix(configurationMap);
+        String highlightWorkQueueTableName = BigTableWorkQueueRepository.getTableName(tablePrefix, WorkQueueRepository.TEXT_HIGHLIGHT_QUEUE_NAME);
+        try {
+            if (!graph.getConnector().tableOperations().exists(highlightWorkQueueTableName)) {
+                graph.getConnector().tableOperations().create(highlightWorkQueueTableName);
+            }
+        } catch (Exception ex) {
+            throw new IOException("Could not create table: " + highlightWorkQueueTableName, ex);
+        }
+        return highlightWorkQueueTableName;
     }
 
     private Configuration getConfiguration(String[] args, com.altamiracorp.lumify.core.config.Configuration lumifyConfig) {
@@ -289,5 +407,13 @@ public class ImportMR extends Configured implements Tool {
     public static void main(String[] args) throws Exception {
         int res = ToolRunner.run(new Configuration(), new ImportMR(), args);
         System.exit(res);
+    }
+
+    protected static Map toMap(Configuration configuration) {
+        Map map = new HashMap();
+        for (Map.Entry<String, String> entry : configuration) {
+            map.put(entry.getKey(), entry.getValue());
+        }
+        return map;
     }
 }

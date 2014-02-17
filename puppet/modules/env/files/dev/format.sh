@@ -42,4 +42,4 @@ done
 
 /opt/lumify/start.sh
 
-sudo -u accumulo bash -c "/usr/lib/accumulo/bin/accumulo shell -u root -p password -e 'setauths -s ontology -u root'"
+sudo -u accumulo bash -c "/usr/lib/accumulo/bin/accumulo shell -u root -p password -e 'setauths -s ontology,user,workspace -u root'"

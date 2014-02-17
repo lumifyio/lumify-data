@@ -55,8 +55,8 @@ function create_topics {
   create_topic userImage
   create_topic text
   create_topic term
-  create_topic artifactHighlight
-  create_topic userArtifactHighlight
+  create_topic textHighlight
+  create_topic userTextHighlight
   create_topic processedVideo
   create_topic structuredData
   create_topic twitterStream

@@ -10,7 +10,13 @@
     <packaging>pom</packaging>
 
     <name>All Lumify</name>
-    
+
+    <scm>
+        <url>https://github.com/altamiracorp/lumify-all</url>
+        <connection>scm:git:git://github.com:altamiracorp/lumify-all.git</connection>
+        <developerConnection>scm:git:ssh://git@github.com:altamiracorp/lumify-all.git</developerConnection>
+    </scm>
+
     <modules>
         <module>lumify-root</module>
         <module>lumify-public</module>

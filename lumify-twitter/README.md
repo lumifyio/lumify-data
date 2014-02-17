@@ -26,10 +26,7 @@ twitter.query= # Keywords to search Twitter for, e.g. twitter
 5. <a name="step-5"/>```mvn clean package```
 6. ```cd target```
 7. Copy the jar file to location of where you are running your Storm Topology for Lumify.
-   * In the [Lumify Pre-Built VM](https://github.com/altamiracorp/lumify/blob/master/docs/PREBUILT_VM.md), please run the following command ```/opt/storm/bin/storm jar
-   [location of jar file]
-   com.altamiracorp.lumify.storm.twitter.StormRunner
-```
+   * In the [Lumify Pre-Built VM](https://github.com/altamiracorp/lumify/blob/master/docs/PREBUILT_VM.md), please run the following command ```/opt/storm/bin/storm jar [location of jar file] com.altamiracorp.lumify.storm.twitter.StormRunner```
 
 Proceed if you are not using the Pre-built VM provided by [Lumify](https://lumify.io)
 

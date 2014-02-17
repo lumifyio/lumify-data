@@ -278,7 +278,7 @@ public class DefaultLumifyTwitterProcessorTest {
 //        GraphVertex vertex = instance.parseTweet(TEST_PROCESS_ID, tweet);
 //
 //        verify(graphRepository, never()).save(any(GraphVertex.class), any(User.class));
-//        verify(auditRepository, never()).auditEntityProperties(anyString(), any(GraphVertex.class), anyString(), anyString(), anyString(),
+//        verify(auditRepository, never()).auditEntityProperty(anyString(), any(GraphVertex.class), anyString(), anyString(), anyString(),
 //                any(User.class));
 //        assertEquals(tweetVertex, vertex);
 //    }
@@ -313,9 +313,9 @@ public class DefaultLumifyTwitterProcessorTest {
 //        verify(tweetVertex).setProperty(PropertyName.GEO_LOCATION.toString(), TEST_TWEET_COORDS);
 //        verify(tweetVertex).setProperty(LUMIFY_FAVORITE_COUNT_PROPERTY, TEST_TWEET_FAVORITE_COUNT);
 //        verify(graphRepository).save(tweetVertex, user);
-//        verify(auditRepository).auditEntityProperties(eq(AuditAction.UPDATE.toString()), eq(tweetVertex),
+//        verify(auditRepository).auditEntityProperty(eq(AuditAction.UPDATE.toString()), eq(tweetVertex),
 //                eq(PropertyName.GEO_LOCATION.toString()), eq(TEST_PROCESS_ID), anyString(), eq(user));
-//        verify(auditRepository).auditEntityProperties(eq(AuditAction.UPDATE.toString()), eq(tweetVertex),
+//        verify(auditRepository).auditEntityProperty(eq(AuditAction.UPDATE.toString()), eq(tweetVertex),
 //                eq(LUMIFY_FAVORITE_COUNT_PROPERTY), eq(TEST_PROCESS_ID), anyString(), eq(user));
 //        assertEquals(tweetVertex, vertex);
 //    }
@@ -343,11 +343,11 @@ public class DefaultLumifyTwitterProcessorTest {
 //        verify(tweetVertex).setProperty(LUMIFY_FAVORITE_COUNT_PROPERTY, TEST_TWEET_FAVORITE_COUNT);
 //        verify(tweetVertex).setProperty(LUMIFY_RETWEET_COUNT_PROPERTY, TEST_TWEET_RETWEET_COUNT);
 //        verify(graphRepository).save(tweetVertex, user);
-//        verify(auditRepository).auditEntityProperties(eq(AuditAction.UPDATE.toString()), eq(tweetVertex),
+//        verify(auditRepository).auditEntityProperty(eq(AuditAction.UPDATE.toString()), eq(tweetVertex),
 //                eq(PropertyName.GEO_LOCATION.toString()), eq(TEST_PROCESS_ID), anyString(), eq(user));
-//        verify(auditRepository).auditEntityProperties(eq(AuditAction.UPDATE.toString()), eq(tweetVertex),
+//        verify(auditRepository).auditEntityProperty(eq(AuditAction.UPDATE.toString()), eq(tweetVertex),
 //                eq(LUMIFY_FAVORITE_COUNT_PROPERTY), eq(TEST_PROCESS_ID), anyString(), eq(user));
-//        verify(auditRepository).auditEntityProperties(eq(AuditAction.UPDATE.toString()), eq(tweetVertex),
+//        verify(auditRepository).auditEntityProperty(eq(AuditAction.UPDATE.toString()), eq(tweetVertex),
 //                eq(LUMIFY_RETWEET_COUNT_PROPERTY), eq(TEST_PROCESS_ID), anyString(), eq(user));
 //        assertEquals(tweetVertex, vertex);
 //    }
@@ -409,11 +409,11 @@ public class DefaultLumifyTwitterProcessorTest {
 //        verify(tweeterVertex).setProperty(PropertyName.DISPLAY_NAME.toString(), TEST_USER_NAME);
 //        verify(tweeterVertex).setProperty(LUMIFY_CREATION_DATE_PROPERTY, TEST_USER_CREATED);
 //        verify(tweeterVertex).setProperty(LUMIFY_FOLLOWING_COUNT_PROPERTY, TEST_USER_FRIENDS_COUNT);
-//        verify(auditRepository).auditEntityProperties(eq(AuditAction.UPDATE.toString()), eq(tweeterVertex),
+//        verify(auditRepository).auditEntityProperty(eq(AuditAction.UPDATE.toString()), eq(tweeterVertex),
 //                eq(PropertyName.DISPLAY_NAME.toString()), eq(TEST_PROCESS_ID), anyString(), eq(user));
-//        verify(auditRepository).auditEntityProperties(eq(AuditAction.UPDATE.toString()), eq(tweeterVertex),
+//        verify(auditRepository).auditEntityProperty(eq(AuditAction.UPDATE.toString()), eq(tweeterVertex),
 //                eq(LUMIFY_CREATION_DATE_PROPERTY), eq(TEST_PROCESS_ID), anyString(), eq(user));
-//        verify(auditRepository).auditEntityProperties(eq(AuditAction.UPDATE.toString()), eq(tweeterVertex),
+//        verify(auditRepository).auditEntityProperty(eq(AuditAction.UPDATE.toString()), eq(tweeterVertex),
 //                eq(LUMIFY_FOLLOWING_COUNT_PROPERTY), eq(TEST_PROCESS_ID), anyString(), eq(user));
 //    }
 //
@@ -428,19 +428,19 @@ public class DefaultLumifyTwitterProcessorTest {
 //        verify(tweeterVertex).setProperty(LUMIFY_STATUS_COUNT_PROPERTY, TEST_USER_STATUS_COUNT);
 //        verify(tweeterVertex).setProperty(LUMIFY_FOLLOWER_COUNT_PROPERTY, TEST_USER_FOLLOWERS_COUNT);
 //        verify(tweeterVertex).setProperty(LUMIFY_DESCRIPTION_PROPERTY, TEST_USER_DESCRIPTION);
-//        verify(auditRepository).auditEntityProperties(eq(AuditAction.UPDATE.toString()), eq(tweeterVertex),
+//        verify(auditRepository).auditEntityProperty(eq(AuditAction.UPDATE.toString()), eq(tweeterVertex),
 //                eq(PropertyName.DISPLAY_NAME.toString()), eq(TEST_PROCESS_ID), anyString(), eq(user));
-//        verify(auditRepository).auditEntityProperties(eq(AuditAction.UPDATE.toString()), eq(tweeterVertex),
+//        verify(auditRepository).auditEntityProperty(eq(AuditAction.UPDATE.toString()), eq(tweeterVertex),
 //                eq(LUMIFY_CREATION_DATE_PROPERTY), eq(TEST_PROCESS_ID), anyString(), eq(user));
-//        verify(auditRepository).auditEntityProperties(eq(AuditAction.UPDATE.toString()), eq(tweeterVertex),
+//        verify(auditRepository).auditEntityProperty(eq(AuditAction.UPDATE.toString()), eq(tweeterVertex),
 //                eq(LUMIFY_FOLLOWING_COUNT_PROPERTY), eq(TEST_PROCESS_ID), anyString(), eq(user));
-//        verify(auditRepository).auditEntityProperties(eq(AuditAction.UPDATE.toString()), eq(tweeterVertex),
+//        verify(auditRepository).auditEntityProperty(eq(AuditAction.UPDATE.toString()), eq(tweeterVertex),
 //                eq(PropertyName.GEO_LOCATION.toString()), eq(TEST_PROCESS_ID), anyString(), eq(user));
-//        verify(auditRepository).auditEntityProperties(eq(AuditAction.UPDATE.toString()), eq(tweeterVertex),
+//        verify(auditRepository).auditEntityProperty(eq(AuditAction.UPDATE.toString()), eq(tweeterVertex),
 //                eq(LUMIFY_STATUS_COUNT_PROPERTY), eq(TEST_PROCESS_ID), anyString(), eq(user));
-//        verify(auditRepository).auditEntityProperties(eq(AuditAction.UPDATE.toString()), eq(tweeterVertex),
+//        verify(auditRepository).auditEntityProperty(eq(AuditAction.UPDATE.toString()), eq(tweeterVertex),
 //                eq(LUMIFY_FOLLOWER_COUNT_PROPERTY), eq(TEST_PROCESS_ID), anyString(), eq(user));
-//        verify(auditRepository).auditEntityProperties(eq(AuditAction.UPDATE.toString()), eq(tweeterVertex),
+//        verify(auditRepository).auditEntityProperty(eq(AuditAction.UPDATE.toString()), eq(tweeterVertex),
 //                eq(LUMIFY_DESCRIPTION_PROPERTY), eq(TEST_PROCESS_ID), anyString(), eq(user));
 //    }
 //
@@ -546,11 +546,11 @@ public class DefaultLumifyTwitterProcessorTest {
 //        verify(graphRepository).save(existingTerm, user);
 //        verify(auditRepository, never()).auditEntity(eq(AuditAction.CREATE.toString()), eq(existingTermId), eq(TWEET_VERTEX_ID),
 //                eq(sign1), eq(HANDLE_CONCEPT_ID), eq(TEST_PROCESS_ID), anyString(), eq(user));
-//        verify(auditRepository).auditEntityProperties(eq(AuditAction.UPDATE.toString()), eq(existingTerm),
+//        verify(auditRepository).auditEntityProperty(eq(AuditAction.UPDATE.toString()), eq(existingTerm),
 //                eq(PropertyName.TITLE.toString()), eq(TEST_PROCESS_ID), anyString(), eq(user));
-//        verify(auditRepository).auditEntityProperties(eq(AuditAction.UPDATE.toString()), eq(existingTerm),
+//        verify(auditRepository).auditEntityProperty(eq(AuditAction.UPDATE.toString()), eq(existingTerm),
 //                eq(PropertyName.ROW_KEY.toString()), eq(TEST_PROCESS_ID), anyString(), eq(user));
-//        verify(auditRepository).auditEntityProperties(eq(AuditAction.UPDATE.toString()), eq(existingTerm),
+//        verify(auditRepository).auditEntityProperty(eq(AuditAction.UPDATE.toString()), eq(existingTerm),
 //                eq(PropertyName.CONCEPT_TYPE.toString()), eq(TEST_PROCESS_ID), anyString(), eq(user));
 //        verify(md1).setGraphVertexId(existingTermId);
 //        verify(termMentionRepository).save(mention1, modelUserContext);
@@ -565,11 +565,11 @@ public class DefaultLumifyTwitterProcessorTest {
 //        verify(graphRepository).save(newTerm, user);
 //        verify(auditRepository).auditEntity(eq(AuditAction.CREATE.toString()), eq(newTermId), eq(TWEET_VERTEX_ID),
 //                eq(sign2), eq(HANDLE_CONCEPT_ID), eq(TEST_PROCESS_ID), anyString(), eq(user));
-//        verify(auditRepository).auditEntityProperties(eq(AuditAction.UPDATE.toString()), eq(newTerm),
+//        verify(auditRepository).auditEntityProperty(eq(AuditAction.UPDATE.toString()), eq(newTerm),
 //                eq(PropertyName.TITLE.toString()), eq(TEST_PROCESS_ID), anyString(), eq(user));
-//        verify(auditRepository).auditEntityProperties(eq(AuditAction.UPDATE.toString()), eq(newTerm),
+//        verify(auditRepository).auditEntityProperty(eq(AuditAction.UPDATE.toString()), eq(newTerm),
 //                eq(PropertyName.ROW_KEY.toString()), eq(TEST_PROCESS_ID), anyString(), eq(user));
-//        verify(auditRepository).auditEntityProperties(eq(AuditAction.UPDATE.toString()), eq(newTerm),
+//        verify(auditRepository).auditEntityProperty(eq(AuditAction.UPDATE.toString()), eq(newTerm),
 //                eq(PropertyName.CONCEPT_TYPE.toString()), eq(TEST_PROCESS_ID), anyString(), eq(user));
 //        verify(md2).setGraphVertexId(newTermId);
 //        verify(termMentionRepository).save(mention2, modelUserContext);
@@ -691,7 +691,7 @@ public class DefaultLumifyTwitterProcessorTest {
 //
 //        verify(tweeterVertex).setProperty(PropertyName.GLYPH_ICON.toString(), "/artifact/" + imageVertexId + "/raw");
 //        verify(graphRepository).save(tweeterVertex, user);
-//        verify(auditRepository).auditEntityProperties(eq(AuditAction.UPDATE.toString()), eq(tweeterVertex),
+//        verify(auditRepository).auditEntityProperty(eq(AuditAction.UPDATE.toString()), eq(tweeterVertex),
 //                eq(PropertyName.GLYPH_ICON.toString()), eq(TEST_PROCESS_ID), anyString(), eq(user));
 //        verify(graphRepository).findOrAddRelationship(TWEETER_VERTEX_ID, imageVertexId, LabelName.ENTITY_HAS_IMAGE_HANDLE_PHOTO.toString(), user);
 //        verify(auditRepository).auditRelationship(eq(AuditAction.CREATE.toString()), eq(tweeterVertex), eq(imageVertex),
@@ -728,7 +728,7 @@ public class DefaultLumifyTwitterProcessorTest {
 //        verify(graphRepository, never()).save(any(GraphVertex.class), any(User.class));
 //        verify(graphRepository, never()).findOrAddRelationship(anyString(), anyString(), anyString(), any(User.class));
 //        verify(ontologyRepository, never()).getDisplayNameForLabel(anyString(), any(User.class));
-//        verify(auditRepository, never()).auditEntityProperties(anyString(), any(GraphVertex.class), anyString(), anyString(), anyString(),
+//        verify(auditRepository, never()).auditEntityProperty(anyString(), any(GraphVertex.class), anyString(), anyString(), anyString(),
 //                any(User.class));
 //        verify(auditRepository, never()).auditRelationship(anyString(), any(GraphVertex.class), any(GraphVertex.class), anyString(),
 //                anyString(), anyString(), any(User.class));
@@ -740,7 +740,7 @@ public class DefaultLumifyTwitterProcessorTest {
 //        assertNull(vertex);
 //        verify(artifactRepository, never()).saveArtifact(any(ArtifactExtractedInfo.class), any(User.class));
 //        verify(graphRepository, never()).save(any(GraphVertex.class), any(User.class));
-//        verify(auditRepository, never()).auditEntityProperties(anyString(), any(GraphVertex.class), anyString(), anyString(), anyString(),
+//        verify(auditRepository, never()).auditEntityProperty(anyString(), any(GraphVertex.class), anyString(), anyString(), anyString(),
 //                any(User.class));
 //    }
 //
@@ -749,7 +749,7 @@ public class DefaultLumifyTwitterProcessorTest {
 //        assertNull(vertex);
 //        verify(ontologyRepository, never()).getConceptByName(anyString(), any(User.class));
 //        verify(graphRepository, never()).save(any(GraphVertex.class), any(User.class));
-//        verify(auditRepository, never()).auditEntityProperties(anyString(), any(GraphVertex.class), anyString(), anyString(), anyString(),
+//        verify(auditRepository, never()).auditEntityProperty(anyString(), any(GraphVertex.class), anyString(), anyString(), anyString(),
 //                any(User.class));
 //        verify(graphRepository, never()).saveRelationship(anyString(), anyString(), anyString(), any(User.class));
 //        verify(auditRepository, never()).auditRelationship(anyString(), any(GraphVertex.class), any(GraphVertex.class), anyString(),
@@ -769,9 +769,9 @@ public class DefaultLumifyTwitterProcessorTest {
 //        verify(mockVertex).setProperty(PropertyName.TITLE, TEST_USER_SCREEN_NAME);
 //        verify(mockVertex).setProperty(PropertyName.CONCEPT_TYPE, HANDLE_CONCEPT_ID);
 //        verify(graphRepository).save(mockVertex, user);
-//        verify(auditRepository).auditEntityProperties(eq(AuditAction.UPDATE.toString()), eq(mockVertex),
+//        verify(auditRepository).auditEntityProperty(eq(AuditAction.UPDATE.toString()), eq(mockVertex),
 //                eq(PropertyName.TITLE.toString()), eq(TEST_PROCESS_ID), anyString(), eq(user));
-//        verify(auditRepository).auditEntityProperties(eq(AuditAction.UPDATE.toString()), eq(mockVertex),
+//        verify(auditRepository).auditEntityProperty(eq(AuditAction.UPDATE.toString()), eq(mockVertex),
 //                eq(PropertyName.CONCEPT_TYPE.toString()), eq(TEST_PROCESS_ID), anyString(), eq(user));
 //        verify(graphRepository).saveRelationship(mockVertex.getId(), TWEET_VERTEX_ID, TWEETED_RELATIONSHIP,
 //                user);
@@ -800,7 +800,7 @@ public class DefaultLumifyTwitterProcessorTest {
 //        verify(termMentionRepository, never()).save(any(TermMentionModel.class), any(ModelUserContext.class));
 //        verify(auditRepository, never()).auditEntity(anyString(), anyString(), anyString(), anyString(), anyString(), anyString(),
 //                anyString(), any(User.class));
-//        verify(auditRepository, never()).auditEntityProperties(anyString(), any(GraphVertex.class), anyString(), anyString(),
+//        verify(auditRepository, never()).auditEntityProperty(anyString(), any(GraphVertex.class), anyString(), anyString(),
 //                anyString(), any(User.class));
 //        verify(auditRepository, never()).auditRelationship(anyString(), any(GraphVertex.class), any(GraphVertex.class), anyString(),
 //                anyString(), anyString(), any(User.class));
@@ -815,7 +815,7 @@ public class DefaultLumifyTwitterProcessorTest {
 //        verify(graphRepository, never()).save(any(GraphVertex.class), any(User.class));
 //        verify(graphRepository, never()).findOrAddRelationship(anyString(), anyString(), anyString(), any(User.class));
 //        verify(ontologyRepository, never()).getDisplayNameForLabel(anyString(), any(User.class));
-//        verify(auditRepository, never()).auditEntityProperties(anyString(), any(GraphVertex.class), anyString(), anyString(), anyString(),
+//        verify(auditRepository, never()).auditEntityProperty(anyString(), any(GraphVertex.class), anyString(), anyString(), anyString(),
 //                any(User.class));
 //        verify(auditRepository, never()).auditRelationship(anyString(), any(GraphVertex.class), any(GraphVertex.class), anyString(),
 //                anyString(), anyString(), any(User.class));

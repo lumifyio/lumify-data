@@ -414,7 +414,7 @@ public class DefaultLumifyTwitterProcessor extends BaseArtifactProcessor impleme
     @Override
     public void finalizeTweetVertex(final String processId, final String tweetVertexId) {
         if (tweetVertexId != null) {
-            getWorkQueueRepository().pushArtifactHighlight(tweetVertexId);
+            getWorkQueueRepository().pushTextHighlight(tweetVertexId);
         }
     }
 

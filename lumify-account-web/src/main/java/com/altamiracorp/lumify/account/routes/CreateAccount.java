@@ -53,7 +53,7 @@ public class CreateAccount extends BaseRequestHandler {
             return;
         }
 
-        userRepository.addUser(user.getData().getEmail(), password, this.userProvider.getSystemUser());
+        userRepository.addUser(user.getData().getEmail(), password, new String[0]);
 
         // expire the token
         user.getData().setTokenExpiration(new Date());
