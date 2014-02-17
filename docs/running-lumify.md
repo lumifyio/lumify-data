@@ -8,7 +8,7 @@
 
 Authorize the user that web application connects with to view data with the `ontology` security label.
 
-    /usr/lib/accumulo/bin/accumulo shell -u root -p password -e 'setauths -u root -s "ontology"'
+    /usr/lib/accumulo/bin/accumulo shell -u root -p password -e "setauths -u root -s 'ontology'"
 
 
 ### HDFS Config Directory
