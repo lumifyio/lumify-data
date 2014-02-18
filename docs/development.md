@@ -33,7 +33,7 @@ In the root directory where you have cloned this repo:
 
 - after `vagarnt ssh` you will be inside the VM as the `vagrant` user who has `sudo` privileges
 - the `/vagrant` directory inside the VM is mapped to the root directory on your host where you have cloned this repo
-- Lumify software is installed in the following directoryies:
+- Lumify software is installed in the following directories:
     - `/usr/lib`
     - `/opt`
     - `/opt/lumify`
