@@ -1,20 +1,21 @@
 package com.altamiracorp.lumify.facebook;
 
-import static com.altamiracorp.lumify.core.model.properties.LumifyProperties.*;
-import static com.altamiracorp.lumify.facebook.FacebookConstants.*;
-
 import backtype.storm.tuple.Tuple;
 import com.altamiracorp.lumify.core.ingest.ArtifactExtractedInfo;
-import com.altamiracorp.lumify.core.user.User;
 import com.altamiracorp.lumify.core.util.LumifyLogger;
 import com.altamiracorp.lumify.core.util.LumifyLoggerFactory;
 import com.altamiracorp.lumify.storm.BaseLumifyBolt;
 import com.altamiracorp.securegraph.Vertex;
 import com.altamiracorp.securegraph.Visibility;
-import java.io.ByteArrayInputStream;
-import java.io.InputStream;
 import org.apache.hadoop.fs.FileSystem;
 import org.json.JSONObject;
+
+import java.io.ByteArrayInputStream;
+import java.io.InputStream;
+
+import static com.altamiracorp.lumify.core.model.properties.LumifyProperties.DISPLAY_TYPE;
+import static com.altamiracorp.lumify.core.model.properties.LumifyProperties.GLYPH_ICON;
+import static com.altamiracorp.lumify.facebook.FacebookConstants.*;
 
 public class FacebookBolt extends BaseLumifyBolt {
     private static final LumifyLogger LOGGER = LumifyLoggerFactory.getLogger(FacebookBolt.class);
@@ -39,7 +40,7 @@ public class FacebookBolt extends BaseLumifyBolt {
             FacebookPost facebookPost = new FacebookPost();
             ArtifactExtractedInfo postExtractedInfo = facebookPost.processPostArtifact(jsonObject);
             setSavedArtifact(postExtractedInfo);
-            Vertex post = facebookPost.processPostVertex(jsonObject, savedArtifact, graph, auditRepository, ontologyRepository, getUser());
+            Vertex post = facebookPost.processPostVertex(jsonObject, savedArtifact, graph, auditRepository, ontologyRepository, getUser(), getAuthorizations());
             DISPLAY_TYPE.setProperty(post, POST_CONCEPT, new Visibility(""));
             InputStream in = new ByteArrayInputStream(jsonObject.getString(MESSAGE).getBytes());
             graph.flush();
@@ -48,12 +49,12 @@ public class FacebookBolt extends BaseLumifyBolt {
             name = jsonObject.getString(USERNAME);
             LOGGER.info("Facebook tuple is a user: %s", name);
             FacebookUser facebookUser = new FacebookUser();
-            Vertex userVertex = facebookUser.process(jsonObject, graph, auditRepository, ontologyRepository, getUser());
+            Vertex userVertex = facebookUser.process(jsonObject, graph, auditRepository, ontologyRepository, getUser(), getAuthorizations());
             // TO-DO: Replace GLYPH_ICON with ENTITY_IMAGE_URL
             if (userVertex.getPropertyValue(GLYPH_ICON.getKey()) == null) {
                 ArtifactExtractedInfo profilePicExtractedInfo = facebookUser.createProfilePhotoArtifact(jsonObject, userVertex);
                 setSavedArtifact(profilePicExtractedInfo);
-                facebookUser.createProfilePhotoVertex(savedArtifact, userVertex, graph, auditRepository, ontologyRepository, getUser());
+                facebookUser.createProfilePhotoVertex(savedArtifact, userVertex, graph, auditRepository, ontologyRepository, getUser(), getAuthorizations());
             }
             graph.flush();
         }
@@ -61,10 +62,6 @@ public class FacebookBolt extends BaseLumifyBolt {
 
     public FileSystem getFileSystem() {
         return fileSystem;
-    }
-
-    public User getUser() {
-        return super.getUser();
     }
 
     private void setHdfsFileSystem() {

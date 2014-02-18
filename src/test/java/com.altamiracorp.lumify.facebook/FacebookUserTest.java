@@ -1,34 +1,17 @@
 package com.altamiracorp.lumify.facebook;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNull;
-import static org.mockito.Matchers.any;
-import static org.powermock.api.mockito.PowerMockito.when;
-
 import com.altamiracorp.lumify.core.ingest.ArtifactExtractedInfo;
 import com.altamiracorp.lumify.core.model.audit.AuditRepository;
 import com.altamiracorp.lumify.core.model.ontology.Concept;
 import com.altamiracorp.lumify.core.model.ontology.OntologyRepository;
 import com.altamiracorp.lumify.core.user.User;
 import com.altamiracorp.lumify.core.util.RowKeyHelper;
-import com.altamiracorp.securegraph.Edge;
-import com.altamiracorp.securegraph.Graph;
-import com.altamiracorp.securegraph.Text;
-import com.altamiracorp.securegraph.TextIndexHint;
-import com.altamiracorp.securegraph.Vertex;
-import com.altamiracorp.securegraph.VertexBuilder;
-import com.altamiracorp.securegraph.Visibility;
+import com.altamiracorp.securegraph.*;
 import com.altamiracorp.securegraph.id.UUIDIdGenerator;
 import com.altamiracorp.securegraph.inmemory.InMemoryAuthorizations;
 import com.altamiracorp.securegraph.inmemory.InMemoryGraph;
 import com.altamiracorp.securegraph.inmemory.InMemoryGraphConfiguration;
 import com.altamiracorp.securegraph.search.DefaultSearchIndex;
-import java.io.ByteArrayOutputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.net.URL;
-import java.util.HashMap;
-import java.util.Iterator;
 import org.apache.commons.io.IOUtils;
 import org.apache.hadoop.fs.FSDataOutputStream;
 import org.apache.hadoop.fs.FileSystem;
@@ -40,6 +23,18 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
+
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.net.URL;
+import java.util.HashMap;
+import java.util.Iterator;
+
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNull;
+import static org.mockito.Matchers.any;
+import static org.powermock.api.mockito.PowerMockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
 public class FacebookUserTest {
@@ -107,13 +102,12 @@ public class FacebookUserTest {
     @Test
     public void testNormalUserProcess() throws Exception {
         facebookUser = new FacebookUser();
-        when(systemUser.getAuthorizations()).thenReturn(authorizations);
         when(ontologyRepository.getConceptByName("facebookProfile")).thenReturn(facebookConcept);
         when(ontologyRepository.getConceptByName("emailAddress")).thenReturn(emailConcept);
         when(facebookConcept.getId()).thenReturn("32");
         when(emailConcept.getId()).thenReturn("48");
 
-        returnedVertex = facebookUser.process(normalUserObject, graph, auditRepository, ontologyRepository, systemUser);
+        returnedVertex = facebookUser.process(normalUserObject, graph, auditRepository, ontologyRepository, systemUser, authorizations);
 
         assertEquals("facebookTest", returnedVertex.getPropertyValue("displayName"));
     }
@@ -121,19 +115,18 @@ public class FacebookUserTest {
     @Test(expected = RuntimeException.class)
     public void testNullUserProcess() throws Exception {
         facebookUser = new FacebookUser();
-        returnedVertex = facebookUser.process(new JSONObject(), graph, auditRepository, ontologyRepository, systemUser);
+        returnedVertex = facebookUser.process(new JSONObject(), graph, auditRepository, ontologyRepository, systemUser, authorizations);
     }
 
     @Test
     public void testFullUserProcess() throws Exception {
         facebookUser = new FacebookUser();
-        when(systemUser.getAuthorizations()).thenReturn(authorizations);
         when(ontologyRepository.getConceptByName("facebookProfile")).thenReturn(facebookConcept);
         when(ontologyRepository.getConceptByName("emailAddress")).thenReturn(emailConcept);
         when(facebookConcept.getId()).thenReturn("32");
         when(emailConcept.getId()).thenReturn("48");
 
-        returnedVertex = facebookUser.process(fullUserObject, graph, auditRepository, ontologyRepository, systemUser);
+        returnedVertex = facebookUser.process(fullUserObject, graph, auditRepository, ontologyRepository, systemUser, authorizations);
 
         assertEquals("facebookTest", returnedVertex.getPropertyValue("displayName"));
     }
