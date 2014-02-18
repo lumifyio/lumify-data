@@ -106,15 +106,7 @@
         </dependency>
         <dependency>
             <groupId>com.altamiracorp.bigtable</groupId>
-            <artifactId>accumulo-model</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>com.altamiracorp.bigtable</groupId>
             <artifactId>bigtable-accumulo</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>com.altamiracorp.bigtable</groupId>
-            <artifactId>bigtable-api</artifactId>
         </dependency>
     </dependencies>
 
