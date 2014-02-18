@@ -54,7 +54,7 @@ public class VideoPreviewBolt extends BaseLumifyBolt {
     private void saveImage(String artifactGraphVertexId, BufferedImage previewImage, User user) throws IOException {
         ByteArrayOutputStream out = new ByteArrayOutputStream();
         ImageIO.write(previewImage, "png", out);
-        Vertex artifactVertex = graph.getVertex(artifactGraphVertexId, user.getAuthorizations());
+        Vertex artifactVertex = graph.getVertex(artifactGraphVertexId, getAuthorizations());
         Visibility visibility = new Visibility("");
         StreamingPropertyValue spv = new StreamingPropertyValue(new ByteArrayInputStream(out.toByteArray()), byte[].class);
         spv.searchIndex(false);

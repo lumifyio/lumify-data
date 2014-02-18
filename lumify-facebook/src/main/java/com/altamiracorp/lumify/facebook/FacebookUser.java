@@ -1,10 +1,5 @@
 package com.altamiracorp.lumify.facebook;
 
-import static com.altamiracorp.lumify.core.model.ontology.OntologyLumifyProperties.CONCEPT_TYPE;
-import static com.altamiracorp.lumify.core.model.properties.EntityLumifyProperties.GEO_LOCATION;
-import static com.altamiracorp.lumify.core.model.properties.LumifyProperties.*;
-import static com.altamiracorp.lumify.facebook.FacebookConstants.*;
-
 import com.altamiracorp.lumify.core.ingest.ArtifactExtractedInfo;
 import com.altamiracorp.lumify.core.model.audit.AuditAction;
 import com.altamiracorp.lumify.core.model.audit.AuditRepository;
@@ -14,15 +9,11 @@ import com.altamiracorp.lumify.core.user.User;
 import com.altamiracorp.lumify.core.util.LumifyLogger;
 import com.altamiracorp.lumify.core.util.LumifyLoggerFactory;
 import com.altamiracorp.lumify.core.util.RowKeyHelper;
-import com.altamiracorp.securegraph.Direction;
-import com.altamiracorp.securegraph.Edge;
-import com.altamiracorp.securegraph.ElementMutation;
-import com.altamiracorp.securegraph.Graph;
-import com.altamiracorp.securegraph.Text;
-import com.altamiracorp.securegraph.TextIndexHint;
-import com.altamiracorp.securegraph.Vertex;
-import com.altamiracorp.securegraph.Visibility;
+import com.altamiracorp.securegraph.*;
 import com.altamiracorp.securegraph.type.GeoPoint;
+import org.apache.commons.io.IOUtils;
+import org.json.JSONObject;
+
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -31,14 +22,17 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.Iterator;
-import org.apache.commons.io.IOUtils;
-import org.json.JSONObject;
+
+import static com.altamiracorp.lumify.core.model.ontology.OntologyLumifyProperties.CONCEPT_TYPE;
+import static com.altamiracorp.lumify.core.model.properties.EntityLumifyProperties.GEO_LOCATION;
+import static com.altamiracorp.lumify.core.model.properties.LumifyProperties.*;
+import static com.altamiracorp.lumify.facebook.FacebookConstants.*;
 
 public class FacebookUser {
     private static final LumifyLogger LOGGER = LumifyLoggerFactory.getLogger(FacebookBolt.class);
     private static final String PROCESS = FacebookUser.class.getName();
 
-    public Vertex process(JSONObject userJson, Graph graph, AuditRepository auditRepository, OntologyRepository ontologyRepository, User user) throws ParseException {
+    public Vertex process(JSONObject userJson, Graph graph, AuditRepository auditRepository, OntologyRepository ontologyRepository, User user, Authorizations authorizations) throws ParseException {
         //TODO set visibility
         Visibility visibility = new Visibility("");
         //create entity for each user with the properties if one doesn't already exist
@@ -49,12 +43,12 @@ public class FacebookUser {
 
         Vertex userVertex;
         String userVid = generateUserVertexId(name_uid.toString());
-        Vertex queryVertex = graph.getVertex(userVid, user.getAuthorizations());
+        Vertex queryVertex = graph.getVertex(userVid, authorizations);
         if (queryVertex == null) {
             LOGGER.error("Could not find user in system, with given profile_id.");
             throw new RuntimeException();
         } else {
-            Iterable<String> titles = TITLE.getPropertyValues(queryVertex);;
+            Iterable<String> titles = TITLE.getPropertyValues(queryVertex);
             for (String title : titles) {
                 if (title.equals(name)) {
                     userVertex = queryVertex;
@@ -80,10 +74,10 @@ public class FacebookUser {
             String email = userJson.getString(EMAIL);
             Vertex emailVertex = null;
 
-            Iterator<Vertex> emailIterator = graph.query(user.getAuthorizations()).has(EMAIL_ADDRESS, email).vertices().iterator();
+            Iterator<Vertex> emailIterator = graph.query(authorizations).has(EMAIL_ADDRESS, email).vertices().iterator();
             Vertex queryEmailVertex = emailIterator.next();
             if (queryEmailVertex == null) {
-                ElementMutation<Vertex> emailBuilder = graph.prepareVertex(visibility, user.getAuthorizations());
+                ElementMutation<Vertex> emailBuilder = graph.prepareVertex(visibility, authorizations);
                 TITLE.setProperty(emailBuilder, email, visibility);
                 CONCEPT_TYPE.setProperty(emailBuilder, emailConcept.getId(), visibility);
                 emailVertex = emailBuilder.save();
@@ -100,7 +94,7 @@ public class FacebookUser {
                     queryEmailVertex = emailIterator.next();
                 }
             }
-            graph.addEdge(userVertex, emailVertex, EMAIL_RELATIONSHIP, visibility, user.getAuthorizations());
+            graph.addEdge(userVertex, emailVertex, EMAIL_RELATIONSHIP, visibility, authorizations);
             String labelDisplayName = ontologyRepository.getDisplayNameForLabel(EMAIL_RELATIONSHIP);
             auditRepository.auditRelationship(AuditAction.CREATE, userVertex, emailVertex, labelDisplayName, PROCESS, "", user);
             graph.flush();
@@ -156,7 +150,7 @@ public class FacebookUser {
         return null;
     }
 
-    protected void createProfilePhotoVertex(Vertex pictureVertex, Vertex userVertex, Graph graph, AuditRepository auditRepository, OntologyRepository ontologyRepository, User user) {
+    protected void createProfilePhotoVertex(Vertex pictureVertex, Vertex userVertex, Graph graph, AuditRepository auditRepository, OntologyRepository ontologyRepository, User user, Authorizations authorizations) {
         //TODO set visibility
         Visibility visibility = new Visibility("");
         ElementMutation<Vertex> userVertexMutation = userVertex.prepareMutation();
@@ -172,9 +166,9 @@ public class FacebookUser {
 
         String labelDisplay = ontologyRepository.getDisplayNameForLabel(ENTITY_HAS_IMAGE_PROFILE_PHOTO);
 
-        Iterator<Edge> edges = userVertex.getEdges(pictureVertex, Direction.IN, labelDisplay, user.getAuthorizations()).iterator();
+        Iterator<Edge> edges = userVertex.getEdges(pictureVertex, Direction.IN, labelDisplay, authorizations).iterator();
         if (!edges.hasNext()) {
-            graph.addEdge(userVertex, pictureVertex, ENTITY_HAS_IMAGE_PROFILE_PHOTO, visibility, user.getAuthorizations());
+            graph.addEdge(userVertex, pictureVertex, ENTITY_HAS_IMAGE_PROFILE_PHOTO, visibility, authorizations);
         }
 
         auditRepository.auditRelationship(AuditAction.CREATE, userVertex, pictureVertex, labelDisplay, PROCESS, "", user);
