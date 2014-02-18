@@ -21,6 +21,7 @@ import java.util.Date;
 public class AccountUserRepository extends Repository<AccountUser> {
     private static final Logger LOGGER = LoggerFactory.getLogger(AccountUserRepository.class.getName());
     private ModelUserContext context;
+
     @Inject
     public AccountUserRepository(ModelSession modelSession) {
         super(modelSession);
@@ -41,11 +42,11 @@ public class AccountUserRepository extends Repository<AccountUser> {
     }
 
     public void save(AccountUser user) {
-        save(user, context);
+        save(user);
     }
 
     public void generateToken(AccountUser user) {
-       user.getData().setTokenExpiration(DateUtils.addHours(new Date(), 24));
+        user.getData().setTokenExpiration(DateUtils.addHours(new Date(), 24));
         user.getData().setToken(Hashing.goodFastHash(64)
                 .newHasher()
                 .putLong(user.getData().getTokenExpiration().getTime())

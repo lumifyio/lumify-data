@@ -175,7 +175,7 @@ public class TermExtractionBolt extends BaseTextProcessingBolt {
                 termMentionModel.getMetadata().setVertexId(vertex.getId().toString());
             }
 
-            termMentionRepository.save(termMentionModel, FlushFlag.NO_FLUSH, getUser().getModelUserContext());
+            termMentionRepository.save(termMentionModel, FlushFlag.NO_FLUSH);
             results.add(new TermMentionWithGraphVertex(termMentionModel, vertex));
             graph.flush();
         }
