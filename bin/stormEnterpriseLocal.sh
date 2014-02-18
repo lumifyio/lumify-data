@@ -14,13 +14,13 @@ if [ $? -ne 0 ]; then
   exit
 fi
 
-if [ "$2" != '' ]; then
-  dir=$2
-else
-  dir=${DIR}/../data/import
-fi
+dir=${DIR}/../data/import
+[ "$1" ] && dir=$1 && shift
 
-java \
+[ "${DEBUG_PORT}" ] || DEBUG_PORT=12345
+[ "$1" = '-d' ] && debug_option="-agentlib:jdwp=transport=dt_socket,server=y,suspend=y,address=${DEBUG_PORT}"
+
+java ${debug_option} \
 -Xmx512m \
 -XX:MaxPermSize=128m \
 -Djava.awt.headless=true \

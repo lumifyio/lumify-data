@@ -100,13 +100,13 @@
             <artifactId>commons-io</artifactId>
         </dependency>
         <dependency>
-            <groupId>com.altamiracorp.bigtable</groupId>
-            <artifactId>bigtable-accumulo</artifactId>
-        </dependency>
-        <dependency>
             <groupId>org.apache.commons</groupId>
             <artifactId>commons-email</artifactId>
             <version>${commons.email.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>com.altamiracorp.bigtable</groupId>
+            <artifactId>bigtable-accumulo</artifactId>
         </dependency>
     </dependencies>
 

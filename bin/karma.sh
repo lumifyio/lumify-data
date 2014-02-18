@@ -8,5 +8,5 @@ while [ -h "$SOURCE" ]; do
 done
 DIR="$(cd -P "$(dirname "$SOURCE")" && pwd)"
 
-cd $DIR/../lumify-public/lumify-web/src/main/webapp
+cd $DIR/../lumify-public/lumify-web-war/src/main/webapp
 ./node_modules/.bin/karma $*
