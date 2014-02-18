@@ -32,4 +32,4 @@ Then try:
     cd CLAVIN/IndexDirectory
     tar czf ../clavin-index-$(date +'%Y-%m-%d').tgz *
 
-Copy the `.tgz` file to `http://bits.lumify.io/data` and update [../puppet/hiera/common.yaml](../puppet/hiera/common.yaml)
+Copy the `.tgz` file to `http://bits.lumify.io/data` and update [../puppet/hiera/common.yaml](../puppet/hiera/common.yaml#L8)

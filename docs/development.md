@@ -1,6 +1,7 @@
 The development environments are configured and controlled by [Vagrant](http://www.vagrantup.com/).
 The `Vagrantfile` in the root of this repo will install everything you need to get started and keep you in sync with other developers.
 
+
 ## Virtual Machines
 
 The Lumify Vagrant configuration defines six Virtual Machines:
@@ -12,11 +13,13 @@ The Lumify Vagrant configuration defines six Virtual Machines:
   - `demo-opensource` - used to create the downloadable open source demo VM
   - `demo-enterprise` - used to create an enterprise demo VM
 
+
 ## Vagrant Setup
 
 1. install [VitualBox (v. 4.2.12)](https://www.virtualbox.org/wiki/Download_Old_Builds_4_2)
 1. install the [VirtualBox Extension Pack](https://www.virtualbox.org/wiki/Download_Old_Builds_4_2)
 1. install [Vagrant](http://docs.vagrantup.com/v2/installation/)
+
 
 ## Using Vagrant
 
@@ -30,12 +33,13 @@ In the root directory where you have cloned this repo:
 
 - after `vagarnt ssh` you will be inside the VM as the `vagrant` user who has `sudo` privileges
 - the `/vagrant` directory inside the VM is mapped to the root directory on your host where you have cloned this repo
-- Lumify software in installed in the following directoryies:
+- Lumify software is installed in the following directories:
     - `/usr/lib`
     - `/opt`
     - `/opt/lumify`
 
 - run `vagrant halt` on your host to gracefully shutdown the VM
+
 
 ## Local Setup
 
@@ -45,10 +49,12 @@ Additional documentation is available for the following platforms:
 - [OS X](development-osx.md)
 - [Linux](development-linux.md)
 
+
 ## Running Lumify
 
 - [Common Setup and the Web UI](running-lumify.md)
 - [Storm Ingest](running-lumify-storm-ingest.md)
+
 
 ## Sample Data
 
