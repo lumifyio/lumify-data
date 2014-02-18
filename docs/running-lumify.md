@@ -4,14 +4,6 @@
 
     /opt/lumify/format.sh
 
-
-### Accumulo Authorizations
-
-Authorize the user that web application connects with to view data with the `ontology`, `user`, and `workspace` security labels.
-
-    /usr/lib/accumulo/bin/accumulo shell -u root -p password -e "setauths -u root -s 'ontology,user,workspace'"
-
-
 ### Local Config Directory
 
 Configure `.properties` and Log4j files on your local filesystem (VM and/or host).
