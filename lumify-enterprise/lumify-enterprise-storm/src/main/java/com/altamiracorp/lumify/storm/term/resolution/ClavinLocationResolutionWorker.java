@@ -31,6 +31,7 @@ import java.util.*;
 
 import static com.altamiracorp.lumify.core.model.properties.EntityLumifyProperties.GEO_LOCATION;
 import static com.altamiracorp.lumify.core.model.properties.EntityLumifyProperties.GEO_LOCATION_DESCRIPTION;
+import static com.altamiracorp.lumify.core.model.properties.EntityLumifyProperties.SOURCE;
 
 /**
  * This TermResolutionWorker uses the CLAVIN processor to refine
@@ -186,6 +187,7 @@ public class ClavinLocationResolutionWorker implements TermResolutionWorker {
                                 .setProperty(GEO_LOCATION.getKey(),
                                         GEO_LOCATION.wrap(new GeoPoint(loc.getGeoname().getLatitude(), loc.getGeoname().getLongitude())))
                                 .setProperty(GEO_LOCATION_DESCRIPTION.getKey(), GEO_LOCATION_DESCRIPTION.wrap(termMention.getSign()))
+                                .setProperty(SOURCE.getKey(), "CLAVIN")
                                 .process(processId)
                                 .build();
                         updateMap.put(termMention, resolvedMention);
