@@ -161,21 +161,21 @@ public class TermExtractionBolt extends BaseTextProcessingBolt {
 
                 if (!(vertexElementMutation instanceof ExistingElementMutation)) {
                     vertex = vertexElementMutation.save();
-                    auditRepository.auditVertexElementMutation(vertexElementMutation, vertex, termMention.getProcess(), getUser());
+                    auditRepository.auditVertexElementMutation(vertexElementMutation, vertex, termMention.getProcess(), getUser(), new Visibility(""));
                 } else {
-                    auditRepository.auditVertexElementMutation(vertexElementMutation, vertex, termMention.getProcess(), getUser());
+                    auditRepository.auditVertexElementMutation(vertexElementMutation, vertex, termMention.getProcess(), getUser(), new Visibility(""));
                     vertex = vertexElementMutation.save();
                 }
 
                 graph.addEdge(artifactGraphVertex, vertex, LabelName.RAW_HAS_ENTITY.toString(), new Visibility(""), getUser().getAuthorizations());
 
                 String labelDisplayName = ontologyRepository.getDisplayNameForLabel(LabelName.RAW_HAS_ENTITY.toString());
-                auditRepository.auditRelationship(AuditAction.CREATE, artifactGraphVertex, vertex, labelDisplayName, termMention.getProcess(), "", getUser());
+                auditRepository.auditRelationship(AuditAction.CREATE, artifactGraphVertex, vertex, labelDisplayName, termMention.getProcess(), "", getUser(), new Visibility(""));
 
                 termMentionModel.getMetadata().setVertexId(vertex.getId().toString());
             }
 
-            termMentionRepository.save(termMentionModel, FlushFlag.NO_FLUSH, getUser().getModelUserContext());
+            termMentionRepository.save(termMentionModel, FlushFlag.NO_FLUSH);
             results.add(new TermMentionWithGraphVertex(termMentionModel, vertex));
             graph.flush();
         }

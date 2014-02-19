@@ -1,11 +1,11 @@
 package com.altamiracorp.lumify.account.model;
 
+import com.altamiracorp.bigtable.model.ColumnFamily;
 import com.altamiracorp.bigtable.model.Value;
-import com.altamiracorp.bigtable.model.accumulo.AccumuloColumnFamily;
 
 import java.util.Date;
 
-public class AccountUserData extends AccumuloColumnFamily {
+public class AccountUserData extends ColumnFamily {
     public static final String NAME = "data";
     public static final String EMAIL = "email";
     public static final String OPT_IN = "optIn";
