@@ -325,7 +325,7 @@ public class DefaultLumifyTwitterProcessor extends BaseArtifactProcessor impleme
                 String termId = termVertex.getId().toString();
 
                 mention.getMetadata().setVertexId(termId);
-                getTermMentionRepository().save(mention, user.getModelUserContext());
+                getTermMentionRepository().save(mention);
 
                 graph.addEdge(tweetVertex, termVertex, entityType.getRelationshipLabel(), visibility, getAuthorizations());
 
