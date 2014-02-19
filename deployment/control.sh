@@ -117,11 +117,14 @@ function _accumulo_start {
     done
   fi
 
-  ssh ${SSH_OPTS} root@$(_accumulomaster) su - accumulo -c '/usr/lib/accumulo/bin/start-here.sh'
+  ssh ${SSH_OPTS} root@$(_accumulomaster) initctl start accumulo-master
+  ssh ${SSH_OPTS} root@$(_accumulomaster) initctl start accumulo-gc
+  ssh ${SSH_OPTS} root@$(_accumulomaster) initctl start accumulo-monitor
+  ssh ${SSH_OPTS} root@$(_accumulomaster) initctl start accumulo-tracer
 
   for node in $(_nodes); do
     echo ${node}
-    ssh ${SSH_OPTS} root@${node} su - accumulo -c '/usr/lib/accumulo/bin/start-here.sh'
+    ssh ${SSH_OPTS} root@${node} initctl start accumulo-tserver
   done
 
   if [ "${INIT_ACCUMULO}" = 'true' ]; then
@@ -135,16 +138,27 @@ function _accumulo_start {
 }
 
 function _accumulo_stop {
-  ssh ${SSH_OPTS} root@$(_accumulomaster) su - accumulo -c '/usr/lib/accumulo/bin/stop-here.sh'
+  ssh ${SSH_OPTS} root@$(_accumulomaster) initctl stop accumulo-tracer
+  ssh ${SSH_OPTS} root@$(_accumulomaster) initctl stop accumulo-monitor
+  ssh ${SSH_OPTS} root@$(_accumulomaster) initctl stop accumulo-gc
+  ssh ${SSH_OPTS} root@$(_accumulomaster) initctl stop accumulo-master
 
   for node in $(_nodes); do
     echo ${node}
-    ssh ${SSH_OPTS} root@${node} su - accumulo -c '/usr/lib/accumulo/bin/stop-here.sh'
+    ssh ${SSH_OPTS} root@${node} initctl stop accumulo-tserver
   done
 }
 
 function _accumulo_status {
-  echo "accumulo status not yet implemented!"
+  ssh ${SSH_OPTS} root@$(_accumulomaster) initctl status accumulo-master
+  ssh ${SSH_OPTS} root@$(_accumulomaster) initctl status accumulo-gc
+  ssh ${SSH_OPTS} root@$(_accumulomaster) initctl status accumulo-monitor
+  ssh ${SSH_OPTS} root@$(_accumulomaster) initctl status accumulo-tracer
+
+  for node in $(_nodes); do
+    echo ${node}
+    ssh ${SSH_OPTS} root@${node} initctl status accumulo-tserver
+  done
 }
 
 function _elasticsearch_start {

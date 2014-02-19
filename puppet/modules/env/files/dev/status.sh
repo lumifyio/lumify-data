@@ -14,7 +14,6 @@ function accumulo {
     echo "Accumulo"
     sudo initctl status accumulo-master
     sudo initctl status accumulo-gc
-    sudo initctl status accumulo-logger
     sudo initctl status accumulo-monitor
     sudo initctl status accumulo-tracer
     sudo initctl status accumulo-tserver

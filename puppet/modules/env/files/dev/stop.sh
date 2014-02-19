@@ -65,7 +65,6 @@ case "$1" in
   accumulo)
     accumulo tserver
     accumulo gc
-    accumulo logger
     accumulo monitor
     accumulo tracer
     accumulo master
@@ -99,7 +98,6 @@ case "$1" in
     hue
     accumulo tserver
     accumulo gc
-    accumulo logger
     accumulo monitor
     accumulo tracer
     accumulo master
