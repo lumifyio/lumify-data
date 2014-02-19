@@ -1,7 +1,7 @@
 # -*- mode: ruby -*-
 # vi: set ft=ruby :
 
-HOSTNAME="lumify-vm.nearinfinity.com"
+HOSTNAME="lumify-vm.lumify.io"
 
 def configure_puppet(puppet, manifest_file)
   puppet.manifests_path = 'puppet/manifests'
