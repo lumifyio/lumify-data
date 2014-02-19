@@ -80,13 +80,13 @@ public class FacebookPost {
             TITLE.setProperty(authorBuilder, author_uid, visibility);
             CONCEPT_TYPE.setProperty(authorBuilder, profileConceptId, visibility);
             authorVertex = authorBuilder.save();
-            auditRepository.auditVertexElementMutation(authorBuilder, authorVertex, PROCESS, user);
+            auditRepository.auditVertexElementMutation(authorBuilder, authorVertex, PROCESS, user, visibility);
         } else {
             authorVertex = queryVertex;
         }
         graph.addEdge(authorVertex, posting, POSTED_RELATIONSHIP, visibility, user.getAuthorizations());
         String postedRelationshipLabelDisplayName = ontologyRepository.getDisplayNameForLabel(POSTED_RELATIONSHIP);
-        auditRepository.auditRelationship(AuditAction.CREATE, posting, authorVertex, postedRelationshipLabelDisplayName, PROCESS, "", user);
+        auditRepository.auditRelationship(AuditAction.CREATE, posting, authorVertex, postedRelationshipLabelDisplayName, PROCESS, "", user, visibility);
         graph.flush();
 
         if (post.get(TAGGED_UIDS) instanceof JSONObject) {
@@ -102,13 +102,13 @@ public class FacebookPost {
                     TITLE.setProperty(taggedBuilder, next, visibility);
                     CONCEPT_TYPE.setProperty(taggedBuilder, profileConceptId, visibility);
                     taggedVertex = taggedBuilder.save();
-                    auditRepository.auditVertexElementMutation(taggedBuilder, taggedVertex, PROCESS, user);
+                    auditRepository.auditVertexElementMutation(taggedBuilder, taggedVertex, PROCESS, user, visibility);
                 } else {
                     taggedVertex = nextQueryVertex;
                 }
                 graph.addEdge(posting, taggedVertex, MENTIONED_RELATIONSHIP, visibility, user.getAuthorizations());
                 String mentionedRelationshipLabelDisplayName = ontologyRepository.getDisplayNameForLabel(MENTIONED_RELATIONSHIP);
-                auditRepository.auditRelationship(AuditAction.CREATE, posting, taggedVertex, mentionedRelationshipLabelDisplayName, PROCESS, "", user);
+                auditRepository.auditRelationship(AuditAction.CREATE, posting, taggedVertex, mentionedRelationshipLabelDisplayName, PROCESS, "", user, visibility);
                 graph.flush();
             }
         }
@@ -118,7 +118,7 @@ public class FacebookPost {
             GeoPoint geo = new GeoPoint(coordinates.getDouble("latitude"), coordinates.getDouble("longitude"));
             ElementMutation<Vertex> postingMutation = posting.prepareMutation();
             GEO_LOCATION.setProperty(postingMutation, geo, visibility);
-            auditRepository.auditVertexElementMutation(postingMutation, posting, PROCESS, user);
+            auditRepository.auditVertexElementMutation(postingMutation, posting, PROCESS, user, visibility);
             posting = postingMutation.save();
         }
 
