@@ -3,7 +3,7 @@
 hadoop_masters:
   - %{ipaddress_eth0}
 hadoop_slaves:
-  - %{ipaddress_eth1}
+  - %{ipaddress_eth0}
 accumulo_example_config: 512MB/native-standalone
 accumulo_masters:
   - %{ipaddress_eth0}
