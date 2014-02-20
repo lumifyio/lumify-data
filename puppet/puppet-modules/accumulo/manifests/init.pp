@@ -66,8 +66,6 @@ class accumulo(
 
   exec { "copy-example-accumulo-config" :
     command => "/bin/cp ${homedir}/conf/examples/${accumulo_example_config}/* ${configdir}",
-    user    => root,
-    group   => root,
     unless  => "/usr/bin/test -f ${configdir}/accumulo-env.sh",
     require => [Macro::Extract[$downloadpath], File[$configdir]],
   }
@@ -79,64 +77,64 @@ class accumulo(
     require => Exec["copy-example-accumulo-config"],
   }
 
-  file { "accumulo-env-config":
-    path    => "${configdir}/accumulo-env.sh",
-    ensure  => file,
-    content => template("accumulo/accumulo-env.sh.erb"),
+  define setup_walog_directory ($user, $group) {
+    # /data[0-9] should be created by our hadoop dependency
+
+    file { [ "${name}/accumulo", "${name}/accumulo/walog" ] :
+      ensure  => directory,
+      owner   => $user,
+      group   => $group,
+      mode    => 'u=rwx,g=rx,o=',
+      require =>  [ File[$name], User[$user], Group[$group] ],
+    }
+  }
+
+  $data_dir_list = split($data_directories, ',')
+
+  setup_walog_directory { $data_dir_list :
+    user => $user,
+    group => $group,
+  }
+
+  define templated_config_file ($configdir) {
+    file { "${configdir}/${name}" :
+      ensure => file,
+      content => template("accumulo/${name}.erb"),
+    }
+  }
+
+  $hadoop_prefix = hiera('hadoop_home')
+  $java_home = hiera('java_home')
+  $zookeeper_home = '/usr/lib/zookeeper'
+  $accumulo_instance_secret = 'DEFAULT'
+  $accumulo_root_password = 'password'
+
+  templated_config_file { [
+      'accumulo-env.sh',
+      'accumulo-site.xml',
+      'masters',
+      'monitor',
+      'gc',
+      'tracers',
+      'slaves'
+    ] :
+    configdir => $configdir,
     require => Exec["copy-example-accumulo-config"],
   }
 
-  file { "accumulo-site-config":
-    path    => "${configdir}/accumulo-site.xml",
-    ensure  => file,
-    content => template("accumulo/accumulo-site.xml.erb"),
+  define config_file ($configdir) {
+    file { "${configdir}/${name}" :
+      ensure => file,
+      source => "puppet:///modules/accumulo/${name}",
+    }
+  }
+
+  config_file { [
+      'generic_logger.xml',
+      'monitor_logger.xml'
+    ] :
+    configdir => $configdir,
     require => Exec["copy-example-accumulo-config"],
-  }
-
-  file { "accumulo-masters-config":
-    path    => "${configdir}/masters",
-    ensure  => file,
-    content => template("accumulo/masters.erb"),
-    require => Exec["copy-example-accumulo-config"],
-  }
-
-  file { "accumulo-monitor-config":
-    path    => "${configdir}/monitor",
-    ensure  => file,
-    content => template("accumulo/monitor.erb"),
-    require => Exec["copy-example-accumulo-config"],
-  }
-
-  file { "accumulo-gc-config":
-    path    => "${configdir}/gc",
-    ensure  => file,
-    content => template("accumulo/gc.erb"),
-    require => Exec["copy-example-accumulo-config"],
-  }
-
-  file { "accumulo-slaves-config":
-    path    => "${configdir}/slaves",
-    ensure  => file,
-    content => template("accumulo/slaves.erb"),
-    require => Exec["copy-example-accumulo-config"],
-  }
-
-  file { "${configdir}/generic_logger.xml" :
-    ensure  => file,
-    source  => 'puppet:///modules/accumulo/generic_logger.xml',
-    require => Exec['copy-example-accumulo-config'],
-  }
-
-  file { "${configdir}/monitor_logger.xml" :
-    ensure  => file,
-    source  => 'puppet:///modules/accumulo/monitor_logger.xml',
-    require => Exec['copy-example-accumulo-config'],
-  }
-
-  exec { 'change-accumulo-config-file-modes':
-    command => '/bin/find ./* -type f -exec chmod 0644 {} \;',
-    cwd     => $configdir,
-    require => [File["accumulo-env-config"], File["accumulo-site-config"], File["accumulo-masters-config"], File["accumulo-gc-config"], File["accumulo-slaves-config"]],
   }
 
   file { $logdir:

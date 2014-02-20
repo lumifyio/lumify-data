@@ -40,10 +40,6 @@ function accumulo {
         sudo initctl start accumulo-gc
     fi
 
-    if sudo initctl status accumulo-logger | grep -q stop; then
-        sudo initctl start accumulo-logger
-    fi
-
     if sudo initctl status accumulo-monitor | grep -q stop; then
         sudo initctl start accumulo-monitor
     fi

@@ -1,9 +1,9 @@
 ---
 # proxy_url: 'http://nic-isa:8080'
 hadoop_masters:
-  - localhost
+  - lumify-vm
 hadoop_slaves:
-  - localhost
+  - %{ipaddress_eth1}
 accumulo_example_config: 512MB/native-standalone
 accumulo_masters:
   - %{ipaddress_eth1}
@@ -13,7 +13,7 @@ zookeeper_port: 2181
 zookeeper_nodes:
   1: %{ipaddress_eth1}:2181
 namenode_ipaddress: %{ipaddress_eth1}
-namenode_hostname: lumify-vm.nearinfinity.com
+namenode_hostname: lumify-vm.lumify.io
 elasticsearch_locations:
   - %{ipaddress_eth1}:9300
 kafka_host_ipaddresses:
