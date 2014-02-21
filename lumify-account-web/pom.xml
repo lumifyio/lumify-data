@@ -7,7 +7,7 @@
     <parent>
         <groupId>com.altamiracorp.lumify</groupId>
         <artifactId>lumify-root</artifactId>
-        <version>1.0-SNAPSHOT</version>
+        <version>0.1.0</version>
     </parent>
 
     <artifactId>lumify-account-web</artifactId>
@@ -17,7 +17,7 @@
 
     <properties>
         <commons.email.version>1.3.2</commons.email.version>
-        <lumify.version>1.0-SNAPSHOT</lumify.version>
+        <lumify.version>0.1.0</lumify.version>
         <plugin.maven.war.version>2.3</plugin.maven.war.version>
     </properties>
 
