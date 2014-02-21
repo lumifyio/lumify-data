@@ -3,6 +3,6 @@ class hadoop::config::pseudo {
 
   package { 'hadoop-0.20-conf-pseudo':
     ensure  => installed,
-    require => Package['hadoop.x86_64'],
+    require => Package[$hadoop::pkg],
   }
 }

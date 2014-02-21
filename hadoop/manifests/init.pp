@@ -2,6 +2,11 @@ class hadoop {
   include repo::cloudera::cdh4
   require java
 
+  case $architecture {
+    'x86_64': { $pkg = 'hadoop.x86_64' }
+    'i386':   { $pkg = 'hadoop.i686' }
+    default:  { fail "unsupported architecture: ${architecture}" }
+  }
   $namenode_ipaddress = hiera("namenode_ipaddress")
   $namenode_hostname = hiera("namenode_hostname")
   $hadoop_masters = hiera_array('hadoop_masters')
@@ -17,7 +22,7 @@ class hadoop {
     require => Group['hadoop'],
   }
 
-  package { 'hadoop.x86_64':
+  package { $pkg :
     ensure  => installed,
     require => Class['java', 'repo::cloudera::cdh4'],
   }
@@ -35,7 +40,7 @@ class hadoop {
     owner   => "root",
     group   => "root",
     mode    => "u=rw,go=r",
-    require => [ Package['hadoop.x86_64'], File['/data0/hadoop'] ],
+    require => [ Package[$pkg], File['/data0/hadoop'] ],
   }
 
   file { "/etc/hadoop/conf/hdfs-site.xml":
@@ -44,7 +49,7 @@ class hadoop {
     owner   => "root",
     group   => "root",
     mode    => "u=rw,go=r",
-    require => [ Package['hadoop.x86_64'], File['/data0/hdfs'] ],
+    require => [ Package[$pkg], File['/data0/hdfs'] ],
   }
 
   file { "/etc/hadoop/conf/mapred-site.xml":
@@ -53,7 +58,7 @@ class hadoop {
     owner   => "root",
     group   => "root",
     mode    => "u=rw,go=r",
-    require => [ Package['hadoop.x86_64'], File['/data0/mapred'] ],
+    require => [ Package[$pkg], File['/data0/mapred'] ],
   }
 
   file { "/etc/hadoop/conf/log4j.properties":
@@ -62,7 +67,7 @@ class hadoop {
     owner   => "root",
     group   => "root",
     mode    => "u=rw,go=r",
-    require => Package['hadoop.x86_64'],
+    require => Package[$pkg],
   }
 
   file { "/etc/hadoop/conf/masters":
@@ -71,7 +76,7 @@ class hadoop {
     owner   => "root",
     group   => "root",
     mode    => "u=rw,go=r",
-    require => Package['hadoop.x86_64'],
+    require => Package[$pkg],
   }
 
   file { "/etc/hadoop/conf/slaves":
@@ -80,7 +85,7 @@ class hadoop {
     owner   => "root",
     group   => "root",
     mode    => "u=rw,go=r",
-    require => Package['hadoop.x86_64'],
+    require => Package[$pkg],
   }
 
   file { "/usr/lib/hadoop/.ssh" :
@@ -88,7 +93,7 @@ class hadoop {
     owner   => 'hdfs',
     group   => 'hadoop',
     mode    => 'u=rwx,go=',
-    require => Package['hadoop.x86_64'],
+    require => Package[$pkg],
   }
 
   macro::setup-passwordless-ssh { 'hdfs' :
@@ -96,7 +101,7 @@ class hadoop {
     require => File['/usr/lib/hadoop/.ssh'],
   }
 
-  define setup_data_directory {
+  define setup_data_directory ($pkg) {
     file { "${name}" :
       ensure  => directory,
     }
@@ -106,7 +111,7 @@ class hadoop {
       owner   => 'hdfs',
       group   => 'hadoop',
       mode    => 'u=rwx,g=rwx,o=',
-      require =>  [ File["${name}"], Package['hadoop.x86_64'], User['hdfs'] ],
+      require =>  [ File["${name}"], Package[$pkg], User['hdfs'] ],
     }
 
     file { [ "${name}/hdfs", "${name}/hdfs/name", "${name}/hdfs/data" ] :
@@ -114,7 +119,7 @@ class hadoop {
       owner   => 'hdfs',
       group   => 'hadoop',
       mode    => 'u=rwx,g=rx,o=',
-      require =>  [ File["${name}"], Package['hadoop.x86_64'], User['hdfs'] ],
+      require =>  [ File["${name}"], Package[$pkg], User['hdfs'] ],
     }
 
     file { [ "${name}/mapred", "${name}/mapred/local" ] :
@@ -122,11 +127,13 @@ class hadoop {
       owner   => 'mapred',
       group   => 'hadoop',
       mode    => 'u=rwx,g=rx,o=',
-      require =>  [ File["${name}"], Package['hadoop.x86_64'], User['mapred'] ],
+      require =>  [ File["${name}"], Package[$pkg], User['mapred'] ],
     }
   }
 
   $data_dir_list = split($data_directories, ',')
 
-  setup_data_directory { $data_dir_list : }
+  setup_data_directory { $data_dir_list :
+    pkg => $pkg,
+  }
 }
