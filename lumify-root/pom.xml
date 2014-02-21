@@ -112,6 +112,7 @@
         <plugin.maven.jxr.version>2.3</plugin.maven.jxr.version>
         <plugin.maven.project.info.reports.version>2.7</plugin.maven.project.info.reports.version>
         <plugin.maven.resources.version>2.6</plugin.maven.resources.version>
+        <plugin.maven.shade.version>2.2</plugin.maven.shade.version>
         <plugin.maven.site.version>3.3</plugin.maven.site.version>
         <plugin.maven.source.version>2.2.1</plugin.maven.source.version>
         <plugin.maven.surefire.version>2.16</plugin.maven.surefire.version>
@@ -590,6 +591,23 @@
                         </execution>
                     </executions>
                 </plugin>
+				<plugin>
+					<groupId>org.apache.maven.plugins</groupId>
+					<artifactId>maven-shade-plugin</artifactId>
+					<version>${plugin.maven.shade.version}</version>
+					<executions>
+						<execution>
+							<phase>package</phase>
+							<goals>
+								<goal>shade</goal>
+							</goals>
+							<configuration>
+								<shadedArtifactAttached>true</shadedArtifactAttached>
+								<shadedClassifierName>with-dependencies</shadedClassifierName>
+							</configuration>
+						</execution>
+					</executions>
+				</plugin>
                 <plugin>
                     <groupId>org.apache.maven.plugins</groupId>
                     <artifactId>maven-source-plugin</artifactId>
