@@ -41,7 +41,7 @@ class hue(
   
   group { $group :
     ensure => present,
-    require => Package['hadoop.x86_64'],
+    require => Package[$hadoop::pkg],
   }
 
   user { $user :

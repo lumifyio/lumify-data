@@ -36,7 +36,7 @@ class accumulo(
     ensure  => "present",
     gid     => $group,
     home    => $configlink,
-    require => Package["hadoop.x86_64"],
+    require => Package[$hadoop::pkg],
   }
 
   macro::download { "http://apache.mirrors.tds.net/accumulo/${version}/${downloadfile}":
