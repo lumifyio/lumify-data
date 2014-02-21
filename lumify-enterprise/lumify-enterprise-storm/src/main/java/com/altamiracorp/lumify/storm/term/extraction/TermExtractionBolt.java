@@ -16,10 +16,7 @@ import com.altamiracorp.lumify.core.util.LumifyLoggerFactory;
 import com.altamiracorp.lumify.core.util.ThreadedInputStreamProcess;
 import com.altamiracorp.lumify.core.util.ThreadedTeeInputStreamWorker;
 import com.altamiracorp.lumify.storm.BaseTextProcessingBolt;
-import com.altamiracorp.securegraph.ElementMutation;
-import com.altamiracorp.securegraph.ExistingElementMutation;
-import com.altamiracorp.securegraph.Vertex;
-import com.altamiracorp.securegraph.Visibility;
+import com.altamiracorp.securegraph.*;
 import com.google.common.collect.Lists;
 import org.json.JSONObject;
 
@@ -167,7 +164,11 @@ public class TermExtractionBolt extends BaseTextProcessingBolt {
                     vertex = vertexElementMutation.save();
                 }
 
-                graph.addEdge(artifactGraphVertex, vertex, LabelName.RAW_HAS_ENTITY.toString(), new Visibility(""), getAuthorizations());
+                // TODO: a better way to check if the same edge exists instead of looking it up every time?
+                Edge edge = trySingle(artifactGraphVertex.getEdges(vertex, Direction.OUT, LabelName.RAW_HAS_ENTITY.toString(), getAuthorizations()));
+                if (edge == null) {
+                    graph.addEdge(artifactGraphVertex, vertex, LabelName.RAW_HAS_ENTITY.toString(), new Visibility(""), getAuthorizations());
+                }
 
                 String labelDisplayName = ontologyRepository.getDisplayNameForLabel(LabelName.RAW_HAS_ENTITY.toString());
                 auditRepository.auditRelationship(AuditAction.CREATE, artifactGraphVertex, vertex, labelDisplayName, termMention.getProcess(), "", getUser(), new Visibility(""));
@@ -193,13 +194,18 @@ public class TermExtractionBolt extends BaseTextProcessingBolt {
             checkNotNull(destTermMentionsWithGraphVertex, "dest was not found for " + relationship.getDestTermMention());
             checkNotNull(destTermMentionsWithGraphVertex.getVertex(), "dest vertex was not found for " + relationship.getDestTermMention());
             String label = relationship.getLabel();
-            graph.addEdge(
-                    sourceTermMentionsWithGraphVertex.getVertex(),
-                    destTermMentionsWithGraphVertex.getVertex(),
-                    label,
-                    new Visibility(""),
-                    getAuthorizations()
-            );
+
+            // TODO: a better way to check if the same edge exists instead of looking it up every time?
+            Edge edge = trySingle(sourceTermMentionsWithGraphVertex.getVertex().getEdges(destTermMentionsWithGraphVertex.getVertex(), Direction.OUT, label, getAuthorizations()));
+            if (edge == null) {
+                graph.addEdge(
+                        sourceTermMentionsWithGraphVertex.getVertex(),
+                        destTermMentionsWithGraphVertex.getVertex(),
+                        label,
+                        new Visibility(""),
+                        getAuthorizations()
+                );
+            }
         }
         graph.flush();
     }
