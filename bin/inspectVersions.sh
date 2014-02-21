@@ -28,7 +28,7 @@ case "$1" in
 	  	;;
 esac
 	
-classpath=$(${DIR}/classpath.sh lumify-public/lumify-tools)
+classpath=$(${DIR}/classpath.sh lumify-public/lumify-tools/lumify-version-inspector)
 if [ $? -ne 0 ]; then
     echo "${classpath}"
   exit

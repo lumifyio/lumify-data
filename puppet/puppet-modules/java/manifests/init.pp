@@ -1,7 +1,11 @@
-class java($tmpdir = '/tmp', $version = '6u45', $arch = 'amd64') {
+class java($tmpdir = '/tmp', $version = '6u45') {
   include macro
 
-  $pkg = "jdk-${version}-linux-${arch}"
+  case $architecture {
+    'x86_64': { $pkg = "jdk-${version}-linux-amd64" }
+    'i386':   { $pkg = "jdk-${version}-linux-i586" }
+    default:  { fail "unsupported architecture: ${architecture}" }
+  }
   $dist = "${pkg}.rpm"
   $path = "${tmpdir}/${dist}"
   $java_home = hiera("java_home")
