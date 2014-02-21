@@ -21,6 +21,12 @@ FORWARD_PORTS = {
   [8080, 8443]                 => 'jetty',
 }
 
+def forward_ports(config, port_hash)
+  port_hash.keys.flatten.each do |port|
+    config.vm.network :forwarded_port, :guest => port, :host => port, :auto_correct => true
+  end
+end
+
 def configure_puppet(puppet, manifest_file)
   puppet.manifests_path = 'puppet/manifests'
   puppet.module_path    = [ 'puppet/modules', 'puppet/puppet-modules' ]
@@ -38,9 +44,8 @@ Vagrant.configure('2') do |config|
   # Create a forwarded port mapping which allows access to a specific port
   # within the machine from a port on the host machine. In the example below,
   # accessing "localhost:8080" will access port 80 on the guest machine.
-  FORWARD_PORTS.keys.flatten.each do |port|
-    config.vm.network :forwarded_port, :guest => port, :host => port, :auto_correct => true
-  end
+  # config.vm.network :forwarded_port, :guest => 8080, :host => 8080
+  # config.vm.network :forwarded_port, :guest => 8443, :host => 8443
 
   # Create a private network, which allows host-only access to the machine
   # using a specific IP.
@@ -85,6 +90,7 @@ Vagrant.configure('2') do |config|
 
   # used for development including closed source enterprise features
   config.vm.define "dev", :primary => true do |dev|
+    forward_ports(dev, FORWARD_PORTS)
     dev.vm.provision :shell, :inline => "mkdir -p /data0 /opt/lumify /opt/lumify/logs"
     dev.vm.provision :puppet do |puppet|
       configure_puppet(puppet, 'dev_vm.pp')
@@ -93,6 +99,7 @@ Vagrant.configure('2') do |config|
 
   # used for automated integration testing
   config.vm.define "test" do |test|
+    forward_ports(test, FORWARD_PORTS)
     test.vm.provision :shell, :inline => "mkdir -p /data0"
     test.vm.provision :puppet do |puppet|
       configure_puppet(puppet, 'dev_vm.pp')
@@ -101,6 +108,7 @@ Vagrant.configure('2') do |config|
 
   # used to create the downloadable open source demo VM
   config.vm.define "demo-opensource" do |demo|
+    forward_ports(demo, FORWARD_PORTS)
     demo.vm.provision :shell, :inline => "mkdir -p /data0 /opt/lumify /opt/lumify/logs"
     demo.vm.provision :puppet do |puppet|
       configure_puppet(puppet, 'demo_opensource_vm.pp')
@@ -110,6 +118,7 @@ Vagrant.configure('2') do |config|
 
   # used to create an enterprise demo VM
   config.vm.define "demo-enterprise" do |demo|
+    forward_ports(demo, FORWARD_PORTS)
     demo.vm.provision :shell, :inline => "mkdir -p /data0 /opt/lumify /opt/lumify/logs"
     demo.vm.provision :puppet do |puppet|
       configure_puppet(puppet, 'demo_enterprise_vm.pp')
