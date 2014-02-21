@@ -3,6 +3,8 @@ package com.altamiracorp.lumify.tools;
 import com.altamiracorp.bigtable.model.ModelSession;
 import com.altamiracorp.lumify.core.cmdline.CommandLineBase;
 import com.altamiracorp.lumify.core.model.workQueue.WorkQueueRepository;
+import com.altamiracorp.lumify.core.util.LumifyLogger;
+import com.altamiracorp.lumify.core.util.LumifyLoggerFactory;
 import com.altamiracorp.lumify.core.util.ModelUtil;
 import com.altamiracorp.securegraph.Graph;
 import com.google.inject.Inject;
@@ -13,6 +15,7 @@ import org.elasticsearch.client.transport.TransportClient;
 import org.elasticsearch.common.transport.InetSocketTransportAddress;
 
 public class FormatLumify extends CommandLineBase {
+    private static final LumifyLogger LOGGER = LumifyLoggerFactory.getLogger(FormatLumify.class);
     private ModelSession modelSession;
     private Graph graph;
     private WorkQueueRepository workQueueRepository;
@@ -33,6 +36,7 @@ public class FormatLumify extends CommandLineBase {
 
         // TODO refactor to config file info. But since this is only for development this is low priority
         String ES_INDEX = "securegraph";
+        LOGGER.debug("BEGIN deleting elastic search index: " + ES_INDEX);
         TransportClient client = new TransportClient();
         for (String esLocation : new String[]{"192.168.33.10:9300"}) {
             String[] locationSocket = esLocation.split(":");
@@ -42,6 +46,7 @@ public class FormatLumify extends CommandLineBase {
         if (!response.isAcknowledged()) {
             LOGGER.error("Failed to delete elastic search index named %s", ES_INDEX);
         }
+        LOGGER.debug("END deleting elastic search index: " + ES_INDEX);
 
         return 0;
     }
