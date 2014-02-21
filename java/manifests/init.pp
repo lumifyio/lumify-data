@@ -2,7 +2,7 @@ class java($tmpdir = '/tmp', $version = '6u45') {
   include macro
 
   case $architecture {
-    'x86_64': { $pkg = "jdk-${version}-linux-amd64" }
+    'x86_64': { $pkg = "jdk-${version}-linux-x64" }
     'i386':   { $pkg = "jdk-${version}-linux-i586" }
     default:  { fail "unsupported architecture: ${architecture}" }
   }
