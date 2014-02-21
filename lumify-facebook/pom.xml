@@ -6,7 +6,7 @@
     <parent>
         <groupId>com.altamiracorp.lumify</groupId>
         <artifactId>lumify-root</artifactId>
-        <version>0.1.0</version>
+        <version>0.2.0-SNAPSHOT</version>
     </parent>
 
     <artifactId>lumify-facebook</artifactId>
@@ -21,7 +21,7 @@
 
     <properties>
         <!-- Dependency Versions -->
-        <lumify.version>0.1.0</lumify.version>
+        <lumify.version>0.2.0-SNAPSHOT</lumify.version>
     </properties>
 
     <dependencies>
