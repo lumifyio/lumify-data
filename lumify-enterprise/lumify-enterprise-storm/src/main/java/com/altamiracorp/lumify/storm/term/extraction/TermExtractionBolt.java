@@ -16,10 +16,7 @@ import com.altamiracorp.lumify.core.util.LumifyLoggerFactory;
 import com.altamiracorp.lumify.core.util.ThreadedInputStreamProcess;
 import com.altamiracorp.lumify.core.util.ThreadedTeeInputStreamWorker;
 import com.altamiracorp.lumify.storm.BaseTextProcessingBolt;
-import com.altamiracorp.securegraph.ElementMutation;
-import com.altamiracorp.securegraph.ExistingElementMutation;
-import com.altamiracorp.securegraph.Vertex;
-import com.altamiracorp.securegraph.Visibility;
+import com.altamiracorp.securegraph.*;
 import com.google.common.collect.Lists;
 import org.json.JSONObject;
 
@@ -69,7 +66,7 @@ public class TermExtractionBolt extends BaseTextProcessingBolt {
     protected void safeExecute(Tuple input) throws Exception {
         JSONObject json = getJsonFromTuple(input);
         String graphVertexId = json.getString("graphVertexId");
-        Vertex artifactGraphVertex = graph.getVertex(graphVertexId, getUser().getAuthorizations());
+        Vertex artifactGraphVertex = graph.getVertex(graphVertexId, getAuthorizations());
         runTextExtractions(artifactGraphVertex);
     }
 
@@ -129,9 +126,9 @@ public class TermExtractionBolt extends BaseTextProcessingBolt {
                 ElementMutation<Vertex> vertexElementMutation;
                 if (termMention.getUseExisting()) {
                     if (termMention.getId() != null) {
-                        vertex = graph.getVertex(termMention.getId(), getUser().getAuthorizations());
+                        vertex = graph.getVertex(termMention.getId(), getAuthorizations());
                     } else {
-                        vertex = trySingle(graph.query(getUser().getAuthorizations())
+                        vertex = trySingle(graph.query(getAuthorizations())
                                 .has(TITLE.getKey(), title)
                                 .has(CONCEPT_TYPE.getKey(), concept.getId())
                                 .vertices());
@@ -139,9 +136,9 @@ public class TermExtractionBolt extends BaseTextProcessingBolt {
                 }
                 if (vertex == null) {
                     if (termMention.getId() != null) {
-                        vertexElementMutation = graph.prepareVertex(termMention.getId(), new Visibility(""), getUser().getAuthorizations());
+                        vertexElementMutation = graph.prepareVertex(termMention.getId(), new Visibility(""), getAuthorizations());
                     } else {
-                        vertexElementMutation = graph.prepareVertex(new Visibility(""), getUser().getAuthorizations());
+                        vertexElementMutation = graph.prepareVertex(new Visibility(""), getAuthorizations());
                     }
                     TITLE.setProperty(vertexElementMutation, title, new Visibility(""));
                     CONCEPT_TYPE.setProperty(vertexElementMutation, concept.getId(), new Visibility(""));
@@ -167,7 +164,11 @@ public class TermExtractionBolt extends BaseTextProcessingBolt {
                     vertex = vertexElementMutation.save();
                 }
 
-                graph.addEdge(artifactGraphVertex, vertex, LabelName.RAW_HAS_ENTITY.toString(), new Visibility(""), getUser().getAuthorizations());
+                // TODO: a better way to check if the same edge exists instead of looking it up every time?
+                Edge edge = trySingle(artifactGraphVertex.getEdges(vertex, Direction.OUT, LabelName.RAW_HAS_ENTITY.toString(), getAuthorizations()));
+                if (edge == null) {
+                    graph.addEdge(artifactGraphVertex, vertex, LabelName.RAW_HAS_ENTITY.toString(), new Visibility(""), getAuthorizations());
+                }
 
                 String labelDisplayName = ontologyRepository.getDisplayNameForLabel(LabelName.RAW_HAS_ENTITY.toString());
                 auditRepository.auditRelationship(AuditAction.CREATE, artifactGraphVertex, vertex, labelDisplayName, termMention.getProcess(), "", getUser(), new Visibility(""));
@@ -193,13 +194,18 @@ public class TermExtractionBolt extends BaseTextProcessingBolt {
             checkNotNull(destTermMentionsWithGraphVertex, "dest was not found for " + relationship.getDestTermMention());
             checkNotNull(destTermMentionsWithGraphVertex.getVertex(), "dest vertex was not found for " + relationship.getDestTermMention());
             String label = relationship.getLabel();
-            graph.addEdge(
-                    sourceTermMentionsWithGraphVertex.getVertex(),
-                    destTermMentionsWithGraphVertex.getVertex(),
-                    label,
-                    new Visibility(""),
-                    getUser().getAuthorizations()
-            );
+
+            // TODO: a better way to check if the same edge exists instead of looking it up every time?
+            Edge edge = trySingle(sourceTermMentionsWithGraphVertex.getVertex().getEdges(destTermMentionsWithGraphVertex.getVertex(), Direction.OUT, label, getAuthorizations()));
+            if (edge == null) {
+                graph.addEdge(
+                        sourceTermMentionsWithGraphVertex.getVertex(),
+                        destTermMentionsWithGraphVertex.getVertex(),
+                        label,
+                        new Visibility(""),
+                        getAuthorizations()
+                );
+            }
         }
         graph.flush();
     }

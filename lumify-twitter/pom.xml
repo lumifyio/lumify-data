@@ -6,7 +6,7 @@
     <parent>
         <groupId>com.altamiracorp.lumify</groupId>
         <artifactId>lumify-root</artifactId>
-        <version>1.0-SNAPSHOT</version>
+        <version>0.2.0-SNAPSHOT</version>
     </parent>
     <artifactId>lumify-twitter</artifactId>
     <name>Lumify Twitter</name>
@@ -60,7 +60,7 @@
                             <descriptor>src/main/assembly/descriptor.xml</descriptor>
                             <archive>
                                 <manifest>
-                                    <mainClass>com.altamiracorp.lumify.twiiter.storm.StormRunner</mainClass>
+                                    <mainClass>com.altamiracorp.lumify.twitter.storm.StormRunner</mainClass>
                                 </manifest>
                             </archive>
                         </configuration>
@@ -93,7 +93,7 @@
 
     <properties>
         <!-- Dependency Versions -->
-        <lumify.version>1.0-SNAPSHOT</lumify.version>
+        <lumify.version>0.2.0-SNAPSHOT</lumify.version>
         <twitter.hbc.version>1.4.0</twitter.hbc.version>
     </properties>
 

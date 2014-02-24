@@ -31,12 +31,12 @@ rm -rf %{buildroot}
 /usr/include/opus/opus_defines.h
 /usr/include/opus/opus_multistream.h
 /usr/include/opus/opus_types.h
-/usr/lib64/libopus.a
-/usr/lib64/libopus.la
-/usr/lib64/libopus.so
-/usr/lib64/libopus.so.0
-/usr/lib64/libopus.so.0.4.0
-/usr/lib64/pkgconfig/opus.pc
+%{_libdir}/libopus.a
+%{_libdir}/libopus.la
+%{_libdir}/libopus.so
+%{_libdir}/libopus.so.0
+%{_libdir}/libopus.so.0.4.0
+%{_libdir}/pkgconfig/opus.pc
 /usr/share/aclocal/opus.m4
 
 %changelog

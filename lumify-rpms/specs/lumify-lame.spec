@@ -28,11 +28,11 @@ rm -rf %{buildroot}
 %defattr(-,root,root,-)
 %doc COPYING README
 /usr/include/lame/lame.h
-/usr/lib64/libmp3lame.a
-/usr/lib64/libmp3lame.la
-/usr/lib64/libmp3lame.so
-/usr/lib64/libmp3lame.so.0
-/usr/lib64/libmp3lame.so.0.0.0
+%{_libdir}/libmp3lame.a
+%{_libdir}/libmp3lame.la
+%{_libdir}/libmp3lame.so
+%{_libdir}/libmp3lame.so.0
+%{_libdir}/libmp3lame.so.0.0.0
 /usr/local/bin/lame
 /usr/share/doc/lame/*
 /usr/share/man/man1/lame.1.gz

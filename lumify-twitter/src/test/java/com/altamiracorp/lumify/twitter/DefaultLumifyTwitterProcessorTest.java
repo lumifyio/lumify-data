@@ -16,9 +16,6 @@
 
 package com.altamiracorp.lumify.twitter;
 
-import static com.altamiracorp.lumify.twitter.TwitterConstants.*;
-import static org.mockito.Mockito.when;
-
 import com.altamiracorp.bigtable.model.user.ModelUserContext;
 import com.altamiracorp.lumify.core.ingest.term.extraction.TermRegexFinder;
 import com.altamiracorp.lumify.core.model.audit.AuditRepository;
@@ -29,10 +26,10 @@ import com.altamiracorp.lumify.core.model.workQueue.WorkQueueRepository;
 import com.altamiracorp.lumify.core.user.User;
 import com.altamiracorp.lumify.core.user.UserProvider;
 import com.altamiracorp.lumify.core.util.LumifyLogger;
+import com.altamiracorp.securegraph.Authorizations;
 import com.altamiracorp.securegraph.Graph;
 import com.altamiracorp.securegraph.Vertex;
 import com.altamiracorp.securegraph.type.GeoPoint;
-import java.util.Date;
 import org.json.JSONObject;
 import org.junit.Before;
 import org.junit.BeforeClass;
@@ -41,6 +38,11 @@ import org.mockito.Mock;
 import org.powermock.core.classloader.annotations.PrepareForTest;
 import org.powermock.modules.junit4.PowerMockRunner;
 import org.powermock.reflect.Whitebox;
+
+import java.util.Date;
+
+import static com.altamiracorp.lumify.twitter.TwitterConstants.*;
+import static org.mockito.Mockito.when;
 
 /**
  * Abstract base class for testing Twitter bolts.
@@ -120,6 +122,9 @@ public class DefaultLumifyTwitterProcessorTest {
 
     private DefaultLumifyTwitterProcessor instance;
 
+    @Mock
+    private Authorizations authorizations;
+
     @BeforeClass
     public static void setupClass() {
         FULL_USER = new JSONObject();
@@ -164,7 +169,7 @@ public class DefaultLumifyTwitterProcessorTest {
         when(ontologyRepository.getDisplayNameForLabel(TWEETED_RELATIONSHIP)).thenReturn(TWEETED_RELATIONSHIP_LABEL);
         when(ontologyRepository.getDisplayNameForLabel(TwitterEntityType.MENTION.getRelationshipLabel())).
                 thenReturn(MENTION_RELATIONSIHP_LABEL);
-        when(graph.getVertex(HANDLE_CONCEPT_ID, user.getAuthorizations())).thenReturn(handleConceptVertex);
+        when(graph.getVertex(HANDLE_CONCEPT_ID, authorizations)).thenReturn(handleConceptVertex);
         when(tweetVertex.getId()).thenReturn(TWEET_VERTEX_ID);
         when(tweeterVertex.getId()).thenReturn(TWEETER_VERTEX_ID);
         when(handleConcept.getId()).thenReturn(HANDLE_CONCEPT_ID);

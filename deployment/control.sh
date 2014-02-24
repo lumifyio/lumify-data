@@ -126,15 +126,6 @@ function _accumulo_start {
     echo ${node}
     ssh ${SSH_OPTS} root@${node} initctl start accumulo-tserver
   done
-
-  if [ "${INIT_ACCUMULO}" = 'true' ]; then
-    local ready='no'
-    while [ "${ready}" != 'yes' ]; do
-      echo "ssh to $(_accumulomaster) and as the accumulo user run: /usr/lib/accumulo/bin/accumulo shell -u root -e \"setauths -u root -s 'ontology,user,workspace'\""
-      echo "then type 'yes' and press return"
-      read ready
-    done
-  fi
 }
 
 function _accumulo_stop {
