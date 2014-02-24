@@ -1,4 +1,5 @@
 class rabbitmq {
+  require erlang
 	
   $rabbitMQVersion = "3.2.3"
 
