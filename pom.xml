@@ -60,7 +60,7 @@
                             <descriptor>src/main/assembly/descriptor.xml</descriptor>
                             <archive>
                                 <manifest>
-                                    <mainClass>com.altamiracorp.lumify.twiiter.storm.StormRunner</mainClass>
+                                    <mainClass>com.altamiracorp.lumify.twitter.storm.StormRunner</mainClass>
                                 </manifest>
                             </archive>
                         </configuration>
