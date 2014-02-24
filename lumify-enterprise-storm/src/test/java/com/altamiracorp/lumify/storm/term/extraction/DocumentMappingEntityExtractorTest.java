@@ -1,18 +1,12 @@
 package com.altamiracorp.lumify.storm.term.extraction;
 
-import static org.junit.Assert.*;
-import static org.mockito.Mockito.*;
-
 import com.altamiracorp.lumify.core.ingest.term.extraction.TermExtractionResult;
-import com.altamiracorp.lumify.core.model.ontology.PropertyName;
 import com.altamiracorp.lumify.core.user.User;
-import com.altamiracorp.lumify.storm.structuredData.mapping.DocumentMapping;
+import com.altamiracorp.lumify.mapping.DocumentMapping;
+import com.altamiracorp.securegraph.Text;
 import com.altamiracorp.securegraph.Vertex;
 import com.altamiracorp.securegraph.property.StreamingPropertyValue;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.io.StringReader;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -20,11 +14,20 @@ import org.mockito.Mock;
 import org.powermock.api.mockito.PowerMockito;
 import org.powermock.core.classloader.annotations.PrepareForTest;
 import org.powermock.modules.junit4.PowerMockRunner;
-import org.powermock.reflect.Whitebox;
+
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.io.StringReader;
+
+import static com.altamiracorp.lumify.core.model.properties.LumifyProperties.ROW_KEY;
+import static com.altamiracorp.lumify.core.model.properties.RawLumifyProperties.MAPPING_JSON;
+import static com.altamiracorp.lumify.core.model.properties.RawLumifyProperties.TEXT;
+import static org.junit.Assert.assertEquals;
+import static org.mockito.Mockito.*;
 
 
 @RunWith(PowerMockRunner.class)
-@PrepareForTest({ DocumentMappingEntityExtractor.class })
+@PrepareForTest({DocumentMappingEntityExtractor.class})
 public class DocumentMappingEntityExtractorTest {
     private static final String TEST_VERTEX_ID = "testVertexId";
     private static final String TEST_ROW_KEY = "testRowKey";
@@ -54,31 +57,21 @@ public class DocumentMappingEntityExtractorTest {
 
     @Before
     public void setup() throws Exception {
-        Whitebox.setInternalState(DocumentMappingEntityExtractor.class, ObjectMapper.class, jsonMapper);
         when(vertex.getId()).thenReturn(TEST_VERTEX_ID);
-        when(vertex.getPropertyValue(PropertyName.ROW_KEY.toString())).thenReturn(TEST_ROW_KEY);
-        when(vertex.getPropertyValue(PropertyName.MAPPING_JSON.toString())).thenReturn(TEST_JSON_MAPPING);
+        when(vertex.getPropertyValue(ROW_KEY.getKey())).thenReturn(TEST_ROW_KEY);
+        when(vertex.getPropertyValue(MAPPING_JSON.getKey())).thenReturn(new Text(TEST_JSON_MAPPING));
         when(jsonMapper.readValue(TEST_JSON_MAPPING, DocumentMapping.class)).thenReturn(docMapping);
 
         extractor = new DocumentMappingEntityExtractor();
+        extractor.setJsonMapper(jsonMapper);
     }
 
     @Test
-    public void testExtract_Streaming() throws Exception {
-        when(vertex.getPropertyValue(PropertyName.TEXT.toString())).thenReturn(streamingValue);
+    public void testExtract() throws Exception {
+        when(vertex.getPropertyValue(TEXT.getKey())).thenReturn(streamingValue);
         when(streamingValue.getInputStream()).thenReturn(valueStream);
         PowerMockito.whenNew(InputStreamReader.class).withArguments(valueStream).thenReturn(streamingReader);
         when(docMapping.mapDocument(eq(streamingReader), anyString())).thenReturn(expectedResult);
-
-        TermExtractionResult result = extractor.extract(vertex, user);
-        assertEquals(expectedResult, result);
-    }
-
-    @Test
-    public void testExtract_StringValue() throws Exception {
-        when(vertex.getPropertyValue(PropertyName.TEXT.toString())).thenReturn(TEST_TEXT);
-        PowerMockito.whenNew(StringReader.class).withArguments(TEST_TEXT).thenReturn(textReader);
-        when(docMapping.mapDocument(eq(textReader), anyString())).thenReturn(expectedResult);
 
         TermExtractionResult result = extractor.extract(vertex, user);
         assertEquals(expectedResult, result);

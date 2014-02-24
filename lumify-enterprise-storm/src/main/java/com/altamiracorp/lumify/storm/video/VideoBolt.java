@@ -3,10 +3,8 @@ package com.altamiracorp.lumify.storm.video;
 import backtype.storm.task.OutputCollector;
 import backtype.storm.task.TopologyContext;
 import com.altamiracorp.lumify.core.ingest.video.VideoTextExtractionWorker;
-import com.altamiracorp.lumify.core.model.ontology.PropertyName;
 import com.altamiracorp.lumify.storm.BaseArtifactProcessingBolt;
 import com.altamiracorp.securegraph.Vertex;
-
 import java.io.File;
 import java.io.IOException;
 import java.util.Map;
@@ -36,7 +34,7 @@ public class VideoBolt extends BaseArtifactProcessingBolt {
     protected void onAfterGraphVertexCreated(Vertex vertex) {
         super.onAfterGraphVertexCreated(vertex);
 
-        workQueueRepository.pushProcessedVideo((String) vertex.getPropertyValue(PropertyName.ROW_KEY.toString(), 0));
+        workQueueRepository.pushProcessedVideo(vertex.getId());
     }
 
     @Override

@@ -1,47 +1,45 @@
 package com.altamiracorp.lumify.storm.term.extraction;
 
-import static com.google.common.base.Preconditions.*;
-
 import com.altamiracorp.lumify.core.ingest.term.extraction.TermExtractionResult;
-import com.altamiracorp.lumify.core.model.ontology.PropertyName;
 import com.altamiracorp.lumify.core.user.User;
 import com.altamiracorp.lumify.core.util.LumifyLogger;
 import com.altamiracorp.lumify.core.util.LumifyLoggerFactory;
-import com.altamiracorp.lumify.storm.structuredData.mapping.DocumentMapping;
+import com.altamiracorp.lumify.mapping.DocumentMapping;
 import com.altamiracorp.securegraph.Vertex;
 import com.altamiracorp.securegraph.property.StreamingPropertyValue;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.google.inject.Inject;
+
 import java.io.IOException;
 import java.io.InputStreamReader;
-import java.io.Reader;
-import java.io.StringReader;
 import java.text.ParseException;
+
+import static com.altamiracorp.lumify.core.model.properties.RawLumifyProperties.MAPPING_JSON;
+import static com.altamiracorp.lumify.core.model.properties.RawLumifyProperties.TEXT;
+import static com.google.common.base.Preconditions.checkNotNull;
 
 public class DocumentMappingEntityExtractor {
     private static final LumifyLogger LOGGER = LumifyLoggerFactory.getLogger(DocumentMappingEntityExtractor.class);
 
-    private static final ObjectMapper JSON_MAPPER = new ObjectMapper();
+    private ObjectMapper jsonMapper;
 
     public TermExtractionResult extract(Vertex artifactVertex, User user) throws IOException, ParseException {
         checkNotNull(artifactVertex);
         checkNotNull(user);
         TermExtractionResult termExtractionResult = new TermExtractionResult();
-        String artifactRowKey = (String) artifactVertex.getPropertyValue(PropertyName.ROW_KEY.toString());
-        LOGGER.debug("Processing graph vertex [%s] for artifact: %s", artifactVertex.getId(), artifactRowKey);
+        LOGGER.debug("Processing graph vertex [%s]", artifactVertex.getId());
 
-        String mappingJsonString = (String) artifactVertex.getPropertyValue(PropertyName.MAPPING_JSON.toString());
+        String mappingJsonString = MAPPING_JSON.getPropertyValue(artifactVertex);
         if (mappingJsonString != null) {
-            DocumentMapping mapping = JSON_MAPPER.readValue(mappingJsonString, DocumentMapping.class);
-            Object textVal = artifactVertex.getPropertyValue(PropertyName.TEXT.toString());
-            Reader textReader;
-            if (textVal instanceof StreamingPropertyValue) {
-                textReader = new InputStreamReader(((StreamingPropertyValue) textVal).getInputStream());
-            } else {
-                textReader = new StringReader(textVal.toString());
-            }
-            termExtractionResult = mapping.mapDocument(textReader, getClass().getName());
+            DocumentMapping mapping = jsonMapper.readValue(mappingJsonString, DocumentMapping.class);
+            StreamingPropertyValue textVal = TEXT.getPropertyValue(artifactVertex);
+            termExtractionResult = mapping.mapDocument(new InputStreamReader(textVal.getInputStream()), getClass().getName());
         }
         return termExtractionResult;
     }
 
+    @Inject
+    public void setJsonMapper(final ObjectMapper mapper) {
+        this.jsonMapper = mapper;
+    }
 }

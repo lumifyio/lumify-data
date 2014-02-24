@@ -1,29 +1,30 @@
 package com.altamiracorp.lumify.storm.video;
 
-import backtype.storm.task.OutputCollector;
-import backtype.storm.task.TopologyContext;
 import backtype.storm.tuple.Tuple;
 import com.altamiracorp.lumify.core.model.artifactThumbnails.ArtifactThumbnailRepository;
 import com.altamiracorp.lumify.core.model.videoFrames.VideoFrame;
 import com.altamiracorp.lumify.core.model.videoFrames.VideoFrameRepository;
+import com.altamiracorp.lumify.core.model.workQueue.WorkQueueRepository;
 import com.altamiracorp.lumify.core.user.User;
 import com.altamiracorp.lumify.core.util.LumifyLogger;
 import com.altamiracorp.lumify.core.util.LumifyLoggerFactory;
 import com.altamiracorp.lumify.storm.BaseLumifyBolt;
+import com.altamiracorp.securegraph.Vertex;
+import com.altamiracorp.securegraph.Visibility;
+import com.altamiracorp.securegraph.property.StreamingPropertyValue;
 import com.google.inject.Inject;
-import org.apache.hadoop.fs.FSDataOutputStream;
-import org.apache.hadoop.fs.Path;
 import org.json.JSONObject;
 
 import javax.imageio.ImageIO;
 import java.awt.*;
 import java.awt.image.BufferedImage;
+import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 
+import static com.altamiracorp.lumify.core.model.properties.MediaLumifyProperties.VIDEO_PREVIEW_IMAGE;
 import static com.altamiracorp.lumify.core.util.CollectionUtil.toList;
 
 public class VideoPreviewBolt extends BaseLumifyBolt {
@@ -31,46 +32,34 @@ public class VideoPreviewBolt extends BaseLumifyBolt {
     private VideoFrameRepository videoFrameRepository;
 
     @Override
-    public void prepare(Map stormConf, TopologyContext context, OutputCollector collector) {
-        super.prepare(stormConf, context, collector);
-        try {
-            mkdir(ArtifactThumbnailRepository.LUMIFY_VIDEO_PREVIEW_HDFS_PATH);
-        } catch (IOException e) {
-            collector.reportError(e);
-        }
-    }
-
-    @Override
     protected void safeExecute(Tuple input) throws Exception {
         JSONObject json = getJsonFromTuple(input);
-        String artifactRowKey = json.getString("artifactRowKey");
-        LOGGER.info("[VideoPreviewBolt] Generating video preview for %s", artifactRowKey);
+        String artifactGraphVertexId = json.getString(WorkQueueRepository.KEY_GRAPH_VERTEX_ID);
+        LOGGER.info("[VideoPreviewBolt] Generating video preview for %s", artifactGraphVertexId);
 
         try {
-            Iterable<VideoFrame> videoFrames = videoFrameRepository.findAllByArtifactRowKey(artifactRowKey, getUser());
+            Iterable<VideoFrame> videoFrames = videoFrameRepository.findAllByArtifactGraphVertexId(artifactGraphVertexId, getUser());
             List<VideoFrame> videoFramesForPreview = getFramesForPreview(videoFrames);
             for (VideoFrame v : videoFramesForPreview) {
                 LOGGER.info(v.getRowKey().toString());
             }
             BufferedImage previewImage = createPreviewImage(videoFramesForPreview, getUser());
-            saveImage(artifactRowKey, previewImage, getUser());
+            saveImage(artifactGraphVertexId, previewImage, getUser());
         } catch (IOException e) {
-            throw new RuntimeException("Could not create preview image for artifact: " + artifactRowKey, e);
+            throw new RuntimeException("Could not create preview image for artifact: " + artifactGraphVertexId, e);
         }
-        LOGGER.debug("Finished [VideoPreviewBolt]: %s", artifactRowKey);
+        LOGGER.debug("Finished [VideoPreviewBolt]: %s", artifactGraphVertexId);
     }
 
-    private Path saveImage(String artifactRowKey, BufferedImage previewImage, User user) throws IOException {
+    private void saveImage(String artifactGraphVertexId, BufferedImage previewImage, User user) throws IOException {
         ByteArrayOutputStream out = new ByteArrayOutputStream();
         ImageIO.write(previewImage, "png", out);
-        Path path = new Path(ArtifactThumbnailRepository.getVideoPreviewPath(artifactRowKey));
-        FSDataOutputStream hdfsOut = getHdfsFileSystem().create(path);
-        try {
-            hdfsOut.write(out.toByteArray());
-        } finally {
-            hdfsOut.close();
-        }
-        return path;
+        Vertex artifactVertex = graph.getVertex(artifactGraphVertexId, user.getAuthorizations());
+        Visibility visibility = new Visibility("");
+        StreamingPropertyValue spv = new StreamingPropertyValue(new ByteArrayInputStream(out.toByteArray()), byte[].class);
+        spv.searchIndex(false);
+        VIDEO_PREVIEW_IMAGE.setProperty(artifactVertex, spv, visibility);
+        graph.flush();
     }
 
     private BufferedImage createPreviewImage(List<VideoFrame> videoFrames, User user) {

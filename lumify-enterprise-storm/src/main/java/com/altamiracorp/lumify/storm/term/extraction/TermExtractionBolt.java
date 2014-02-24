@@ -1,24 +1,14 @@
 package com.altamiracorp.lumify.storm.term.extraction;
 
-import static com.altamiracorp.lumify.core.util.CollectionUtil.*;
-import static com.google.common.base.Preconditions.*;
-
 import backtype.storm.task.OutputCollector;
 import backtype.storm.task.TopologyContext;
 import backtype.storm.tuple.Tuple;
 import com.altamiracorp.bigtable.model.FlushFlag;
 import com.altamiracorp.lumify.core.bootstrap.InjectHelper;
-import com.altamiracorp.lumify.core.ingest.term.extraction.TermExtractionAdditionalWorkData;
-import com.altamiracorp.lumify.core.ingest.term.extraction.TermExtractionResult;
-import com.altamiracorp.lumify.core.ingest.term.extraction.TermExtractionWorker;
-import com.altamiracorp.lumify.core.ingest.term.extraction.TermMention;
-import com.altamiracorp.lumify.core.ingest.term.extraction.TermRelationship;
-import com.altamiracorp.lumify.core.ingest.term.extraction.TermResolutionWorker;
-import com.altamiracorp.lumify.core.ingest.term.extraction.TermWorker;
+import com.altamiracorp.lumify.core.ingest.term.extraction.*;
 import com.altamiracorp.lumify.core.model.audit.AuditAction;
 import com.altamiracorp.lumify.core.model.ontology.Concept;
 import com.altamiracorp.lumify.core.model.ontology.LabelName;
-import com.altamiracorp.lumify.core.model.ontology.PropertyName;
 import com.altamiracorp.lumify.core.model.termMention.TermMentionModel;
 import com.altamiracorp.lumify.core.model.termMention.TermMentionRowKey;
 import com.altamiracorp.lumify.core.util.LumifyLogger;
@@ -26,19 +16,18 @@ import com.altamiracorp.lumify.core.util.LumifyLoggerFactory;
 import com.altamiracorp.lumify.core.util.ThreadedInputStreamProcess;
 import com.altamiracorp.lumify.core.util.ThreadedTeeInputStreamWorker;
 import com.altamiracorp.lumify.storm.BaseTextProcessingBolt;
-import com.altamiracorp.securegraph.ElementMutation;
-import com.altamiracorp.securegraph.ExistingElementMutation;
-import com.altamiracorp.securegraph.Vertex;
-import com.altamiracorp.securegraph.Visibility;
+import com.altamiracorp.securegraph.*;
 import com.google.common.collect.Lists;
-import java.io.InputStream;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.List;
-import java.util.Map;
-import java.util.ServiceLoader;
 import org.json.JSONObject;
-import scala.unchecked;
+
+import java.io.InputStream;
+import java.util.*;
+
+import static com.altamiracorp.lumify.core.model.ontology.OntologyLumifyProperties.CONCEPT_TYPE;
+import static com.altamiracorp.lumify.core.model.properties.LumifyProperties.TITLE;
+import static com.altamiracorp.lumify.core.util.CollectionUtil.trySingle;
+import static com.google.common.base.Preconditions.checkNotNull;
+import static com.google.common.base.Preconditions.checkState;
 
 public class TermExtractionBolt extends BaseTextProcessingBolt {
     private static final LumifyLogger LOGGER = LumifyLoggerFactory.getLogger(TermExtractionBolt.class);
@@ -89,7 +78,8 @@ public class TermExtractionBolt extends BaseTextProcessingBolt {
         termExtractionAdditionalWorkData.setVertex(artifactGraphVertex);
 
         // run all extraction processes and merge the results
-        List<ThreadedTeeInputStreamWorker.WorkResult<TermExtractionResult>> termExtractionResults = termExtractionStreamProcess.doWork(textIn, termExtractionAdditionalWorkData);
+        List<ThreadedTeeInputStreamWorker.WorkResult<TermExtractionResult>> termExtractionResults =
+                termExtractionStreamProcess.doWork(textIn, termExtractionAdditionalWorkData);
         TermExtractionResult termExtractionResult = new TermExtractionResult();
         mergeTextExtractedInfos(termExtractionResult, termExtractionResults);
 
@@ -101,10 +91,11 @@ public class TermExtractionBolt extends BaseTextProcessingBolt {
         List<TermMentionWithGraphVertex> termMentionsWithGraphVertices = saveTermExtractions(artifactGraphVertex, termExtractionResult);
         saveRelationships(termExtractionResult.getRelationships(), termMentionsWithGraphVertices);
 
-        workQueueRepository.pushArtifactHighlight(artifactGraphVertex.getId().toString());
+        workQueueRepository.pushTextHighlight(artifactGraphVertex.getId().toString());
     }
 
-    private void mergeTextExtractedInfos(TermExtractionResult termExtractionResult, List<ThreadedTeeInputStreamWorker.WorkResult<TermExtractionResult>> results) throws Exception {
+    private void mergeTextExtractedInfos(TermExtractionResult termExtractionResult,
+                                         List<ThreadedTeeInputStreamWorker.WorkResult<TermExtractionResult>> results) throws Exception {
         for (ThreadedTeeInputStreamWorker.WorkResult<TermExtractionResult> result : results) {
             if (result.getError() != null) {
                 throw result.getError();
@@ -124,26 +115,33 @@ public class TermExtractionBolt extends BaseTextProcessingBolt {
             termMentionModel.getMetadata().setOntologyClassUri(termMention.getOntologyClassUri());
 
             Concept concept = ontologyRepository.getConceptByName(termMention.getOntologyClassUri());
-            if (concept != null) {
-                termMentionModel.getMetadata().setConceptGraphVertexId(concept.getId().toString());
-            } else {
+            if (concept == null) {
                 LOGGER.error("Could not find ontology graph vertex '%s'", termMention.getOntologyClassUri());
                 continue;
             }
+            termMentionModel.getMetadata().setConceptGraphVertexId(concept.getId());
 
             if (termMention.isResolved()) {
                 String title = termMention.getSign();
                 ElementMutation<Vertex> vertexElementMutation;
-                vertex = trySingle(graph.query(getUser().getAuthorizations())
-                        .has(PropertyName.TITLE.toString(), title)
-                        .vertices());
-                if (!termMention.getUseExisting() || vertex == null) {
-                    vertexElementMutation = graph.prepareVertex(new Visibility(""), getUser().getAuthorizations());
-                    title = termMention.getSign();
-                    vertexElementMutation.setProperty(PropertyName.TITLE.toString(), title, new Visibility(""));
-                    if (concept != null) {
-                        vertexElementMutation.setProperty(PropertyName.CONCEPT_TYPE.toString(), concept.getId(), new Visibility(""));
+                if (termMention.getUseExisting()) {
+                    if (termMention.getId() != null) {
+                        vertex = graph.getVertex(termMention.getId(), getUser().getAuthorizations());
+                    } else {
+                        vertex = trySingle(graph.query(getUser().getAuthorizations())
+                                .has(TITLE.getKey(), title)
+                                .has(CONCEPT_TYPE.getKey(), concept.getId())
+                                .vertices());
                     }
+                }
+                if (vertex == null) {
+                    if (termMention.getId() != null) {
+                        vertexElementMutation = graph.prepareVertex(termMention.getId(), new Visibility(""), getUser().getAuthorizations());
+                    } else {
+                        vertexElementMutation = graph.prepareVertex(new Visibility(""), getUser().getAuthorizations());
+                    }
+                    TITLE.setProperty(vertexElementMutation, title, new Visibility(""));
+                    CONCEPT_TYPE.setProperty(vertexElementMutation, concept.getId(), new Visibility(""));
                 } else {
                     vertexElementMutation = vertex.prepareMutation();
                 }
@@ -151,28 +149,38 @@ public class TermExtractionBolt extends BaseTextProcessingBolt {
                 if (termMention.getPropertyValue() != null) {
                     Map<String, Object> properties = termMention.getPropertyValue();
                     for (String key : properties.keySet()) {
+                        // TODO should we wrap these properties in secure graph Text classes?
+                        // GS - No.  Leave it up to the property generator to provide Text objects if they
+                        // want index control; see CLAVIN for example
                         vertexElementMutation.setProperty(key, properties.get(key), new Visibility(""));
                     }
                 }
 
                 if (!(vertexElementMutation instanceof ExistingElementMutation)) {
                     vertex = vertexElementMutation.save();
+                    auditRepository.auditVertexElementMutation(vertexElementMutation, vertex, termMention.getProcess(), getUser(), new Visibility(""));
+                } else {
+                    auditRepository.auditVertexElementMutation(vertexElementMutation, vertex, termMention.getProcess(), getUser(), new Visibility(""));
+                    vertex = vertexElementMutation.save();
                 }
 
-                auditRepository.auditVertexElementMutation(vertexElementMutation, vertex, termMention.getProcess(), getUser());
-
-                graph.addEdge(artifactGraphVertex, vertex, LabelName.RAW_HAS_ENTITY.toString(), new Visibility(""), getUser().getAuthorizations());
+                // TODO: a better way to check if the same edge exists instead of looking it up every time?
+                Edge edge = trySingle(artifactGraphVertex.getEdges(vertex, Direction.OUT, LabelName.RAW_HAS_ENTITY.toString(), getUser().getAuthorizations()));
+                if (edge == null) {
+                    graph.addEdge(artifactGraphVertex, vertex, LabelName.RAW_HAS_ENTITY.toString(), new Visibility(""), getUser().getAuthorizations());
+                }
 
                 String labelDisplayName = ontologyRepository.getDisplayNameForLabel(LabelName.RAW_HAS_ENTITY.toString());
-                auditRepository.auditRelationships(AuditAction.CREATE.toString(), artifactGraphVertex, vertex, labelDisplayName, termMention.getProcess(), "", getUser());
+                auditRepository.auditRelationship(AuditAction.CREATE, artifactGraphVertex, vertex, labelDisplayName, termMention.getProcess(), "", getUser(), new Visibility(""));
 
                 termMentionModel.getMetadata().setVertexId(vertex.getId().toString());
             }
 
-            termMentionRepository.save(termMentionModel, FlushFlag.NO_FLUSH, getUser().getModelUserContext());
+            termMentionRepository.save(termMentionModel, FlushFlag.NO_FLUSH);
             results.add(new TermMentionWithGraphVertex(termMentionModel, vertex));
+            graph.flush();
         }
-        graph.flush();
+
         termMentionRepository.flush();
         return results;
     }
@@ -186,13 +194,17 @@ public class TermExtractionBolt extends BaseTextProcessingBolt {
             checkNotNull(destTermMentionsWithGraphVertex, "dest was not found for " + relationship.getDestTermMention());
             checkNotNull(destTermMentionsWithGraphVertex.getVertex(), "dest vertex was not found for " + relationship.getDestTermMention());
             String label = relationship.getLabel();
-            graph.addEdge(
-                    sourceTermMentionsWithGraphVertex.getVertex(),
-                    destTermMentionsWithGraphVertex.getVertex(),
-                    label,
-                    new Visibility(""),
-                    getUser().getAuthorizations()
-            );
+            // TODO: a better way to check if the same edge exists instead of looking it up every time?
+            Edge edge = trySingle(sourceTermMentionsWithGraphVertex.getVertex().getEdges(destTermMentionsWithGraphVertex.getVertex(), Direction.OUT, label, getUser().getAuthorizations()));
+            if (edge == null) {
+                graph.addEdge(
+                        sourceTermMentionsWithGraphVertex.getVertex(),
+                        destTermMentionsWithGraphVertex.getVertex(),
+                        label,
+                        new Visibility(""),
+                        getUser().getAuthorizations()
+                );
+            }
         }
         graph.flush();
     }

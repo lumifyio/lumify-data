@@ -10,7 +10,8 @@ package com.altamiracorp.lumify.storm.term.resolution;
 import com.altamiracorp.lumify.core.config.Configuration;
 import com.altamiracorp.lumify.core.ingest.term.extraction.TermExtractionResult;
 import com.altamiracorp.lumify.core.ingest.term.extraction.TermMention;
-import com.altamiracorp.lumify.core.model.ontology.PropertyName;
+import com.altamiracorp.lumify.core.model.ontology.Concept;
+import com.altamiracorp.lumify.core.model.ontology.OntologyRepository;
 import com.altamiracorp.lumify.core.user.User;
 import com.altamiracorp.securegraph.type.GeoPoint;
 import com.bericotech.clavin.extractor.LocationOccurrence;
@@ -18,12 +19,6 @@ import com.bericotech.clavin.gazetteer.CountryCode;
 import com.bericotech.clavin.gazetteer.GeoName;
 import com.bericotech.clavin.resolver.LuceneLocationResolver;
 import com.bericotech.clavin.resolver.ResolvedLocation;
-import java.io.File;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -36,6 +31,8 @@ import org.powermock.reflect.Whitebox;
 import java.io.File;
 import java.util.*;
 
+import static com.altamiracorp.lumify.core.model.properties.EntityLumifyProperties.GEO_LOCATION;
+import static com.altamiracorp.lumify.core.model.properties.EntityLumifyProperties.GEO_LOCATION_DESCRIPTION;
 import static com.altamiracorp.lumify.storm.term.resolution.ClavinLocationResolutionWorker.*;
 import static org.hamcrest.CoreMatchers.instanceOf;
 import static org.junit.Assert.*;
@@ -86,6 +83,11 @@ public class ClavinLocationResolutionWorkerTest {
     private LuceneLocationResolver luceneLocationResolver;
 
     @Mock
+    private OntologyRepository ontologyRepo;
+    @Mock
+    private Concept locationConcept;
+
+    @Mock
     private File indexDirectory;
 
     @Mock
@@ -132,13 +134,13 @@ public class ClavinLocationResolutionWorkerTest {
 
     static {
         Map<String, Object> aldieProps = new HashMap<String, Object>();
-        aldieProps.put(PropertyName.GEO_LOCATION.toString(), ALDIE_POINT);
-        aldieProps.put(PropertyName.GEO_LOCATION_DESCRIPTION.toString(), ALDIE);
+        aldieProps.put(GEO_LOCATION.getKey(), GEO_LOCATION.wrap(ALDIE_POINT));
+        aldieProps.put(GEO_LOCATION_DESCRIPTION.getKey(), GEO_LOCATION_DESCRIPTION.wrap(ALDIE));
         ALDIE_PROPS = Collections.unmodifiableMap(aldieProps);
 
         Map<String, Object> dcProps = new HashMap<String, Object>();
-        dcProps.put(PropertyName.GEO_LOCATION.toString(), WASHINGTON_POINT);
-        dcProps.put(PropertyName.GEO_LOCATION_DESCRIPTION.toString(), WASHINGTON);
+        dcProps.put(GEO_LOCATION.getKey(), GEO_LOCATION.wrap(WASHINGTON_POINT));
+        dcProps.put(GEO_LOCATION_DESCRIPTION.getKey(), GEO_LOCATION_DESCRIPTION.wrap(WASHINGTON));
         WASHINGTON_PROPS = Collections.unmodifiableMap(dcProps);
     }
 
@@ -148,8 +150,13 @@ public class ClavinLocationResolutionWorkerTest {
         PowerMockito.whenNew(LuceneLocationResolver.class).withArguments(eq(indexDirectory), anyInt(), anyInt()).
                 thenReturn(luceneLocationResolver);
 
+        when(ontologyRepo.getConceptByName(ONT_LOCATION)).thenReturn(locationConcept);
+        when(ontologyRepo.getAllLeafNodesByConcept(locationConcept)).thenReturn(Arrays.asList(locationConcept));
+        when(locationConcept.getTitle()).thenReturn(ONT_LOCATION);
+
         instance = new ClavinLocationResolutionWorker();
         instance.setOntologyMapper(mapper);
+        instance.setOntologyRepository(ontologyRepo);
 
         locationMention1 = new TermMention.Builder()
                 .start(10)
