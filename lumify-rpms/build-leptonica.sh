@@ -25,4 +25,4 @@ if [ -d ${SOURCE_DIR}/leptonica-${version} ]; then
   mv ${SOURCE_DIR}/leptonica-${version} ${SOURCE_DIR}/${name}
 fi
 
-_build ${name} ${version} ${release}
+_build ${name} ${version} ${release} x86_64 i386

@@ -33,9 +33,9 @@ rm -rf %{buildroot}
 /usr/include/fdk-aac/aacenc_lib.h
 /usr/include/fdk-aac/genericStds.h
 /usr/include/fdk-aac/machine_type.h
-/usr/lib64/libfdk-aac.a
-/usr/lib64/libfdk-aac.la
-/usr/lib64/pkgconfig/fdk-aac.pc
+%{_libdir}/libfdk-aac.a
+%{_libdir}/libfdk-aac.la
+%{_libdir}/pkgconfig/fdk-aac.pc
 
 %changelog
 

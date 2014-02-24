@@ -30,8 +30,8 @@ rm -rf %{buildroot}
 %doc AUTHORS COPYING
 /usr/include/x264.h
 /usr/include/x264_config.h
-/usr/lib64/libx264.a
-/usr/lib64/pkgconfig/x264.pc
+%{_libdir}/libx264.a
+%{_libdir}/pkgconfig/x264.pc
 /usr/local/bin/x264
 
 %changelog

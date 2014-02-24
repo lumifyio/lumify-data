@@ -30,12 +30,12 @@ rm -rf %{buildroot}
 /usr/include/ogg/config_types.h
 /usr/include/ogg/ogg.h
 /usr/include/ogg/os_types.h
-/usr/lib64/libogg.a
-/usr/lib64/libogg.la
-/usr/lib64/libogg.so
-/usr/lib64/libogg.so.0
-/usr/lib64/libogg.so.0.8.1
-/usr/lib64/pkgconfig/ogg.pc
+%{_libdir}/libogg.a
+%{_libdir}/libogg.la
+%{_libdir}/libogg.so
+%{_libdir}/libogg.so.0
+%{_libdir}/libogg.so.0.8.1
+%{_libdir}/pkgconfig/ogg.pc
 /usr/local/share/doc/libogg/*
 /usr/share/aclocal/ogg.m4
 

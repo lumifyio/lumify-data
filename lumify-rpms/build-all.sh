@@ -9,22 +9,19 @@ done
 DIR="$(cd -P "$(dirname "$SOURCE")" && pwd)"
 
 source ${DIR}/setenv.sh
+source ${DIR}/functions.sh
 
 function _build_and_install {
   local name=$1
 
-  echo ""
-  echo "Building ${name}"
-  echo "--------------------------------------------------------------------------------"
   ${DIR}/build-${name}.sh
 
-  echo ""
-  echo "Installing ${LUMIFYREPO_DIR}/RPMS/x86_64/lumify-${name}-[^debuginfo]*.rpm"
-  echo "--------------------------------------------------------------------------------"
-  set -x
-  sudo rpm -U --force -v ${LUMIFYREPO_DIR}/RPMS/x86_64/lumify-${name}-[^debuginfo]*.rpm
-  set +x
+  _banner "[build_and_install] ${name} - installing RPMs"
+  sudo rpm -U --force -v ${LUMIFYREPO_DIR}/RPMS/*/lumify-${name}-[^debuginfo]*.rpm
 }
+
+export LOG_FILE=/tmp/$(basename $0 .sh).log
+cat /dev/null > ${LOG_FILE}
 
 _build_and_install videolan-x264
 _build_and_install fdk-aac

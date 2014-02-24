@@ -240,11 +240,11 @@ rm -rf %{buildroot}
 /usr/bin/xvdisp
 /usr/bin/yuvtest
 /usr/include/leptonica/*
-/usr/lib64/liblept.a
-/usr/lib64/liblept.la
-/usr/lib64/liblept.so
-/usr/lib64/liblept.so.3
-/usr/lib64/liblept.so.3.0.0
+%{_libdir}/liblept.a
+%{_libdir}/liblept.la
+%{_libdir}/liblept.so
+%{_libdir}/liblept.so.3
+%{_libdir}/liblept.so.3.0.0
 
 %changelog
 

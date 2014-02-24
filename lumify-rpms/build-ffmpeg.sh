@@ -18,4 +18,4 @@ release="dist"
 
 _clone ${name} http://git.videolan.org/git/ffmpeg.git n${version}
 
-_build ${name} ${version} ${release}
+_build ${name} ${version} ${release} x86_64 i386
