@@ -4,13 +4,20 @@
 rpm -q epel-release-6-8 > /dev/null \
   || rpm -ivH http://dl.fedoraproject.org/pub/epel/6/x86_64/epel-release-6-8.noarch.rpm
 
+# configure yum to install every possible architecture for every package
+grep -q 'multilib_policy=all' /etc/yum.conf
+if [ $? -ne 0 ]; then
+  echo >> /etc/yum.conf
+  echo 'multilib_policy=all' >> /etc/yum.conf
+fi
+
 # install required RPMs
-yum -y install yasm libtool fedora-packager cmake zlib-devel
+yum -y install yasm libtool fedora-packager cmake zlib-devel glibc-devel libgcc libstdc++
 
 # install Ant
 if [ ! -h /opt/ant ]; then
   mkdir -p /opt
-  curl "http://www.us.apache.org/dist/ant/binaries/apache-ant-1.9.2-bin.tar.gz" -s -L --fail -o /opt/apache-ant-1.9.2-bin.tar.gz
+  curl "http://archive.apache.org/dist/ant/binaries/apache-ant-1.9.2-bin.tar.gz" -s -L --fail -o /opt/apache-ant-1.9.2-bin.tar.gz
   (cd /opt && tar xzf /opt/apache-ant-1.9.2-bin.tar.gz)
   ln -s /opt/apache-ant-1.9.2 /opt/ant
 fi
@@ -59,7 +66,7 @@ if [ $? -ne 0 ]; then
   echo "makerpm ALL=NOPASSWD:/bin/rpm" >> /etc/sudoers
 fi
 
-su - makerpm -c "mkdir -p /home/makerpm/repo/RPMS/x86_64 /home/makerpm/repo/{SRPMS,source}"
+su - makerpm -c "mkdir -p /home/makerpm/repo/RPMS/{i386,x86_64} /home/makerpm/repo/{SRPMS,source}"
 su - makerpm -c "createrepo /home/makerpm/repo"
 
 cat <<-EOM > /etc/yum.repos.d/lumify-local.repo
