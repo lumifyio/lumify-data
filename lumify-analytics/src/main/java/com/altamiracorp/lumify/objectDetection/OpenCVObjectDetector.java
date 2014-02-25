@@ -82,10 +82,10 @@ public class OpenCVObjectDetector extends ObjectDetector {
 
                 for (Rect rect : faceDetections.toArray()) {
                     ArtifactDetectedObject detectedObject = new ArtifactDetectedObject(
-                            Integer.toString(rect.x),
-                            Integer.toString(rect.y),
-                            Integer.toString(rect.x + rect.width),
-                            Integer.toString(rect.y + rect.height),
+                            rect.x,
+                            rect.y,
+                            rect.x + rect.width,
+                            rect.y + rect.height,
                             objectClassifier.concept);
                     detectedObjectList.add(detectedObject);
                 }

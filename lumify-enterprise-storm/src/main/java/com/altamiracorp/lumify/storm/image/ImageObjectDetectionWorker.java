@@ -25,22 +25,16 @@ public class ImageObjectDetectionWorker extends BaseImageWorker {
     @Override
     protected ArtifactExtractedInfo doWork(BufferedImage image, AdditionalArtifactWorkData data) throws Exception {
         LOGGER.debug("Detecting Objects [ImageObjectDetectionWorker]: %s", data.getFileName());
-        JSONArray detectedObjectsJson = new JSONArray();
+        List<ArtifactDetectedObject> detectedObjects = new ArrayList<ArtifactDetectedObject>();
         ArtifactExtractedInfo info = new ArtifactExtractedInfo();
 
         for (ObjectDetector objectDetector : objectDetectors) {
-            List<ArtifactDetectedObject> detectedObjects = objectDetector.detectObjects(image);
-            int count = 1;
-            for (ArtifactDetectedObject detectedObject : detectedObjects) {
-                detectedObject.setConcept(detectedObject.getConcept());
-                JSONObject detectedObjectJson = detectedObject.getJson();
-                detectedObjectJson.put("detectedObjectId", count);
-                detectedObjectsJson.put(detectedObjectJson);
-                count ++;
+            for (ArtifactDetectedObject detectedObject : objectDetector.detectObjects(image)) {
+                detectedObjects.add(detectedObject);
             }
         }
 
-        info.setDetectedObjects(detectedObjectsJson.toString());
+        info.setDetectedObjects(detectedObjects);
         info.setConceptType(DisplayType.IMAGE.toString());
         LOGGER.debug("Finished [ImageObjectDetectionWorker]: %s", data.getFileName());
         return info;

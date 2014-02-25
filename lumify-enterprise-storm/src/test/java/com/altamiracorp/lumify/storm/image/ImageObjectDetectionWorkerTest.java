@@ -51,7 +51,7 @@ public class ImageObjectDetectionWorkerTest {
         fs = FileSystem.get(new Configuration());
         data.setHdfsFileSystem(fs);
         detectedObjects = new ArrayList<ArtifactDetectedObject>();
-        detectedObjects.add(new ArtifactDetectedObject("", "", "", "", "face"));
+        detectedObjects.add(new ArtifactDetectedObject(0, 0, 0, 0, "face"));
     }
 
 
@@ -63,11 +63,8 @@ public class ImageObjectDetectionWorkerTest {
         BufferedImage image = ImageIO.read(getClass().getResourceAsStream("test.png"));
         when(detector.detectObjects(image)).thenReturn(detectedObjects);
         ArtifactExtractedInfo result = worker.doWork(image, data);
-        assertEquals("[{\"concept\":\"face\",\"detectedObjectId\":1,\"y1\":\"\",\"y2\":\"\",\"x2\":\"\",\"x1\":\"\"}]",
-                result.getDetectedObjects());
+        List<ArtifactDetectedObject> artifactDetectedObjects = result.getDetectedObjects();
+        assertEquals(1, artifactDetectedObjects.size());
         verify(detector, times(1)).init((Map) anyObject(), (FileSystem) anyObject());
     }
-
-    //todo add test for branch IOException
-
 }
