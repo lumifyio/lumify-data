@@ -9,6 +9,7 @@ import com.altamiracorp.lumify.core.util.LumifyLogger;
 import com.altamiracorp.lumify.core.util.LumifyLoggerFactory;
 import com.altamiracorp.lumify.objectDetection.ObjectDetector;
 import org.json.JSONArray;
+import org.json.JSONObject;
 
 import java.awt.image.BufferedImage;
 import java.util.ArrayList;
@@ -29,9 +30,13 @@ public class ImageObjectDetectionWorker extends BaseImageWorker {
 
         for (ObjectDetector objectDetector : objectDetectors) {
             List<ArtifactDetectedObject> detectedObjects = objectDetector.detectObjects(image);
+            int count = 1;
             for (ArtifactDetectedObject detectedObject : detectedObjects) {
                 detectedObject.setConcept(detectedObject.getConcept());
-                detectedObjectsJson.put(detectedObject.getJson());
+                JSONObject detectedObjectJson = detectedObject.getJson();
+                detectedObjectJson.put("detectedObjectId", count);
+                detectedObjectsJson.put(detectedObjectJson);
+                count ++;
             }
         }
 
