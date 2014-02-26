@@ -2,7 +2,7 @@
 
 if [ "$1" ]; then
   branch_name=$(echo $1 | sed -e 's|origin/||')
-  cd /vagrent && git checkout ${branch_name}
+  cd /vagrant && git checkout ${branch_name}
 fi
 
 rm -rf /tmp/lumify-all
