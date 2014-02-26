@@ -97,7 +97,8 @@ function _build {
   rpmbuild -ba ${RPMBUILD_DIR}/SPECS/${name}.spec
 
   _banner "[build] ${name} - copying rpm to repo"
-  cp ${RPMBUILD_DIR}/RPMS/$(arch)/${name}-${version}-${release}.$(arch).rpm ${LUMIFYREPO_DIR}/RPMS/$(arch)
+  mkdir -p ${LUMIFYREPO_DIR}/RPMS/$(arch)
+  cp ${RPMBUILD_DIR}/RPMS/$(arch)/${name}-${version}-${release}.$(arch).rpm ${LUMIFYREPO_DIR}/RPMS/$(arch)/
 
   _banner "[build] ${name} - copying source RPM and source tar.gz to repo"
   cp ${RPMBUILD_DIR}/SRPMS/${name}-${version}-${release}.src.rpm ${LUMIFYREPO_DIR}/SRPMS
