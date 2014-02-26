@@ -7,7 +7,11 @@ function _banner {
   printf '%*s\n' "${COLUMNS:-$(tput cols)}" | tr ' ' -
   echo -n $'\e[00;00m'
 
+  dash=$-
+  set +e
   [ "${LOG_FILE}" ] && echo "$(date +'%Y-%m-%d %H:%M:%S') ${message}" >> ${LOG_FILE}
+  echo ${dash} | grep -q e
+  [ $? -eq 0 ] && set -e
 }
 
 function _error {
@@ -19,7 +23,11 @@ function _error {
   echo "${message}"
   echo -n $'\e[00;00m'
 
+  dash=$-
+  set +e
   [ "${LOG_FILE}" ] && echo "$(date +'%Y-%m-%d %H:%M:%S') ERROR: ${message}" >> ${LOG_FILE}
+  echo ${dash} | grep -q e
+  [ $? -eq 0 ] && set -e
 }
 
 function _clone {
