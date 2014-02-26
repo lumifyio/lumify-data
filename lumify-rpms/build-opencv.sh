@@ -28,4 +28,4 @@ fi
 sed -i 's/JNI_FOUND/1/g' ${SOURCE_DIR}/${name}/modules/java/CMakeLists.txt
 sed -i 's/.*ocv_module_disable(java)/  message(FATAL_ERROR "Could not enable java module")/g' ${SOURCE_DIR}/${name}/modules/java/CMakeLists.txt
 
-_build ${name} ${version} ${release} x86_64 i386
+_build ${name} ${version} ${release}
