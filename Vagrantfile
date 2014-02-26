@@ -106,6 +106,7 @@ Vagrant.configure('2') do |config|
     test.vm.provision :puppet do |puppet|
       configure_puppet(puppet, 'dev_vm.pp')
     end
+    test.vm.provision :shell, :path => "bin/test-configure-vm.sh", :privileged => false
   end
 
   # used to create the downloadable open source demo VM
@@ -115,7 +116,7 @@ Vagrant.configure('2') do |config|
     demo.vm.provision :puppet do |puppet|
       configure_puppet(puppet, 'demo_opensource_vm.pp')
     end
-    demo.vm.provision :shell, :path => "demo-vm/configure-vm.sh", :args => "opensource sample-data-html.tgz" 
+    demo.vm.provision :shell, :path => "demo-vm/configure-vm.sh", :args => "opensource sample-data-html.tgz"
   end
 
   # used to create an enterprise demo VM
