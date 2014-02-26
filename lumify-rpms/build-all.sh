@@ -16,8 +16,9 @@ function _build_and_install {
 
   ${DIR}/build-${name}.sh
 
-  _banner "[build_and_install] ${name} - installing RPMs"
-  sudo rpm -U --force -v ${LUMIFYREPO_DIR}/RPMS/*/lumify-${name}-[^debuginfo]*.rpm
+  local rpmFileName=$(ls ${LUMIFYREPO_DIR}/RPMS/$(arch)/lumify-${name}-[^debuginfo]*.rpm | sort | tail -1)
+  _banner "[build_and_install] ${name} - installing RPM ${rpmFileName}"
+  sudo rpm -U --force -v ${rpmFileName}
 }
 
 export LOG_FILE=/tmp/$(basename $0 .sh).log
