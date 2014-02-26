@@ -78,8 +78,6 @@ function _build {
   local name=$1; shift
   local version=$1; shift
   local release=$1; shift
-  local architectures='x86_64'
-  [ "$*" ] && architectures="$*"
 
   _banner "[build] ${name} - creating source tar.gz"
   cd ${SOURCE_DIR}
@@ -95,13 +93,11 @@ function _build {
   _banner "[build] ${name} - running rpmlint"
   rpmlint ${RPMBUILD_DIR}/SPECS/${name}.spec
 
-  for arch in ${architectures}; do
-    _banner "[build] ${name} - running rpmbuild for ${arch}"
-    rpmbuild -ba --target ${arch} ${RPMBUILD_DIR}/SPECS/${name}.spec
+  _banner "[build] ${name} - running rpmbuild"
+  rpmbuild -ba ${RPMBUILD_DIR}/SPECS/${name}.spec
 
-    _banner "[build] ${name} - copying rpm to repo for ${arch}"
-    cp ${RPMBUILD_DIR}/RPMS/${arch}/${name}-${version}-${release}.${arch}.rpm ${LUMIFYREPO_DIR}/RPMS/${arch}
-  done
+  _banner "[build] ${name} - copying rpm to repo"
+  cp ${RPMBUILD_DIR}/RPMS/$(arch)/${name}-${version}-${release}.$(arch).rpm ${LUMIFYREPO_DIR}/RPMS/$(arch)
 
   _banner "[build] ${name} - copying source RPM and source tar.gz to repo"
   cp ${RPMBUILD_DIR}/SRPMS/${name}-${version}-${release}.src.rpm ${LUMIFYREPO_DIR}/SRPMS
