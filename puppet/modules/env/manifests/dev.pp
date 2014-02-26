@@ -1,6 +1,4 @@
 class env::dev {
-  include clavin
-
   file { '/etc/yum.repos.d/lumify.repo' :
     source => 'puppet:///modules/env/dev/lumify.repo',
     owner => 'vagrant',
