@@ -12,7 +12,7 @@ if [ $? -ne 0 ]; then
 fi
 
 # install required RPMs
-yum -y install yasm libtool fedora-packager cmake zlib-devel glibc-devel libgcc libstdc++
+yum -y install yasm libtool fedora-packager cmake zlib-devel glibc-devel libgcc libstdc++ gcc-c++
 
 # install Ant
 if [ ! -h /opt/ant ]; then
