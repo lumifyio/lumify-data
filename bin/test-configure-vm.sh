@@ -1,5 +1,10 @@
 #!/bin/bash -e
 
+if [ "$1" ]; then
+  branch_name=$(echo $1 | sed -e 's|origin/||')
+  cd /vagrent && git checkout ${branch_name}
+fi
+
 rm -rf /tmp/lumify-all
 git clone file:///vagrant /tmp/lumify-all --depth 1
 

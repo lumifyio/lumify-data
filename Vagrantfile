@@ -106,7 +106,7 @@ Vagrant.configure('2') do |config|
     test.vm.provision :puppet do |puppet|
       configure_puppet(puppet, 'dev_vm.pp')
     end
-    test.vm.provision :shell, :path => "bin/test-configure-vm.sh", :privileged => false
+    test.vm.provision :shell, :path => "bin/test-configure-vm.sh", :args => ENV[GIT_BRANCH], :privileged => false
   end
 
   # used to create the downloadable open source demo VM
