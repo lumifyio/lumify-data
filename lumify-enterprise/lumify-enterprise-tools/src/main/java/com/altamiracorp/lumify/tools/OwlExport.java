@@ -1,32 +1,10 @@
 package com.altamiracorp.lumify.tools;
 
-import static com.altamiracorp.lumify.core.model.ontology.OntologyLumifyProperties.*;
-import static com.altamiracorp.lumify.core.model.properties.LumifyProperties.*;
-
 import com.altamiracorp.bigtable.model.ModelSession;
 import com.altamiracorp.lumify.core.cmdline.CommandLineBase;
-import com.altamiracorp.lumify.core.model.ontology.Concept;
-import com.altamiracorp.lumify.core.model.ontology.OntologyProperty;
-import com.altamiracorp.lumify.core.model.ontology.OntologyRepository;
-import com.altamiracorp.lumify.core.model.ontology.PropertyType;
-import com.altamiracorp.lumify.core.model.ontology.Relationship;
+import com.altamiracorp.lumify.core.model.ontology.*;
 import com.altamiracorp.lumify.core.util.ModelUtil;
 import com.google.inject.Inject;
-import java.io.FileOutputStream;
-import java.io.OutputStream;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
-import javax.xml.parsers.DocumentBuilder;
-import javax.xml.parsers.DocumentBuilderFactory;
-import javax.xml.transform.OutputKeys;
-import javax.xml.transform.Transformer;
-import javax.xml.transform.TransformerFactory;
-import javax.xml.transform.dom.DOMSource;
-import javax.xml.transform.stream.StreamResult;
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.OptionBuilder;
 import org.apache.commons.cli.Options;
@@ -34,6 +12,21 @@ import org.jdom.Namespace;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
+
+import javax.xml.parsers.DocumentBuilder;
+import javax.xml.parsers.DocumentBuilderFactory;
+import javax.xml.transform.OutputKeys;
+import javax.xml.transform.Transformer;
+import javax.xml.transform.TransformerFactory;
+import javax.xml.transform.dom.DOMSource;
+import javax.xml.transform.stream.StreamResult;
+import java.io.FileOutputStream;
+import java.io.OutputStream;
+import java.util.*;
+
+import static com.altamiracorp.lumify.core.model.ontology.OntologyLumifyProperties.CONCEPT_TYPE;
+import static com.altamiracorp.lumify.core.model.ontology.OntologyLumifyProperties.ONTOLOGY_TITLE;
+import static com.altamiracorp.lumify.core.model.properties.LumifyProperties.DISPLAY_NAME;
 
 public class OwlExport extends CommandLineBase {
     private static final Namespace NS_RDF = Namespace.getNamespace("rdf", "http://www.w3.org/1999/02/22-rdf-syntax-ns#");
@@ -146,8 +139,10 @@ public class OwlExport extends CommandLineBase {
         Element elem = doc.createElementNS(NS_OWL.getURI(), "owl:ObjectProperty");
         elem.setAttributeNS(NS_RDF.getURI(), "rdf:about", relationship.getTitle());
         elem.appendChild(createLabelElement(doc, relationship.getDisplayName()));
-        elem.appendChild(createDomainElement(doc, relationship.getSourceConcept()));
-        elem.appendChild(createRangeElement(doc, relationship.getDestConcept()));
+        Concept sourceConcept = ontologyRepository.getConceptById(relationship.getSourceConceptId());
+        elem.appendChild(createDomainElement(doc, sourceConcept));
+        Concept destConcept = ontologyRepository.getConceptById(relationship.getDestConceptId());
+        elem.appendChild(createRangeElement(doc, destConcept));
         return elem;
     }
 
