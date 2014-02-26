@@ -12,3 +12,5 @@ node_modules/
 coverage-error.log
 npm-debug.log
 *PASSWORDS.properties
+*.out
+*.pid
