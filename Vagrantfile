@@ -27,12 +27,12 @@ def forward_ports(config, port_hash)
   end
 end
 
-def configure_puppet(puppet, manifest_file)
+def configure_puppet(puppet, manifest_file, hiera_file)
   puppet.manifests_path = 'puppet/manifests'
   puppet.module_path    = [ 'puppet/modules', 'puppet/puppet-modules' ]
   puppet.manifest_file  = manifest_file
   puppet.facter         = { 'fqdn' => HOSTNAME }
-  puppet.options        = '--hiera_config /vagrant/puppet/hiera-vm.yaml'
+  puppet.options        = "--hiera_config /vagrant/puppet/#{hiera_file}"
 end
 
 Vagrant.configure('2') do |config|
@@ -95,7 +95,7 @@ Vagrant.configure('2') do |config|
     forward_ports(dev, FORWARD_PORTS)
     dev.vm.provision :shell, :inline => "mkdir -p /data0 /opt/lumify /opt/lumify/logs"
     dev.vm.provision :puppet do |puppet|
-      configure_puppet(puppet, 'dev_vm.pp')
+      configure_puppet(puppet, 'dev_vm.pp', 'hiera-vm.yaml')
     end
   end
 
@@ -104,11 +104,9 @@ Vagrant.configure('2') do |config|
     forward_ports(test, FORWARD_PORTS)
     test.vm.provision :shell, :inline => "mkdir -p /data0"
     test.vm.provision :puppet do |puppet|
-      configure_puppet(puppet, 'dev_vm.pp')
+      configure_puppet(puppet, 'dev_vm.pp', 'hiera-test.yaml')
     end
-    unless ENV['SKIP_CLONE'] && ENV['SKIP_CLONE'] == 'true'
-      test.vm.provision :shell, :path => "bin/test/clone.sh", :args => "/tmp/lumify-all #{ENV['GIT_BRANCH']}", :privileged => false
-    end
+    test.vm.provision :shell, :path => "bin/test/clone.sh", :args => "/tmp/lumify-all #{ENV['GIT_BRANCH']}", :privileged => false
     test.vm.provision :shell, :path => "bin/test/ingest.sh", :args => '/tmp/lumify-all', :privileged => false
   end
 
@@ -117,7 +115,7 @@ Vagrant.configure('2') do |config|
     forward_ports(demo, FORWARD_PORTS)
     demo.vm.provision :shell, :inline => "mkdir -p /data0 /opt/lumify /opt/lumify/logs"
     demo.vm.provision :puppet do |puppet|
-      configure_puppet(puppet, 'demo_opensource_vm.pp')
+      configure_puppet(puppet, 'demo_opensource_vm.pp', 'hiera-vm.yaml')
     end
     demo.vm.provision :shell, :path => "demo-vm/configure-vm.sh", :args => "opensource sample-data-html.tgz"
   end
@@ -127,7 +125,7 @@ Vagrant.configure('2') do |config|
     forward_ports(demo, FORWARD_PORTS)
     demo.vm.provision :shell, :inline => "mkdir -p /data0 /opt/lumify /opt/lumify/logs"
     demo.vm.provision :puppet do |puppet|
-      configure_puppet(puppet, 'demo_enterprise_vm.pp')
+      configure_puppet(puppet, 'demo_enterprise_vm.pp', 'hiera-vm.yaml')
     end
     demo.vm.provision :shell, :path => "demo-vm/configure-vm.sh", :args => "enterprise chechen-terrorists.tgz"
   end
