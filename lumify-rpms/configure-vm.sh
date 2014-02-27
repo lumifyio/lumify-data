@@ -2,7 +2,7 @@
 
 # add the EPEL repo
 rpm -q epel-release-6-8 > /dev/null \
-  || rpm -ivH http://dl.fedoraproject.org/pub/epel/6/x86_64/epel-release-6-8.noarch.rpm
+  || rpm -ivH http://dl.fedoraproject.org/pub/epel/6/$(arch)/epel-release-6-8.noarch.rpm
 
 # configure yum to install every possible architecture for every package
 grep -q 'multilib_policy=all' /etc/yum.conf
@@ -12,7 +12,7 @@ if [ $? -ne 0 ]; then
 fi
 
 # install required RPMs
-yum -y install yasm libtool fedora-packager cmake zlib-devel glibc-devel libgcc libstdc++
+yum -y install yasm libtool fedora-packager cmake zlib-devel glibc-devel libgcc libstdc++ gcc-c++
 
 # install Ant
 if [ ! -h /opt/ant ]; then
@@ -27,13 +27,18 @@ if [ ! -f /usr/bin/ant ]; then
 fi
 
 # download and install JDK
-if [ ! -f /opt/jdk-6u45-linux-amd64.rpm ]; then
+if [ $(arch) = 'x86_64' ]; then
+  jdk_rpm_filename=jdk-6u45-linux-x64.rpm
+else
+  jdk_rpm_filename=jdk-6u45-linux-i586.rpm
+fi
+if [ ! -f /opt/${jdk_rpm_filename} ]; then
   mkdir -p /opt
-  curl "https://s3.amazonaws.com/RedDawn/jdk-6u45-linux-amd64.rpm" -s -L --fail -o /opt/jdk-6u45-linux-amd64.rpm
+  curl "https://s3.amazonaws.com/RedDawn/${jdk_rpm_filename}" -s -L --fail -o /opt/${jdk_rpm_filename}
 fi
 
 rpm -q jdk-1.6.0_45-fcs > /dev/null \
-  || rpm -i /opt/jdk-6u45-linux-amd64.rpm
+  || rpm -i /opt/${jdk_rpm_filename}
 
 if [ ! -f /etc/profile.d/java_home.sh ]; then
   cat <<-EOM > /etc/profile.d/java_home.sh

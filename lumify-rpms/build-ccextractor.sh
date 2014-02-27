@@ -25,4 +25,4 @@ if [ -d ${SOURCE_DIR}/ccextractor.${version} ]; then
   mv ${SOURCE_DIR}/ccextractor.${version} ${SOURCE_DIR}/${name}
 fi
 
-_build ${name} ${version} ${release} x86_64 i386
+_build ${name} ${version} ${release}
