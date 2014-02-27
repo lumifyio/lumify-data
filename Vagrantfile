@@ -106,7 +106,10 @@ Vagrant.configure('2') do |config|
     test.vm.provision :puppet do |puppet|
       configure_puppet(puppet, 'dev_vm.pp')
     end
-    test.vm.provision :shell, :path => "bin/test-configure-vm.sh", :args => ENV['GIT_BRANCH'], :privileged => false
+    unless ENV['SKIP_CLONE'] && ENV['SKIP_CLONE'] == 'true'
+      test.vm.provision :shell, :path => "bin/test/clone.sh", :args => "/tmp/lumify-all #{ENV['GIT_BRANCH']}", :privileged => false
+    end
+    test.vm.provision :shell, :path => "bin/test/ingent.sh", :args => '/tmp/lumify-all', :privileged => false
   end
 
   # used to create the downloadable open source demo VM

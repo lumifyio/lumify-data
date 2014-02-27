@@ -1,3 +1,3 @@
 cd lumify-public/lumify-web-war/src/main/webapp
-grunt deps
-grunt mochaSelenium:firefox
+npm install
+grunt test:functional:firefox
