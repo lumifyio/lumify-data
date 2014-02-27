@@ -23,7 +23,6 @@ public class FacebookBolt extends BaseLumifyBolt {
     private static FileSystem fileSystem;
     private static Vertex savedArtifact;
 
-
     @Override
     public void safeExecute(Tuple input) throws Exception {
         setHdfsFileSystem();
@@ -44,7 +43,6 @@ public class FacebookBolt extends BaseLumifyBolt {
             DISPLAY_TYPE.setProperty(post, POST_CONCEPT, new Visibility(""));
             InputStream in = new ByteArrayInputStream(jsonObject.getString(MESSAGE).getBytes());
             graph.flush();
-            workQueueRepository.pushTextHighlight(post.getId().toString());
         } else {
             name = jsonObject.getString(USERNAME);
             LOGGER.info("Facebook tuple is a user: %s", name);
