@@ -7,6 +7,7 @@ import com.altamiracorp.lumify.core.model.textHighlighting.TermMentionOffsetItem
 import com.altamiracorp.lumify.core.user.User;
 import com.altamiracorp.securegraph.Authorizations;
 import com.altamiracorp.securegraph.Graph;
+import com.altamiracorp.securegraph.Visibility;
 import edu.emory.mathcs.backport.java.util.Arrays;
 import org.json.JSONObject;
 import org.junit.Assert;
@@ -46,7 +47,7 @@ public class EntityHighlightTest {
 
     private TermMentionModel createTermMention(String sign, int start, int end, String artifactGraphVertexId) {
         TermMentionModel termMention = new TermMentionModel(new TermMentionRowKey(artifactGraphVertexId, start, end));
-        termMention.getMetadata().setSign(sign);
+        termMention.getMetadata().setSign(sign, new Visibility(""));
         return termMention;
     }
 

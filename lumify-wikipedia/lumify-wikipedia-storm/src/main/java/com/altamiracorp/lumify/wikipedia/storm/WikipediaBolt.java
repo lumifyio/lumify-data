@@ -218,10 +218,10 @@ public class WikipediaBolt extends BaseLumifyBolt {
             TermMentionModel termMention = new TermMentionModel(new TermMentionRowKey(pageVertex.getId().toString(), link.getStartOffset(),
                     link.getEndOffset()));
             termMention.getMetadata()
-                    .setConceptGraphVertexId(wikipediaPageConceptId)
-                    .setSign(link.getLink().getTarget())
-                    .setVertexId(linkedPageVertex.getId().toString())
-                    .setOntologyClassUri(WIKIPEDIA_PAGE_CONCEPT_NAME);
+                    .setConceptGraphVertexId(wikipediaPageConceptId, visibility)
+                    .setSign(link.getLink().getTarget(), visibility)
+                    .setVertexId(linkedPageVertex.getId().toString(), visibility)
+                    .setOntologyClassUri(WIKIPEDIA_PAGE_CONCEPT_NAME, visibility);
             this.termMentionRepository.save(termMention, FlushFlag.NO_FLUSH);
         }
 
