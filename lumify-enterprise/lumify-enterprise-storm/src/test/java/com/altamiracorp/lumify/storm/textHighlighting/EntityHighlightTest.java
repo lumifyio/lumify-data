@@ -1,5 +1,6 @@
 package com.altamiracorp.lumify.storm.textHighlighting;
 
+import com.altamiracorp.lumify.core.EntityHighlighter;
 import com.altamiracorp.lumify.core.model.termMention.TermMentionModel;
 import com.altamiracorp.lumify.core.model.termMention.TermMentionRowKey;
 import com.altamiracorp.lumify.core.model.textHighlighting.OffsetItem;

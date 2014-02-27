@@ -90,8 +90,6 @@ public class TermExtractionBolt extends BaseTextProcessingBolt {
 
         List<TermMentionWithGraphVertex> termMentionsWithGraphVertices = saveTermExtractions(artifactGraphVertex, termExtractionResult);
         saveRelationships(termExtractionResult.getRelationships(), termMentionsWithGraphVertices);
-
-        workQueueRepository.pushTextHighlight(artifactGraphVertex.getId().toString());
     }
 
     private void mergeTextExtractedInfos(TermExtractionResult termExtractionResult,
