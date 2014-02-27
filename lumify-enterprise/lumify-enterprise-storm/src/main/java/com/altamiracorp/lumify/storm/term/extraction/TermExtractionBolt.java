@@ -112,6 +112,10 @@ public class TermExtractionBolt extends BaseTextProcessingBolt {
             termMentionModel.getMetadata().setSign(termMention.getSign());
             termMentionModel.getMetadata().setOntologyClassUri(termMention.getOntologyClassUri());
 
+            if (termMention.getProcess() != null && !termMention.getProcess().equals("")) {
+                termMentionModel.getMetadata().setAnalyticProcess(termMention.getProcess());
+            }
+
             Concept concept = ontologyRepository.getConceptByName(termMention.getOntologyClassUri());
             if (concept == null) {
                 LOGGER.error("Could not find ontology graph vertex '%s'", termMention.getOntologyClassUri());
