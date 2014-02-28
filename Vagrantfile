@@ -103,6 +103,9 @@ Vagrant.configure('2') do |config|
   config.vm.define "test" do |test|
     forward_ports(test, FORWARD_PORTS)
     test.vm.provision :shell, :inline => "mkdir -p /data0"
+    if ENV['COMPUTERNAME'] && ENV['COMPUTERNAME'] = 'SFENG-WIN7'
+      test.vm.provision :shell, :inline => "echo 'http://10.0.1.143:3128' >> /etc/yum.conf"
+    end
     test.vm.provision :puppet do |puppet|
       configure_puppet(puppet, 'dev_vm.pp', 'hiera-test.yaml')
     end
