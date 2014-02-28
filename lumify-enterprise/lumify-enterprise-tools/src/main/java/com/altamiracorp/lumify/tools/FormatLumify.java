@@ -36,6 +36,15 @@ public class FormatLumify extends CommandLineBase {
         // TODO provide a way to delete the graph and it's search index
         // graph.delete(getUser());
 
+        LOGGER.debug("BEGIN remove all authorizations");
+        for (String auth : authorizationRepository.getGraphAuthorizations()) {
+            LOGGER.debug("removing auth %s", auth);
+            authorizationRepository.removeAuthorizationFromGraph(auth);
+        }
+        LOGGER.debug("END remove all authorizations");
+
+        graph.shutdown();
+
         // TODO refactor to config file info. But since this is only for development this is low priority
         String ES_INDEX = "securegraph";
         LOGGER.debug("BEGIN deleting elastic search index: " + ES_INDEX);
@@ -49,15 +58,6 @@ public class FormatLumify extends CommandLineBase {
             LOGGER.error("Failed to delete elastic search index named %s", ES_INDEX);
         }
         LOGGER.debug("END deleting elastic search index: " + ES_INDEX);
-
-        LOGGER.debug("BEGIN remove all authorizations");
-        for (String auth : authorizationRepository.getGraphAuthorizations()) {
-            LOGGER.debug("removing auth %s", auth);
-            authorizationRepository.removeAuthorizationFromGraph(auth);
-        }
-        LOGGER.debug("END remove all authorizations");
-
-        graph.shutdown();
 
         return 0;
     }
