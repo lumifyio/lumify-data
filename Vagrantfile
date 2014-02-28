@@ -42,7 +42,7 @@ def provision_proxy(config, proxy_url)
 </settings>"""
     config.vm.provision :shell, :inline => "echo 'proxy=#{proxy_url}' >> /etc/yum.conf"
     config.vm.provision :shell, :inline => "for repo in /etc/yum.repos.d/*.repo; do sed -i -e 's/mirrorlist=/#mirrorlist=/' -e 's/#baseurl=/baseurl=/' ${repo}; done"
-    config.vm.provision :shell, :inline => "echo '#{settings_xml}' > ${HOME}/.m2/settings.xml", :privileged => false
+    config.vm.provision :shell, :inline => "mkdir -p ${HOME}/.m2 && echo '#{settings_xml}' > ${HOME}/.m2/settings.xml", :privileged => false
     config.vm.provision :shell, :inline => "echo 'registry = http://registry.npmjs.org/' >> /usr/etc/npmrc"
     config.vm.provision :shell, :inline => "echo 'proxy = #{proxy_url}' >> /usr/etc/npmrc"
   else
