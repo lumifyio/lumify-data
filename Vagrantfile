@@ -30,12 +30,12 @@ end
 def provision_proxy(config, proxy_url)
   if proxy_url
     config.vm.provision :shell, :inline => "echo 'proxy=#{proxy_url}' >> /etc/yum.conf"
-    config.vm.provision :shell, :inline => 'npm config set registry http://registry.npmjs.org/', :privileged => false
-    config.vm.provision :shell, :inline => "npm config set proxy #{proxy_url}", :privileged => false
+    config.vm.provision :shell, :inline => "echo 'registry = http://registry.npmjs.org/' >> ${HOME}/.npmrc", :privileged => false
+    config.vm.provision :shell, :inline => "echo 'proxy = #{proxy_url}' >> ${HOME}/.npmrc", :privileged => false
   else
     config.vm.provision :shell, :inline => "sed -i -e '/^proxy=/d' /etc/yum.conf"
-    config.vm.provision :shell, :inline => 'npm config set registry https://registry.npmjs.org/', :privileged => false
-    config.vm.provision :shell, :inline => 'npm config delete proxy', :privileged => false
+    config.vm.provision :shell, :inline => "[ -f ${HOME}/.npmrc ] && sed -i -e '/^registry =/d' ${HOME}/.npmrc || true", :privileged => false
+    config.vm.provision :shell, :inline => "[ -f ${HOME}/.npmrc ] && sed -i -e '/^proxy =/d' ${HOME}/.npmrc || true", :privileged => false
   end
 end
 
