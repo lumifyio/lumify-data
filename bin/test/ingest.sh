@@ -23,5 +23,8 @@ echo 'running bin/900_Server.sh in the background'
 cd ${clone_dir} && bin/900_Server.sh &> /vagrant/900_Server.out &
 echo $! > /vagrant/900_Server.pid
 
-echo -n 'sleeping for 5 minutes...'
-for n in {4..0}; do sleep 60; echo -n " ${n}"; done; echo
+echo 'sleeping for 5 minutes...'
+for n in {4..0}; do
+  sleep 60
+  echo ${n}
+done
