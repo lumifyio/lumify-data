@@ -69,6 +69,7 @@ makerpm' | passwd makerpm 2> /dev/null
 grep -q ^makerpm /etc/sudoers
 if [ $? -ne 0 ]; then
   echo "makerpm ALL=NOPASSWD:/bin/rpm" >> /etc/sudoers
+  echo "Defaults:makerpm !requiretty" >> /etc/sudoers
 fi
 
 su - makerpm -c "mkdir -p /home/makerpm/repo/RPMS/{i386,x86_64} /home/makerpm/repo/{SRPMS,source}"
