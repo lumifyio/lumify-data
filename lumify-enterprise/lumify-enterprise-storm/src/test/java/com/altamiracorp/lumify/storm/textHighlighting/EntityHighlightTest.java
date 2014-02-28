@@ -1,5 +1,6 @@
 package com.altamiracorp.lumify.storm.textHighlighting;
 
+import com.altamiracorp.lumify.core.EntityHighlighter;
 import com.altamiracorp.lumify.core.model.termMention.TermMentionModel;
 import com.altamiracorp.lumify.core.model.termMention.TermMentionRowKey;
 import com.altamiracorp.lumify.core.model.textHighlighting.OffsetItem;
@@ -7,22 +8,25 @@ import com.altamiracorp.lumify.core.model.textHighlighting.TermMentionOffsetItem
 import com.altamiracorp.lumify.core.user.User;
 import com.altamiracorp.securegraph.Authorizations;
 import com.altamiracorp.securegraph.Graph;
+import com.altamiracorp.securegraph.Vertex;
 import edu.emory.mathcs.backport.java.util.Arrays;
 import org.json.JSONObject;
 import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.junit.runners.JUnit4;
 import org.mockito.Mock;
+import org.mockito.runners.MockitoJUnitRunner;
 
 import java.util.ArrayList;
 import java.util.List;
 
 import static org.junit.Assert.assertEquals;
+import static org.mockito.Matchers.any;
+import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
-@RunWith(JUnit4.class)
+@RunWith(MockitoJUnitRunner.class)
 public class EntityHighlightTest {
 
     @Mock
@@ -36,6 +40,8 @@ public class EntityHighlightTest {
 
     @Test
     public void testGetHighlightedText() throws Exception {
+        when(graph.getVertices((Iterable<Object>) any(), eq(authorizations))).thenReturn(new ArrayList<Vertex>());
+
         ArrayList<TermMentionModel> terms = new ArrayList<TermMentionModel>();
         terms.add(createTermMention("joe ferner", 18, 28, "1"));
         terms.add(createTermMention("jeff kunkle", 33, 44, "1"));
