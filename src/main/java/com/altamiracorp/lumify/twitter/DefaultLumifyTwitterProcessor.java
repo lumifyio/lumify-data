@@ -290,10 +290,10 @@ public class DefaultLumifyTwitterProcessor extends BaseArtifactProcessor impleme
                 TermMentionRowKey termMentionRowKey = new TermMentionRowKey(tweetId, indices.getLong(0), indices.getLong(1));
                 TermMentionModel termMention = new TermMentionModel(termMentionRowKey);
                 termMention.getMetadata()
-                        .setSign(sign)
-                        .setOntologyClassUri((String) conceptVertex.getPropertyValue(LumifyProperties.DISPLAY_NAME.getKey(), 0))
-                        .setConceptGraphVertexId(concept.getId())
-                        .setVertexId(id);
+                        .setSign(sign, visibility)
+                        .setOntologyClassUri((String) conceptVertex.getPropertyValue(LumifyProperties.DISPLAY_NAME.getKey(), 0), visibility)
+                        .setConceptGraphVertexId(concept.getId(), visibility)
+                        .setVertexId(id, visibility);
                 mentions.add(termMention);
             }
 
@@ -324,7 +324,7 @@ public class DefaultLumifyTwitterProcessor extends BaseArtifactProcessor impleme
 
                 String termId = termVertex.getId().toString();
 
-                mention.getMetadata().setVertexId(termId);
+                mention.getMetadata().setVertexId(termId, visibility);
                 getTermMentionRepository().save(mention);
 
                 graph.addEdge(tweetVertex, termVertex, entityType.getRelationshipLabel(), visibility, getAuthorizations());
