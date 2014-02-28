@@ -9,6 +9,7 @@ import com.altamiracorp.lumify.core.user.User;
 import com.altamiracorp.securegraph.Authorizations;
 import com.altamiracorp.securegraph.Graph;
 import com.altamiracorp.securegraph.Vertex;
+import com.altamiracorp.securegraph.Visibility;
 import edu.emory.mathcs.backport.java.util.Arrays;
 import org.json.JSONObject;
 import org.junit.Assert;
@@ -38,6 +39,9 @@ public class EntityHighlightTest {
     @Mock
     private Authorizations authorizations;
 
+    @Mock
+    private Visibility visibility;
+
     @Test
     public void testGetHighlightedText() throws Exception {
         when(graph.getVertices((Iterable<Object>) any(), eq(authorizations))).thenReturn(new ArrayList<Vertex>());
@@ -52,7 +56,7 @@ public class EntityHighlightTest {
 
     private TermMentionModel createTermMention(String sign, int start, int end, String artifactGraphVertexId) {
         TermMentionModel termMention = new TermMentionModel(new TermMentionRowKey(artifactGraphVertexId, start, end));
-        termMention.getMetadata().setSign(sign);
+        termMention.getMetadata().setSign(sign, visibility);
         return termMention;
     }
 
