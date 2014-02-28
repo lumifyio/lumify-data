@@ -10,4 +10,6 @@ fi
 
 npm install
 
+rm -rf test/reports/*
+
 grunt test:functional
