@@ -2,6 +2,7 @@ package com.altamiracorp.lumify.tools;
 
 import com.altamiracorp.bigtable.model.ModelSession;
 import com.altamiracorp.lumify.core.cmdline.CommandLineBase;
+import com.altamiracorp.lumify.core.model.user.AuthorizationRepository;
 import com.altamiracorp.lumify.core.model.workQueue.WorkQueueRepository;
 import com.altamiracorp.lumify.core.util.LumifyLogger;
 import com.altamiracorp.lumify.core.util.LumifyLoggerFactory;
@@ -19,6 +20,7 @@ public class FormatLumify extends CommandLineBase {
     private ModelSession modelSession;
     private Graph graph;
     private WorkQueueRepository workQueueRepository;
+    private AuthorizationRepository authorizationRepository;
 
     public static void main(String[] args) throws Exception {
         int res = new FormatLumify().run(args);
@@ -48,6 +50,15 @@ public class FormatLumify extends CommandLineBase {
         }
         LOGGER.debug("END deleting elastic search index: " + ES_INDEX);
 
+        LOGGER.debug("BEGIN remove all authorizations");
+        for (String auth : authorizationRepository.getGraphAuthorizations()) {
+            LOGGER.debug("removing auth %s", auth);
+            authorizationRepository.removeAuthorizationFromGraph(auth);
+        }
+        LOGGER.debug("END remove all authorizations");
+
+        graph.shutdown();
+
         return 0;
     }
 
@@ -64,5 +75,10 @@ public class FormatLumify extends CommandLineBase {
     @Inject
     public void setGraph(Graph graph) {
         this.graph = graph;
+    }
+
+    @Inject
+    public void setAuthorizationRepository(AuthorizationRepository authorizationRepository) {
+        this.authorizationRepository = authorizationRepository;
     }
 }
