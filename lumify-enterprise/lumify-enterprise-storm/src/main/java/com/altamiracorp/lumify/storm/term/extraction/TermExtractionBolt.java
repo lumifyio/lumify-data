@@ -103,15 +103,18 @@ public class TermExtractionBolt extends BaseTextProcessingBolt {
     }
 
     private List<TermMentionWithGraphVertex> saveTermExtractions(Vertex artifactGraphVertex, TermExtractionResult termExtractionResult) {
+        Visibility visibility = new Visibility("");
         List<TermMention> termMentions = termExtractionResult.getTermMentions();
         List<TermMentionWithGraphVertex> results = new ArrayList<TermMentionWithGraphVertex>();
-        Visibility visibility = new Visibility("");
         for (TermMention termMention : termMentions) {
             LOGGER.debug("Saving term mention '%s':%s (%d:%d)", termMention.getSign(), termMention.getOntologyClassUri(), termMention.getStart(), termMention.getEnd());
             Vertex vertex = null;
             TermMentionModel termMentionModel = new TermMentionModel(new TermMentionRowKey(artifactGraphVertex.getId().toString(), termMention.getStart(), termMention.getEnd()));
             termMentionModel.getMetadata().setSign(termMention.getSign(), visibility);
             termMentionModel.getMetadata().setOntologyClassUri(termMention.getOntologyClassUri(), visibility);
+            if (termMention.getProcess() != null && !termMention.getProcess().equals("")) {
+                termMentionModel.getMetadata().setAnalyticProcess(termMention.getProcess(), visibility);
+            }
 
             Concept concept = ontologyRepository.getConceptByName(termMention.getOntologyClassUri());
             if (concept == null) {

@@ -39,6 +39,9 @@ public class EntityHighlightTest {
     @Mock
     private Authorizations authorizations;
 
+    @Mock
+    private Visibility visibility;
+
     @Test
     public void testGetHighlightedText() throws Exception {
         when(graph.getVertices((Iterable<Object>) any(), eq(authorizations))).thenReturn(new ArrayList<Vertex>());
@@ -53,7 +56,7 @@ public class EntityHighlightTest {
 
     private TermMentionModel createTermMention(String sign, int start, int end, String artifactGraphVertexId) {
         TermMentionModel termMention = new TermMentionModel(new TermMentionRowKey(artifactGraphVertexId, start, end));
-        termMention.getMetadata().setSign(sign, new Visibility(""));
+        termMention.getMetadata().setSign(sign, visibility);
         return termMention;
     }
 
