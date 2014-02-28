@@ -30,10 +30,12 @@ end
 def provision_proxy(config, proxy_url)
   if proxy_url
     config.vm.provision :shell, :inline => "echo 'proxy=#{proxy_url}' >> /etc/yum.conf"
+    config.vm.provision :shell, :inline => "for repo in /etc/yum.repos.d/*.repo; do sed -i -e 's/mirrorlist=/#mirrorlist=/' -e 's/#baseurl=/baseurl=/' ${repo}; done"
     config.vm.provision :shell, :inline => "echo 'registry = http://registry.npmjs.org/' >> ${HOME}/.npmrc", :privileged => false
     config.vm.provision :shell, :inline => "echo 'proxy = #{proxy_url}' >> ${HOME}/.npmrc", :privileged => false
   else
     config.vm.provision :shell, :inline => "sed -i -e '/^proxy=/d' /etc/yum.conf"
+    config.vm.provision :shell, :inline => "for repo in /etc/yum.repos.d/*.repo; do sed -i -e 's/#mirrorlist=/mirrorlist=/' -e 's/baseurl=/#baseurl=/' ${repo}; done"
     config.vm.provision :shell, :inline => "[ -f ${HOME}/.npmrc ] && sed -i -e '/^registry =/d' ${HOME}/.npmrc || true", :privileged => false
     config.vm.provision :shell, :inline => "[ -f ${HOME}/.npmrc ] && sed -i -e '/^proxy =/d' ${HOME}/.npmrc || true", :privileged => false
   end
@@ -105,7 +107,7 @@ Vagrant.configure('2') do |config|
   # used for development including closed source enterprise features
   config.vm.define "dev", :primary => true do |dev|
     forward_ports(dev, FORWARD_PORTS)
-    dev.vm.provision :shell, :inline => "mkdir -p /data0 /opt/lumify /opt/lumify/logs"
+    dev.vm.provision :shell, :inline => "mkdir -p /data0"
     dev.vm.provision :puppet do |puppet|
       configure_puppet(puppet, 'dev_vm.pp', 'hiera-vm.yaml')
     end
@@ -126,7 +128,7 @@ Vagrant.configure('2') do |config|
   # used to create the downloadable open source demo VM
   config.vm.define "demo-opensource" do |demo|
     forward_ports(demo, FORWARD_PORTS)
-    demo.vm.provision :shell, :inline => "mkdir -p /data0 /opt/lumify /opt/lumify/logs"
+    demo.vm.provision :shell, :inline => "mkdir -p /data0"
     demo.vm.provision :puppet do |puppet|
       configure_puppet(puppet, 'demo_opensource_vm.pp', 'hiera-vm.yaml')
     end
@@ -136,7 +138,7 @@ Vagrant.configure('2') do |config|
   # used to create an enterprise demo VM
   config.vm.define "demo-enterprise" do |demo|
     forward_ports(demo, FORWARD_PORTS)
-    demo.vm.provision :shell, :inline => "mkdir -p /data0 /opt/lumify /opt/lumify/logs"
+    demo.vm.provision :shell, :inline => "mkdir -p /data0"
     demo.vm.provision :puppet do |puppet|
       configure_puppet(puppet, 'demo_enterprise_vm.pp', 'hiera-vm.yaml')
     end
