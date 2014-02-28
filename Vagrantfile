@@ -106,7 +106,7 @@ Vagrant.configure('2') do |config|
     test.vm.provision :puppet do |puppet|
       configure_puppet(puppet, 'dev_vm.pp', 'hiera-test.yaml')
     end
-    test.vm.provision :shell, :path => "bin/test/clone.sh", :args => "/tmp/lumify-all #{ENV['GIT_BRANCH']}", :privileged => false
+    test.vm.provision :shell, :path => "bin/test/clone.sh", :args => '/tmp/lumify-all', :privileged => false
     test.vm.provision :shell, :path => "bin/test/ingest.sh", :args => '/tmp/lumify-all', :privileged => false
   end
 
