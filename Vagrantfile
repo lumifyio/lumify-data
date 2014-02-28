@@ -29,13 +29,26 @@ end
 
 def provision_proxy(config, proxy_url)
   if proxy_url
+    protocol, host, port = proxy_url.match(/(.+):\/\/(.+):(\d+)/).captures
+    settings_xml = """<settings>
+  <proxies>
+   <proxy>
+      <active>true</active>
+      <protocol>#{protocol}</protocol>
+      <host>#{host}</host>
+      <port>#{port}</port>
+    </proxy>
+  </proxies>
+</settings>"""
     config.vm.provision :shell, :inline => "echo 'proxy=#{proxy_url}' >> /etc/yum.conf"
     config.vm.provision :shell, :inline => "for repo in /etc/yum.repos.d/*.repo; do sed -i -e 's/mirrorlist=/#mirrorlist=/' -e 's/#baseurl=/baseurl=/' ${repo}; done"
+    config.vm.provision :shell, :inline => "echo '#{settings_xml}' > ${HOME}/.m2/settings.xml", :privileged => false
     config.vm.provision :shell, :inline => "echo 'registry = http://registry.npmjs.org/' >> /usr/etc/npmrc"
     config.vm.provision :shell, :inline => "echo 'proxy = #{proxy_url}' >> /usr/etc/npmrc"
   else
     config.vm.provision :shell, :inline => "sed -i -e '/^proxy=/d' /etc/yum.conf"
     config.vm.provision :shell, :inline => "for repo in /etc/yum.repos.d/*.repo; do sed -i -e 's/#mirrorlist=/mirrorlist=/' -e 's/baseurl=/#baseurl=/' ${repo}; done"
+    config.vm.provision :shell, :inline => "rm -f ${HOME}/.m2/settings.xml", :privileged => false
     config.vm.provision :shell, :inline => "[ -f /usr/etc/npmrc ] && sed -i -e '/^registry =/d' /usr/etc/npmrc || true"
     config.vm.provision :shell, :inline => "[ -f /usr/etc/npmrc ] && sed -i -e '/^proxy =/d' /usr/etc/npmrc || true"
   end
