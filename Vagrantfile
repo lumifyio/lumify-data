@@ -27,6 +27,18 @@ def forward_ports(config, port_hash)
   end
 end
 
+def provision_proxy(config, proxy_url)
+  if proxy_url
+    config.vm.provision :shell, :inline => "echo 'proxy=#{proxy_url}' >> /etc/yum.conf"
+    config.vm.provision :shell, :inline => 'npm config set registry http://registry.npmjs.org/', :privileged => false
+    config.vm.provision :shell, :inline => "npm config set proxy #{proxy_url}", :privileged => false
+  else
+    config.vm.provision :shell, :inline => "sed -i -e '/^proxy=/d' /etc/yum.conf"
+    config.vm.provision :shell, :inline => 'npm config set registry https://registry.npmjs.org/', :privileged => false
+    config.vm.provision :shell, :inline => 'npm config delete proxy', :privileged => false
+  end
+end
+
 def configure_puppet(puppet, manifest_file, hiera_file)
   puppet.manifests_path = 'puppet/manifests'
   puppet.module_path    = [ 'puppet/modules', 'puppet/puppet-modules' ]
@@ -102,10 +114,8 @@ Vagrant.configure('2') do |config|
   # used for automated integration testing
   config.vm.define "test" do |test|
     forward_ports(test, FORWARD_PORTS)
+    provision_proxy(test, ENV['PROXY_URL'])
     test.vm.provision :shell, :inline => "mkdir -p /data0"
-    if ENV['COMPUTERNAME'] && ENV['COMPUTERNAME'] = 'SFENG-WIN7'
-      test.vm.provision :shell, :inline => "echo 'proxy=http://10.0.1.243:3128' >> /etc/yum.conf"
-    end
     test.vm.provision :puppet do |puppet|
       configure_puppet(puppet, 'dev_vm.pp', 'hiera-test.yaml')
     end

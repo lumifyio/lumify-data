@@ -1,7 +1,7 @@
 cd lumify-public/lumify-web-war/src/main/webapp
-if [ $(hostname) = 'sfeng-win7' ]; then
+if [ "${PROXY_URL}" ]; then
   npm config set registry http://registry.npmjs.org/
-  npm config set proxy http://10.0.1.143:3128
+  npm config set proxy ${PROXY_URL}
 fi
 npm install
 grunt test:functional
