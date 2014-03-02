@@ -44,10 +44,10 @@ public class OpenCVObjectDetectorTest {
 
         ArtifactDetectedObject detectedObject = detectedObjectList.get(0);
         assertEquals("face", detectedObject.getConcept());
-        assertEquals("X1 incorrect", 434, detectedObject.getX1());
-        assertEquals("Y1 incorrect", 117, detectedObject.getY1());
-        assertEquals("X2 incorrect", 637, detectedObject.getX2());
-        assertEquals("Y2 incorrect", 320, detectedObject.getY2());
+        assertEquals(434, detectedObject.getX1(), 0.0);
+        assertEquals(117, detectedObject.getY1(), 0.0);
+        assertEquals(637, detectedObject.getX2(), 0.0);
+        assertEquals( 320, detectedObject.getY2(), 0.0);
     }
 
 }
