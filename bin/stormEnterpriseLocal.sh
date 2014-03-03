@@ -15,7 +15,9 @@ if [ $? -ne 0 ]; then
 fi
 
 dir=${DIR}/../data/import
-[ "$1" ] && dir=$1 && shift
+if [ "$1" != '-d' ]; then
+	[ "$1" ] && dir=$1 && shift
+fi
 
 [ "${DEBUG_PORT}" ] || DEBUG_PORT=12345
 [ "$1" = '-d' ] && debug_option="-agentlib:jdwp=transport=dt_socket,server=y,suspend=y,address=${DEBUG_PORT}"
