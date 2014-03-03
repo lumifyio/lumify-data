@@ -233,10 +233,9 @@ define([
             var detectedObject,
                 width = parseFloat(data.x2)-parseFloat(data.x1),
                 height = parseFloat(data.y2)-parseFloat(data.y1);
-            if (vertex.properties._detectedObjects) {
-                detectedObject = $.extend(true, {}, _.find( typeof vertex.properties._detectedObjects.value == 'string' ? JSON.parse(vertex.properties._detectedObjects.value)
-                    : vertex.properties._detectedObjects.value, function(obj) {
-                    return (obj && (obj.graphVertexId || obj.detectedObjectId)) === data.id;
+            if (vertex.detectedObjects) {
+                detectedObject = $.extend(true, {}, _.find(vertex.detectedObjects, function(obj) {
+                    return (obj && (obj.graphVertexId || obj._rowKey)) === data.id;
                 }));
             }
 
@@ -276,9 +275,9 @@ define([
 
         this.videoSetup = function(vertex) {
             VideoScrubber.attachTo(this.select('previewSelector'), {
-                rawUrl: '/artifact/' + vertex.id + "/raw",
-                posterFrameUrl: '/artifact/' + vertex.id + "/poster-frame",
-                videoPreviewImageUrl: '/artifact/' + vertex.id + "/video-preview",
+                rawUrl: vertex.imageRawSrc,
+                posterFrameUrl: vertex.imageSrc,
+                videoPreviewImageUrl: vertex.imageFramesSrc,
                 allowPlayback: true
             });
         };
@@ -286,7 +285,7 @@ define([
         this.imageSetup = function(vertex) {
             var self = this;
             var data = {
-                src: '/artifact/' + vertex.id + "/raw",
+                src: vertex.imageRawSrc,
                 id: vertex.id
             };
             Image.attachTo(this.select('imagePreviewSelector'), { data: data });

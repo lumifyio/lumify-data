@@ -90,42 +90,42 @@ define([
                 this.workspaceVertices[id] = cache.workspace;
             }
 
-            /*
-            if (_.isString(cache.properties.geoLocation && cache.properties.geoLocation.value)) {
-                var m = cache.properties.geoLocation.value.match(/point\[(.*?),(.*?)\]/);
-                if (m) {
-                    var latitude = m[1];
-                    var longitude = m[2];
-                    cache.properties.geoLocation.value = {
-                        latitude: latitude,
-                        longitude: longitude,
-                        title: cache.properties._geoLocationDescription.value
-                    };
-                }
-            } 
-            */
-
             cache.concept = this.cachedConcepts.byId[cache.properties._conceptType.value || cache.properties._conceptType]
-            if (!cache.concept) {
-                console.error('Unable to attach concept to vertex', cache.concept, cache.properties._conceptType);
-            }
-
-            /*
-            if ((cache.properties.latitude && cache.properties.latitude.value) || 
-                (cache.properties.longitude && cache.properties.longitude.value)) {
-                $.extend(cache.properties.geoLocation.value || (cache.properties.geoLocation.value = {}), {
-                    latitude: cache.properties.latitude.value,
-                    longitude: cache.properties.longitude.value,
-                    title: cache.properties._geoLocationDescription.value
-                });
-                delete cache.properties.latitude.value;
-                delete cache.properties.longitude.value;
-                delete cache.properties._geoLocationDescription.value;
-            }
-            */
+            if (cache.concept) {
+                setPreviewsForVertex(cache);
+            } else console.error('Unable to attach concept to vertex', cache.properties._conceptType);
 
             return cache;
         };
 
+
+        function setPreviewsForVertex(vertex) {
+            var vId = encodeURIComponent(vertex.id),
+                artifactUrl = _.template("/artifact/" + vId + "/<%= type %>");
+
+            vertex.imageSrcIsFromConcept = false;
+
+            if (vertex.properties._glyphIcon) {
+                vertex.imageSrc = vertex.properties._glyphIcon.value;
+            } else {
+                switch (vertex.concept.displayType) {
+
+                    case 'image': 
+                        vertex.imageSrc = artifactUrl({ type: 'thumbnail' });
+                        vertex.imageRawSrc = artifactUrl({ type: 'raw' });
+                        break;
+
+                    case 'video': 
+                        vertex.imageSrc = artifactUrl({ type: 'poster-frame' });
+                        vertex.imageRawSrc = artifactUrl({ type: 'raw' });
+                        vertex.imageFramesSrc = artifactUrl({ type: 'video-preview' });
+                        break;
+
+                    default:
+                        vertex.imageSrc = vertex.concept.glyphIconHref;
+                        vertex.imageSrcIsFromConcept = true;
+                }
+            }
+        }
     }
 });
