@@ -1,6 +1,7 @@
 ---
 :backends:
   - yaml
+  - facter
 :yaml:
   :datadir: /vagrant/puppet/hiera
 :hierarchy:
