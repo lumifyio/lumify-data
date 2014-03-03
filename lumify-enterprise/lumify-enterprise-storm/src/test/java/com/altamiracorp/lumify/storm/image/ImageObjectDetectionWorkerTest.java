@@ -51,7 +51,7 @@ public class ImageObjectDetectionWorkerTest {
         fs = FileSystem.get(new Configuration());
         data.setHdfsFileSystem(fs);
         detectedObjects = new ArrayList<ArtifactDetectedObject>();
-        detectedObjects.add(new ArtifactDetectedObject(0, 0, 0, 0, "face"));
+        detectedObjects.add(new ArtifactDetectedObject(0, 0, 0, 0, "face", null));
     }
 
 

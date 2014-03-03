@@ -1,5 +1,9 @@
 ## Common Setup
 
+### MVN Root POM
+
+    cd /vagrant/lumify-root; mvn install
+
 ### Format
 
     /opt/lumify/format.sh
@@ -10,7 +14,7 @@ Configure `.properties` and Log4j files on your local filesystem (VM and/or host
 
 Run a script:
 
-    /vagrant/bin/config.sh
+    sudo /vagrant/bin/config.sh
 
 Or copy the following files to `/opt/lumify/confg`
 
