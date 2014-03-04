@@ -1,9 +1,5 @@
 ## Common Setup
 
-### MVN Root POM
-
-    cd /vagrant/lumify-root; mvn install
-
 ### Format
 
     /opt/lumify/format.sh
