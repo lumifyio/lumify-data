@@ -21,7 +21,7 @@ Run the Storm topology locally (without submitting it to the nimbus server):
 
 It will execute in the foreground, use another console window to run the enterprise topology:
 
-    bin/stormEnterpirseLocal.sh
+    bin/stormEnterpriseLocal.sh
 
 
 ## Ingest Data
