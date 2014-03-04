@@ -2,9 +2,9 @@
 
 clone_dir=$1
 
-for pid_file in /vagrant/*.pid; do
+for pid_file in $(ls /vagrant/*.pid); do
   name=$(basename ${pid_file} .pid)
-  pid=$(pgrep ${name})
+  pid=$(pgrep ${name} || true)
   if [ "${pid}" = "$(cat ${pid_file})" ]; then
     pkill -P ${pid} || true
     sleep 3 && pkill -9 -P ${pid} || true
