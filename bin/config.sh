@@ -1,15 +1,24 @@
 #!/bin/bash
 
+SOURCE="${BASH_SOURCE[0]}"
+while [ -h "$SOURCE" ]; do
+  DIR="$(cd -P "$(dirname "$SOURCE")" && pwd)"
+  SOURCE="$(readlink "$SOURCE")"
+  [[ $SOURCE != /* ]] && SOURCE="$DIR/$SOURCE"
+done
+DIR="$(cd -P "$(dirname "$SOURCE")" && pwd)"
+
 CONFIG_DIR=/opt/lumify/config
 
 function _cp_files {
   local files=$1
 
   for file in ${files}; do
-    if [ -s ${file} ]; then
-      cp -fv ${file} ${CONFIG_DIR}
+    f=${DIR}/../${file}
+    if [ -s ${f} ]; then
+      cp -fv ${f} ${CONFIG_DIR}
     else
-      echo "ERROR: you're missing ${file}"
+      echo "ERROR: you're missing ${f}"
       exit 1
     fi
   done
@@ -45,7 +54,7 @@ function _facebook {
 
 function _account {
   _cp_files "
-    lumify-account-web/docs/account.properties
+	  lumify-account-web/docs/account.properties
 	  lumify-account-web/docs/account-PASSWORDS.properties
   "
 }

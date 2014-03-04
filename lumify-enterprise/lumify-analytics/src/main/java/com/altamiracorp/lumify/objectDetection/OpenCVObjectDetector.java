@@ -86,7 +86,8 @@ public class OpenCVObjectDetector extends ObjectDetector {
                             rect.y,
                             rect.x + rect.width,
                             rect.y + rect.height,
-                            objectClassifier.concept);
+                            objectClassifier.concept,
+                            this.getClass().getName());
                     detectedObjectList.add(detectedObject);
                 }
             }

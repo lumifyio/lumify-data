@@ -20,6 +20,9 @@ function _zk_servers {
 function _accumulomaster {
   awk '/ +accumulomaster/ {print $1}' ${HOSTS_FILE}
 }
+function _webservers {
+  awk '/www[0-9]+/ {print $1}' ${HOSTS_FILE}
+}
 function _kafka_servers {
   awk '/kafka[0-9]+/ {print $1}' ${HOSTS_FILE}
 }
@@ -86,6 +89,15 @@ function _hadoop_status {
   ssh ${SSH_OPTS} root@$(_namenode) service hadoop-0.20-mapreduce-jobtracker status
 }
 
+function _hadoop_rmlogs {
+  cmd='rm -f /var/log/hadoop-0.20-mapreduce/*.{log,out}* /var/log/hadoop-hdfs/*.{log,out}*'
+
+  for node in $(echo $(_namenode) $(_secondarynamenode) $(_nodes) | tr ' ' '\n' | sort -t . -k 4 -n -u); do
+    echo "${node}: ${cmd}"
+    ssh ${SSH_OPTS} root@${node} ${cmd}
+  done
+}
+
 function _zookeeper_start {
   for zk in $(_zk_servers); do
     echo ${zk}
@@ -104,6 +116,15 @@ function _zookeeper_status {
   for zk in $(_zk_servers); do
     echo -n "${zk}: "
     ssh ${SSH_OPTS} root@${zk} service zookeeper-server status
+  done
+}
+
+function _zookeeper_rmlogs {
+  cmd='rm -f /var/log/zookeeper/*'
+
+  for zk in $(_zk_servers); do
+    echo "${zk}: ${cmd}"
+    ssh ${SSH_OPTS} root@${zk} ${cmd}
   done
 }
 
@@ -152,6 +173,15 @@ function _accumulo_status {
   done
 }
 
+function _accumulo_rmlogs {
+  cmd='rm -f /var/log/accumulo-upstart-*.log /var/log/accumulo/*'
+
+  for node in $(echo $(_accumulomaster) $(_nodes) | tr ' ' '\n' | sort -t . -k 4 -n -u); do
+    echo "${node}: ${cmd}"
+    ssh ${SSH_OPTS} root@${node} ${cmd}
+  done
+}
+
 function _elasticsearch_start {
   for node in $(_nodes); do
     echo -n "${node}: "
@@ -170,6 +200,45 @@ function _elasticsearch_status {
   for node in $(_nodes); do
     echo -n "${node}: "
     ssh ${SSH_OPTS} root@${node} initctl status elasticsearch
+  done
+}
+
+function _elasticsearch_rmlogs {
+  cmd='rm -f /var/log/elasticsearch/*'
+
+  for node in $(_nodes); do
+    echo "${node}: ${cmd}"
+    ssh ${SSH_OPTS} root@${node} ${cmd}
+  done
+}
+
+function _jetty_start {
+  for webserver in $(_webservers); do
+    echo -n "${webserver}: "
+    ssh ${SSH_OPTS} root@${webserver} service jetty start
+  done
+}
+
+function _jetty_stop {
+  for webserver in $(_webservers); do
+    echo -n "${webserver}: "
+    ssh ${SSH_OPTS} root@${webserver} service jetty stop
+  done
+}
+
+function _jetty_status {
+  for webserver in $(_webservers); do
+    echo -n "${webserver}: "
+    ssh ${SSH_OPTS} root@${webserver} service jetty status
+  done
+}
+
+function _jetty_rmlogs {
+  cmd='rm -rf /opt/jetty/logs/*'
+
+  for webserver in $(_webservers); do
+    echo "${webserver}: ${cmd}"
+    ssh ${SSH_OPTS} root@${webserver} ${cmd}
   done
 }
 
@@ -192,6 +261,10 @@ function _kafka_status {
     echo -n "${kafka}: "
     ssh ${SSH_OPTS} root@${kafka} initctl status kafka
   done
+}
+
+function _kafka_rmlogs {
+  echo "kafka log removal not yet implemented"
 }
 
 function _storm_start {
@@ -224,11 +297,21 @@ function _storm_status {
   done
 }
 
+function _storm_rmlogs {
+  cmd="rm -f /opt/storm/logs/*"
+
+  for node in $(echo $(_stormmaster) $(_nodes) | tr ' ' '\n' | sort -t . -k 4 -n -u); do
+    echo "${node}: ${cmd}"
+    ssh ${SSH_OPTS} root@${node} ${cmd}
+  done
+}
+
 function _all_start {
   _hadoop_start
   _zookeeper_start
   _accumulo_start
   _elasticsearch_start
+  _jetty_start
   _kafka_start
   _storm_start
 }
@@ -236,6 +319,7 @@ function _all_start {
 function _all_stop {
   _storm_stop
   _kafka_stop
+  _jetty_stop
   _elasticsearch_stop
   _accumulo_stop
   _zookeeper_stop
@@ -247,8 +331,19 @@ function _all_status {
   _zookeeper_status
   _accumulo_status
   _elasticsearch_status
+  _jetty_status
   _kafka_status
   _storm_status
+}
+
+function _all_rmlogs {
+  _hadoop_rmlogs
+  _zookeeper_rmlogs
+  _accumulo_rmlogs
+  _elasticsearch_rmlogs
+  _jetty_rmlogs
+  _kafka_rmlogs
+  _storm_rmlogs
 }
 
 function _run {
@@ -264,7 +359,7 @@ function _run {
 }
 
 function _usage {
-  echo "$0 <hosts file> first|start|stop|restart|status [component name]"
+  echo "$0 <hosts file> first|start|stop|restart|status|rmlogs [component name]"
   local z=$(echo "$0" | tr '[:print:]' ' ')
   echo "$z              run <pattern> <command and args>"
   echo "where the optional component name is one of the following:"
@@ -312,6 +407,13 @@ case "$2" in
       _$3_status
     else
       _all_status
+    fi
+    ;;
+  rmlogs)
+    if [ "$3" ]; then
+      _$3_rmlogs
+    else
+      _all_rmlogs
     fi
     ;;
   run)
