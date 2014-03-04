@@ -12,4 +12,4 @@ npm install
 
 rm -rf test/reports/*
 
-grunt test:functional
+grunt test:functional --force
