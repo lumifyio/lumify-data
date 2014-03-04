@@ -2,6 +2,16 @@
 
 clone_dir=$1
 
+for pid_file in /vagrant/*.pid; do
+  name=$(basename ${pid_file} .pid)
+  pid=$(pgrep ${name})
+  if [ "${pid}" = "$(cat ${pid_file})" ]; then
+    pkill -P ${pid} || true
+    sleep 3 && pkill -9 -P ${pid} || true
+  fi
+  rm -f ${pid_file}
+done
+
 cd ${clone_dir} && mvn compile -DskipTests 2>&1 | tee /vagrant/mvn.out
 
 /opt/lumify/format.sh
