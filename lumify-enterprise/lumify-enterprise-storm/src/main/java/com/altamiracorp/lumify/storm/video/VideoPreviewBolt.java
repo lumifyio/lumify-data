@@ -5,6 +5,7 @@ import com.altamiracorp.lumify.core.model.artifactThumbnails.ArtifactThumbnailRe
 import com.altamiracorp.lumify.core.model.videoFrames.VideoFrame;
 import com.altamiracorp.lumify.core.model.videoFrames.VideoFrameRepository;
 import com.altamiracorp.lumify.core.model.workQueue.WorkQueueRepository;
+import com.altamiracorp.lumify.core.security.LumifyVisibility;
 import com.altamiracorp.lumify.core.user.User;
 import com.altamiracorp.lumify.core.util.LumifyLogger;
 import com.altamiracorp.lumify.core.util.LumifyLoggerFactory;
@@ -29,10 +30,12 @@ import static com.altamiracorp.lumify.core.util.CollectionUtil.toList;
 
 public class VideoPreviewBolt extends BaseLumifyBolt {
     private static final LumifyLogger LOGGER = LumifyLoggerFactory.getLogger(VideoPreviewBolt.class);
+    private LumifyVisibility lumifyVisibility;
     private VideoFrameRepository videoFrameRepository;
 
     @Override
     protected void safeExecute(Tuple input) throws Exception {
+        lumifyVisibility = new LumifyVisibility();
         JSONObject json = getJsonFromTuple(input);
         String artifactGraphVertexId = json.getString(WorkQueueRepository.KEY_GRAPH_VERTEX_ID);
         LOGGER.info("[VideoPreviewBolt] Generating video preview for %s", artifactGraphVertexId);
@@ -55,10 +58,9 @@ public class VideoPreviewBolt extends BaseLumifyBolt {
         ByteArrayOutputStream out = new ByteArrayOutputStream();
         ImageIO.write(previewImage, "png", out);
         Vertex artifactVertex = graph.getVertex(artifactGraphVertexId, getAuthorizations());
-        Visibility visibility = new Visibility("");
         StreamingPropertyValue spv = new StreamingPropertyValue(new ByteArrayInputStream(out.toByteArray()), byte[].class);
         spv.searchIndex(false);
-        VIDEO_PREVIEW_IMAGE.setProperty(artifactVertex, spv, visibility);
+        VIDEO_PREVIEW_IMAGE.setProperty(artifactVertex, spv, lumifyVisibility.getVisibility());
         graph.flush();
     }
 

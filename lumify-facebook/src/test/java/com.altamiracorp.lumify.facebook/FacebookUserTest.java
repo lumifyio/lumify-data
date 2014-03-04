@@ -4,6 +4,7 @@ import com.altamiracorp.lumify.core.ingest.ArtifactExtractedInfo;
 import com.altamiracorp.lumify.core.model.audit.AuditRepository;
 import com.altamiracorp.lumify.core.model.ontology.Concept;
 import com.altamiracorp.lumify.core.model.ontology.OntologyRepository;
+import com.altamiracorp.lumify.core.security.LumifyVisibility;
 import com.altamiracorp.lumify.core.user.User;
 import com.altamiracorp.lumify.core.util.RowKeyHelper;
 import com.altamiracorp.securegraph.*;
@@ -80,19 +81,21 @@ public class FacebookUserTest {
     private JSONObject fullUserObject;
     private ArtifactExtractedInfo returnedExtractedInfo;
     private Vertex returnedVertex;
+    private LumifyVisibility lumifyVisibility;
 
     @Before
     public void setup() {
+        lumifyVisibility = new LumifyVisibility();
         InMemoryGraphConfiguration config = new InMemoryGraphConfiguration(new HashMap());
         graph = new InMemoryGraph(config, new UUIDIdGenerator(config.getConfig()), new DefaultSearchIndex(config.getConfig()));
         authorizations = new InMemoryAuthorizations("");
 
-        graph.addVertex("FB-USER-12345", new Visibility(""), authorizations);
-        graph.prepareVertex(new Visibility(""), authorizations)
-                .setProperty("email", new Text("facebookTestFull@lumify.io"), new Visibility(""))
-                .setProperty("_conceptType", new Text("48", TextIndexHint.EXACT_MATCH), new Visibility(""))
+        graph.addVertex("FB-USER-12345", lumifyVisibility.getVisibility(), authorizations);
+        graph.prepareVertex(lumifyVisibility.getVisibility(), authorizations)
+                .setProperty("email", new Text("facebookTestFull@lumify.io"), lumifyVisibility.getVisibility())
+                .setProperty("_conceptType", new Text("48", TextIndexHint.EXACT_MATCH), lumifyVisibility.getVisibility())
                 .save();
-        graph.addVertex("FB-USER-67890", new Visibility(""), authorizations);
+        graph.addVertex("FB-USER-67890", lumifyVisibility.getVisibility(), authorizations);
         graph.flush();
 
         setNormalUserObject();
