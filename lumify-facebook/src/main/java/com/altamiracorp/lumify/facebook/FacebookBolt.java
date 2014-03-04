@@ -2,6 +2,7 @@ package com.altamiracorp.lumify.facebook;
 
 import backtype.storm.tuple.Tuple;
 import com.altamiracorp.lumify.core.ingest.ArtifactExtractedInfo;
+import com.altamiracorp.lumify.core.security.LumifyVisibility;
 import com.altamiracorp.lumify.core.util.LumifyLogger;
 import com.altamiracorp.lumify.core.util.LumifyLoggerFactory;
 import com.altamiracorp.lumify.storm.BaseLumifyBolt;
@@ -20,11 +21,13 @@ import static com.altamiracorp.lumify.facebook.FacebookConstants.*;
 public class FacebookBolt extends BaseLumifyBolt {
     private static final LumifyLogger LOGGER = LumifyLoggerFactory.getLogger(FacebookBolt.class);
     private static final String PROCESS = FacebookBolt.class.getName();
+    private LumifyVisibility lumifyVisibility;
     private static FileSystem fileSystem;
     private static Vertex savedArtifact;
 
     @Override
     public void safeExecute(Tuple input) throws Exception {
+        lumifyVisibility = new LumifyVisibility();
         setHdfsFileSystem();
         JSONObject json = getJsonFromTuple(input);
         calculateTupleType(json);
@@ -40,7 +43,7 @@ public class FacebookBolt extends BaseLumifyBolt {
             ArtifactExtractedInfo postExtractedInfo = facebookPost.processPostArtifact(jsonObject);
             setSavedArtifact(postExtractedInfo);
             Vertex post = facebookPost.processPostVertex(jsonObject, savedArtifact, graph, auditRepository, ontologyRepository, getUser(), getAuthorizations());
-            DISPLAY_TYPE.setProperty(post, POST_CONCEPT, new Visibility(""));
+            DISPLAY_TYPE.setProperty(post, POST_CONCEPT, lumifyVisibility.getVisibility());
             InputStream in = new ByteArrayInputStream(jsonObject.getString(MESSAGE).getBytes());
             graph.flush();
         } else {

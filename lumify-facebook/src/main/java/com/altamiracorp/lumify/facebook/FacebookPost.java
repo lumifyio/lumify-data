@@ -5,6 +5,7 @@ import com.altamiracorp.lumify.core.model.audit.AuditAction;
 import com.altamiracorp.lumify.core.model.audit.AuditRepository;
 import com.altamiracorp.lumify.core.model.ontology.Concept;
 import com.altamiracorp.lumify.core.model.ontology.OntologyRepository;
+import com.altamiracorp.lumify.core.security.LumifyVisibility;
 import com.altamiracorp.lumify.core.user.User;
 import com.altamiracorp.lumify.core.util.LumifyLogger;
 import com.altamiracorp.lumify.core.util.LumifyLoggerFactory;
@@ -24,9 +25,10 @@ import static com.altamiracorp.lumify.facebook.FacebookConstants.*;
 public class FacebookPost {
     private static final LumifyLogger LOGGER = LumifyLoggerFactory.getLogger(FacebookBolt.class);
     private static final String PROCESS = FacebookPost.class.getName();
-
+    private LumifyVisibility lumifyVisibility;
 
     protected ArtifactExtractedInfo processPostArtifact(JSONObject post) throws Exception {
+        lumifyVisibility = new LumifyVisibility();
         //extract knowledge from post
         String message = post.getString(MESSAGE);
         Long name_uid = post.getLong(AUTHOR_UID);
@@ -60,8 +62,6 @@ public class FacebookPost {
     }
 
     protected Vertex processPostVertex(JSONObject post, Vertex posting, Graph graph, AuditRepository auditRepository, OntologyRepository ontologyRepository, User user, Authorizations authorizations) throws Exception {
-        //TODO set visibility
-        Visibility visibility = new Visibility("");
         Long name_uid = post.getLong(AUTHOR_UID);
         String author_uid = name_uid.toString();
         LOGGER.info("Saving Facebook post to accumulo and as graph vertex: ", posting.getId());
@@ -73,18 +73,18 @@ public class FacebookPost {
         String authorVid = generateUserVertexId(author_uid);
         Vertex queryVertex = graph.getVertex(authorVid, authorizations);
         if (queryVertex == null) {
-            ElementMutation<Vertex> authorBuilder = graph.prepareVertex(authorVid, visibility, authorizations);
-            PROFILE_ID.setProperty(authorBuilder, author_uid, visibility);
-            TITLE.setProperty(authorBuilder, author_uid, visibility);
-            CONCEPT_TYPE.setProperty(authorBuilder, profileConceptId, visibility);
+            ElementMutation<Vertex> authorBuilder = graph.prepareVertex(authorVid, lumifyVisibility.getVisibility(), authorizations);
+            PROFILE_ID.setProperty(authorBuilder, author_uid, lumifyVisibility.getVisibility());
+            TITLE.setProperty(authorBuilder, author_uid, lumifyVisibility.getVisibility());
+            CONCEPT_TYPE.setProperty(authorBuilder, profileConceptId, lumifyVisibility.getVisibility());
             authorVertex = authorBuilder.save();
-            auditRepository.auditVertexElementMutation(authorBuilder, authorVertex, PROCESS, user, visibility);
+            auditRepository.auditVertexElementMutation(authorBuilder, authorVertex, PROCESS, user, lumifyVisibility.getVisibility());
         } else {
             authorVertex = queryVertex;
         }
-        graph.addEdge(authorVertex, posting, POSTED_RELATIONSHIP, visibility, authorizations);
+        graph.addEdge(authorVertex, posting, POSTED_RELATIONSHIP, lumifyVisibility.getVisibility(), authorizations);
         String postedRelationshipLabelDisplayName = ontologyRepository.getDisplayNameForLabel(POSTED_RELATIONSHIP);
-        auditRepository.auditRelationship(AuditAction.CREATE, posting, authorVertex, postedRelationshipLabelDisplayName, PROCESS, "", user, visibility);
+        auditRepository.auditRelationship(AuditAction.CREATE, posting, authorVertex, postedRelationshipLabelDisplayName, PROCESS, "", user, lumifyVisibility.getVisibility());
         graph.flush();
 
         if (post.get(TAGGED_UIDS) instanceof JSONObject) {
@@ -95,18 +95,18 @@ public class FacebookPost {
                 String taggedVid = generateUserVertexId(next);
                 Vertex nextQueryVertex = graph.getVertex(taggedVid, authorizations);
                 if (nextQueryVertex == null) {
-                    ElementMutation<Vertex> taggedBuilder = graph.prepareVertex(taggedVid, visibility, authorizations);
-                    PROFILE_ID.setProperty(taggedBuilder, next, visibility);
-                    TITLE.setProperty(taggedBuilder, next, visibility);
-                    CONCEPT_TYPE.setProperty(taggedBuilder, profileConceptId, visibility);
+                    ElementMutation<Vertex> taggedBuilder = graph.prepareVertex(taggedVid, lumifyVisibility.getVisibility(), authorizations);
+                    PROFILE_ID.setProperty(taggedBuilder, next, lumifyVisibility.getVisibility());
+                    TITLE.setProperty(taggedBuilder, next, lumifyVisibility.getVisibility());
+                    CONCEPT_TYPE.setProperty(taggedBuilder, profileConceptId, lumifyVisibility.getVisibility());
                     taggedVertex = taggedBuilder.save();
-                    auditRepository.auditVertexElementMutation(taggedBuilder, taggedVertex, PROCESS, user, visibility);
+                    auditRepository.auditVertexElementMutation(taggedBuilder, taggedVertex, PROCESS, user, lumifyVisibility.getVisibility());
                 } else {
                     taggedVertex = nextQueryVertex;
                 }
-                graph.addEdge(posting, taggedVertex, MENTIONED_RELATIONSHIP, visibility, authorizations);
+                graph.addEdge(posting, taggedVertex, MENTIONED_RELATIONSHIP, lumifyVisibility.getVisibility(), authorizations);
                 String mentionedRelationshipLabelDisplayName = ontologyRepository.getDisplayNameForLabel(MENTIONED_RELATIONSHIP);
-                auditRepository.auditRelationship(AuditAction.CREATE, posting, taggedVertex, mentionedRelationshipLabelDisplayName, PROCESS, "", user, visibility);
+                auditRepository.auditRelationship(AuditAction.CREATE, posting, taggedVertex, mentionedRelationshipLabelDisplayName, PROCESS, "", user, lumifyVisibility.getVisibility());
                 graph.flush();
             }
         }
@@ -115,8 +115,8 @@ public class FacebookPost {
             JSONObject coordinates = post.getJSONObject(COORDS);
             GeoPoint geo = new GeoPoint(coordinates.getDouble("latitude"), coordinates.getDouble("longitude"));
             ElementMutation<Vertex> postingMutation = posting.prepareMutation();
-            GEO_LOCATION.setProperty(postingMutation, geo, visibility);
-            auditRepository.auditVertexElementMutation(postingMutation, posting, PROCESS, user, visibility);
+            GEO_LOCATION.setProperty(postingMutation, geo, lumifyVisibility.getVisibility());
+            auditRepository.auditVertexElementMutation(postingMutation, posting, PROCESS, user, lumifyVisibility.getVisibility());
             posting = postingMutation.save();
         }
 
