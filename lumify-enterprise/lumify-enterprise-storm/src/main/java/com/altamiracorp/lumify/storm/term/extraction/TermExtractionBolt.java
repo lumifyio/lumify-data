@@ -17,7 +17,12 @@ import com.altamiracorp.lumify.core.util.LumifyLoggerFactory;
 import com.altamiracorp.lumify.core.util.ThreadedInputStreamProcess;
 import com.altamiracorp.lumify.core.util.ThreadedTeeInputStreamWorker;
 import com.altamiracorp.lumify.storm.BaseTextProcessingBolt;
-import com.altamiracorp.securegraph.*;
+import com.altamiracorp.securegraph.Direction;
+import com.altamiracorp.securegraph.Edge;
+import com.altamiracorp.securegraph.Vertex;
+import com.altamiracorp.securegraph.Visibility;
+import com.altamiracorp.securegraph.mutation.ElementMutation;
+import com.altamiracorp.securegraph.mutation.ExistingElementMutation;
 import com.google.common.collect.Lists;
 import org.json.JSONObject;
 

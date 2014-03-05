@@ -11,6 +11,7 @@ import com.altamiracorp.lumify.core.util.LumifyLogger;
 import com.altamiracorp.lumify.core.util.LumifyLoggerFactory;
 import com.altamiracorp.lumify.core.util.RowKeyHelper;
 import com.altamiracorp.securegraph.*;
+import com.altamiracorp.securegraph.mutation.ElementMutation;
 import com.altamiracorp.securegraph.type.GeoPoint;
 import org.apache.commons.io.IOUtils;
 import org.json.JSONObject;
