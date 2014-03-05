@@ -4,8 +4,10 @@ clone_dir=$1
 
 for pid_file in $(ls /vagrant/*.pid); do
   name=$(basename ${pid_file} .pid)
+  echo "checking for running ${name} processes..."
   pid=$(pgrep ${name} || true)
   if [ "${pid}" = "$(cat ${pid_file})" ]; then
+    echo "killing ${pid} and children..."
     pkill -P ${pid} || true
     sleep 3 && pkill -9 -P ${pid} || true
   fi

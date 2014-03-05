@@ -9,3 +9,5 @@ fi
 
 rm -rf ${clone_dir}
 git clone file:///vagrant ${clone_dir} --depth 1
+
+cd ${clone_dir} && git log -n 1
