@@ -152,4 +152,9 @@ class storm(
     target  => $extractdir,
     require => File[$extractdir],
   }
+
+  file { "/etc/security/limits.d/${user}.conf" :
+    ensure => file,
+    content => template('storm/limits.conf.erb'),
+  }
 }
