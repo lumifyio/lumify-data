@@ -9,12 +9,12 @@ else
 fi
 
 npm install
-npm_exit=$?
-echo "npm_exit is: ${npm_exit}"
 
 rm -rf test/reports/*
 
-grunt test:functional --force
-grunt_exit=$?
-echo "grunt_exit is: ${grunt_exit}"
-exit ${grunt_exit}
+grunt test:functional:chrome
+chrome_exit=$?
+grunt test:functional:firefox
+firefox_exit=$?
+
+exit $((${chrome_exit} + ${firefox_exit}))
