@@ -41,6 +41,7 @@ _download lumify/lumify-web-war          "*.war"                  lumify.war
 _download lumify/lumify-account-web      "*.war"                  account.war
 _download bigtable/bigtable-ui-war       "*.war"                  bigtable-ui.war
 _download jmxui/jmx-ui-webapp            "*.war"                  jmx-ui.war
+_download securegraph/securegraph-tools  "*with-dependencies.jar" securegraph-tools.jar
 
 for file in ${FILE_LIST}; do
   _md5 ${file}
