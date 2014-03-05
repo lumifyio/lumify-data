@@ -8,8 +8,7 @@ for pid_file in $(ls /vagrant/*.pid); do
   pid=$(pgrep ${name} || true)
   if [ "${pid}" = "$(cat ${pid_file})" ]; then
     echo "killing ${pid} and children..."
-    pkill -P ${pid} || true
-    sleep 3 && pkill -9 -P ${pid} || true
+    pkill -9 -P ${pid} || true
   fi
   rm -f ${pid_file}
 done
@@ -21,8 +20,7 @@ for port in 8080 8443; do
   if [ "${pid}" ]; then
     echo "killing:"
     lsof -i TCP:${port} -s TCP:LISTEN -P
-    kill ${pid} || true
-    sleep 3 && kill -9 ${pid} || true
+    kill -9 ${pid} || true
   fi
 done
 
