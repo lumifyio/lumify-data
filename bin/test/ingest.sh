@@ -14,6 +14,18 @@ for pid_file in $(ls /vagrant/*.pid); do
   rm -f ${pid_file}
 done
 
+sudo yum install -y lsof
+for port in 8080 8443; do
+  echo "checking for running processes listening on port ${port}..."
+  pid=$(lsof -i TCP:${port} -s TCP:LISTEN -t || true)
+  if [ "${pid}" ]; then
+    echo "killing:"
+    lsof -i TCP:${port} -s TCP:LISTEN -P
+    kill ${pid} || true
+    sleep 3 && kill -9 ${pid} || true
+  fi
+done
+
 cd ${clone_dir} && mvn compile -DskipTests 2>&1 | tee /vagrant/mvn.out
 
 /opt/lumify/format.sh
