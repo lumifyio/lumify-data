@@ -47,11 +47,7 @@ setup
 
 1. web browse to https://demo.lumify.io/admin/uploadOntology.html and upload `dev-ontology.zip`
 
-1. **(OPTIONAL)** import Wikipedia data with storm or map/reduce:
-
-        java -cp lumify-wikipedia.jar:/opt/storm/storm-0.8.1.jar com.altamiracorp.lumify.wikipedia.storm.Import -in /data0/enwiki-20140102-pages-articles.xml
-
-        hadoop jar lumify-wikipedia-mr.jar /lumify/enwiki-20140102-pages-articles.MR.txt
+1. **(OPTIONAL)** [Import Wikipedia data with Map Reduce](../lumify-wikipedia/import-with-map-reduce.md)
 
 1. ssh from the puppet server to the storm nimbus server and run:
 
