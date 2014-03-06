@@ -121,9 +121,10 @@ Vagrant.configure('2') do |config|
   # used for development including closed source enterprise features
   config.vm.define "dev", :primary => true do |dev|
     forward_ports(dev, FORWARD_PORTS)
+    provision_proxy(dev, ENV['PROXY_URL'])
     dev.vm.provision :shell, :inline => "mkdir -p /data0"
     dev.vm.provision :puppet do |puppet|
-      configure_puppet(puppet, 'dev_vm.pp')
+      configure_puppet(puppet, 'dev_vm.pp', ENV['PROXY_URL'])
     end
   end
 
