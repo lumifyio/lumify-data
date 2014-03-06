@@ -28,10 +28,10 @@ end
 hiera = Hash.new
 proxy = get(cluster, /proxy/, :ip)
 hiera['proxy_url'] = 'http://' + proxy + ':8080' if proxy
-hiera['hadoop_masters'] = cluster['namenode'][:ip].to_a
+hiera['hadoop_masters'] = Array(cluster['namenode'][:ip])
 hiera['hadoop_slaves'] = get(cluster, /node\d{2}/, :ip)
 hiera['accumulo_example_config'] = '3GB/native-standalone'
-hiera['accumulo_masters'] = cluster['accumulomaster'][:name].to_a
+hiera['accumulo_masters'] = Array(cluster['accumulomaster'][:name])
 hiera['accumulo_slaves'] = get(cluster, /node\d{2}/, :name)
 zk_port = 2181
 zk_nodes = Hash.new
