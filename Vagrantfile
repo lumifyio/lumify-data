@@ -1,31 +1,85 @@
 # -*- mode: ruby -*-
 # vi: set ft=ruby :
 
-HOSTNAME="lumify-vm.lumify.io"
+HOSTNAME = "lumify-vm.lumify.io"
 
-def configure_puppet(puppet, manifest_file)
-  puppet.manifests_path = 'puppet/manifests'
-  puppet.module_path    = [ 'puppet/modules', 'puppet/puppet-modules' ]
-  puppet.manifest_file  = manifest_file
-  puppet.facter         = { 'fqdn' => HOSTNAME }
-  puppet.options        = '--hiera_config /vagrant/puppet/hiera-vm.yaml'
+FORWARD_PORTS = {
+  [8020, 40400, 50070]         => 'hadoop namenode',
+  [50090, 56456]               => 'hadoop secondarynamenode',
+  [8021, 37567, 50030]         => 'hadoop jobtracker',
+  [50010, 50020, 50075, 51244] => 'hadoop datanaode',
+  [34081, 50060]               => 'hadoop tasktracker',
+  [2181, 2888, 3888]           => 'zookeepr',
+  9997                         => 'accumulo tserver',
+  9999                         => 'accumulo master',
+  [4560, 50095]                => 'accumulo monitor',
+  [9200, 9300]                 => 'elasticsearch',
+  9092                         => 'kafka',
+  8081                         => 'storm ui',
+  6627                         => 'storm nimbus',
+  [6700, 6701, 6702, 6703]     => 'storm supervisor',
+  [8080, 8443]                 => 'jetty',
+}
+
+def forward_ports(config, port_hash)
+  port_hash.keys.flatten.each do |port|
+    config.vm.network :forwarded_port, :guest => port, :host => port, :auto_correct => true
+  end
+end
+
+def provision_proxy(config, proxy_url)
+  if proxy_url
+    protocol, host, port = proxy_url.match(/(.+):\/\/(.+):(\d+)/).captures
+    settings_xml = """<settings>
+  <proxies>
+   <proxy>
+      <active>true</active>
+      <protocol>#{protocol}</protocol>
+      <host>#{host}</host>
+      <port>#{port}</port>
+    </proxy>
+  </proxies>
+</settings>"""
+    config.vm.provision :shell, :inline => "echo 'proxy=#{proxy_url}' >> /etc/yum.conf"
+    config.vm.provision :shell, :inline => "for repo in /etc/yum.repos.d/*.repo; do sed -i -e 's/mirrorlist=/#mirrorlist=/' -e 's/#baseurl=/baseurl=/' ${repo}; done"
+    config.vm.provision :shell, :inline => "mkdir -p ${HOME}/.m2 && echo '#{settings_xml}' > ${HOME}/.m2/settings.xml", :privileged => false
+    config.vm.provision :shell, :inline => "echo 'registry = http://registry.npmjs.org/' >> /usr/etc/npmrc"
+    config.vm.provision :shell, :inline => "echo 'proxy = #{proxy_url}' >> /usr/etc/npmrc"
+  else
+    config.vm.provision :shell, :inline => "sed -i -e '/^proxy=/d' /etc/yum.conf"
+    config.vm.provision :shell, :inline => "for repo in /etc/yum.repos.d/*.repo; do sed -i -e 's/#mirrorlist=/mirrorlist=/' -e 's/baseurl=/#baseurl=/' ${repo}; done"
+    config.vm.provision :shell, :inline => "rm -f ${HOME}/.m2/settings.xml", :privileged => false
+    config.vm.provision :shell, :inline => "[ -f /usr/etc/npmrc ] && sed -i -e '/^registry =/d' /usr/etc/npmrc || true"
+    config.vm.provision :shell, :inline => "[ -f /usr/etc/npmrc ] && sed -i -e '/^proxy =/d' /usr/etc/npmrc || true"
+  end
+end
+
+def configure_puppet(puppet, manifest_file, proxy_url=nil)
+  puppet.manifests_path      = 'puppet/manifests'
+  puppet.module_path         = [ 'puppet/modules', 'puppet/puppet-modules' ]
+  puppet.hiera_config_path   = 'puppet/hiera-vm.yaml'
+  puppet.manifest_file       = manifest_file
+  puppet.facter['fqdn']      = HOSTNAME
+  puppet.facter['proxy_url'] = proxy_url if proxy_url
 end
 
 Vagrant.configure('2') do |config|
   config.vm.box = 'centos6.4'
   config.vm.box_url = 'http://developer.nrel.gov/downloads/vagrant-boxes/CentOS-6.4-x86_64-v20130427.box'
+  #config.vm.box = 'centos6.4-i386'
+  #config.vm.box_url = 'http://developer.nrel.gov/downloads/vagrant-boxes/CentOS-6.4-i386-v20130731.box'
 
   config.vm.hostname = HOSTNAME
 
   # Create a forwarded port mapping which allows access to a specific port
   # within the machine from a port on the host machine. In the example below,
   # accessing "localhost:8080" will access port 80 on the guest machine.
-  config.vm.network :forwarded_port, :guest => 8080, :host => 8080
-  config.vm.network :forwarded_port, :guest => 8443, :host => 8443
+  # config.vm.network :forwarded_port, :guest => 8080, :host => 8080
+  # config.vm.network :forwarded_port, :guest => 8443, :host => 8443
 
   # Create a private network, which allows host-only access to the machine
   # using a specific IP.
-  config.vm.network :private_network, :ip => '192.168.33.10'
+  # config.vm.network :private_network, :ip => '192.168.33.10'
 
   # Create a public network, which generally matched to bridged network.
   # Bridged networks make the machine appear as another physical device on
@@ -66,24 +120,40 @@ Vagrant.configure('2') do |config|
 
   # used for development including closed source enterprise features
   config.vm.define "dev", :primary => true do |dev|
-    dev.vm.provision :shell, :inline => "mkdir -p /data0 /opt/lumify /opt/lumify/logs"
+    forward_ports(dev, FORWARD_PORTS)
+    provision_proxy(dev, ENV['PROXY_URL'])
+    dev.vm.provision :shell, :inline => "mkdir -p /data0"
     dev.vm.provision :puppet do |puppet|
-      configure_puppet(puppet, 'dev_vm.pp')
+      configure_puppet(puppet, 'dev_vm.pp', ENV['PROXY_URL'])
     end
+  end
+
+  # used for automated integration testing
+  config.vm.define "test" do |test|
+    forward_ports(test, FORWARD_PORTS)
+    provision_proxy(test, ENV['PROXY_URL'])
+    test.vm.provision :shell, :inline => "mkdir -p /data0"
+    test.vm.provision :puppet do |puppet|
+      configure_puppet(puppet, 'dev_vm.pp', ENV['PROXY_URL'])
+    end
+    test.vm.provision :shell, :path => "bin/test/clone.sh", :args => '/tmp/lumify-all', :privileged => false
+    test.vm.provision :shell, :path => "bin/test/ingest.sh", :args => '/tmp/lumify-all', :privileged => false
   end
 
   # used to create the downloadable open source demo VM
   config.vm.define "demo-opensource" do |demo|
-    demo.vm.provision :shell, :inline => "mkdir -p /data0 /opt/lumify /opt/lumify/logs"
+    forward_ports(demo, FORWARD_PORTS)
+    demo.vm.provision :shell, :inline => "mkdir -p /data0"
     demo.vm.provision :puppet do |puppet|
       configure_puppet(puppet, 'demo_opensource_vm.pp')
     end
-    demo.vm.provision :shell, :path => "demo-vm/configure-vm.sh", :args => "opensource sample-data-html.tgz" 
+    demo.vm.provision :shell, :path => "demo-vm/configure-vm.sh", :args => "opensource sample-data-html.tgz"
   end
 
-  # used to create the downloadable enterprise demo VM
+  # used to create an enterprise demo VM
   config.vm.define "demo-enterprise" do |demo|
-    demo.vm.provision :shell, :inline => "mkdir -p /data0 /opt/lumify /opt/lumify/logs"
+    forward_ports(demo, FORWARD_PORTS)
+    demo.vm.provision :shell, :inline => "mkdir -p /data0"
     demo.vm.provision :puppet do |puppet|
       configure_puppet(puppet, 'demo_enterprise_vm.pp')
     end

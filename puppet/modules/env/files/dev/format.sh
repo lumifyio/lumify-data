@@ -33,7 +33,7 @@ sudo -u hdfs hadoop fs -mkdir /lumify/config/opencv
 sudo -u hdfs hadoop fs -put /vagrant/config/opencv/* /lumify/config/opencv
 
 /opt/lumify/start.sh elasticsearch
-until curl -XDELETE "http://localhost:9200/_all"; do
+until curl -XDELETE "http://$(facter ipaddress_eth0):9200/_all"; do
 	echo "Cannot connect to Elasticsearch, waiting 2 seconds before trying again"
 	sleep 2
 done

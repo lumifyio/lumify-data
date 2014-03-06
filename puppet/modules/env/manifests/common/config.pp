@@ -12,7 +12,7 @@ class env::common::config {
 
   file { '/opt/lumify/config/log4j.xml' :
     ensure => file,
-    source => 'puppet:///modules/env/cluster/log4j.xml',
+    source => 'puppet:///modules/env/common/log4j.xml',
     require => File['/opt/lumify/config'],
   }
 

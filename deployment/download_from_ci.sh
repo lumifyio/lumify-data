@@ -29,18 +29,19 @@ function _md5 {
   fi
 }
 
-
-_download lumify/lumify-enterprise-tools "*with-dependencies.jar" lumify-enterprise-tools.jar
-_download lumify/lumify-storm            "*with-dependencies.jar" lumify-storm.jar
-_download lumify/lumify-enterprise-storm "*with-dependencies.jar" lumify-enterprise-storm.jar
-_download lumify/lumify-twitter          "*with-dependencies.jar" lumify-twitter.jar
-_download lumify/lumify-facebook         "*with-dependencies.jar" lumify-facebook.jar
-_download lumify/lumify-wikipedia-storm  "*with-dependencies.jar" lumify-wikipedia-storm.jar
-_download lumify/lumify-wikipedia-mr     "*with-dependencies.jar" lumify-wikipedia-mr.jar
-_download lumify/lumify-web-war          "*.war"                  lumify.war
-_download lumify/lumify-account-web      "*.war"                  account.war
-_download bigtable/bigtable-ui-war       "*.war"                  bigtable-ui.war
-_download jmxui/jmx-ui-webapp            "*.war"                  jmx-ui.war
+_download lumify/lumify-account-web       "*.war"                  account.war
+_download lumify/lumify-enterprise-storm  "*with-dependencies.jar" lumify-enterprise-storm.jar
+_download lumify/lumify-enterprise-tools  "*with-dependencies.jar" lumify-enterprise-tools.jar
+_download lumify/lumify-facebook          "*with-dependencies.jar" lumify-facebook.jar
+_download lumify/lumify-storm             "*with-dependencies.jar" lumify-storm.jar
+_download lumify/lumify-twitter           "*with-dependencies.jar" lumify-twitter.jar
+_download lumify/lumify-version-inspector "*with-dependencies.jar" lumify-version.jar
+_download lumify/lumify-web-war           "*.war"                  lumify.war
+_download lumify/lumify-wikipedia-mr      "*with-dependencies.jar" lumify-wikipedia-mr.jar
+_download lumify/lumify-wikipedia-storm   "*with-dependencies.jar" lumify-wikipedia-storm.jar
+_download bigtable/bigtable-ui-war        "*.war"                  bigtable-ui.war
+_download jmxui/jmx-ui-webapp             "*.war"                  jmx-ui.war
+_download securegraph/securegraph-tools   "*with-dependencies.jar" securegraph-tools.jar
 
 for file in ${FILE_LIST}; do
   _md5 ${file}
