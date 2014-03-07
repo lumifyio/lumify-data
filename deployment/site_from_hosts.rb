@@ -2,6 +2,7 @@
 
 MAP = {
   'puppet'            => ['include env::cluster::puppetmaster'],
+  'syslog'            => ['include env::cluster::syslog'],
   /^namenode/         => ['include env::cluster::hadoop_master'],
   'secondarynamenode' => ['include env::cluster::hadoop_secondary'],
   'accumulomaster'    => ['include env::cluster::accumulo_master'],

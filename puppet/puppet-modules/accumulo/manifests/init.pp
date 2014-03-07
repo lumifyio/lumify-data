@@ -39,7 +39,7 @@ class accumulo(
     require => Package[$hadoop::pkg],
   }
 
-  macro::download { "http://apache.mirrors.tds.net/accumulo/${version}/${downloadfile}":
+  macro::download { "http://archive.apache.org/dist/accumulo/${version}/${downloadfile}":
     path    => $downloadpath,
     require => User[$user],
   } -> macro::extract { $downloadpath:

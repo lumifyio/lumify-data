@@ -168,7 +168,7 @@ function _accumulo_status {
   ssh ${SSH_OPTS} root@$(_accumulomaster) initctl status accumulo-tracer
 
   for node in $(_nodes); do
-    echo ${node}
+    echo -n "${node}: "
     ssh ${SSH_OPTS} root@${node} initctl status accumulo-tserver
   done
 }
@@ -228,7 +228,7 @@ function _jetty_stop {
 
 function _jetty_status {
   for webserver in $(_webservers); do
-    echo -n "${webserver}: "
+    echo "${webserver}:"
     ssh ${SSH_OPTS} root@${webserver} service jetty status
   done
 }

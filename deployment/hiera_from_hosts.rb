@@ -28,10 +28,10 @@ end
 hiera = Hash.new
 proxy = get(cluster, /proxy/, :ip)
 hiera['proxy_url'] = 'http://' + proxy + ':8080' if proxy
-hiera['hadoop_masters'] = cluster['namenode'][:ip].to_a
+hiera['hadoop_masters'] = Array(cluster['namenode'][:ip])
 hiera['hadoop_slaves'] = get(cluster, /node\d{2}/, :ip)
 hiera['accumulo_example_config'] = '3GB/native-standalone'
-hiera['accumulo_masters'] = cluster['accumulomaster'][:name].to_a
+hiera['accumulo_masters'] = Array(cluster['accumulomaster'][:name])
 hiera['accumulo_slaves'] = get(cluster, /node\d{2}/, :name)
 zk_port = 2181
 zk_nodes = Hash.new
@@ -43,7 +43,7 @@ hiera['zookeeper_port'] = zk_port
 hiera['zookeeper_nodes'] = zk_nodes
 hiera['namenode_ipaddress'] = cluster['namenode'][:ip]
 hiera['namenode_hostname'] = 'namenode'
-hiera['elasticsearch_locations'] = get(cluster, /node\d{2}/, :ip).collect{|ip| "#{ip}:9300"}
+hiera['elasticsearch_locations'] = Array(get(cluster, /node\d{2}/, :ip)).collect{|ip| "#{ip}:9300"}
 kafka_nodes = Hash.new
 cluster.select{|k,v| k.match(/kafka\d/)}.each do |k,v|
   n = k.match(/kafka(\d{2})/).captures[0].to_i

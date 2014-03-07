@@ -22,4 +22,10 @@ class buildtools::epel($proxy_url = nil) {
     unless => '/bin/rpm -q epel-release-6-8',
   }
 
+  if $rpm_environment =~ /^http_proxy=/ {
+    exec { 'epel-disable-mirrorlist' :
+      command => "/bin/sed -i -e 's/mirrorlist=/#mirrorlist=/' -e 's/#baseurl=/baseurl=/' /etc/yum.repos.d/epel*.repo",
+      require => Exec['epel'],
+    }
+  }
 }
