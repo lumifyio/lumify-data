@@ -52,7 +52,7 @@ class env::demo {
   }
 
   host { 'lumify-vm' :
-    ip => $ipaddress_eth0,
+    ip => $ipaddress_eth1,
     host_aliases => 'lumify-vm.lumify.io',
   }
 
