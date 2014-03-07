@@ -23,6 +23,7 @@ import org.xml.sax.ContentHandler;
 import java.io.*;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.nio.charset.Charset;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
@@ -91,10 +92,11 @@ public class TikaTextExtractor {
         // since we are using the AutoDetectParser, it is safe to assume that
         //the Content-Type metadata key will always return a value
         ByteArrayOutputStream out = new ByteArrayOutputStream();
-        Writer writer = new OutputStreamWriter(out, "UTF-8");
+        Charset charset = Charset.forName("UTF-8");
+        Writer writer = new OutputStreamWriter(out, charset);
         ContentHandler handler = new BodyContentHandler(writer);
         parser.parse(new ByteArrayInputStream(input), handler, metadata, ctx);
-        String bodyContent = new String(out.toByteArray());
+        String bodyContent = new String(out.toByteArray(), charset);
 
         if (isHtml(mimeType)) {
             text = extractTextFromHtml(IOUtils.toString(new ByteArrayInputStream(input)));
