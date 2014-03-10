@@ -15,7 +15,7 @@ def ensure_private_network(private_network_ip)
   three_octets = (private_network_ip || DEFAULT_PRIVATE_NETWORK_IP).match(/(\d+\.\d+\.\d+)\.\d+/).captures[0]
   unless `VBoxManage list hostonlyifs`.lines.any? {|line| line.match(three_octets)}
     new_if = `VBoxManage hostonlyif create`.match(/Interface '(.*)' was successfully created/).captures[0]
-    `VBoxManage hostonlyif ipconfig #{new_if} --ip #{three_octets}.1`
+    `VBoxManage hostonlyif ipconfig "#{new_if}" --ip #{three_octets}.1`
   end
 end
 
