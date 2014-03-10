@@ -34,7 +34,7 @@
         <nekohtml.version>1.9.18</nekohtml.version>
         <opencv.version>2.4.5</opencv.version>
         <opennlp.version>1.5.3</opennlp.version>
-        <tika.version>1.4</tika.version>
+        <tika.version>1.5</tika.version>
         <tess4j.version>1.1</tess4j.version>
         <supercsv.version>2.1.0</supercsv.version>
 

@@ -3,28 +3,10 @@
 
 HOSTNAME = "lumify-vm.lumify.io"
 
-FORWARD_PORTS = {
-  [8020, 40400, 50070]         => 'hadoop namenode',
-  [50090, 56456]               => 'hadoop secondarynamenode',
-  [8021, 37567, 50030]         => 'hadoop jobtracker',
-  [50010, 50020, 50075, 51244] => 'hadoop datanaode',
-  [34081, 50060]               => 'hadoop tasktracker',
-  [2181, 2888, 3888]           => 'zookeepr',
-  9997                         => 'accumulo tserver',
-  9999                         => 'accumulo master',
-  [4560, 50095]                => 'accumulo monitor',
-  [9200, 9300]                 => 'elasticsearch',
-  9092                         => 'kafka',
-  8081                         => 'storm ui',
-  6627                         => 'storm nimbus',
-  [6700, 6701, 6702, 6703]     => 'storm supervisor',
-  [8080, 8443]                 => 'jetty',
-}
-
-def forward_ports(config, port_hash)
-  port_hash.keys.flatten.each do |port|
-    config.vm.network :forwarded_port, :guest => port, :host => port, :auto_correct => true
-  end
+def configure_network(config, private_network_ip)
+  config.vm.network :forwarded_port, :guest => 8080, :host => 8080, :auto_correct => true
+  config.vm.network :forwarded_port, :guest => 8443, :host => 8443, :auto_correct => true
+  config.vm.network :private_network, :ip => private_network_ip || '192.168.33.10'
 end
 
 def provision_proxy(config, proxy_url)
@@ -120,7 +102,7 @@ Vagrant.configure('2') do |config|
 
   # used for development including closed source enterprise features
   config.vm.define "dev", :primary => true do |dev|
-    forward_ports(dev, FORWARD_PORTS)
+    configure_network(dev, ENV['PRIVATE_NETWORK_IP'])
     provision_proxy(dev, ENV['PROXY_URL'])
     dev.vm.provision :shell, :inline => "mkdir -p /data0"
     dev.vm.provision :puppet do |puppet|
@@ -130,7 +112,7 @@ Vagrant.configure('2') do |config|
 
   # used for automated integration testing
   config.vm.define "test" do |test|
-    forward_ports(test, FORWARD_PORTS)
+    configure_network(test, ENV['PRIVATE_NETWORK_IP'])
     provision_proxy(test, ENV['PROXY_URL'])
     test.vm.provision :shell, :inline => "mkdir -p /data0"
     test.vm.provision :puppet do |puppet|
@@ -142,20 +124,22 @@ Vagrant.configure('2') do |config|
 
   # used to create the downloadable open source demo VM
   config.vm.define "demo-opensource" do |demo|
-    forward_ports(demo, FORWARD_PORTS)
+    configure_network(demo, ENV['PRIVATE_NETWORK_IP'])
+    provision_proxy(demo, ENV['PROXY_URL'])
     demo.vm.provision :shell, :inline => "mkdir -p /data0"
     demo.vm.provision :puppet do |puppet|
-      configure_puppet(puppet, 'demo_opensource_vm.pp')
+      configure_puppet(puppet, 'demo_opensource_vm.pp', ENV['PROXY_URL'])
     end
     demo.vm.provision :shell, :path => "demo-vm/configure-vm.sh", :args => "opensource sample-data-html.tgz"
   end
 
   # used to create an enterprise demo VM
   config.vm.define "demo-enterprise" do |demo|
-    forward_ports(demo, FORWARD_PORTS)
+    configure_network(demo, ENV['PRIVATE_NETWORK_IP'])
+    provision_proxy(demo, ENV['PROXY_URL'])
     demo.vm.provision :shell, :inline => "mkdir -p /data0"
     demo.vm.provision :puppet do |puppet|
-      configure_puppet(puppet, 'demo_enterprise_vm.pp')
+      configure_puppet(puppet, 'demo_enterprise_vm.pp', ENV['PROXY_URL'])
     end
     demo.vm.provision :shell, :path => "demo-vm/configure-vm.sh", :args => "enterprise chechen-terrorists.tgz"
   end

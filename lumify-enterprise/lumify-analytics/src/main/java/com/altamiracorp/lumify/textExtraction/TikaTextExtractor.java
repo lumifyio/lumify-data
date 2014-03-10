@@ -2,7 +2,6 @@ package com.altamiracorp.lumify.textExtraction;
 
 import com.altamiracorp.lumify.core.ingest.ArtifactExtractedInfo;
 import com.altamiracorp.lumify.core.model.ontology.DisplayType;
-import com.altamiracorp.lumify.core.model.ontology.OntologyRepository;
 import com.altamiracorp.lumify.core.util.LumifyLogger;
 import com.altamiracorp.lumify.core.util.LumifyLoggerFactory;
 import com.altamiracorp.lumify.textExtraction.util.GenericDateExtractor;
@@ -21,12 +20,10 @@ import org.json.JSONException;
 import org.json.JSONObject;
 import org.xml.sax.ContentHandler;
 
-import java.io.ByteArrayInputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
+import java.io.*;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.nio.charset.Charset;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
@@ -47,7 +44,6 @@ public class TikaTextExtractor {
     private static final String SRC_TYPE_KEYS_PROPERTY = "tika.extraction.srctypekeys";
     private static final String RETRIEVAL_TIMESTAMP_KEYS_PROPERTY = "tika.extraction.retrievaltimestampkeys";
     private static final String CUSTOM_FLICKR_METADATA_KEYS_PROPERTY = "tika.extraction.customflickrmetadatakeys";
-    public static final int TIKA_WRITE_LIMIT = 1 * 1000 * 1000;
 
     private List<String> dateKeys;
     private List<String> subjectKeys;
@@ -58,7 +54,6 @@ public class TikaTextExtractor {
     private List<String> retrievalTimestampKeys;
     private List<String> customFlickrMetadataKeys;
     private List<String> authorKeys;
-    private OntologyRepository ontologyRepository;
 
     @Inject
     public TikaTextExtractor() {
@@ -96,16 +91,20 @@ public class TikaTextExtractor {
         byte[] input = IOUtils.toByteArray(in);
         // since we are using the AutoDetectParser, it is safe to assume that
         //the Content-Type metadata key will always return a value
-        ContentHandler handler = new BodyContentHandler(TIKA_WRITE_LIMIT);
+        ByteArrayOutputStream out = new ByteArrayOutputStream();
+        Charset charset = Charset.forName("UTF-8");
+        Writer writer = new OutputStreamWriter(out, charset);
+        ContentHandler handler = new BodyContentHandler(writer);
         parser.parse(new ByteArrayInputStream(input), handler, metadata, ctx);
+        String bodyContent = new String(out.toByteArray(), charset);
 
         if (isHtml(mimeType)) {
             text = extractTextFromHtml(IOUtils.toString(new ByteArrayInputStream(input)));
             if (text == null || text.length() == 0) {
-                text = cleanExtractedText(handler.toString());
+                text = cleanExtractedText(bodyContent);
             }
         } else {
-            text = cleanExtractedText(handler.toString());
+            text = cleanExtractedText(bodyContent);
         }
         textOut.write(text.getBytes());
 
@@ -231,10 +230,5 @@ public class TikaTextExtractor {
             }
         }
         return trimmedText.toString().replaceAll("\\n{3,}", "\n\n");
-    }
-
-    @Inject
-    public void setOntologyRepository (OntologyRepository ontologyRepository) {
-        this.ontologyRepository = ontologyRepository;
     }
 }

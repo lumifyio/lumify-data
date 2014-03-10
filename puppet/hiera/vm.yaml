@@ -1,24 +1,24 @@
 ---
 # proxy_url: 'http://nic-isa:8080'
 hadoop_masters:
-  - %{ipaddress_eth0}
+  - %{ipaddress_eth1}
 hadoop_slaves:
-  - %{ipaddress_eth0}
+  - %{ipaddress_eth1}
 accumulo_example_config: 512MB/native-standalone
 accumulo_masters:
-  - %{ipaddress_eth0}
+  - %{ipaddress_eth1}
 accumulo_slaves:
-  - %{ipaddress_eth0}
+  - %{ipaddress_eth1}
 zookeeper_port: 2181
 zookeeper_nodes:
-  1: %{ipaddress_eth0}:2181
-namenode_ipaddress: %{ipaddress_eth0}
+  1: %{ipaddress_eth1}:2181
+namenode_ipaddress: %{ipaddress_eth1}
 namenode_hostname: lumify-vm.lumify.io
 elasticsearch_locations:
-  - %{ipaddress_eth0}:9300
+  - %{ipaddress_eth1}:9300
 kafka_host_ipaddresses:
-  1:  %{ipaddress_eth0}
-storm_nimbus_host: %{ipaddress_eth0}
+  1: %{ipaddress_eth1}
+storm_nimbus_host: %{ipaddress_eth1}
 storm_nimbus_thrift_port: 6627
 storm_supervisor_slots_ports: [6700, 6701, 6702, 6703]
 storm_ui_port: 8081
