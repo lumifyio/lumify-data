@@ -2,37 +2,61 @@
 # vi: set ft=ruby :
 
 HOSTNAME = "lumify-vm.lumify.io"
+DEFAULT_PRIVATE_NETWORK_IP = '192.168.33.10'
+
+def format_script(input)
+  input.split(/\n/).collect do |line|
+    line.strip!
+    line.length > 0 ? line : nil
+  end.compact.join("\n")
+end
+
+def ensure_private_network(private_network_ip)
+  three_octets = (private_network_ip || DEFAULT_PRIVATE_NETWORK_IP).match(/(\d+\.\d+\.\d+)\.\d+/).captures[0]
+  unless `VBoxManage list hostonlyifs`.lines.any? {|line| line.match(three_octets)}
+    new_if = `VBoxManage hostonlyif create`.match(/Interface '(.*)' was successfully created/).captures[0]
+    `VBoxManage hostonlyif ipconfig #{new_if} --ip #{three_octets}.1`
+  end
+end
 
 def configure_network(config, private_network_ip)
   config.vm.network :forwarded_port, :guest => 8080, :host => 8080, :auto_correct => true
   config.vm.network :forwarded_port, :guest => 8443, :host => 8443, :auto_correct => true
-  config.vm.network :private_network, :ip => private_network_ip || '192.168.33.10'
+  config.vm.network :private_network, :ip => private_network_ip || DEFAULT_PRIVATE_NETWORK_IP
 end
 
 def provision_proxy(config, proxy_url)
   if proxy_url
     protocol, host, port = proxy_url.match(/(.+):\/\/(.+):(\d+)/).captures
-    settings_xml = """<settings>
-  <proxies>
-   <proxy>
-      <active>true</active>
-      <protocol>#{protocol}</protocol>
-      <host>#{host}</host>
-      <port>#{port}</port>
-    </proxy>
-  </proxies>
-</settings>"""
-    config.vm.provision :shell, :inline => "echo 'proxy=#{proxy_url}' >> /etc/yum.conf"
-    config.vm.provision :shell, :inline => "for repo in /etc/yum.repos.d/*.repo; do sed -i -e 's/mirrorlist=/#mirrorlist=/' -e 's/#baseurl=/baseurl=/' ${repo}; done"
+    settings_xml = """
+      <settings>
+        <proxies>
+          <proxy>
+            <active>true</active>
+            <protocol>#{protocol}</protocol>
+            <host>#{host}</host>
+            <port>#{port}</port>
+          </proxy>
+        </proxies>
+      </settings>
+    """
+    script = """
+      echo 'proxy=#{proxy_url}' >> /etc/yum.conf
+      for repo in /etc/yum.repos.d/*.repo; do sed -i -e 's/mirrorlist=/#mirrorlist=/' -e 's/#baseurl=/baseurl=/' ${repo}; done
+      echo 'registry = http://registry.npmjs.org/' >> /usr/etc/npmrc
+      echo 'proxy = #{proxy_url}' >> /usr/etc/npmrc
+    """
+    config.vm.provision :shell, :inline => format_script(script)
     config.vm.provision :shell, :inline => "mkdir -p ${HOME}/.m2 && echo '#{settings_xml}' > ${HOME}/.m2/settings.xml", :privileged => false
-    config.vm.provision :shell, :inline => "echo 'registry = http://registry.npmjs.org/' >> /usr/etc/npmrc"
-    config.vm.provision :shell, :inline => "echo 'proxy = #{proxy_url}' >> /usr/etc/npmrc"
   else
-    config.vm.provision :shell, :inline => "sed -i -e '/^proxy=/d' /etc/yum.conf"
-    config.vm.provision :shell, :inline => "for repo in /etc/yum.repos.d/*.repo; do sed -i -e 's/#mirrorlist=/mirrorlist=/' -e 's/baseurl=/#baseurl=/' ${repo}; done"
+    script = """
+      sed -i -e '/^proxy=/d' /etc/yum.conf
+      for repo in /etc/yum.repos.d/*.repo; do sed -i -e 's/#mirrorlist=/mirrorlist=/' -e 's/baseurl=/#baseurl=/' ${repo}; done
+      [ -f /usr/etc/npmrc ] && sed -i -e '/^registry =/d' /usr/etc/npmrc || true
+      [ -f /usr/etc/npmrc ] && sed -i -e '/^proxy =/d' /usr/etc/npmrc || true
+    """
+    config.vm.provision :shell, :inline => format_script(script)
     config.vm.provision :shell, :inline => "rm -f ${HOME}/.m2/settings.xml", :privileged => false
-    config.vm.provision :shell, :inline => "[ -f /usr/etc/npmrc ] && sed -i -e '/^registry =/d' /usr/etc/npmrc || true"
-    config.vm.provision :shell, :inline => "[ -f /usr/etc/npmrc ] && sed -i -e '/^proxy =/d' /usr/etc/npmrc || true"
   end
 end
 
@@ -79,6 +103,7 @@ Vagrant.configure('2') do |config|
   # Example for VirtualBox:
   #
   config.vm.provider :virtualbox do |vb|
+    ensure_private_network(ENV['PRIVATE_NETWORK_IP'])
     vb.customize ["modifyvm", :id, '--memory', '4096']
     vb.customize ["modifyvm", :id, '--cpus', '2']
   end
@@ -95,9 +120,12 @@ Vagrant.configure('2') do |config|
   config.vm.define "puppet" do |puppet|
     puppet.vm.hostname = 'puppet'
     puppet.vm.network :public_network, :ip => '10.0.1.200'
-    puppet.vm.provision :shell, :inline => "yum install -y git"
-    puppet.vm.provision :shell, :inline => "cd /vagrant/deployment && ./push.sh - physical/smmc_hosts"
-    puppet.vm.provision :shell, :inline => "cd && ./init.sh smmc_hosts local"
+    script = """
+      yum install -y git
+      cd /vagrant/deployment && ./push.sh - physical/smmc_hosts
+      cd && ./init.sh smmc_hosts local
+    """
+    puppet.vm.provision :shell, :inline => format_script(script)
   end
 
   # used for development including closed source enterprise features
