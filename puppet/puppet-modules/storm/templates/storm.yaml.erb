@@ -28,4 +28,4 @@ java.library.path: "/usr/lib:/usr/local/lib:/usr/local/share/OpenCV/java"
 #     - "server2"
 
 # enable jmx on workers
-worker.childopts: " -Xmx1024m -XX:MaxPermSize=512m -Dcom.sun.management.jmxremote.ssl=false -Dcom.sun.management.jmxremote.authenticate=false -Dcom.sun.management.jmxremote.port=1%ID% -javaagent:<%= @java_agent_jar %> -Dch.ledcom.agent.jmx.port=2%ID% "
+worker.childopts: " -Dfile.encoding=UTF-8 -Xmx1024m -XX:MaxPermSize=512m -Dcom.sun.management.jmxremote.ssl=false -Dcom.sun.management.jmxremote.authenticate=false -Dcom.sun.management.jmxremote.port=1%ID% -javaagent:<%= @java_agent_jar %> -Dch.ledcom.agent.jmx.port=2%ID% "
