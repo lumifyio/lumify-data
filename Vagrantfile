@@ -70,10 +70,13 @@ def configure_puppet(puppet, manifest_file, proxy_url=nil)
 end
 
 Vagrant.configure('2') do |config|
-  config.vm.box = 'centos6.4'
-  config.vm.box_url = 'http://developer.nrel.gov/downloads/vagrant-boxes/CentOS-6.4-x86_64-v20130427.box'
-  #config.vm.box = 'centos6.4-i386'
-  #config.vm.box_url = 'http://developer.nrel.gov/downloads/vagrant-boxes/CentOS-6.4-i386-v20130731.box'
+  if 1.size == 4 || (ENV['VM_ARCH'] && ENV['VM_ARCH'] == 'i386')
+    config.vm.box = 'centos6.4-i386'
+    config.vm.box_url = 'http://developer.nrel.gov/downloads/vagrant-boxes/CentOS-6.4-i386-v20130731.box'
+  else
+    config.vm.box = 'centos6.4'
+    config.vm.box_url = 'http://developer.nrel.gov/downloads/vagrant-boxes/CentOS-6.4-x86_64-v20130427.box'
+  end
 
   config.vm.hostname = HOSTNAME
 
