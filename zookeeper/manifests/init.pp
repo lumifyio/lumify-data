@@ -12,6 +12,8 @@ class zookeeper {
     $zookeeper_node_ip = $ipaddress_bond0
   } elsif $interfaces =~ /eth1/ {
     $zookeeper_node_ip = $ipaddress_eth1
+  } elsif $interfaces =~ /em2/ {
+    $zookeeper_node_ip = $ipaddress_em2
   } else {
     $zookeeper_node_ip = $ipaddress_eth0
   }
