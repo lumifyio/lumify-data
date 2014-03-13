@@ -63,7 +63,7 @@
 
   <property>
     <name>tserver.memory.maps.max</name>
-    <value>1G</value>
+    <value><%= @architecture == 'i386' ? '512M' : '1G' %></value>
   </property>
 
   <property>
