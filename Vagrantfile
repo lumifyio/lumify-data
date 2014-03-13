@@ -70,7 +70,7 @@ def configure_puppet(puppet, manifest_file, proxy_url=nil)
 end
 
 Vagrant.configure('2') do |config|
-  if Config::CONFIG['host_cpu'] == 'i386' || (ENV['VM_ARCH'] && ENV['VM_ARCH'] == 'i386')
+  if RbConfig::CONFIG['host_cpu'] == 'i386' || (ENV['VM_ARCH'] && ENV['VM_ARCH'] == 'i386')
     config.vm.box = 'centos6.4-i386'
     config.vm.box_url = 'http://developer.nrel.gov/downloads/vagrant-boxes/CentOS-6.4-i386-v20130731.box'
   else
