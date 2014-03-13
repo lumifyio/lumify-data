@@ -1,5 +1,5 @@
 class accumulo(
-  $version = "1.5.0",
+  $version = "1.5.1",
   $user = "accumulo",
   $group = "hadoop",
   $installdir = "/usr/lib",
