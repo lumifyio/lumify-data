@@ -3,6 +3,7 @@ class buildtools($tmpdir="/usr/local/src") {
   $mavenVersion = '3.0.5'
 
   include epel
+  include unzip
 
   package { 'yasm' :
     ensure => present,
@@ -46,10 +47,6 @@ class buildtools($tmpdir="/usr/local/src") {
   }
 
   package { 'zlib-devel':
-    ensure => present,
-  }
-
-  package { 'unzip':
     ensure => present,
   }
 
