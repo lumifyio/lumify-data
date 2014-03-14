@@ -41,4 +41,21 @@
      <name>dfs.webhdfs.enabled</name>
      <value>true</value>
   </property>
+
+  <property>
+     <name>dfs.namenode.rpc-address</name>
+     <value><%= @namenode_rpc_address %></value>
+  </property>
+  <property>
+     <name>dfs.namenode.rpc-bind-host</name>
+     <value><%= @namenode_rpc_bind_host %></value>
+  </property>
+  <property>
+     <name>dfs.datanode.address</name>
+     <value><%= @datanode_address %></value>
+  </property>
+  <property>
+     <name>dfs.datanode.ipc.address</name>
+     <value><%= @datanode_ipc_address %></value>
+  </property>
 </configuration>

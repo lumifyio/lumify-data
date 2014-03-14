@@ -8,7 +8,11 @@ class hadoop {
     default:  { fail "unsupported architecture: ${architecture}" }
   }
   $namenode_ipaddress = hiera("namenode_ipaddress")
+  $namenode_rpc_address = hiera("namenode_rpc_address","0.0.0.0:8020")
+  $namenode_rpc_bind_host = hiera("namenode_rpc_bind_host","0.0.0.0")
   $namenode_hostname = hiera("namenode_hostname")
+  $datanode_address = hiera("datanode_address","0.0.0.0:50010")
+  $datanode_ipc_address = hiera("datanode_ipc_address","0.0.0.0:50020")
   $hadoop_masters = hiera_array('hadoop_masters')
   $hadoop_slaves = hiera_array('hadoop_slaves')
 
