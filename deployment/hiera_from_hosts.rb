@@ -43,6 +43,7 @@ hiera['zookeeper_port'] = zk_port
 hiera['zookeeper_nodes'] = zk_nodes
 hiera['namenode_ipaddress'] = cluster['namenode'][:ip]
 hiera['namenode_hostname'] = 'namenode'
+hiera['namenode_rpc_address'] = cluster['namenode'][:ip] + ':8020'
 hiera['elasticsearch_locations'] = Array(get(cluster, /node\d{2}/, :ip)).collect{|ip| "#{ip}:9300"}
 kafka_nodes = Hash.new
 cluster.select{|k,v| k.match(/kafka\d/)}.each do |k,v|
