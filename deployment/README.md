@@ -10,7 +10,8 @@ aws
 
 puppet
 ------
-1. define the software configuration for the cluser nodes in a Puppet manifest file (e.g. `puppet/manifests/lumify_demo.pp`)
+1. `aws/bin/spinup.rb` will produce a `*_hosts` file that `./site_from_hosts.rb` and `./hiera_from_hosts.rb` use as input
+1. `./push.sh` will run them before uploading files to the puppet server
 
 aws-deploy
 ----------
@@ -37,7 +38,7 @@ setup
 
         /root/setup_config.sh
 
-1. ssh from the puppet server to one of the kafka servers and run:
+1. **(OBE)** ssh from the puppet server to one of the kafka servers and run:
 
         /opt/lumify/kafka-clear.sh --zookeeper 10.0.3.101:2181
 
@@ -53,14 +54,8 @@ setup
 
         n=5
 
-        /opt/storm/bin/storm jar lumify-storm-1.0-SNAPSHOT-jar-with-dependencies.jar \
-          com.altamiracorp.lumify.storm.StormRunner -tpb $((${n} * 8)) -w $((${n} * 2)) -ph $((${n} * 4))
-
         /opt/storm/bin/storm jar lumify-enterprise-storm-1.0-SNAPSHOT-jar-with-dependencies.jar \
           com.altamiracorp.lumify.storm.StormEnterpriseRunner -tpb $((${n} * 8)) -w $((${n} * 2)) -ph $((${n} * 4))
-
-        /opt/storm/bin/storm jar lumify-wikipedia-1.0-SNAPSHOT-jar-with-dependencies.jar \
-          com.altamiracorp.lumify.wikipedia.storm.StormRunner -tpb $((${n} * 8)) -w $((${n} * 2)) -ph $((${n} * 4))
 
 turning it off
 ==============
