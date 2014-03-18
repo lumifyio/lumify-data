@@ -105,8 +105,8 @@ public class FacebookUserTest {
     @Test
     public void testNormalUserProcess() throws Exception {
         facebookUser = new FacebookUser();
-        when(ontologyRepository.getConceptByName("facebookProfile")).thenReturn(facebookConcept);
-        when(ontologyRepository.getConceptByName("emailAddress")).thenReturn(emailConcept);
+        when(ontologyRepository.getConceptById("facebookProfile")).thenReturn(facebookConcept);
+        when(ontologyRepository.getConceptById("emailAddress")).thenReturn(emailConcept);
         when(facebookConcept.getId()).thenReturn("32");
         when(emailConcept.getId()).thenReturn("48");
 
@@ -124,8 +124,8 @@ public class FacebookUserTest {
     @Test
     public void testFullUserProcess() throws Exception {
         facebookUser = new FacebookUser();
-        when(ontologyRepository.getConceptByName("facebookProfile")).thenReturn(facebookConcept);
-        when(ontologyRepository.getConceptByName("emailAddress")).thenReturn(emailConcept);
+        when(ontologyRepository.getConceptById("facebookProfile")).thenReturn(facebookConcept);
+        when(ontologyRepository.getConceptById("emailAddress")).thenReturn(emailConcept);
         when(facebookConcept.getId()).thenReturn("32");
         when(emailConcept.getId()).thenReturn("48");
 

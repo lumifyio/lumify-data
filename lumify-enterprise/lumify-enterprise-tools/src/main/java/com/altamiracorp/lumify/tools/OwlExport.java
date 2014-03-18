@@ -4,10 +4,13 @@ import com.altamiracorp.bigtable.model.ModelSession;
 import com.altamiracorp.lumify.core.cmdline.CommandLineBase;
 import com.altamiracorp.lumify.core.model.ontology.*;
 import com.altamiracorp.lumify.core.util.ModelUtil;
+import com.altamiracorp.securegraph.property.StreamingPropertyValue;
 import com.google.inject.Inject;
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.OptionBuilder;
 import org.apache.commons.cli.Options;
+import org.apache.commons.codec.binary.Base64;
+import org.apache.commons.io.IOUtils;
 import org.jdom.Namespace;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
@@ -21,6 +24,8 @@ import javax.xml.transform.TransformerFactory;
 import javax.xml.transform.dom.DOMSource;
 import javax.xml.transform.stream.StreamResult;
 import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.*;
 
@@ -32,7 +37,7 @@ public class OwlExport extends CommandLineBase {
     private static final Namespace NS_RDF = Namespace.getNamespace("rdf", "http://www.w3.org/1999/02/22-rdf-syntax-ns#");
     private static final Namespace NS_OWL = Namespace.getNamespace("owl", "http://www.w3.org/2002/07/owl#");
     private static final Namespace NS_RDFS = Namespace.getNamespace("rdfs", "http://www.w3.org/2000/01/rdf-schema#");
-    private static final Namespace NS_ATC = Namespace.getNamespace("atc", "http://altamiracorp.com/ontology#");
+    private static final Namespace NS_LUMIFY = Namespace.getNamespace("lumify", "http://lumify.io#");
     public static final String NS_XML_URI = "http://www.w3.org/XML/1998/namespace";
     private static final Set<String> EXPORT_SKIP_PROPERTIES = Collections.unmodifiableSet(new HashSet<String>(Arrays.asList(
             ONTOLOGY_TITLE.getKey(),
@@ -92,7 +97,7 @@ public class OwlExport extends CommandLineBase {
         Element rootElem = doc.createElementNS(NS_RDF.getURI(), "rdf:RDF");
         rootElem.setAttribute("xmlns:rdfs", NS_RDFS.getURI());
         rootElem.setAttribute("xmlns:owl", NS_OWL.getURI());
-        rootElem.setAttribute("xmlns:atc", NS_ATC.getURI());
+        rootElem.setAttribute("xmlns:atc", NS_LUMIFY.getURI());
         rootElem.setAttribute("xmlns:rdf", NS_RDF.getURI());
 
         rootElem.appendChild(createVersionElement(doc));
@@ -146,7 +151,7 @@ public class OwlExport extends CommandLineBase {
         return elem;
     }
 
-    private List<Node> createConceptElements(Document doc, Concept concept, Concept parentConcept) {
+    private List<Node> createConceptElements(Document doc, Concept concept, Concept parentConcept) throws IOException {
         List<Node> elems = new ArrayList<Node>();
 
         elems.add(doc.createComment(" Concept: " + concept.getTitle() + " "));
@@ -159,7 +164,7 @@ public class OwlExport extends CommandLineBase {
 
         for (com.altamiracorp.securegraph.Property property : concept.getVertex().getProperties()) {
             if (!EXPORT_SKIP_PROPERTIES.contains(property.getName())) {
-                classElem.appendChild(createPropertyElement(doc, property.getName(), property.getValue().toString()));
+                classElem.appendChild(createPropertyElement(doc, property.getName(), property.getValue()));
             }
         }
         if (parentConcept != null) {
@@ -227,9 +232,20 @@ public class OwlExport extends CommandLineBase {
         return elem;
     }
 
-    private Node createPropertyElement(Document doc, String propertyName, Object propertyValue) {
-        Element elem = doc.createElementNS(NS_ATC.getURI(), "atc:property");
-        elem.setAttributeNS(NS_ATC.getURI(), "atc:name", propertyName);
+    private Node createPropertyElement(Document doc, String propertyName, Object propertyValue) throws IOException {
+        if (propertyName.startsWith("_")) {
+            propertyName = propertyName.substring(1);
+        }
+        Element elem = doc.createElementNS(NS_LUMIFY.getURI(), "lumify:" + propertyName);
+        if (propertyValue instanceof StreamingPropertyValue) {
+            InputStream in = ((StreamingPropertyValue) propertyValue).getInputStream();
+            try {
+                byte[] data = IOUtils.toByteArray(in);
+                propertyValue = new String(Base64.encodeBase64(data));
+            } finally {
+                in.close();
+            }
+        }
         elem.setTextContent(propertyValue.toString());
         return elem;
     }
