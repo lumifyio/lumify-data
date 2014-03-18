@@ -33,14 +33,14 @@
             <param name="ConversionPattern" value="java %d{ISO8601} %p %t %c{1}.%M - %m%n" />
         </layout>
     </appender>
-    <% endif -%>
+    <% end -%>
 
     <logger name="com.altamiracorp.lumify" additivity="false">
         <level value="INFO" />
         <appender-ref ref="log" />
         <% if @syslog_server != '' -%>
         <appender-ref ref="syslog" />
-        <% endif -%>
+        <% end -%>
     </logger>
 
     <root>
@@ -49,7 +49,7 @@
         <appender-ref ref="log" />
         <% if @syslog_server != '' -%>
         <appender-ref ref="syslog" />
-        <% endif -%>
+        <% end -%>
     </root>
 
 </log4j:configuration>
