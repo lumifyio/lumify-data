@@ -132,7 +132,7 @@ public class OwlExport extends CommandLineBase {
         List<Node> elems = new ArrayList<Node>();
         elems.add(createObjectPropertyElement(doc, relationship));
 
-        List<OntologyProperty> properties = ontologyRepository.getPropertiesByRelationship(relationship.getTitle());
+        List<OntologyProperty> properties = ontologyRepository.getPropertiesByRelationship(relationship);
         for (OntologyProperty property : properties) {
             elems.add(createDatatypePropertyElement(doc, property, relationship));
         }
