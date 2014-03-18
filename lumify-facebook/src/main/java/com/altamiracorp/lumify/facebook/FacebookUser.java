@@ -96,9 +96,8 @@ public class FacebookUser {
                     queryEmailVertex = emailIterator.next();
                 }
             }
-            graph.addEdge(userVertex, emailVertex, EMAIL_RELATIONSHIP, lumifyVisibility.getVisibility(), authorizations);
-            String labelDisplayName = ontologyRepository.getDisplayNameForLabel(EMAIL_RELATIONSHIP);
-            auditRepository.auditRelationship(AuditAction.CREATE, userVertex, emailVertex, labelDisplayName, PROCESS, "", user, false, lumifyVisibility.getVisibility());
+            Edge edge = graph.addEdge(userVertex, emailVertex, EMAIL_RELATIONSHIP, lumifyVisibility.getVisibility(), authorizations);
+            auditRepository.auditRelationship(AuditAction.CREATE, userVertex, emailVertex, edge, PROCESS, "", user, false, lumifyVisibility.getVisibility());
             graph.flush();
         }
 
@@ -168,10 +167,10 @@ public class FacebookUser {
 
         Iterator<Edge> edges = userVertex.getEdges(pictureVertex, Direction.IN, labelDisplay, authorizations).iterator();
         if (!edges.hasNext()) {
-            graph.addEdge(userVertex, pictureVertex, ENTITY_HAS_IMAGE_PROFILE_PHOTO, lumifyVisibility.getVisibility(), authorizations);
+            Edge edge = graph.addEdge(userVertex, pictureVertex, ENTITY_HAS_IMAGE_PROFILE_PHOTO, lumifyVisibility.getVisibility(), authorizations);
+            auditRepository.auditRelationship(AuditAction.CREATE, userVertex, pictureVertex, edge, PROCESS, "", user, false, lumifyVisibility.getVisibility());
         }
 
-        auditRepository.auditRelationship(AuditAction.CREATE, userVertex, pictureVertex, labelDisplay, PROCESS, "", user, false, lumifyVisibility.getVisibility());
         LOGGER.info("Saving Facebook picture to accumulo and as graph vertex: %s", pictureVertex.getId());
     }
 

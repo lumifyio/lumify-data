@@ -11,6 +11,7 @@ import com.altamiracorp.lumify.core.util.LumifyLogger;
 import com.altamiracorp.lumify.core.util.LumifyLoggerFactory;
 import com.altamiracorp.lumify.core.util.RowKeyHelper;
 import com.altamiracorp.securegraph.Authorizations;
+import com.altamiracorp.securegraph.Edge;
 import com.altamiracorp.securegraph.Graph;
 import com.altamiracorp.securegraph.Vertex;
 import com.altamiracorp.securegraph.mutation.ElementMutation;
@@ -85,9 +86,8 @@ public class FacebookPost {
         } else {
             authorVertex = queryVertex;
         }
-        graph.addEdge(authorVertex, posting, POSTED_RELATIONSHIP, lumifyVisibility.getVisibility(), authorizations);
-        String postedRelationshipLabelDisplayName = ontologyRepository.getDisplayNameForLabel(POSTED_RELATIONSHIP);
-        auditRepository.auditRelationship(AuditAction.CREATE, posting, authorVertex, postedRelationshipLabelDisplayName, PROCESS, "", user, false, lumifyVisibility.getVisibility());
+        Edge edge = graph.addEdge(authorVertex, posting, POSTED_RELATIONSHIP, lumifyVisibility.getVisibility(), authorizations);
+        auditRepository.auditRelationship(AuditAction.CREATE, posting, authorVertex, edge, PROCESS, "", user, false, lumifyVisibility.getVisibility());
         graph.flush();
 
         if (post.get(TAGGED_UIDS) instanceof JSONObject) {
@@ -107,9 +107,8 @@ public class FacebookPost {
                 } else {
                     taggedVertex = nextQueryVertex;
                 }
-                graph.addEdge(posting, taggedVertex, MENTIONED_RELATIONSHIP, lumifyVisibility.getVisibility(), authorizations);
-                String mentionedRelationshipLabelDisplayName = ontologyRepository.getDisplayNameForLabel(MENTIONED_RELATIONSHIP);
-                auditRepository.auditRelationship(AuditAction.CREATE, posting, taggedVertex, mentionedRelationshipLabelDisplayName, PROCESS, "", user, false, lumifyVisibility.getVisibility());
+                Edge mentionedEdge = graph.addEdge(posting, taggedVertex, MENTIONED_RELATIONSHIP, lumifyVisibility.getVisibility(), authorizations);
+                auditRepository.auditRelationship(AuditAction.CREATE, posting, taggedVertex, mentionedEdge, PROCESS, "", user, false, lumifyVisibility.getVisibility());
                 graph.flush();
             }
         }
