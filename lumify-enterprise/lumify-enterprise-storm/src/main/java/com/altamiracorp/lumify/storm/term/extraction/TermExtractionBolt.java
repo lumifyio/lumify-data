@@ -20,7 +20,6 @@ import com.altamiracorp.lumify.storm.BaseTextProcessingBolt;
 import com.altamiracorp.securegraph.Direction;
 import com.altamiracorp.securegraph.Edge;
 import com.altamiracorp.securegraph.Vertex;
-import com.altamiracorp.securegraph.Visibility;
 import com.altamiracorp.securegraph.mutation.ElementMutation;
 import com.altamiracorp.securegraph.mutation.ExistingElementMutation;
 import com.google.common.collect.Lists;
@@ -166,9 +165,9 @@ public class TermExtractionBolt extends BaseTextProcessingBolt {
 
                 if (!(vertexElementMutation instanceof ExistingElementMutation)) {
                     vertex = vertexElementMutation.save();
-                    auditRepository.auditVertexElementMutation(vertexElementMutation, vertex, termMention.getProcess(), getUser(), null,lumifyVisibility.getVisibility());
+                    auditRepository.auditVertexElementMutation(vertexElementMutation, vertex, termMention.getProcess(), getUser(), false, lumifyVisibility.getVisibility());
                 } else {
-                    auditRepository.auditVertexElementMutation(vertexElementMutation, vertex, termMention.getProcess(), getUser(), null,lumifyVisibility.getVisibility());
+                    auditRepository.auditVertexElementMutation(vertexElementMutation, vertex, termMention.getProcess(), getUser(), false, lumifyVisibility.getVisibility());
                     vertex = vertexElementMutation.save();
                 }
 
@@ -179,7 +178,7 @@ public class TermExtractionBolt extends BaseTextProcessingBolt {
                 }
 
                 String labelDisplayName = ontologyRepository.getDisplayNameForLabel(LabelName.RAW_HAS_ENTITY.toString());
-                auditRepository.auditRelationship(AuditAction.CREATE, artifactGraphVertex, vertex, labelDisplayName, termMention.getProcess(), "", getUser(), null,lumifyVisibility.getVisibility());
+                auditRepository.auditRelationship(AuditAction.CREATE, artifactGraphVertex, vertex, labelDisplayName, termMention.getProcess(), "", getUser(), false, lumifyVisibility.getVisibility());
 
                 termMentionModel.getMetadata().setVertexId(vertex.getId().toString(), lumifyVisibility.getVisibility());
             }
