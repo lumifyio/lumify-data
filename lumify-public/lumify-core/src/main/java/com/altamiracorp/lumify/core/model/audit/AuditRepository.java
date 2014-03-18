@@ -63,7 +63,7 @@ public class AuditRepository extends Repository<Audit> {
     }
 
     public Audit auditVertexCreate(Object vertexId, String process, String comment, User user, Visibility visibility) {
-        return auditVertex(AuditAction.CREATE, vertexId, process, comment, user, FlushFlag.DEFAULT,  visibility);
+        return auditVertex(AuditAction.CREATE, vertexId, process, comment, user, FlushFlag.DEFAULT, visibility);
     }
 
     public Audit auditVertex(AuditAction auditAction, Object vertexId, String process, String comment, User user, FlushFlag flushFlag, Visibility visibility) {
@@ -77,7 +77,7 @@ public class AuditRepository extends Repository<Audit> {
         audit.getAuditCommon()
                 .setUser(user, visibility)
                 .setAction(auditAction, visibility)
-                .setType(OntologyRepository.TYPE_ENTITY, visibility)
+                .setType(OntologyRepository.ENTITY_CONCEPT_IRI, visibility)
                 .setComment(comment, visibility)
                 .setUnixBuildTime(versionService.getUnixBuildTime() != null ? versionService.getUnixBuildTime() : -1L, visibility)
                 .setScmBuildNumber(versionService.getScmBuildNumber() != null ? versionService.getScmBuildNumber() : "", visibility)
@@ -313,7 +313,7 @@ public class AuditRepository extends Repository<Audit> {
     }
 
     public void auditEdgeElementMutation(AuditAction action, ElementMutation<Edge> edgeElementMutation, Edge edge, Vertex sourceVertex, Vertex destVertex, String process,
-                                           User user, Visibility visibility) {
+                                         User user, Visibility visibility) {
         if (edgeElementMutation instanceof ExistingElementMutation) {
             Edge oldEdge = (Edge) ((ExistingElementMutation) edgeElementMutation).getElement();
             for (Property property : edgeElementMutation.getProperties()) {

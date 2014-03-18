@@ -5,7 +5,7 @@
     <owl:Ontology rdf:about="">
         <owl:versionInfo xml:lang="en">Version 3.8</owl:versionInfo>
     </owl:Ontology>
-    
+
 <!-- Concept: Raw -->
     <owl:Class rdf:about="raw">
         <rdfs:label xml:lang="en">Raw</rdfs:label>
@@ -13,7 +13,7 @@
         <atc:property atc:name="glyphIconFileName">artifact.png</atc:property>
         <rdfs:subClassOf rdf:resource="http://altamiracorp.com/ontology/entity"/>
     </owl:Class>
-    
+
 <!-- Concept: Document -->
     <owl:Class rdf:about="document">
         <rdfs:label xml:lang="en">Document</rdfs:label>
@@ -32,7 +32,7 @@
         <rdfs:domain rdf:resource="#document"/>
         <rdfs:range rdf:resource="http://altamiracorp.com/datatype/string"/>
     </owl:DatatypeProperty>
-    
+
 <!-- Concept: Image -->
 	<owl:Class rdf:about="image">
         <rdfs:label xml:lang="en">Image</rdfs:label>
@@ -51,8 +51,8 @@
         <rdfs:domain rdf:resource="#image"/>
         <rdfs:range rdf:resource="http://altamiracorp.com/datatype/date"/>
     </owl:DatatypeProperty>
-    
-<!-- Concept: Video --> 
+
+<!-- Concept: Video -->
 	<owl:Class rdf:about="video">
         <rdfs:label xml:lang="en">Video</rdfs:label>
         <atc:property atc:name="_color">rgb(149, 138, 218)</atc:property>
@@ -70,9 +70,9 @@
         <rdfs:domain rdf:resource="#video"/>
         <rdfs:range rdf:resource="http://altamiracorp.com/datatype/date"/>
     </owl:DatatypeProperty>
-    
+
 <!-- Concept: person -->
-    
+
     <owl:Class rdf:about="person">
         <rdfs:label xml:lang="en">Person</rdfs:label>
         <atc:property atc:name="_color">rgb(28, 137, 28)</atc:property>
@@ -99,8 +99,8 @@
         <rdfs:domain rdf:resource="#person"/>
         <rdfs:range rdf:resource="http://altamiracorp.com/datatype/string"/>
     </owl:DatatypeProperty>
-    
-    
+
+
 <!-- Concept: contact -->
 
     <owl:Class rdf:about="contact">
@@ -151,7 +151,7 @@
 
 
 <!-- Concept: organization -->
-    
+
     <owl:Class rdf:about="organization">
         <rdfs:label xml:lang="en">Organization</rdfs:label>
         <atc:property atc:name="_color">rgb(137, 39, 26)</atc:property>
@@ -173,9 +173,9 @@
         <rdfs:domain rdf:resource="#organization"/>
         <rdfs:range rdf:resource="http://altamiracorp.com/datatype/string"/>
     </owl:DatatypeProperty>
-        
+
 <!-- Concept: company -->
-    
+
     <owl:Class rdf:about="company">
         <rdfs:label xml:lang="en">Company</rdfs:label>
         <atc:property atc:name="_color">rgb(210, 52, 32)</atc:property>
@@ -186,8 +186,8 @@
         <rdfs:label xml:lang="en">net income</rdfs:label>
         <rdfs:domain rdf:resource="#company"/>
         <rdfs:range rdf:resource="http://altamiracorp.com/datatype/currency"/>
-    </owl:DatatypeProperty> 
- 
+    </owl:DatatypeProperty>
+
 <!-- Concept: event -->
 
     <owl:Class rdf:about="event">
@@ -211,8 +211,8 @@
         <rdfs:domain rdf:resource="#event"/>
         <rdfs:range rdf:resource="http://altamiracorp.com/datatype/string"/>
     </owl:DatatypeProperty>
-    
-    
+
+
 <!-- Concept: location -->
 
     <owl:Class rdf:about="location">
@@ -244,8 +244,8 @@
         <rdfs:label xml:lang="en">geo location</rdfs:label>
         <rdfs:domain rdf:resource="#location"/>
         <rdfs:range rdf:resource="http://altamiracorp.com/datatype/geoLocation"/>
-    </owl:DatatypeProperty>  
-    
+    </owl:DatatypeProperty>
+
 <!-- Concept: state -->
 
     <owl:Class rdf:about="state">
@@ -259,7 +259,7 @@
         <rdfs:domain rdf:resource="#location"/>
         <rdfs:range rdf:resource="http://altamiracorp.com/datatype/geoLocation"/>
     </owl:DatatypeProperty>
-    
+
 <!-- Concept: city -->
 
     <owl:Class rdf:about="city">
@@ -273,7 +273,7 @@
         <rdfs:domain rdf:resource="#location"/>
         <rdfs:range rdf:resource="http://altamiracorp.com/datatype/geoLocation"/>
     </owl:DatatypeProperty>
-    
+
 <!-- Concept: address -->
 
     <owl:Class rdf:about="address">
@@ -368,7 +368,7 @@
         <rdfs:label xml:lang="en">has contact information</rdfs:label>
         <rdfs:domain rdf:resource="#organization"/>
         <rdfs:range rdf:resource="#contact"/>
-    </owl:ObjectProperty>    
+    </owl:ObjectProperty>
     <owl:ObjectProperty rdf:about="personHasContactInformation">
         <rdfs:label xml:lang="en">has contact information</rdfs:label>
         <rdfs:domain rdf:resource="#person"/>
@@ -599,5 +599,5 @@
         <rdfs:domain rdf:resource="#organization"/>
         <rdfs:range rdf:resource="#raw"/>
     </owl:ObjectProperty>
-                 
+
 </rdf:RDF>

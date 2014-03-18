@@ -150,7 +150,7 @@ public class ClavinLocationResolutionWorkerTest {
         PowerMockito.whenNew(LuceneLocationResolver.class).withArguments(eq(indexDirectory), anyInt(), anyInt()).
                 thenReturn(luceneLocationResolver);
 
-        when(ontologyRepo.getConceptByName(ONT_LOCATION)).thenReturn(locationConcept);
+        when(ontologyRepo.getConceptById(ONT_LOCATION)).thenReturn(locationConcept);
         when(ontologyRepo.getAllLeafNodesByConcept(locationConcept)).thenReturn(Arrays.asList(locationConcept));
         when(locationConcept.getTitle()).thenReturn(ONT_LOCATION);
 

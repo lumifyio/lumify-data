@@ -117,10 +117,10 @@ public class ConceptMappedColumnRelationshipMapping extends AbstractColumnRelati
         Concept srcConcept = null;
         Concept tgtConcept = null;
         if ((!sourceMap.isEmpty() || !sourceTargetMap.isEmpty()) && source != null) {
-            srcConcept = ontologyRepository.getConceptByName(source.getOntologyClassUri());
+            srcConcept = ontologyRepository.getConceptById(source.getOntologyClassUri());
         }
         if ((!targetMap.isEmpty() || !sourceTargetMap.isEmpty()) && target != null) {
-            tgtConcept = ontologyRepository.getConceptByName(target.getOntologyClassUri());
+            tgtConcept = ontologyRepository.getConceptById(target.getOntologyClassUri());
         }
 
         // attempt to resolve both source and target first
