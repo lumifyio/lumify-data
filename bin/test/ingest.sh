@@ -11,10 +11,6 @@ curl http://s3.amazonaws.com/RedDawn/DataSets/Testing/data.tar | tar -C ${clone_
 echo 'running bin/080_Ontology.sh'
 cd ${clone_dir} && bin/080_Ontology.sh &> /vagrant/080_Ontology.out
 
-echo 'running bin/stormLocal.sh in the background'
-cd ${clone_dir} && bin/stormLocal.sh &> /vagrant/stormLocal.out &
-echo $! > /vagrant/stormLocal.pid
-
 echo 'running bin/stormEnterpriseLocal.sh in the background'
 cd ${clone_dir} && bin/stormEnterpriseLocal.sh &> /vagrant/stormEnterpriseLocal.out &
 echo $! > /vagrant/stormEnterpriseLocal.pid
