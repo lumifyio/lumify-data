@@ -82,12 +82,12 @@ public class FacebookPost {
             TITLE.setProperty(authorBuilder, author_uid, lumifyVisibility.getVisibility());
             CONCEPT_TYPE.setProperty(authorBuilder, profileConceptId, lumifyVisibility.getVisibility());
             authorVertex = authorBuilder.save();
-            auditRepository.auditVertexElementMutation(authorBuilder, authorVertex, PROCESS, user, false, lumifyVisibility.getVisibility());
+            auditRepository.auditVertexElementMutation(AuditAction.UPDATE, authorBuilder, authorVertex, PROCESS, user, lumifyVisibility.getVisibility());
         } else {
             authorVertex = queryVertex;
         }
         Edge edge = graph.addEdge(authorVertex, posting, POSTED_RELATIONSHIP, lumifyVisibility.getVisibility(), authorizations);
-        auditRepository.auditRelationship(AuditAction.CREATE, posting, authorVertex, edge, PROCESS, "", user, false, lumifyVisibility.getVisibility());
+        auditRepository.auditRelationship(AuditAction.CREATE, posting, authorVertex, edge, PROCESS, "", user, lumifyVisibility.getVisibility());
         graph.flush();
 
         if (post.get(TAGGED_UIDS) instanceof JSONObject) {
@@ -103,12 +103,12 @@ public class FacebookPost {
                     TITLE.setProperty(taggedBuilder, next, lumifyVisibility.getVisibility());
                     CONCEPT_TYPE.setProperty(taggedBuilder, profileConceptId, lumifyVisibility.getVisibility());
                     taggedVertex = taggedBuilder.save();
-                    auditRepository.auditVertexElementMutation(taggedBuilder, taggedVertex, PROCESS, user, false, lumifyVisibility.getVisibility());
+                    auditRepository.auditVertexElementMutation(AuditAction.UPDATE, taggedBuilder, taggedVertex, PROCESS, user, lumifyVisibility.getVisibility());
                 } else {
                     taggedVertex = nextQueryVertex;
                 }
                 Edge mentionedEdge = graph.addEdge(posting, taggedVertex, MENTIONED_RELATIONSHIP, lumifyVisibility.getVisibility(), authorizations);
-                auditRepository.auditRelationship(AuditAction.CREATE, posting, taggedVertex, mentionedEdge, PROCESS, "", user, false, lumifyVisibility.getVisibility());
+                auditRepository.auditRelationship(AuditAction.CREATE, posting, taggedVertex, mentionedEdge, PROCESS, "", user, lumifyVisibility.getVisibility());
                 graph.flush();
             }
         }
@@ -118,7 +118,7 @@ public class FacebookPost {
             GeoPoint geo = new GeoPoint(coordinates.getDouble("latitude"), coordinates.getDouble("longitude"));
             ElementMutation<Vertex> postingMutation = posting.prepareMutation();
             GEO_LOCATION.setProperty(postingMutation, geo, lumifyVisibility.getVisibility());
-            auditRepository.auditVertexElementMutation(postingMutation, posting, PROCESS, user, false, lumifyVisibility.getVisibility());
+            auditRepository.auditVertexElementMutation(AuditAction.UPDATE, postingMutation, posting, PROCESS, user, lumifyVisibility.getVisibility());
             posting = postingMutation.save();
         }
 

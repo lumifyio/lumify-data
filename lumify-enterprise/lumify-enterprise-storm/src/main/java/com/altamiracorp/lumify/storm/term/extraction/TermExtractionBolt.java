@@ -165,9 +165,9 @@ public class TermExtractionBolt extends BaseTextProcessingBolt {
 
                 if (!(vertexElementMutation instanceof ExistingElementMutation)) {
                     vertex = vertexElementMutation.save();
-                    auditRepository.auditVertexElementMutation(vertexElementMutation, vertex, termMention.getProcess(), getUser(), false, lumifyVisibility.getVisibility());
+                    auditRepository.auditVertexElementMutation(AuditAction.UPDATE, vertexElementMutation, vertex, termMention.getProcess(), getUser(), lumifyVisibility.getVisibility());
                 } else {
-                    auditRepository.auditVertexElementMutation(vertexElementMutation, vertex, termMention.getProcess(), getUser(), false, lumifyVisibility.getVisibility());
+                    auditRepository.auditVertexElementMutation(AuditAction.UPDATE, vertexElementMutation, vertex, termMention.getProcess(), getUser(), lumifyVisibility.getVisibility());
                     vertex = vertexElementMutation.save();
                 }
 
@@ -175,7 +175,7 @@ public class TermExtractionBolt extends BaseTextProcessingBolt {
                 Edge edge = trySingle(artifactGraphVertex.getEdges(vertex, Direction.OUT, LabelName.RAW_HAS_ENTITY.toString(), getAuthorizations()));
                 if (edge == null) {
                     edge = graph.addEdge(artifactGraphVertex, vertex, LabelName.RAW_HAS_ENTITY.toString(), lumifyVisibility.getVisibility(), getAuthorizations());
-                    auditRepository.auditRelationship(AuditAction.CREATE, artifactGraphVertex, vertex, edge, termMention.getProcess(), "", getUser(), false, lumifyVisibility.getVisibility());
+                    auditRepository.auditRelationship(AuditAction.CREATE, artifactGraphVertex, vertex, edge, termMention.getProcess(), "", getUser(), lumifyVisibility.getVisibility());
                 }
 
                 termMentionModel.getMetadata().setVertexId(vertex.getId().toString(), lumifyVisibility.getVisibility());

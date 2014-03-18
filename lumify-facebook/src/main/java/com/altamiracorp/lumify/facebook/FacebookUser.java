@@ -83,7 +83,7 @@ public class FacebookUser {
                 TITLE.setProperty(emailBuilder, email, lumifyVisibility.getVisibility());
                 CONCEPT_TYPE.setProperty(emailBuilder, emailConcept.getId(), lumifyVisibility.getVisibility());
                 emailVertex = emailBuilder.save();
-                auditRepository.auditVertexElementMutation(emailBuilder, emailVertex, PROCESS, user, false, lumifyVisibility.getVisibility());
+                auditRepository.auditVertexElementMutation(AuditAction.UPDATE, emailBuilder, emailVertex, PROCESS, user, lumifyVisibility.getVisibility());
             } else {
                 while (queryEmailVertex != null) {
                     Iterable<String> titles = TITLE.getPropertyValues(queryVertex);
@@ -97,7 +97,7 @@ public class FacebookUser {
                 }
             }
             Edge edge = graph.addEdge(userVertex, emailVertex, EMAIL_RELATIONSHIP, lumifyVisibility.getVisibility(), authorizations);
-            auditRepository.auditRelationship(AuditAction.CREATE, userVertex, emailVertex, edge, PROCESS, "", user, false, lumifyVisibility.getVisibility());
+            auditRepository.auditRelationship(AuditAction.CREATE, userVertex, emailVertex, edge, PROCESS, "", user, lumifyVisibility.getVisibility());
             graph.flush();
         }
 
@@ -118,7 +118,7 @@ public class FacebookUser {
             BIRTHDAY.setProperty(userVertexMutation, birthday, lumifyVisibility.getVisibility());
         }
         //create and save profile picture
-        auditRepository.auditVertexElementMutation(userVertexMutation, userVertex, PROCESS, user, false, lumifyVisibility.getVisibility());
+        auditRepository.auditVertexElementMutation(AuditAction.UPDATE, userVertexMutation, userVertex, PROCESS, user, lumifyVisibility.getVisibility());
         userVertex = userVertexMutation.save();
         return userVertex;
     }
@@ -158,8 +158,8 @@ public class FacebookUser {
         userVertexMutation.setProperty(GLYPH_ICON.getKey(), new Text("/artifact/" + pictureVertex.getId() + "/raw", TextIndexHint.EXACT_MATCH), lumifyVisibility.getVisibility());
         pictureVertexMutation.setProperty(GLYPH_ICON.getKey(), new Text("/artifact/" + pictureVertex.getId() + "/raw", TextIndexHint.EXACT_MATCH), lumifyVisibility.getVisibility());
 
-        auditRepository.auditVertexElementMutation(userVertexMutation, userVertex, PROCESS, user, false, lumifyVisibility.getVisibility());
-        auditRepository.auditVertexElementMutation(pictureVertexMutation, pictureVertex, PROCESS, user, false, lumifyVisibility.getVisibility());
+        auditRepository.auditVertexElementMutation(AuditAction.UPDATE, userVertexMutation, userVertex, PROCESS, user, lumifyVisibility.getVisibility());
+        auditRepository.auditVertexElementMutation(AuditAction.UPDATE, pictureVertexMutation, pictureVertex, PROCESS, user, lumifyVisibility.getVisibility());
         userVertex = userVertexMutation.save();
         pictureVertex = pictureVertexMutation.save();
 
@@ -168,7 +168,7 @@ public class FacebookUser {
         Iterator<Edge> edges = userVertex.getEdges(pictureVertex, Direction.IN, labelDisplay, authorizations).iterator();
         if (!edges.hasNext()) {
             Edge edge = graph.addEdge(userVertex, pictureVertex, ENTITY_HAS_IMAGE_PROFILE_PHOTO, lumifyVisibility.getVisibility(), authorizations);
-            auditRepository.auditRelationship(AuditAction.CREATE, userVertex, pictureVertex, edge, PROCESS, "", user, false, lumifyVisibility.getVisibility());
+            auditRepository.auditRelationship(AuditAction.CREATE, userVertex, pictureVertex, edge, PROCESS, "", user, lumifyVisibility.getVisibility());
         }
 
         LOGGER.info("Saving Facebook picture to accumulo and as graph vertex: %s", pictureVertex.getId());

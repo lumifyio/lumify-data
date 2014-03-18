@@ -189,9 +189,9 @@ public class DefaultLumifyTwitterProcessor extends BaseArtifactProcessor impleme
         Vertex tweet;
         if (!(artifactMutation instanceof ExistingElementMutation)) {
             tweet = artifactMutation.save();
-            getAuditRepository().auditVertexElementMutation(artifactMutation, tweet, processId, user, false, lumifyVisibility.getVisibility());
+            getAuditRepository().auditVertexElementMutation(AuditAction.UPDATE, artifactMutation, tweet, processId, user, lumifyVisibility.getVisibility());
         } else {
-            getAuditRepository().auditVertexElementMutation(artifactMutation, null, processId, user, false, lumifyVisibility.getVisibility());
+            getAuditRepository().auditVertexElementMutation(AuditAction.UPDATE, artifactMutation, null, processId, user, lumifyVisibility.getVisibility());
             tweet = artifactMutation.save();
         }
         getGraph().flush();
@@ -199,7 +199,7 @@ public class DefaultLumifyTwitterProcessor extends BaseArtifactProcessor impleme
         String tweetId = tweet.getId().toString();
         LOGGER.info("Saved Tweet to Accumulo and as Graph Vertex: %s", tweetId);
 
-        getAuditRepository().auditVertexElementMutation(artifactMutation, tweet, processId, user, false, lumifyVisibility.getVisibility());
+        getAuditRepository().auditVertexElementMutation(AuditAction.UPDATE, artifactMutation, tweet, processId, user, lumifyVisibility.getVisibility());
 
         return tweet;
     }
@@ -235,15 +235,15 @@ public class DefaultLumifyTwitterProcessor extends BaseArtifactProcessor impleme
 
         if (!(userVertexMutation instanceof ExistingElementMutation)) {
             userVertex = userVertexMutation.save();
-            getAuditRepository().auditVertexElementMutation(userVertexMutation, userVertex, processId, lumifyUser, false, lumifyVisibility.getVisibility());
+            getAuditRepository().auditVertexElementMutation(AuditAction.UPDATE, userVertexMutation, userVertex, processId, lumifyUser, lumifyVisibility.getVisibility());
         } else {
-            getAuditRepository().auditVertexElementMutation(userVertexMutation, userVertex, processId, lumifyUser, false, lumifyVisibility.getVisibility());
+            getAuditRepository().auditVertexElementMutation(AuditAction.UPDATE, userVertexMutation, userVertex, processId, lumifyUser, lumifyVisibility.getVisibility());
             userVertex = userVertexMutation.save();
         }
 
         // create the relationship between the user and their tweet
         Edge edge = graph.addEdge(tweetVertex, userVertex, TWEETED_RELATIONSHIP, lumifyVisibility.getVisibility(), getAuthorizations());
-        getAuditRepository().auditRelationship(AuditAction.CREATE, userVertex, tweetVertex, edge, processId, "", lumifyUser, false, lumifyVisibility.getVisibility());
+        getAuditRepository().auditRelationship(AuditAction.CREATE, userVertex, tweetVertex, edge, processId, "", lumifyUser, lumifyVisibility.getVisibility());
 
         return userVertex;
     }
@@ -314,9 +314,9 @@ public class DefaultLumifyTwitterProcessor extends BaseArtifactProcessor impleme
 
                 if (!(termVertexMutation instanceof ExistingElementMutation)) {
                     termVertex = termVertexMutation.save();
-                    getAuditRepository().auditVertexElementMutation(termVertexMutation, termVertex, processId, user, false, lumifyVisibility.getVisibility());
+                    getAuditRepository().auditVertexElementMutation(AuditAction.UPDATE, termVertexMutation, termVertex, processId, user, lumifyVisibility.getVisibility());
                 } else {
-                    getAuditRepository().auditVertexElementMutation(termVertexMutation, termVertex, processId, user, false, lumifyVisibility.getVisibility());
+                    getAuditRepository().auditVertexElementMutation(AuditAction.UPDATE, termVertexMutation, termVertex, processId, user, lumifyVisibility.getVisibility());
                     termVertex = termVertexMutation.save();
                 }
 
@@ -327,7 +327,7 @@ public class DefaultLumifyTwitterProcessor extends BaseArtifactProcessor impleme
 
                 Edge edge = graph.addEdge(tweetVertex, termVertex, entityType.getRelationshipLabel(), lumifyVisibility.getVisibility(), getAuthorizations());
 
-                auditRepo.auditRelationship(AuditAction.CREATE, tweetVertex, termVertex, edge, processId, "", user, false, lumifyVisibility.getVisibility());
+                auditRepo.auditRelationship(AuditAction.CREATE, tweetVertex, termVertex, edge, processId, "", user, lumifyVisibility.getVisibility());
                 graph.flush();
             }
         }
@@ -371,9 +371,9 @@ public class DefaultLumifyTwitterProcessor extends BaseArtifactProcessor impleme
                 Vertex imageVertex = null;
                 if (!(imageBuilder instanceof ExistingElementMutation)) {
                     imageVertex = imageBuilder.save();
-                    auditRepo.auditVertexElementMutation(imageBuilder, imageVertex, processId, user, false, lumifyVisibility.getVisibility());
+                    auditRepo.auditVertexElementMutation(AuditAction.UPDATE, imageBuilder, imageVertex, processId, user, lumifyVisibility.getVisibility());
                 } else {
-                    auditRepo.auditVertexElementMutation(imageBuilder, imageVertex, processId, user, false, lumifyVisibility.getVisibility());
+                    auditRepo.auditVertexElementMutation(AuditAction.UPDATE, imageBuilder, imageVertex, processId, user, lumifyVisibility.getVisibility());
                     imageVertex = imageBuilder.save();
                 }
 
@@ -384,8 +384,8 @@ public class DefaultLumifyTwitterProcessor extends BaseArtifactProcessor impleme
                 tweeterVertexMutation.setProperty(GLYPH_ICON.getKey(), new Text(String.format(GLYPH_ICON_FMT, imageVertex.getId()), TextIndexHint.EXACT_MATCH), lumifyVisibility.getVisibility());
                 imageBuilder.setProperty(GLYPH_ICON.getKey(), new Text(String.format(GLYPH_ICON_FMT, imageVertex.getId()), TextIndexHint.EXACT_MATCH), lumifyVisibility.getVisibility());
 
-                auditRepo.auditVertexElementMutation(tweeterVertexMutation, tweeterVertex, processId, user, false, lumifyVisibility.getVisibility());
-                auditRepo.auditVertexElementMutation(imageBuilder, imageVertex, processId, user, false, lumifyVisibility.getVisibility());
+                auditRepo.auditVertexElementMutation(AuditAction.UPDATE, tweeterVertexMutation, tweeterVertex, processId, user, lumifyVisibility.getVisibility());
+                auditRepo.auditVertexElementMutation(AuditAction.UPDATE, imageBuilder, imageVertex, processId, user, lumifyVisibility.getVisibility());
 
                 tweeterVertex = tweeterVertexMutation.save();
                 imageVertex = imageBuilder.save();
@@ -393,7 +393,7 @@ public class DefaultLumifyTwitterProcessor extends BaseArtifactProcessor impleme
                 Iterator<Edge> edges = tweeterVertex.getEdges(imageVertex, Direction.IN, ENTITY_HAS_IMAGE_HANDLE_PHOTO, getAuthorizations()).iterator();
                 if (!edges.hasNext()) {
                     Edge edge = graph.addEdge(tweeterVertex, imageVertex, ENTITY_HAS_IMAGE_HANDLE_PHOTO, lumifyVisibility.getVisibility(), getAuthorizations());
-                    auditRepo.auditRelationship(AuditAction.CREATE, tweeterVertex, imageVertex, edge, processId, "", user, false, lumifyVisibility.getVisibility());
+                    auditRepo.auditRelationship(AuditAction.CREATE, tweeterVertex, imageVertex, edge, processId, "", user, lumifyVisibility.getVisibility());
                 }
                 graph.flush();
             } catch (MalformedURLException mue) {
