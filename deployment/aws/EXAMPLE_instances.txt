@@ -5,7 +5,7 @@
 # m3.xlarge  (4 cores, 15GB RAM)                        = $0.500/hr
 # EBS                                                   = $0.070/GB-month
 
-m1.medium  10G          10.0.3.10   ip-10-0-3-10   puppet,proxy
+m1.medium  10G          10.0.3.10   ip-10-0-3-10   puppet,proxy,syslog
 
 m3.xlarge  50G          10.0.3.50   ip-10-0-3-50   namenode,jobtracker
 m3.xlarge  50G          10.0.3.51   ip-10-0-3-51   secondarynamenode,accumulomaster
