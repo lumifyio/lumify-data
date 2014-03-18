@@ -166,9 +166,9 @@ public class TermExtractionBolt extends BaseTextProcessingBolt {
 
                 if (!(vertexElementMutation instanceof ExistingElementMutation)) {
                     vertex = vertexElementMutation.save();
-                    auditRepository.auditVertexElementMutation(vertexElementMutation, vertex, termMention.getProcess(), getUser(), lumifyVisibility.getVisibility());
+                    auditRepository.auditVertexElementMutation(vertexElementMutation, vertex, termMention.getProcess(), getUser(), null,lumifyVisibility.getVisibility());
                 } else {
-                    auditRepository.auditVertexElementMutation(vertexElementMutation, vertex, termMention.getProcess(), getUser(), lumifyVisibility.getVisibility());
+                    auditRepository.auditVertexElementMutation(vertexElementMutation, vertex, termMention.getProcess(), getUser(), null,lumifyVisibility.getVisibility());
                     vertex = vertexElementMutation.save();
                 }
 
@@ -179,7 +179,7 @@ public class TermExtractionBolt extends BaseTextProcessingBolt {
                 }
 
                 String labelDisplayName = ontologyRepository.getDisplayNameForLabel(LabelName.RAW_HAS_ENTITY.toString());
-                auditRepository.auditRelationship(AuditAction.CREATE, artifactGraphVertex, vertex, labelDisplayName, termMention.getProcess(), "", getUser(), lumifyVisibility.getVisibility());
+                auditRepository.auditRelationship(AuditAction.CREATE, artifactGraphVertex, vertex, labelDisplayName, termMention.getProcess(), "", getUser(), null,lumifyVisibility.getVisibility());
 
                 termMentionModel.getMetadata().setVertexId(vertex.getId().toString(), lumifyVisibility.getVisibility());
             }
