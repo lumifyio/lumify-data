@@ -24,15 +24,32 @@
         </layout>
     </appender>
 
-    <logger name="com.altamiracorp.lumify">
+    <% if @syslog_server != '' -%>
+    <appender name="syslog" class="org.apache.log4j.net.SyslogAppender">
+        <param name="SyslogHost" value="<%= @syslog_server %>" />
+        <param name="Facility" value="<%= @syslog_facility %>" />
+        <param name="Header" value="true" />
+        <layout class="org.apache.log4j.PatternLayout">
+            <param name="ConversionPattern" value="java %d{ISO8601} %p %t %c{1}.%M - %m%n" />
+        </layout>
+    </appender>
+    <% endif -%>
+
+    <logger name="com.altamiracorp.lumify" additivity="false">
         <level value="INFO" />
         <appender-ref ref="log" />
+        <% if @syslog_server != '' -%>
+        <appender-ref ref="syslog" />
+        <% endif -%>
     </logger>
 
     <root>
         <level value="WARN" />
         <appender-ref ref="console" />
         <appender-ref ref="log" />
+        <% if @syslog_server != '' -%>
+        <appender-ref ref="syslog" />
+        <% endif -%>
     </root>
 
 </log4j:configuration>
