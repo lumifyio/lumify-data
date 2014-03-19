@@ -7,7 +7,7 @@ import com.altamiracorp.lumify.core.ingest.AdditionalArtifactWorkData;
 import com.altamiracorp.lumify.core.ingest.ArtifactExtractedInfo;
 import com.altamiracorp.lumify.core.ingest.TextExtractionWorkerPrepareData;
 import com.altamiracorp.lumify.core.ingest.structuredData.StructuredDataExtractionWorker;
-import com.altamiracorp.lumify.core.model.ontology.DisplayType;
+import com.altamiracorp.lumify.core.model.ontology.ConceptType;
 import com.altamiracorp.lumify.core.util.LumifyLogger;
 import com.altamiracorp.lumify.core.util.LumifyLoggerFactory;
 import com.altamiracorp.lumify.core.util.ThreadedTeeInputStreamWorker;
@@ -46,7 +46,7 @@ public class DocumentMappingTextExtractorWorker
         info.setText(writer.toString());
         info.setTitle(mapping.getSubject());
         info.setMappingJson(jsonMapper.writeValueAsString(mapping));
-        info.setConceptType(DisplayType.DOCUMENT.toString());
+        info.setConceptType(ConceptType.DOCUMENT.toString());
         LOGGER.debug("Finished [DocumentMappingTextExtractorWorker]: %s", data.getFileName());
         return info;
     }

@@ -1,7 +1,7 @@
 package com.altamiracorp.lumify.textExtraction;
 
 import com.altamiracorp.lumify.core.ingest.ArtifactExtractedInfo;
-import com.altamiracorp.lumify.core.model.ontology.DisplayType;
+import com.altamiracorp.lumify.core.model.ontology.ConceptType;
 import com.altamiracorp.lumify.core.util.LumifyLogger;
 import com.altamiracorp.lumify.core.util.LumifyLoggerFactory;
 import com.altamiracorp.lumify.textExtraction.util.GenericDateExtractor;
@@ -135,7 +135,7 @@ public class TikaTextExtractor {
             }
         }
 
-        result.setConceptType(DisplayType.DOCUMENT.toString());
+        result.setConceptType(ConceptType.DOCUMENT.toString());
         return result;
     }
 
