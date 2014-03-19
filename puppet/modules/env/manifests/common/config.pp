@@ -10,12 +10,8 @@ class env::common::config {
     require => [ File['/opt/lumify'] ],
   }
 
-  file { '/opt/lumify/config/log4j.xml' :
-    ensure => file,
-    source => 'puppet:///modules/env/common/log4j.xml',
-    require => File['/opt/lumify/config'],
-  }
-
+  $syslog_server = hiera('syslog_server', '')
+  $syslog_facility = 'local3'
   $hadoop_masters = hiera_array('hadoop_masters')
   $hadoop_slaves = hiera_array('hadoop_slaves')
   $zookeeper_nodes = hiera_hash('zookeeper_nodes')
@@ -35,6 +31,7 @@ class env::common::config {
   }
 
   config_file { [
+      'log4j.xml',
       'lumify.properties',
       'lumify-enterprise.properties',
       'lumify-clavin.properties'

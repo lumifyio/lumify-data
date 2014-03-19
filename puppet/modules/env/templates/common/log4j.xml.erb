@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE log4j:configuration SYSTEM "log4j.dtd" [
+    <!ENTITY logDir "/opt/lumify/logs">
+
+    <!-- Pattern: %d{yyyy-MM-dd HH:mm:ss.SSS/zzz} %-5p [%c{3}] %m%n -->
+    <!ENTITY pattern "&#37;d{yyyy-MM-dd HH:mm:ss.SSS/zzz} &#37;-5p [&#37;c{3}] &#37;m&#37;n">
+]
+>
+
+<log4j:configuration xmlns:log4j="http://jakarta.apache.org/log4j/">
+
+    <appender name="console" class="org.apache.log4j.ConsoleAppender">
+        <layout class="org.apache.log4j.PatternLayout">
+            <param name="ConversionPattern" value="&pattern;" />
+        </layout>
+    </appender>
+
+    <appender name="log" class="org.apache.log4j.RollingFileAppender">
+        <param name="File" value="&logDir;/lumify.log" />
+        <param name="MaxFileSize" value="64MB" />
+        <param name="MaxBackupIndex" value="3" />
+        <layout class="org.apache.log4j.PatternLayout">
+            <param name="ConversionPattern" value="&pattern;" />
+        </layout>
+    </appender>
+
+    <% if @syslog_server != '' -%>
+    <appender name="syslog" class="org.apache.log4j.net.SyslogAppender">
+        <param name="SyslogHost" value="<%= @syslog_server %>" />
+        <param name="Facility" value="<%= @syslog_facility %>" />
+        <param name="Header" value="true" />
+        <layout class="org.apache.log4j.PatternLayout">
+            <param name="ConversionPattern" value="java %d{ISO8601} %p %t %c{1}.%M - %m%n" />
+        </layout>
+    </appender>
+    <% end -%>
+
+    <logger name="com.altamiracorp.lumify" additivity="false">
+        <level value="INFO" />
+        <appender-ref ref="log" />
+        <% if @syslog_server != '' -%>
+        <appender-ref ref="syslog" />
+        <% end -%>
+    </logger>
+
+    <root>
+        <level value="WARN" />
+        <appender-ref ref="console" />
+        <appender-ref ref="log" />
+        <% if @syslog_server != '' -%>
+        <appender-ref ref="syslog" />
+        <% end -%>
+    </root>
+
+</log4j:configuration>

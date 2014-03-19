@@ -11,9 +11,9 @@ import com.altamiracorp.lumify.core.util.LumifyLogger;
 import com.altamiracorp.lumify.core.util.LumifyLoggerFactory;
 import com.altamiracorp.lumify.core.util.RowKeyHelper;
 import com.altamiracorp.securegraph.Authorizations;
+import com.altamiracorp.securegraph.Edge;
 import com.altamiracorp.securegraph.Graph;
 import com.altamiracorp.securegraph.Vertex;
-import com.altamiracorp.securegraph.Visibility;
 import com.altamiracorp.securegraph.mutation.ElementMutation;
 import com.altamiracorp.securegraph.type.GeoPoint;
 import org.json.JSONObject;
@@ -82,13 +82,12 @@ public class FacebookPost {
             TITLE.setProperty(authorBuilder, author_uid, lumifyVisibility.getVisibility());
             CONCEPT_TYPE.setProperty(authorBuilder, profileConceptId, lumifyVisibility.getVisibility());
             authorVertex = authorBuilder.save();
-            auditRepository.auditVertexElementMutation(authorBuilder, authorVertex, PROCESS, user, lumifyVisibility.getVisibility());
+            auditRepository.auditVertexElementMutation(AuditAction.UPDATE, authorBuilder, authorVertex, PROCESS, user, lumifyVisibility.getVisibility());
         } else {
             authorVertex = queryVertex;
         }
-        graph.addEdge(authorVertex, posting, POSTED_RELATIONSHIP, lumifyVisibility.getVisibility(), authorizations);
-        String postedRelationshipLabelDisplayName = ontologyRepository.getDisplayNameForLabel(POSTED_RELATIONSHIP);
-        auditRepository.auditRelationship(AuditAction.CREATE, posting, authorVertex, postedRelationshipLabelDisplayName, PROCESS, "", user, lumifyVisibility.getVisibility());
+        Edge edge = graph.addEdge(authorVertex, posting, POSTED_RELATIONSHIP, lumifyVisibility.getVisibility(), authorizations);
+        auditRepository.auditRelationship(AuditAction.CREATE, posting, authorVertex, edge, PROCESS, "", user, lumifyVisibility.getVisibility());
         graph.flush();
 
         if (post.get(TAGGED_UIDS) instanceof JSONObject) {
@@ -104,13 +103,12 @@ public class FacebookPost {
                     TITLE.setProperty(taggedBuilder, next, lumifyVisibility.getVisibility());
                     CONCEPT_TYPE.setProperty(taggedBuilder, profileConceptId, lumifyVisibility.getVisibility());
                     taggedVertex = taggedBuilder.save();
-                    auditRepository.auditVertexElementMutation(taggedBuilder, taggedVertex, PROCESS, user, lumifyVisibility.getVisibility());
+                    auditRepository.auditVertexElementMutation(AuditAction.UPDATE, taggedBuilder, taggedVertex, PROCESS, user, lumifyVisibility.getVisibility());
                 } else {
                     taggedVertex = nextQueryVertex;
                 }
-                graph.addEdge(posting, taggedVertex, MENTIONED_RELATIONSHIP, lumifyVisibility.getVisibility(), authorizations);
-                String mentionedRelationshipLabelDisplayName = ontologyRepository.getDisplayNameForLabel(MENTIONED_RELATIONSHIP);
-                auditRepository.auditRelationship(AuditAction.CREATE, posting, taggedVertex, mentionedRelationshipLabelDisplayName, PROCESS, "", user, lumifyVisibility.getVisibility());
+                Edge mentionedEdge = graph.addEdge(posting, taggedVertex, MENTIONED_RELATIONSHIP, lumifyVisibility.getVisibility(), authorizations);
+                auditRepository.auditRelationship(AuditAction.CREATE, posting, taggedVertex, mentionedEdge, PROCESS, "", user, lumifyVisibility.getVisibility());
                 graph.flush();
             }
         }
@@ -120,7 +118,7 @@ public class FacebookPost {
             GeoPoint geo = new GeoPoint(coordinates.getDouble("latitude"), coordinates.getDouble("longitude"));
             ElementMutation<Vertex> postingMutation = posting.prepareMutation();
             GEO_LOCATION.setProperty(postingMutation, geo, lumifyVisibility.getVisibility());
-            auditRepository.auditVertexElementMutation(postingMutation, posting, PROCESS, user, lumifyVisibility.getVisibility());
+            auditRepository.auditVertexElementMutation(AuditAction.UPDATE, postingMutation, posting, PROCESS, user, lumifyVisibility.getVisibility());
             posting = postingMutation.save();
         }
 
