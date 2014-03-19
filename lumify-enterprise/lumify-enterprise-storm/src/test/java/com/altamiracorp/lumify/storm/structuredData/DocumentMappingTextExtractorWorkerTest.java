@@ -5,7 +5,7 @@ import static org.mockito.Mockito.*;
 
 import com.altamiracorp.lumify.core.ingest.AdditionalArtifactWorkData;
 import com.altamiracorp.lumify.core.ingest.ArtifactExtractedInfo;
-import com.altamiracorp.lumify.core.model.ontology.DisplayType;
+import com.altamiracorp.lumify.core.model.ontology.ConceptType;
 import com.altamiracorp.lumify.mapping.DocumentMapping;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import java.io.File;
@@ -68,7 +68,7 @@ public class DocumentMappingTextExtractorWorkerTest {
                 .text(TEST_FILE_CONTENTS)
                 .title(TEST_SUBJECT)
                 .mappingJson(TEST_JSON_MAPPING)
-                .conceptType(DisplayType.DOCUMENT.toString());
+                .conceptType(ConceptType.DOCUMENT.toString());
         ArtifactExtractedInfo results = worker.doWork(inputStream, data);
 
         assertEquals(expected, results);
