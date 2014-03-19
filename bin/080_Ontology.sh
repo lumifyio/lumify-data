@@ -20,4 +20,4 @@ java \
 -Xmx1024M \
 com.altamiracorp.lumify.core.cmdline.OwlImport \
 --in=${DIR}/../lumify-public/ontology/dev/dev.owl \
---iri=http://lumify.io/ontology/dev
+--iri=http://lumify.io/dev
