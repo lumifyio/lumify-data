@@ -1,6 +1,7 @@
 #!/bin/bash
 
 /opt/lumify/stop.sh
+service jetty stop
 
 rm -f /var/log/accumulo/*
 rm -f /var/log/elasticsearch/*

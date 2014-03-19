@@ -37,9 +37,20 @@ function _remove_vm_shared_folder {
   VBoxManage sharedfolder remove ${id} --name ${name}
 }
 
+function _vm_bits {
+  local id=$1
+
+  _get_vm_property ${id} 'ostype' | grep -q '64 bit'
+  if [ $? -eq 0 ]; then
+    echo '64bit'
+  else
+    echo '32bit'
+  fi
+}
+
 id=$(cat ${DIR}/../.vagrant/machines/${VM_NAME}/virtualbox/id)
-version=$(date +'%Y-%m-%d')
-ova_filename=${DIR}/lumify-${VM_NAME}-${version}.ova
+version=$(date +'%Y%m%d')
+ova_filename=${DIR}/lumify-${VM_NAME}-${version}-$(_vm_bits ${id}).ova
 
 vagrant halt ${VM_NAME} 
 
@@ -57,6 +68,6 @@ VBoxManage export ${id} \
                   --product 'Lumify' \
                   --producturl 'http://lumify.io' \
                   --version ${version} \
-                  --eulafile ${DIR}/LICENSE-2.0.html
+                  --eulafile ${DIR}/../lumify-public/LICENSE
 
 _set_vm_property ${id} name ${original_vm_name}
