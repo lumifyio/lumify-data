@@ -24,3 +24,5 @@ For more information about Lumify, please visit http://lumify.io
 Built on $(date +'%Y-%m-%d')
 
 EOM
+
+cp /vagrant/lumify-public/{LICENSE,NOTICE} /opt/lumify

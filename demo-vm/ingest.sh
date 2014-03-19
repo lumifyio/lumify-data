@@ -6,6 +6,9 @@ cd /vagrant && mvn package -P uber-jar,web-war -DskipTests 2>&1 | tee /vagrant/m
 
 /opt/lumify/format.sh
 
+sudo sh -c "echo 'objectdetection.opencv.disabled=true' > /opt/lumify/config/z-disable-opencv.properties"
+sudo sh -c "echo 'clavin.disabled=true' > /opt/lumify/config/z-disable-clavin.properties"
+
 cat /vagrant/${tgz_file} | tar -C /vagrant/data -xzf -
 
 echo 'running bin/080_Ontology.sh'
