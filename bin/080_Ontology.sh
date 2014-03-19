@@ -19,4 +19,5 @@ java \
 -classpath ${classpath} \
 -Xmx1024M \
 com.altamiracorp.lumify.core.cmdline.OwlImport \
---in=${DIR}/../data/dev-ontology/dev.owl
+--in=${DIR}/../data/dev-ontology/dev.owl \
+--iri=http://lumify.io/ontology/dev
