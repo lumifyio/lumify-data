@@ -100,6 +100,11 @@
     <dependencies>
         <dependency>
             <groupId>com.altamiracorp.lumify</groupId>
+            <artifactId>lumify-core</artifactId>
+            <version>${lumify.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>com.altamiracorp.lumify</groupId>
             <artifactId>lumify-storm</artifactId>
             <version>${lumify.version}</version>
         </dependency>

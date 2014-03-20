@@ -412,12 +412,12 @@ public class DefaultLumifyTwitterProcessorTest {
 //        doSimpleUserTest(tweet);
 //
 //        verify(tweeterVertex).setProperty(PropertyName.DISPLAY_NAME.toString(), TEST_USER_NAME);
-//        verify(tweeterVertex).setProperty(LUMIFY_CREATION_DATE_PROPERTY, TEST_USER_CREATED);
+//        verify(tweeterVertex).setProperty(LUMIFY_PUBLISHED_DATE_PROPERTY, TEST_USER_CREATED);
 //        verify(tweeterVertex).setProperty(LUMIFY_FOLLOWING_COUNT_PROPERTY, TEST_USER_FRIENDS_COUNT);
 //        verify(auditRepository).auditEntityProperty(eq(AuditAction.UPDATE.toString()), eq(tweeterVertex),
 //                eq(PropertyName.DISPLAY_NAME.toString()), eq(TEST_PROCESS_ID), anyString(), eq(user));
 //        verify(auditRepository).auditEntityProperty(eq(AuditAction.UPDATE.toString()), eq(tweeterVertex),
-//                eq(LUMIFY_CREATION_DATE_PROPERTY), eq(TEST_PROCESS_ID), anyString(), eq(user));
+//                eq(LUMIFY_PUBLISHED_DATE_PROPERTY), eq(TEST_PROCESS_ID), anyString(), eq(user));
 //        verify(auditRepository).auditEntityProperty(eq(AuditAction.UPDATE.toString()), eq(tweeterVertex),
 //                eq(LUMIFY_FOLLOWING_COUNT_PROPERTY), eq(TEST_PROCESS_ID), anyString(), eq(user));
 //    }
@@ -427,7 +427,7 @@ public class DefaultLumifyTwitterProcessorTest {
 //        doSimpleUserTest(FULL_TWEET);
 //
 //        verify(tweeterVertex).setProperty(PropertyName.DISPLAY_NAME.toString(), TEST_USER_NAME);
-//        verify(tweeterVertex).setProperty(LUMIFY_CREATION_DATE_PROPERTY, TEST_USER_CREATED);
+//        verify(tweeterVertex).setProperty(LUMIFY_PUBLISHED_DATE_PROPERTY, TEST_USER_CREATED);
 //        verify(tweeterVertex).setProperty(LUMIFY_FOLLOWING_COUNT_PROPERTY, TEST_USER_FRIENDS_COUNT);
 //        verify(tweeterVertex).setProperty(PropertyName.GEO_LOCATION.toString(), TEST_USER_COORDS);
 //        verify(tweeterVertex).setProperty(LUMIFY_STATUS_COUNT_PROPERTY, TEST_USER_STATUS_COUNT);
@@ -436,7 +436,7 @@ public class DefaultLumifyTwitterProcessorTest {
 //        verify(auditRepository).auditEntityProperty(eq(AuditAction.UPDATE.toString()), eq(tweeterVertex),
 //                eq(PropertyName.DISPLAY_NAME.toString()), eq(TEST_PROCESS_ID), anyString(), eq(user));
 //        verify(auditRepository).auditEntityProperty(eq(AuditAction.UPDATE.toString()), eq(tweeterVertex),
-//                eq(LUMIFY_CREATION_DATE_PROPERTY), eq(TEST_PROCESS_ID), anyString(), eq(user));
+//                eq(LUMIFY_PUBLISHED_DATE_PROPERTY), eq(TEST_PROCESS_ID), anyString(), eq(user));
 //        verify(auditRepository).auditEntityProperty(eq(AuditAction.UPDATE.toString()), eq(tweeterVertex),
 //                eq(LUMIFY_FOLLOWING_COUNT_PROPERTY), eq(TEST_PROCESS_ID), anyString(), eq(user));
 //        verify(auditRepository).auditEntityProperty(eq(AuditAction.UPDATE.toString()), eq(tweeterVertex),
