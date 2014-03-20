@@ -22,6 +22,7 @@ import com.altamiracorp.lumify.core.json.StringJsonProperty;
 import com.altamiracorp.lumify.core.model.properties.DateLumifyProperty;
 import com.altamiracorp.lumify.core.model.properties.IdentityLumifyProperty;
 import com.altamiracorp.lumify.core.model.properties.TextLumifyProperty;
+
 import java.nio.charset.Charset;
 
 /**
@@ -31,17 +32,17 @@ public interface TwitterConstants {
     /**
      * The Tweet Concept name.
      */
-    String CONCEPT_TWEET = "tweet";
+    String CONCEPT_TWEET = "http://lumify.io/twitter#tweet";
 
     /**
      * The Twitter Handle (user) concept name.
      */
-    String CONCEPT_TWITTER_HANDLE = "twitterHandle";
+    String CONCEPT_TWITTER_HANDLE = "http://lumify.io/twitter#twitterHandle";
 
     /**
      * The Twitter Profile Image concept name.
      */
-    String CONCEPT_TWITTER_PROFILE_IMAGE = "tweeterProfileImage";
+    String CONCEPT_TWITTER_PROFILE_IMAGE = "http://lumify.io/twitter#tweeterProfileImage";
 
     /**
      * The Twitter Mention concept name.
@@ -51,32 +52,32 @@ public interface TwitterConstants {
     /**
      * The Twitter Hashtag concept name.
      */
-    String CONCEPT_TWITTER_HASHTAG = "hashtag";
+    String CONCEPT_TWITTER_HASHTAG = "http://lumify.io/twitter#hashtag";
 
     /**
      * The Twitter URL concept name.
      */
-    String CONCEPT_TWITTER_URL = "url";
+    String CONCEPT_TWITTER_URL = "http://lumify.io/twitter#url";
 
     /**
      * The Tweeted relationship label.
      */
-    String TWEETED_RELATIONSHIP = "twitterHandleTweetedTweet";
+    String TWEETED_RELATIONSHIP = "http://lumify.io/twitter#twitterHandleTweetedTweet";
 
     /**
      * The Tweet Mention relationship label.
      */
-    String TWEET_MENTION_RELATIONSHIP = "tweetMentionedHandle";
+    String TWEET_MENTION_RELATIONSHIP = "http://lumify.io/twitter#tweetMentionedHandle";
 
     /**
      * The Tweet Hashtag relationship label.
      */
-    String TWEET_HASHTAG_RELATIONSHIP = "tweetHasHashtag";
+    String TWEET_HASHTAG_RELATIONSHIP = "http://lumify.io/twitter#tweetHasHashtag";
 
     /**
      * The Tweet URL relationship label.
      */
-    String TWEET_URL_RELATIONSHIP = "tweetHasURL";
+    String TWEET_URL_RELATIONSHIP = "http://lumify.io/twitter#tweetHasURL";
 
     /**
      * The Twitter Character Set.
@@ -156,39 +157,39 @@ public interface TwitterConstants {
     /**
      * The Lumify favorite count property.
      */
-    IdentityLumifyProperty<Integer> LUMIFY_FAVORITE_COUNT_PROPERTY = new IdentityLumifyProperty<Integer>("favoriteCount");
+    IdentityLumifyProperty<Integer> LUMIFY_FAVORITE_COUNT_PROPERTY = new IdentityLumifyProperty<Integer>("http://lumify.io/twitter#favoriteCount");
 
     /**
      * The Lumify retweet count property.
      */
-    IdentityLumifyProperty<Integer> LUMIFY_RETWEET_COUNT_PROPERTY = new IdentityLumifyProperty<Integer>("retweetCount");
+    IdentityLumifyProperty<Integer> LUMIFY_RETWEET_COUNT_PROPERTY = new IdentityLumifyProperty<Integer>("http://lumify.io/twitter#retweetCount");
 
     /**
      * The Lumify status count property.
      */
-    IdentityLumifyProperty<Integer> LUMIFY_STATUS_COUNT_PROPERTY = new IdentityLumifyProperty<Integer>("statusCount");
+    IdentityLumifyProperty<Integer> LUMIFY_STATUS_COUNT_PROPERTY = new IdentityLumifyProperty<Integer>("http://lumify.io/twitter#statusCount");
 
     /**
      * The Lumify follower count property.
      */
-    IdentityLumifyProperty<Integer> LUMIFY_FOLLOWER_COUNT_PROPERTY = new IdentityLumifyProperty<Integer>("followerCount");
+    IdentityLumifyProperty<Integer> LUMIFY_FOLLOWER_COUNT_PROPERTY = new IdentityLumifyProperty<Integer>("http://lumify.io/twitter#followerCount");
 
     /**
      * The Lumify following count property.
      */
-    IdentityLumifyProperty<Integer> LUMIFY_FOLLOWING_COUNT_PROPERTY = new IdentityLumifyProperty<Integer>("followingCount");
+    IdentityLumifyProperty<Integer> LUMIFY_FOLLOWING_COUNT_PROPERTY = new IdentityLumifyProperty<Integer>("http://lumify.io/twitter#followingCount");
 
     /**
      * The Lumify creation date property.
      */
-    DateLumifyProperty LUMIFY_CREATION_DATE_PROPERTY = new DateLumifyProperty("creationDate");
+    DateLumifyProperty LUMIFY_PUBLISHED_DATE_PROPERTY = new DateLumifyProperty("http://lumify.io/dev#publishedDate");
 
     /**
      * The Lumify description property.
      */
-    TextLumifyProperty LUMIFY_DESCRIPTION_PROPERTY = TextLumifyProperty.all("description");
+    TextLumifyProperty LUMIFY_DESCRIPTION_PROPERTY = TextLumifyProperty.all("http://lumify.io/twitter#description");
 
-    String ENTITY_HAS_IMAGE_HANDLE_PHOTO = "entityHasImageTweeterProfileImage";
+    String ENTITY_HAS_IMAGE_HANDLE_PHOTO = "http://lumify.io/twitter#entityHasImageTweeterProfileImage";
 
-    String HANDLE_CONTAINS_IMAGE_OF = "tweeterProfileImageContainsImageOfEntity";
+    String HANDLE_CONTAINS_IMAGE_OF = "http://lumify.io/twitter#tweeterProfileImageContainsImageOfEntity";
 }
