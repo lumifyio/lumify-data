@@ -19,4 +19,5 @@ java \
 -classpath ${classpath} \
 -Xmx1024M \
 com.altamiracorp.lumify.core.cmdline.OwlImport \
---in=${DIR}/../data/ontology/facebook.owl
+--in=${DIR}/../data/ontology/facebook.owl \
+--iri=http://lumify.io/facebook
