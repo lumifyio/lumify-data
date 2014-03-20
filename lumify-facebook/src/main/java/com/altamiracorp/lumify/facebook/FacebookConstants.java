@@ -5,7 +5,7 @@ import com.altamiracorp.lumify.core.model.properties.TextLumifyProperty;
 import com.altamiracorp.securegraph.TextIndexHint;
 
 public interface FacebookConstants {
-    public static final String POST_CONCEPT = "document";
+    public static final String POST_CONCEPT = "http://lumify.io/facebook#facebookPost";
     public static final String NAME = "name";
     public static final String UID = "uid";
     public static final String SEX = "sex";
@@ -18,7 +18,7 @@ public interface FacebookConstants {
     public static final String PIC = "pic";
     public static final String BIRTHDAY_FORMAT = "MM/dd";
     public static final String USERNAME = "username";
-    public static final String FACEBOOK_PROFILE_IMAGE = "facebookProfileImage";
+    public static final String FACEBOOK_PROFILE_IMAGE = "http://lumify.io/facebook#facebookProfileImage";
     public static final String GZIP_EXTENSION = ".gz";
     public static final TextLumifyProperty PROFILE_ID = new TextLumifyProperty("profileId", TextIndexHint.EXACT_MATCH);
     public static final String COORDS = "coords";
@@ -28,7 +28,7 @@ public interface FacebookConstants {
     public static final String FACEBOOK = "Facebook";
     public static final String FACEBOOK_POST = "post";
     public static final String MESSAGE = "message";
-    public static final String FACEBOOK_PROFILE = "facebookProfile";
+    public static final String FACEBOOK_PROFILE = "http://lumify.io/facebook#facebookProfile";
     public static final String APP_ID = "facebook.appId";
     public static final String APP_SECRET = "facebook.appSecret";
     public static final String ACCESS_TOKEN = "facebook.accessToken";
