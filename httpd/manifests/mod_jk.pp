@@ -58,7 +58,7 @@ class httpd::mod_jk($tmpdir="/usr/local/src") {
             require => File['/usr/lib64/httpd/modules/mod_jk.so'],
         }
 
-        /* in the case that specific urls are not called out in hiera, simply map all urls */
+        # in the case that specific urls are not called out in hiera, simply map all urls 
         $mod_jk_balanced_urls = hiera_array("mod_jk_balanced_urls",[ "/*" ])
         
         file { 'extra-conf' :
