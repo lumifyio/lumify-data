@@ -422,6 +422,7 @@
     <owl:Class rdf:about="http://lumify.io/twitter#tweet">
         <rdfs:label xml:lang="en">Tweet</rdfs:label>
         <rdfs:subClassOf rdf:resource="http://lumify.io/dev#document"/>
+        <lumify:glyphIconFileName xml:lang="en">glyphicons_392_twitter@2x.png</lumify:glyphIconFileName>
         <lumify:displayType xml:lang="en">document</lumify:displayType>
     </owl:Class>
     
