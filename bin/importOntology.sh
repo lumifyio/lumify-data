@@ -19,4 +19,5 @@ java \
 -classpath ${classpath} \
 -Xmx1024M \
 com.altamiracorp.lumify.core.cmdline.OwlImport \
---in=${DIR}/../data/ontology/twitter.owl
+--in=${DIR}/../data/ontology/twitter.owl \
+--iri=http://lumify.io/twitter
