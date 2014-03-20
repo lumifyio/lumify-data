@@ -2,31 +2,21 @@ package com.altamiracorp.lumify.tools;
 
 import com.altamiracorp.bigtable.model.ModelSession;
 import com.altamiracorp.lumify.core.cmdline.CommandLineBase;
-import com.altamiracorp.lumify.core.model.ontology.*;
-import com.altamiracorp.lumify.core.util.ModelUtil;
-import com.altamiracorp.securegraph.property.StreamingPropertyValue;
+import com.altamiracorp.lumify.core.model.ontology.OntologyRepository;
+import com.altamiracorp.lumify.core.exception.LumifyException;
 import com.google.inject.Inject;
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.OptionBuilder;
 import org.apache.commons.cli.Options;
-import org.apache.commons.codec.binary.Base64;
-import org.apache.commons.io.IOUtils;
+import org.coode.owlapi.rdf.rdfxml.RDFXMLRenderer;
 import org.jdom.Namespace;
-import org.w3c.dom.Document;
-import org.w3c.dom.Element;
-import org.w3c.dom.Node;
+import org.semanticweb.owlapi.apibinding.OWLManager;
+import org.semanticweb.owlapi.model.*;
 
-import javax.xml.parsers.DocumentBuilder;
-import javax.xml.parsers.DocumentBuilderFactory;
-import javax.xml.transform.OutputKeys;
-import javax.xml.transform.Transformer;
-import javax.xml.transform.TransformerFactory;
-import javax.xml.transform.dom.DOMSource;
-import javax.xml.transform.stream.StreamResult;
 import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.InputStream;
 import java.io.OutputStream;
+import java.io.OutputStreamWriter;
+import java.io.Writer;
 import java.util.*;
 
 import static com.altamiracorp.lumify.core.model.ontology.OntologyLumifyProperties.CONCEPT_TYPE;
@@ -48,6 +38,7 @@ public class OwlExport extends CommandLineBase {
     private OntologyRepository ontologyRepository;
     private ModelSession modelSession;
     private String outFileName;
+    private IRI documentIRI;
 
     public static void main(String[] args) throws Exception {
         int res = new OwlExport().run(args);
@@ -69,6 +60,16 @@ public class OwlExport extends CommandLineBase {
                         .create("o")
         );
 
+        options.addOption(
+                OptionBuilder
+                        .withLongOpt("iri")
+                        .withDescription("The document IRI (URI used for prefixing concepts)")
+                        .isRequired()
+                        .hasArg(true)
+                        .withArgName("uri")
+                        .create()
+        );
+
         return options;
     }
 
@@ -76,11 +77,20 @@ public class OwlExport extends CommandLineBase {
     protected void processOptions(CommandLine cmd) throws Exception {
         super.processOptions(cmd);
         this.outFileName = cmd.getOptionValue("out");
+        this.documentIRI = IRI.create(cmd.getOptionValue("iri"));
     }
 
     @Override
     protected int run(CommandLine cmd) throws Exception {
-        ModelUtil.initializeTables(modelSession, getUser());
+        OWLOntologyManager m = OWLManager.createOWLOntologyManager();
+        OWLOntologyLoaderConfiguration config = new OWLOntologyLoaderConfiguration();
+        config.setMissingImportHandlingStrategy(MissingImportHandlingStrategy.SILENT);
+
+        List<OWLOntology> loadedOntologies = this.ontologyRepository.loadOntologyFiles(m, config, null);
+        OWLOntology o = findOntology(loadedOntologies, documentIRI);
+        if (o == null) {
+            throw new LumifyException("Could not find ontology with iri " + documentIRI);
+        }
 
         OutputStream out;
         if (outFileName != null) {
@@ -88,185 +98,24 @@ public class OwlExport extends CommandLineBase {
         } else {
             out = System.out;
         }
+        Writer fileWriter = new OutputStreamWriter(out);
 
-        DocumentBuilderFactory dbFactory = DocumentBuilderFactory.newInstance();
-        dbFactory.setNamespaceAware(true);
-        DocumentBuilder db = dbFactory.newDocumentBuilder();
-        Document doc = db.newDocument();
+        try {
+            new RDFXMLRenderer(o, fileWriter).render();
 
-        Element rootElem = doc.createElementNS(NS_RDF.getURI(), "rdf:RDF");
-        rootElem.setAttribute("xmlns:rdfs", NS_RDFS.getURI());
-        rootElem.setAttribute("xmlns:owl", NS_OWL.getURI());
-        rootElem.setAttribute("xmlns:atc", NS_LUMIFY.getURI());
-        rootElem.setAttribute("xmlns:rdf", NS_RDF.getURI());
-
-        rootElem.appendChild(createVersionElement(doc));
-
-        Concept rootConcept = ontologyRepository.getRootConcept();
-        List<Node> nodes = createConceptElements(doc, rootConcept, null);
-        for (Node e : nodes) {
-            rootElem.appendChild(e);
+            return 0;
+        } finally {
+            fileWriter.close();
         }
+    }
 
-        Iterable<Relationship> relationships = ontologyRepository.getRelationshipLabels();
-        for (Relationship relationship : relationships) {
-            nodes = createRelationshipElements(doc, relationship);
-            for (Node e : nodes) {
-                rootElem.appendChild(e);
+    private OWLOntology findOntology(List<OWLOntology> loadedOntologies, IRI documentIRI) {
+        for (OWLOntology o : loadedOntologies) {
+            if (documentIRI.equals(o.getOntologyID().getOntologyIRI())) {
+                return o;
             }
         }
-
-        doc.appendChild(rootElem);
-
-        Transformer tr = TransformerFactory.newInstance().newTransformer();
-        tr.setOutputProperty(OutputKeys.INDENT, "yes");
-        tr.setOutputProperty(OutputKeys.METHOD, "xml");
-        tr.setOutputProperty(OutputKeys.ENCODING, "UTF-8");
-        tr.setOutputProperty("{http://xml.apache.org/xslt}indent-amount", "2");
-        tr.transform(new DOMSource(doc), new StreamResult(out));
-
-        return 0;
-    }
-
-    private List<Node> createRelationshipElements(Document doc, Relationship relationship) {
-        List<Node> elems = new ArrayList<Node>();
-        elems.add(createObjectPropertyElement(doc, relationship));
-
-        List<OntologyProperty> properties = ontologyRepository.getPropertiesByRelationship(relationship);
-        for (OntologyProperty property : properties) {
-            elems.add(createDatatypePropertyElement(doc, property, relationship));
-        }
-
-        return elems;
-    }
-
-    private Node createObjectPropertyElement(Document doc, Relationship relationship) {
-        Element elem = doc.createElementNS(NS_OWL.getURI(), "owl:ObjectProperty");
-        elem.setAttributeNS(NS_RDF.getURI(), "rdf:about", relationship.getTitle());
-        elem.appendChild(createLabelElement(doc, relationship.getDisplayName()));
-        Concept sourceConcept = ontologyRepository.getConceptById(relationship.getSourceConceptId());
-        elem.appendChild(createDomainElement(doc, sourceConcept));
-        Concept destConcept = ontologyRepository.getConceptById(relationship.getDestConceptId());
-        elem.appendChild(createRangeElement(doc, destConcept));
-        return elem;
-    }
-
-    private List<Node> createConceptElements(Document doc, Concept concept, Concept parentConcept) throws IOException {
-        List<Node> elems = new ArrayList<Node>();
-
-        elems.add(doc.createComment(" Concept: " + concept.getTitle() + " "));
-
-        Element classElem = doc.createElementNS(NS_OWL.getURI(), "owl:Class");
-        elems.add(classElem);
-
-        classElem.setAttributeNS(NS_RDF.getURI(), "rdf:about", concept.getTitle());
-        classElem.appendChild(createLabelElement(doc, concept.getDisplayName()));
-
-        for (com.altamiracorp.securegraph.Property property : concept.getVertex().getProperties()) {
-            if (!EXPORT_SKIP_PROPERTIES.contains(property.getName())) {
-                classElem.appendChild(createPropertyElement(doc, property.getName(), property.getValue()));
-            }
-        }
-        if (parentConcept != null) {
-            classElem.appendChild(createSubClassOfElement(doc, parentConcept));
-        }
-
-        List<OntologyProperty> properties = ontologyRepository.getPropertiesByConceptIdNoRecursion(concept.getId());
-        for (OntologyProperty property : properties) {
-            elems.add(createDatatypePropertyElement(doc, property, concept));
-        }
-
-        List<Concept> childConcepts = ontologyRepository.getChildConcepts(concept);
-        for (Concept childConcept : childConcepts) {
-            elems.addAll(createConceptElements(doc, childConcept, concept));
-        }
-
-        return elems;
-    }
-
-    private Element createDatatypePropertyElement(Document doc, OntologyProperty property, Concept concept) {
-        Element elem = doc.createElementNS(NS_OWL.getURI(), "owl:DatatypeProperty");
-        elem.setAttributeNS(NS_RDF.getURI(), "rdf:about", property.getTitle());
-        elem.appendChild(createLabelElement(doc, property.getDisplayName()));
-        elem.appendChild(createDomainElement(doc, concept));
-        elem.appendChild(createRangeElement(doc, property.getDataType()));
-        return elem;
-    }
-
-    private Element createDatatypePropertyElement(Document doc, OntologyProperty property, Relationship relationship) {
-        Element elem = doc.createElementNS(NS_OWL.getURI(), "owl:DatatypeProperty");
-        elem.setAttributeNS(NS_RDF.getURI(), "rdf:about", property.getTitle());
-        elem.appendChild(createLabelElement(doc, property.getDisplayName()));
-        elem.appendChild(createDomainElement(doc, relationship));
-        elem.appendChild(createRangeElement(doc, property.getDataType()));
-        return elem;
-    }
-
-    private Node createRangeElement(Document doc, PropertyType dataType) {
-        Element elem = doc.createElementNS(NS_RDFS.getURI(), "rdfs:range");
-        elem.setAttributeNS(NS_RDF.getURI(), "rdf:resource", "http://altamiracorp.com/datatype/" + dataType.toString());
-        return elem;
-    }
-
-    private Node createRangeElement(Document doc, Concept concept) {
-        Element elem = doc.createElementNS(NS_RDFS.getURI(), "rdfs:range");
-        elem.setAttributeNS(NS_RDF.getURI(), "rdf:resource", "#" + concept.getTitle());
-        return elem;
-    }
-
-    private Node createDomainElement(Document doc, Concept concept) {
-        Element elem = doc.createElementNS(NS_RDFS.getURI(), "rdfs:domain");
-        elem.setAttributeNS(NS_RDF.getURI(), "rdf:resource", "#" + concept.getTitle());
-        return elem;
-    }
-
-    private Node createDomainElement(Document doc, Relationship relationship) {
-        Element elem = doc.createElementNS(NS_RDFS.getURI(), "rdfs:domain");
-        elem.setAttributeNS(NS_RDF.getURI(), "rdf:resource", "#" + relationship.getTitle());
-        return elem;
-    }
-
-    private Node createSubClassOfElement(Document doc, Concept parentConcept) {
-        Element elem = doc.createElementNS(NS_RDFS.getURI(), "rdfs:subClassOf");
-        elem.setAttributeNS(NS_RDF.getURI(), "rdf:resource", "#" + parentConcept.getTitle());
-        return elem;
-    }
-
-    private Node createPropertyElement(Document doc, String propertyName, Object propertyValue) throws IOException {
-        if (propertyName.startsWith("_")) {
-            propertyName = propertyName.substring(1);
-        }
-        Element elem = doc.createElementNS(NS_LUMIFY.getURI(), "lumify:" + propertyName);
-        if (propertyValue instanceof StreamingPropertyValue) {
-            InputStream in = ((StreamingPropertyValue) propertyValue).getInputStream();
-            try {
-                byte[] data = IOUtils.toByteArray(in);
-                propertyValue = new String(Base64.encodeBase64(data));
-            } finally {
-                in.close();
-            }
-        }
-        elem.setTextContent(propertyValue.toString());
-        return elem;
-    }
-
-    private Element createLabelElement(Document doc, String displayName) {
-        Element elem = doc.createElementNS(NS_RDFS.getURI(), "rdfs:label");
-        elem.setAttributeNS(NS_XML_URI, "lang", "en");
-        elem.setTextContent(displayName);
-        return elem;
-    }
-
-    private Element createVersionElement(Document doc) {
-        Element ontologyElem = doc.createElementNS(NS_OWL.getURI(), "owl:Ontology");
-        ontologyElem.setAttributeNS(NS_RDF.getURI(), "rdf:about", "");
-
-        Element versionInfoElem = doc.createElementNS(NS_OWL.getURI(), "owl:versionInfo");
-        versionInfoElem.setAttributeNS(NS_XML_URI, "lang", "en");
-        versionInfoElem.setTextContent("Version 3.8");
-        ontologyElem.appendChild(versionInfoElem);
-
-        return ontologyElem;
+        return null;
     }
 
     @Inject
