@@ -411,6 +411,7 @@
 
     <owl:Class rdf:about="http://lumify.io/twitter#tweet">
         <rdfs:label xml:lang="en">Tweet</rdfs:label>
+        <lumify:displayType xml:lang="en">document</lumify:displayType>
         <rdfs:subClassOf rdf:resource="http://lumify.io/dev#document"/>
     </owl:Class>
     
@@ -421,6 +422,7 @@
     <owl:Class rdf:about="http://lumify.io/twitter#tweeterProfileImage">
         <rdfs:label xml:lang="en">Tweeter Profile Image</rdfs:label>
         <rdfs:subClassOf rdf:resource="http://lumify.io/dev#image"/>
+        <lumify:displayType xml:lang="en">image</lumify:displayType>
         <lumify:color xml:lang="en">rgb(223, 185, 31)</lumify:color>
     </owl:Class>
     
