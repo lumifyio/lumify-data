@@ -161,6 +161,8 @@ Vagrant.configure('2') do |config|
     demo.vm.provision :puppet do |puppet|
       configure_puppet(puppet, 'demo_opensource_vm.pp', ENV['PROXY_URL'])
     end
+    demo.vm.provision :shell, :path => "demo-vm/set-property.sh", :args => 'objectdetection.opencv.disabled=true'
+    demo.vm.provision :shell, :path => "demo-vm/set-property.sh", :args => 'clavin.disabled=true'
     demo.vm.provision :shell, :path => "demo-vm/ingest.sh", :args => "demo-vm/data/sample-data-html.tgz", :privileged => false
     demo.vm.provision :shell, :path => "demo-vm/configure-vm.sh"
     demo.vm.provision :shell, :path => "demo-vm/clean-vm.sh"
@@ -174,6 +176,7 @@ Vagrant.configure('2') do |config|
     demo.vm.provision :puppet do |puppet|
       configure_puppet(puppet, 'demo_enterprise_vm.pp', ENV['PROXY_URL'])
     end
+    demo.vm.provision :shell, :path => "demo-vm/set-property.sh", :args => 'clavin.disabled=true'
     demo.vm.provision :shell, :path => "demo-vm/ingest.sh", :args => "demo-vm/data/chechen-terrorists.tgz", :privileged => false
     demo.vm.provision :shell, :path => "demo-vm/configure-vm.sh"
     demo.vm.provision :shell, :path => "demo-vm/clean-vm.sh"
