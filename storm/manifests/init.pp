@@ -29,8 +29,23 @@ class storm(
   $storm_supervisor_slots_ports = hiera('storm_supervisor_slots_ports')
   $storm_ui_port = hiera('storm_ui_port')
 
-  $downloadpath = "${tmpdir}/storm-${version}.zip"
-  $extractdir = "${installdir}/storm-${version}"
+  $version_components = split($version, '[.-]')
+  if $version_components[0] == 0 or $version_components[1] < 9 or ($version_components[1] == 9 and $version_components[2] == 0) {
+	  $storm_basename = "storm-${version}"
+	  if $version_components[1] < 9 {
+		  $storm_logger = 'log4j'
+	  }
+	  else {
+		  $storm_logger = 'logback'
+	  }
+  }
+  else {
+	  $storm_basename = "apache-storm-${version}"
+	  $storm_logger = 'logback'
+  }
+  
+  $downloadpath = "${tmpdir}/${storm_basename}.zip"
+  $extractdir = "${installdir}/${storm_basename}"
 
   $make    = "/usr/bin/make"
   $make_multicore    = "${make} -j${processorcount}"
@@ -89,7 +104,8 @@ class storm(
     require     => [ Macro::Git::Clone['jzmq-clone'], Exec['zeromq-build'] ],
   }
 
-  macro::download { "https://www.dropbox.com/s/fl4kr7w0oc8ihdw/storm-${version}.zip":
+  macro::download { "storm-download":
+    url     => "https://s3.amazonaws.com/RedDawn/puppet-repo/storm/${storm_basename}.zip",
     path    => $downloadpath,
     require => [Package['python'], Exec['jzmq-build']],
   } -> macro::extract { $downloadpath:
@@ -112,10 +128,21 @@ class storm(
     require => Macro::Extract[$downloadpath],
   }
 
-  file { "${extractdir}/log4j/storm.log.properties":
-    ensure  => file,
-    source  => 'puppet:///modules/storm/storm.log.properties',
-    require => Macro::Extract[$downloadpath],
+  case $storm_logger {
+	  'log4j': {
+		  file { "${extractdir}/log4j/storm.log.properties":
+		    ensure  => file,
+		    source  => 'puppet:///modules/storm/storm.log.properties',
+		    require => Macro::Extract[$downloadpath],
+		  }
+	  }
+	  'logback': {
+		  file { "${extractdir}/logback/cluster.xml":
+		    ensure  => file,
+		    source  => 'puppet:///modules/storm/cluster.xml',
+		    require => Macro::Extract[$downloadpath],
+		  }
+	  }
   }
 
   file { "${extractdir}/lib/commons-io-2.4.jar" :
