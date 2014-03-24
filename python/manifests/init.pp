@@ -32,6 +32,7 @@ class python(
 	package { 'tk-devel': ensure => installed }
 	package { 'gdbm-devel': ensure => installed }
 	package { 'db4-devel': ensure => installed }
+	package { 'libpcap-devel': ensure => installed }
 	
 	# Add ${install_dir}/lib to the system library path
 	file { "/etc/ld.so.conf.d/python-lib-${version}.conf":
