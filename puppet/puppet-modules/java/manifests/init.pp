@@ -11,7 +11,7 @@ class java($tmpdir = '/tmp', $version = '6u45') {
   $java_home = hiera("java_home")
 
   macro::download { "jdk-download":
-    url  => "https://s3.amazonaws.com/RedDawn/${dist}",
+    url  => "https://s3.amazonaws.com/RedDawn/puppet-repo/java/${dist}",
     path => $path
   }
 
