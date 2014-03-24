@@ -23,6 +23,7 @@ class python(
 	$python = "${install_dir}/bin/python${major_version}.${minor_version}"
 	$easy_install = "${install_dir}/bin/easy_install-${major_version}.${minor_version}"
 	$pip = "${install_dir}/bin/pip${major_version}.${minor_version}"
+	$virtualenv = "${install_dir}/bin/virtualenv-${major_version}.${minor_version}"
 	
 	package { 'bzip2-devel': ensure => installed }
 	package { 'openssl-devel': ensure => installed }
@@ -35,15 +36,9 @@ class python(
 	package { 'libpcap-devel': ensure => installed }
 	
 	# Add ${install_dir}/lib to the system library path
-	file { "/etc/ld.so.conf.d/python-lib-${version}.conf":
-		ensure => file,
-		mode => 'u=rw,go=r',
-		content => template("python/python-lib.conf.erb")
-	}
-	
-	exec { 'exec-ldconfig':
-		command => '/sbin/ldconfig',
-		require => [File["/etc/ld.so.conf.d/python-lib-${version}.conf"]]
+	exec { 'add-lib-dir':
+		command => "/bin/echo '${install_dir}/lib' >> /etc/ld.so.conf && /sbin/ldconfig",
+		unless => "/bin/grep -qe '^${install_dir}/lib$' -- /etc/ld.so.conf",
 	}
 	
 	# Download and install python
@@ -65,7 +60,7 @@ class python(
 					Package['sqlite-devel'], Package['readline-devel'], Package['tk-devel'], Package['gdbm-devel'], Package['db4-devel'], Package['libpcap-devel']]
 	}
 	
-	# Download and install Setuptools and pip
+	# Download and install Setuptools, pip and virtualenv (if python version < 3)
 	macro::download { 'download-setuptools':
 		url => 'https://bitbucket.org/pypa/setuptools/raw/bootstrap/ez_setup.py',
 		path => "${tmpdir}/ez_setup.py",
@@ -82,5 +77,13 @@ class python(
 		creates => "${pip}",
 		timeout => 0,
 		require => [Exec['install-setuptools']]
+	}
+	if $major_version < 3 {
+		exec { 'install-virtualenv':
+			command => "${pip} install virtualenv",
+			creates => "${virtualenv}",
+			timeout => 0,
+			require => [Exec['install-pip']]
+		}
 	}
 }
