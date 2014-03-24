@@ -7,6 +7,8 @@ License:        BSD
 URL:            http://cmusphinx.sourceforge.net/wiki/
 Source:         $SOURCE
 BuildRoot:      %{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
+BuildRequires:  lumify-sphinxbase
+Requires:       lumify-sphinxbase
 
 %description
 
