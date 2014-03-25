@@ -1,0 +1,29 @@
+# tomcat - control of tomcat process
+#
+# Start and stop a tomcat web server
+author "Altamira Technologies"
+description "Controls an Apache Tomcat web server"
+
+# This "start on" is not a mistake...
+# CentOS does not emit all of the standard events properly.
+# If it did, then we should probably be saying "start on net-device-up"
+start on stopped rc RUNLEVEL=[345]
+
+# What user and group to run as
+# I would like to do the next two steps but our version of upstart does not support it
+# setuid <%= @user %>
+# setgid <%= @group %>
+umask 0007
+
+respawn
+respawn limit 5 10
+
+env JAVA_HOME=<%= @java_home %>
+env CATALINA_HOME=<%= @home %> 
+env JAVA_OPTS=<%= @tomcat_java_opts %>
+
+exec su -s /bin/sh -c 'exec "$0" "$@"' <%= @user %> -- $CATALINA_HOME/bin/catalina.sh run
+
+post-stop script
+  rm -rf $CATALINA_HOME/temp/*
+end script

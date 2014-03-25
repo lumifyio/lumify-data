@@ -1,0 +1,13 @@
+# set the base worker to be a load balancer
+worker.list=balancer
+worker.balancer.type=lb
+
+# list of workers to be balanced between
+worker.balancer.balance_workers=<%= @mod_jk_workers.keys.join(',') %> 
+<% @mod_jk_workers.each do |name, worker| -%>
+
+# <%= name %> - <%= worker[:host] %> 
+worker.<%= name %>.host=<%= worker.fetch('host') %>
+worker.<%= name %>.port=<%= worker.fetch('port',8009) %>
+worker.<%= name %>.type=ajp13
+<% end -%>

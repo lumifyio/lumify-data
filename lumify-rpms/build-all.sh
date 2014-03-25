@@ -43,3 +43,6 @@ _build_and_install tesseract
 _build_and_install tesseract-eng
 
 _build_and_install kafka
+
+_build_and_install sphinxbase
+_build_and_install pocketsphinx

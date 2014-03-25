@@ -11,9 +11,10 @@ class rabbitmq {
 		source   => "http://www.rabbitmq.com/releases/rabbitmq-server/v${rabbitMQVersion}/rabbitmq-server-${rabbitMQVersion}-1.noarch.rpm",
   }
   
-  define installPlugin {
+  define enablePlugin {
     exec { "${title}" :
       command     => "/usr/sbin/rabbitmq-plugins enable ${title}",
+      onlyif      => "/usr/bin/test `/usr/sbin/rabbitmq-plugins list -E ${title} | wc -l` -eq 0",
       user        => "root",
       group       => "root",      
       environment => ["HOME=/root"],
@@ -21,5 +22,5 @@ class rabbitmq {
     }
   }
   
-  installPlugin { "${plugins}" : }
+  enablePlugin { "${plugins}" : }
 }

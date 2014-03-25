@@ -11,7 +11,13 @@ class env::cluster::node {
     mode => 'u=rw,g=r,o=r',
   }
 
-  package { [ 'lumify-ffmpeg', 'lumify-ccextractor', 'lumify-tesseract', 'lumify-tesseract-eng', 'lumify-opencv' ] :
+  package { [ 'lumify-ffmpeg',
+              'lumify-ccextractor',
+              'lumify-tesseract',
+              'lumify-tesseract-eng',
+              'lumify-opencv',
+              'lumify-pocketsphinx'
+            ] :
     ensure => present,
     require => File['/etc/yum.repos.d/lumify.repo'],
   }

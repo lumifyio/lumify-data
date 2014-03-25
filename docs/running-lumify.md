@@ -12,7 +12,7 @@ Run a script:
 
     sudo /vagrant/bin/config.sh
 
-Or copy the following files to `/opt/lumify/confg`
+Or copy the following files to `/opt/lumify/config`
 
 - lumify-public/docs/log4j.xml
 - lumify-public/docs/lumify.properties
