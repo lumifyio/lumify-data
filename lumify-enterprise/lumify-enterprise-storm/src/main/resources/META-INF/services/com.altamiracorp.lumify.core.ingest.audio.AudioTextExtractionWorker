@@ -1,0 +1,3 @@
+com.altamiracorp.lumify.storm.file.HashCalculationWorker
+com.altamiracorp.lumify.storm.audio.AudioMp4EncodingWorker
+com.altamiracorp.lumify.storm.audio.AudioOggEncodingWorker
