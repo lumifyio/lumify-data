@@ -28,6 +28,7 @@ In the root directory where you have cloned this repo:
         vagrant up dev
         vagrant ssh dev
 
+- if you're running the command from Altamira's McLean facility, you should append the proxy URL to make downloading faster: `PROXY_URL=http://10.0.1.243:3128 vagrant up dev`
 - the first time you run `vagarnt up` it will download a base CentOS 6.4 image and then provision the VM via Puppet taking several minutes and displaying tons of progress messages
 - subsequent times you run `vagarnt up` will take less time and will skip Puppet provisioning unless you include the `--provision` option
 
