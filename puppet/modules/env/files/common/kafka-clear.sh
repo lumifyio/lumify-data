@@ -60,6 +60,7 @@ function create_topics {
   create_topic processedVideo
   create_topic structuredData
   create_topic twitterStream
+  create_topic graphProperty
 }
 
 function delete_topics {
