@@ -2,7 +2,6 @@ package com.altamiracorp.lumify.contentTypeExtraction;
 
 import com.altamiracorp.lumify.core.contentTypeExtraction.ContentTypeExtractor;
 import com.altamiracorp.lumify.core.model.ontology.DisplayType;
-import org.apache.hadoop.mapreduce.Mapper;
 import org.apache.tika.detect.DefaultDetector;
 import org.apache.tika.metadata.Metadata;
 import org.apache.tika.mime.MediaType;
@@ -51,7 +50,7 @@ public class TikaContentTypeExtractor implements ContentTypeExtractor {
                 fileExt.equals("mpg") || fileExt.equals("wmv")) {
             return DisplayType.VIDEO.toString();
         }
-        if (fileExt.equals("wav") || fileExt.equals("mp3")) {
+        if (fileExt.equals("wav") || fileExt.equals("mp3") || fileExt.equals("m4a")) {
             return DisplayType.AUDIO.toString();
         }
         return "";
