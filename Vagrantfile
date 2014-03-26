@@ -1,7 +1,7 @@
 # -*- mode: ruby -*-
 # vi: set ft=ruby :
 
-HOSTNAME = "lumify-vm.lumify.io"
+HOSTNAME = 'lumify-vm.lumify.io'
 DEFAULT_PRIVATE_NETWORK_IP = '192.168.33.10'
 
 def format_script(input)
@@ -56,8 +56,15 @@ def provision_proxy(config, proxy_url)
       [ -f /usr/etc/npmrc ] && sed -i -e '/^proxy =/d' /usr/etc/npmrc || true
     """
     config.vm.provision :shell, :inline => format_script(script)
-    config.vm.provision :shell, :inline => "rm -f ${HOME}/.m2/settings.xml", :privileged => false
+    config.vm.provision :shell, :inline => 'rm -f ${HOME}/.m2/settings.xml', :privileged => false
   end
+end
+
+def install_puppet_modules(config, module_names)
+  script = module_names.collect do |module_name|
+    "puppet module list | grep -q #{module_name} || puppet module install #{module_name}"
+  end
+  config.vm.provision :shell, :inline => script.join("\n")
 end
 
 def configure_puppet(puppet, manifest_file, proxy_url=nil)
@@ -107,20 +114,20 @@ Vagrant.configure('2') do |config|
   #
   config.vm.provider :virtualbox do |vb|
     ensure_private_network(ENV['PRIVATE_NETWORK_IP'])
-    vb.customize ["modifyvm", :id, '--memory', '4096']
-    vb.customize ["modifyvm", :id, '--cpus', '2']
+    vb.customize ['modifyvm', :id, '--memory', '4096']
+    vb.customize ['modifyvm', :id, '--cpus', '2']
   end
   #
   # View the documentation for the provider you're using for more
   # information on available options.
 
   # used to compile our dependencies
-  config.vm.define "rpm" do |rpm|
-    rpm.vm.provision :shell, :path => "lumify-rpms/configure-vm.sh"
+  config.vm.define 'rpm' do |rpm|
+    rpm.vm.provision :shell, :path => 'lumify-rpms/configure-vm.sh'
   end
 
   # used to manage the local SMMC cluster
-  config.vm.define "puppet" do |puppet|
+  config.vm.define 'puppet' do |puppet|
     puppet.vm.hostname = 'puppet'
     puppet.vm.network :public_network, :ip => '10.0.1.200'
     script = """
@@ -132,53 +139,64 @@ Vagrant.configure('2') do |config|
   end
 
   # used for development including closed source enterprise features
-  config.vm.define "dev", :primary => true do |dev|
+  config.vm.define 'dev', :primary => true do |dev|
     configure_network(dev, ENV['PRIVATE_NETWORK_IP'])
     provision_proxy(dev, ENV['PROXY_URL'])
-    dev.vm.provision :shell, :inline => "mkdir -p /data0"
+    dev.vm.provision :shell, :inline => 'mkdir -p /data0'
     dev.vm.provision :puppet do |puppet|
       configure_puppet(puppet, 'dev_vm.pp', ENV['PROXY_URL'])
     end
   end
 
+  # used for QLIX integration development
+  config.vm.define 'qlix', :primary => true do |qlix|
+    configure_network(qlix, ENV['PRIVATE_NETWORK_IP'])
+    provision_proxy(qlix, ENV['PROXY_URL'])
+    qlix.vm.provision :shell, :inline => 'mkdir -p /data0'
+    install_puppet_modules(qlix, ['puppetlabs-mysql'])
+    qlix.vm.provision :puppet do |puppet|
+      configure_puppet(puppet, 'qlix_vm.pp', ENV['PROXY_URL'])
+    end
+  end
+
   # used for automated integration testing
-  config.vm.define "test" do |test|
+  config.vm.define 'test' do |test|
     configure_network(test, ENV['PRIVATE_NETWORK_IP'])
     provision_proxy(test, ENV['PROXY_URL'])
-    test.vm.provision :shell, :inline => "mkdir -p /data0"
+    test.vm.provision :shell, :inline => 'mkdir -p /data0'
     test.vm.provision :puppet do |puppet|
       configure_puppet(puppet, 'dev_vm.pp', ENV['PROXY_URL'])
     end
-    test.vm.provision :shell, :path => "bin/test/clone.sh", :args => '/tmp/lumify-all', :privileged => false
-    test.vm.provision :shell, :path => "bin/test/ingest.sh", :args => '/tmp/lumify-all', :privileged => false
+    test.vm.provision :shell, :path => 'bin/test/clone.sh', :args => '/tmp/lumify-all', :privileged => false
+    test.vm.provision :shell, :path => 'bin/test/ingest.sh', :args => '/tmp/lumify-all', :privileged => false
   end
 
   # used to create the downloadable open source demo VM
-  config.vm.define "demo-opensource" do |demo|
+  config.vm.define 'demo-opensource' do |demo|
     configure_network(demo, ENV['PRIVATE_NETWORK_IP'])
     provision_proxy(demo, ENV['PROXY_URL'])
-    demo.vm.provision :shell, :inline => "mkdir -p /data0"
+    demo.vm.provision :shell, :inline => 'mkdir -p /data0'
     demo.vm.provision :puppet do |puppet|
       configure_puppet(puppet, 'demo_opensource_vm.pp', ENV['PROXY_URL'])
     end
-    demo.vm.provision :shell, :path => "demo-vm/set-property.sh", :args => 'objectdetection.opencv.disabled=true'
-    demo.vm.provision :shell, :path => "demo-vm/set-property.sh", :args => 'clavin.disabled=true'
-    demo.vm.provision :shell, :path => "demo-vm/ingest.sh", :args => "demo-vm/data/sample-data-html.tgz", :privileged => false
-    demo.vm.provision :shell, :path => "demo-vm/configure-vm.sh"
-    demo.vm.provision :shell, :path => "demo-vm/clean-vm.sh"
+    demo.vm.provision :shell, :path => 'demo-vm/set-property.sh', :args => 'objectdetection.opencv.disabled=true'
+    demo.vm.provision :shell, :path => 'demo-vm/set-property.sh', :args => 'clavin.disabled=true'
+    demo.vm.provision :shell, :path => 'demo-vm/ingest.sh', :args => 'demo-vm/data/sample-data-html.tgz', :privileged => false
+    demo.vm.provision :shell, :path => 'demo-vm/configure-vm.sh'
+    demo.vm.provision :shell, :path => 'demo-vm/clean-vm.sh'
   end
 
   # used to create an enterprise demo VM
-  config.vm.define "demo-enterprise" do |demo|
+  config.vm.define 'demo-enterprise' do |demo|
     configure_network(demo, ENV['PRIVATE_NETWORK_IP'])
     provision_proxy(demo, ENV['PROXY_URL'])
-    demo.vm.provision :shell, :inline => "mkdir -p /data0"
+    demo.vm.provision :shell, :inline => 'mkdir -p /data0'
     demo.vm.provision :puppet do |puppet|
       configure_puppet(puppet, 'demo_enterprise_vm.pp', ENV['PROXY_URL'])
     end
-    demo.vm.provision :shell, :path => "demo-vm/set-property.sh", :args => 'clavin.disabled=true'
-    demo.vm.provision :shell, :path => "demo-vm/ingest.sh", :args => "demo-vm/data/chechen-terrorists.tgz", :privileged => false
-    demo.vm.provision :shell, :path => "demo-vm/configure-vm.sh"
-    demo.vm.provision :shell, :path => "demo-vm/clean-vm.sh"
+    demo.vm.provision :shell, :path => 'demo-vm/set-property.sh', :args => 'clavin.disabled=true'
+    demo.vm.provision :shell, :path => 'demo-vm/ingest.sh', :args => 'demo-vm/data/chechen-terrorists.tgz', :privileged => false
+    demo.vm.provision :shell, :path => 'demo-vm/configure-vm.sh'
+    demo.vm.provision :shell, :path => 'demo-vm/clean-vm.sh'
   end
 end

@@ -1,5 +1,5 @@
 class repo::cloudera::cdh3 {
-    yumrepo { 'cloudera-cdh3-$basearch':
+    yumrepo { 'cloudera-cdh3' :
         descr    => "Cloudera's Distribution for Hadoop, Version 3",
         baseurl  => 'http://archive.cloudera.com/redhat/6/$basearch/cdh/3u6',
         gpgcheck => 1,
