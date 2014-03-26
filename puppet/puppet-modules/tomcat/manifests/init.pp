@@ -23,7 +23,7 @@ class tomcat(
   }
 
   macro::download { 'tomcat-download':
-    url  => "http://mirror.tcpdiag.net/apache/tomcat/tomcat-7/v${version}/bin/apache-tomcat-${version}.tar.gz",
+    url  => "http://archive.apache.org/dist/tomcat/tomcat-7/v${version}/bin/apache-tomcat-${version}.tar.gz",
     path => "${tmpdir}/apache-tomcat-${version}.tar.gz",
   } -> macro::extract { 'extract-tomcat':
     file    => "${tmpdir}/apache-tomcat-${version}.tar.gz",

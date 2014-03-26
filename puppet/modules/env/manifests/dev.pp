@@ -17,7 +17,7 @@ class env::dev {
     require => File['/etc/yum.repos.d/lumify.repo'],
   }
 
-  file { "/etc/profile.d/opencv.sh":
+  file { '/etc/profile.d/opencv.sh' :
     ensure   => file,
     source   => 'puppet:///modules/env/dev/opencv.sh',
     owner    => "root",
