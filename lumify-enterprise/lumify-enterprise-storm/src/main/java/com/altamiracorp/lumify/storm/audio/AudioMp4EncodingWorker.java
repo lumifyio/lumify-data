@@ -4,7 +4,7 @@ import com.altamiracorp.lumify.core.ingest.AdditionalArtifactWorkData;
 import com.altamiracorp.lumify.core.ingest.ArtifactExtractedInfo;
 import com.altamiracorp.lumify.core.ingest.TextExtractionWorkerPrepareData;
 import com.altamiracorp.lumify.core.ingest.audio.AudioTextExtractionWorker;
-import com.altamiracorp.lumify.core.model.ontology.DisplayType;
+import com.altamiracorp.lumify.core.model.ontology.ConceptType;
 import com.altamiracorp.lumify.core.util.LumifyLogger;
 import com.altamiracorp.lumify.core.util.LumifyLoggerFactory;
 import com.altamiracorp.lumify.core.util.ProcessRunner;
@@ -48,7 +48,7 @@ public class AudioMp4EncodingWorker extends ThreadedTeeInputStreamWorker<Artifac
 
             ArtifactExtractedInfo info = new ArtifactExtractedInfo();
             info.setAudioMp4HdfsFilePath(copyDestPath.toString());
-            info.setConceptType(DisplayType.AUDIO.toString());
+            info.setConceptType(ConceptType.AUDIO.toString());
             LOGGER.debug("Finished [AudioMp4EncodingWorker]: %s", data.getFileName());
             return info;
         } finally {
