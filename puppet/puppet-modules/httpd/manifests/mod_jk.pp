@@ -1,6 +1,7 @@
 class httpd::mod_jk($tmpdir="/usr/local/src") {
 	require buildtools
         include macro
+  require devel
 
 	$mod_jkVersion = "1.2.37"
         $project_name  = "tomcat-connectors"
@@ -8,10 +9,6 @@ class httpd::mod_jk($tmpdir="/usr/local/src") {
         $native = "${srcdir}/native"
         $sources = "${srcdir}.tar.gz"
         $binary = "${native}/apache-2.0/mod_jk.so"
-
-        package { 'httpd-devel' : 
-            ensure => present,
-        }
 
         macro::download { "mod_jk-download":
             url  => "http://archive.apache.org/dist/tomcat/${project_name}/jk/${project_name}-${mod_jkVersion}-src.tar.gz",
