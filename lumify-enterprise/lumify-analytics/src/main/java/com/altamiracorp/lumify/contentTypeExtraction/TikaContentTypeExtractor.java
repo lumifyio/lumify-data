@@ -17,15 +17,20 @@ public class TikaContentTypeExtractor implements ContentTypeExtractor {
 
     @Override
     public String extract(InputStream in, String fileExt) throws Exception {
+        String contentType = setContentTypeUsingFileExt(fileExt.toLowerCase());
+        if (contentType != null) {
+            return contentType;
+        }
+
         DefaultDetector detector = new DefaultDetector();
         Metadata metadata = new Metadata();
         MediaType mediaType = detector.detect(new BufferedInputStream(in), metadata);
-
-        String contentType = mediaType.toString();
-        if (contentType == null || contentType.equals("application/octet-stream")) {
-            contentType = setContentTypeUsingFileExt(fileExt.toLowerCase());
+        contentType = mediaType.toString();
+        if (contentType != null && !contentType.equals("application/octet-stream")) {
+            return contentType;
         }
-        return contentType;
+
+        return DisplayType.DOCUMENT.toString();
     }
 
     @Override
@@ -53,6 +58,6 @@ public class TikaContentTypeExtractor implements ContentTypeExtractor {
         if (fileExt.equals("wav") || fileExt.equals("mp3") || fileExt.equals("m4a")) {
             return DisplayType.AUDIO.toString();
         }
-        return "";
+        return null;
     }
 }
