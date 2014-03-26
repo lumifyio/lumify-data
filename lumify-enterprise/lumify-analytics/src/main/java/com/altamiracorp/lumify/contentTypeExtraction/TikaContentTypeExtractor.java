@@ -1,6 +1,6 @@
 package com.altamiracorp.lumify.contentTypeExtraction;
 
-import com.altamiracorp.lumify.core.contentTypeExtraction.ContentTypeExtractor;
+import com.altamiracorp.lumify.core.contentType.ContentTypeExtractor;
 import com.altamiracorp.lumify.core.model.ontology.ConceptType;
 import org.apache.tika.detect.DefaultDetector;
 import org.apache.tika.metadata.Metadata;

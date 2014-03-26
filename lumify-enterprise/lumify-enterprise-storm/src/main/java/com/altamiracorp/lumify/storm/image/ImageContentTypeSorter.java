@@ -1,6 +1,6 @@
 package com.altamiracorp.lumify.storm.image;
 
-import com.altamiracorp.lumify.core.ingest.ContentTypeSorter;
+import com.altamiracorp.lumify.core.contentType.ContentTypeSorter;
 import org.apache.commons.compress.archivers.ArchiveEntry;
 
 import java.io.InputStream;
