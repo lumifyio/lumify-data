@@ -10,7 +10,8 @@ class env::dev {
               'lumify-tesseract',
               'lumify-tesseract-eng',
               'lumify-opencv',
-              'lumify-pocketsphinx'
+              'lumify-pocketsphinx',
+              'sox',
             ] :
     ensure => present,
     require => File['/etc/yum.repos.d/lumify.repo'],
