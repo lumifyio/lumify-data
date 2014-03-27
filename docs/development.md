@@ -9,6 +9,7 @@ The Lumify Vagrant configuration defines six Virtual Machines:
   - `rpm` - used to compile our dependencies
   - `puppet` - used to manage the local SMMC cluster
   - `dev` - used for development including closed source enterprise features **(DEFAULT)**
+  - `qlix` - used for QLIX integration development (w/ httpd, Tomcat, and MySQL)
   - `test` - used for automated integration testing
   - `demo-opensource` - used to create the downloadable open source demo VM
   - `demo-enterprise` - used to create an enterprise demo VM
