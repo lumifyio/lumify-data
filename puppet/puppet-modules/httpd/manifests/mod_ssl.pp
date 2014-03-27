@@ -22,35 +22,37 @@ class httpd::mod_ssl($httpdVersion='2.2.15', $tmpdir="/usr/local/src") {
 
   exec { 'httpd-configure' :
     cwd     => "${srcdir}",
-    command => "${srcdir}/configure --with-apxs=/usr/sbin/apxs --enable-so --enable-ssl",
+    command => "${srcdir}/configure --with-apxs=/usr/sbin/apxs --enable-ssl=shared",
     creates => "${srcdir}/Makefile",
     require => Macro::Extract[$srctgz],
   }
 
-  exec { 'mod_ssl-make' :
+  exec { 'httpd-make' :
     cwd     => "${srcdir}",
     command => "/usr/bin/make",
-    #creates => "${srcdir}/Makefile",
+    creates => "${srcdir}/modules/ssl/.libs/mod_ssl.so",
     require => Exec['httpd-configure'],
   }
 
-  /*
-  exec { 'mod_ssl-make-install' :
-    cwd     => "${srcdir}/modules/ssl",
-    command => "/usr/bin/make install",
-    #creates => "${srcdir}/Makefile",
+  file { '/etc/httpd/modules/mod_ssl.so' :
+    ensure => file,
+    source => "file://${srcdir}/modules/ssl/.libs/mod_ssl.so",
     require => Exec['mod_ssl-make'],
   }
-  */
 
-  /*
-  file { '/etc/httpd/conf.d/mod_jk.conf' :
+  $httpd_ssl_listen_port = hiera('httpd_ssl_listen_port')
+  $httpd_ssl_certificate_file = hiera('httpd_ssl_certificate_file')
+  $httpd_ssl_certificate_key_file = hiera('httpd_ssl_certificate_key_file')
+  $httpd_log_dir = hiera('httpd_log_dir', '/var/log/httpd')
+  $httpd_ssl_document_root = hiera('httpd_ssl_document_root', '/var/www/html')
+  $httpd_ssl_cgibin_root = hiera('httpd_ssl_cgibin_root', '/var/www/cgi-bin')
+
+  file { '/etc/httpd/conf.d/mod_ssl.conf' :
     ensure  => file,
-    source  => "puppet:///modules/httpd/mod_jk.conf",
+    content => template('httpd/mod_ssl.conf.erb'),
     owner   => 'root',
     group   => 'root',
     mode    => 'u=rw,go=r',
-    require => [File['workers.properties'],File['uriworkermap.properties']],
+    require => File['/etc/httpd/modules/mod_ssl.so'],
   }
-  */
 }
