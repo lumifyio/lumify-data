@@ -160,7 +160,7 @@ public class SphinxAudioTextExtractor {
                     sentence = new StringBuilder();
                     sentenceStartTime = startTime;
                 } else {
-                    sentence.append(word);
+                    sentence.append(word.replaceAll("\\s*\\(\\d+\\)\\s*$", ""));
                     sentence.append(' ');
                 }
             }
