@@ -138,7 +138,6 @@ public class FacebookUser {
             ArtifactExtractedInfo artifactExtractedInfo = new ArtifactExtractedInfo();
             artifactExtractedInfo.setMimeType("image/png");
             artifactExtractedInfo.setRowKey(rowKey);
-            artifactExtractedInfo.setConceptType(FACEBOOK_PROFILE_IMAGE);
             artifactExtractedInfo.setTitle(facebookPictureTitle);
             artifactExtractedInfo.setSource(facebookPictureSource);
             artifactExtractedInfo.setProcess(PROCESS);

@@ -4,7 +4,6 @@ import com.altamiracorp.lumify.core.ingest.AdditionalArtifactWorkData;
 import com.altamiracorp.lumify.core.ingest.ArtifactDetectedObject;
 import com.altamiracorp.lumify.core.ingest.ArtifactExtractedInfo;
 import com.altamiracorp.lumify.core.ingest.TextExtractionWorkerPrepareData;
-import com.altamiracorp.lumify.core.model.ontology.ConceptType;
 import com.altamiracorp.lumify.core.util.LumifyLogger;
 import com.altamiracorp.lumify.core.util.LumifyLoggerFactory;
 import com.altamiracorp.lumify.objectDetection.ObjectDetector;
@@ -33,7 +32,6 @@ public class ImageObjectDetectionWorker extends BaseImageWorker {
         }
 
         info.setDetectedObjects(detectedObjects);
-        info.setConceptType(ConceptType.IMAGE.toString());
         LOGGER.debug("Finished [ImageObjectDetectionWorker]: %s", data.getFileName());
         return info;
     }

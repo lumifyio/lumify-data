@@ -47,7 +47,6 @@ public class FacebookPost {
         artifactExtractedInfo.setRaw(post.toString().getBytes());
         artifactExtractedInfo.setMimeType("text/plain");
         artifactExtractedInfo.setRowKey(rowKey);
-        artifactExtractedInfo.setConceptType(FACEBOOK_POST);
         artifactExtractedInfo.setAuthor(author_uid);
         artifactExtractedInfo.setDate(time);
         artifactExtractedInfo.setProcess(PROCESS);
