@@ -49,17 +49,7 @@ public class VideoBolt extends BaseArtifactProcessingBolt {
 
     @Override
     protected File getPrimaryFileFromArchive(File archiveTempDir) {
-        for (File f : archiveTempDir.listFiles()) {
-            if (f.getName().endsWith(VideoContentTypeSorter.SRT_CC_FILE_NAME_SUFFIX) ||
-                    f.getName().endsWith(VideoContentTypeSorter.YOUTUBE_CC_FILE_NAME_SUFFIX)) {
-                continue;
-            }
-            if (! f.getName().startsWith(".")) {
-                return f;
-            } else {
-                continue;
-            }
-        }
+
         throw new RuntimeException("Could not find primary file");
     }
 

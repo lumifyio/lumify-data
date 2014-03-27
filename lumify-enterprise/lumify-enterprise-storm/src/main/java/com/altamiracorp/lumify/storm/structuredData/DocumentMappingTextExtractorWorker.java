@@ -1,8 +1,5 @@
 package com.altamiracorp.lumify.storm.structuredData;
 
-import static com.google.common.base.Preconditions.checkNotNull;
-import static com.google.common.base.Preconditions.checkState;
-
 import com.altamiracorp.lumify.core.ingest.AdditionalArtifactWorkData;
 import com.altamiracorp.lumify.core.ingest.ArtifactExtractedInfo;
 import com.altamiracorp.lumify.core.ingest.TextExtractionWorkerPrepareData;
@@ -14,10 +11,14 @@ import com.altamiracorp.lumify.core.util.ThreadedTeeInputStreamWorker;
 import com.altamiracorp.lumify.mapping.DocumentMapping;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.inject.Inject;
+
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.StringWriter;
+
+import static com.google.common.base.Preconditions.checkNotNull;
+import static com.google.common.base.Preconditions.checkState;
 
 /**
  * This class applies a configured DocumentMapping to the input to process
@@ -29,6 +30,7 @@ public class DocumentMappingTextExtractorWorker
         implements StructuredDataExtractionWorker {
 
     private static final LumifyLogger LOGGER = LumifyLoggerFactory.getLogger(DocumentMappingTextExtractorWorker.class);
+    public static final String MAPPING_JSON_FILE_NAME_SUFFIX = ".mapping.json";
 
     private ObjectMapper jsonMapper;
 
@@ -56,7 +58,7 @@ public class DocumentMappingTextExtractorWorker
         checkNotNull(tempDir, "Structured data must be an archive file");
         checkState(tempDir.isDirectory(), "Archive temp directory not a directory");
         for (File f : tempDir.listFiles()) {
-            if (!f.getName().startsWith(".") && f.getName().endsWith(StructuredDataContentTypeSorter.MAPPING_JSON_FILE_NAME_SUFFIX)) {
+            if (!f.getName().startsWith(".") && f.getName().endsWith(MAPPING_JSON_FILE_NAME_SUFFIX)) {
                 try {
                     return jsonMapper.readValue(f, DocumentMapping.class);
                 } catch (IOException ioe) {

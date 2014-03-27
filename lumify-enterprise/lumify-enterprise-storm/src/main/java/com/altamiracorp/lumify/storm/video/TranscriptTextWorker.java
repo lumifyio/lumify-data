@@ -20,6 +20,8 @@ public class TranscriptTextWorker
         extends ThreadedTeeInputStreamWorker<ArtifactExtractedInfo, AdditionalArtifactWorkData>
         implements VideoTextExtractionWorker {
     private static final LumifyLogger LOGGER = LumifyLoggerFactory.getLogger(TranscriptTextWorker.class);
+    public static final String YOUTUBE_CC_FILE_NAME_SUFFIX = ".youtubecc";
+    public static final String SRT_CC_FILE_NAME_SUFFIX = ".srt";
 
     @Override
     protected ArtifactExtractedInfo doWork(InputStream work, AdditionalArtifactWorkData data) throws Exception {
@@ -41,9 +43,9 @@ public class TranscriptTextWorker
         checkState(tempDir.isDirectory(), "Archive temp directory not a directory");
         for (File f : tempDir.listFiles()) {
             if (!f.getName().startsWith(".")) {
-                if (f.getName().endsWith(VideoContentTypeSorter.YOUTUBE_CC_FILE_NAME_SUFFIX)) {
+                if (f.getName().endsWith(YOUTUBE_CC_FILE_NAME_SUFFIX)) {
                     return YoutubeccReader.read(f);
-                } else if (f.getName().endsWith(VideoContentTypeSorter.SRT_CC_FILE_NAME_SUFFIX)) {
+                } else if (f.getName().endsWith(SRT_CC_FILE_NAME_SUFFIX)) {
                     return SubRip.read(f);
                 }
             }

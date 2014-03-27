@@ -5,12 +5,11 @@ import backtype.storm.generated.StormTopology;
 import backtype.storm.topology.TopologyBuilder;
 import com.altamiracorp.lumify.core.config.ConfigurationHelper;
 import com.altamiracorp.lumify.core.model.workQueue.WorkQueueRepository;
-import com.altamiracorp.lumify.storm.contentTypeSorter.ContentTypeSorterBolt;
+import com.altamiracorp.lumify.storm.audio.AudioBolt;
 import com.altamiracorp.lumify.storm.document.DocumentBolt;
 import com.altamiracorp.lumify.storm.image.ImageBolt;
 import com.altamiracorp.lumify.storm.structuredData.StructuredDataTextExtractorBolt;
 import com.altamiracorp.lumify.storm.term.extraction.TermExtractionBolt;
-import com.altamiracorp.lumify.storm.audio.AudioBolt;
 import com.altamiracorp.lumify.storm.video.VideoBolt;
 import com.altamiracorp.lumify.storm.video.VideoPreviewBolt;
 import org.apache.commons.cli.CommandLine;
@@ -106,7 +105,6 @@ public class StormEnterpriseRunner extends StormRunnerBase {
 
     public StormTopology createTopology(int parallelismHint) {
         TopologyBuilder builder = new TopologyBuilder();
-        createContentTypeSorterTopology(builder, parallelismHint);
         createVideoTopology(builder, parallelismHint);
         createAudioTopology(builder, parallelismHint);
         createImageTopology(builder, parallelismHint);
@@ -116,15 +114,6 @@ public class StormEnterpriseRunner extends StormRunnerBase {
         createStructuredDataTextTopology(builder, parallelismHint);
 
         return builder.createTopology();
-    }
-
-    private TopologyBuilder createContentTypeSorterTopology(TopologyBuilder builder, int parallelismHint) {
-        String name = "contentType";
-        builder.setSpout(name + "-spout", new HdfsFileSystemSpout("/unknown"), 1)
-                .setMaxTaskParallelism(1);
-        builder.setBolt(name + "-bolt", new ContentTypeSorterBolt(), parallelismHint)
-                .shuffleGrouping(name + "-spout");
-        return builder;
     }
 
     private void createImageTopology(TopologyBuilder builder, int parallelismHint) {
