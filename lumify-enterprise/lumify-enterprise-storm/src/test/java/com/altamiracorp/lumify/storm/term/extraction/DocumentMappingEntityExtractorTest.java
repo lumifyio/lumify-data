@@ -3,6 +3,7 @@ package com.altamiracorp.lumify.storm.term.extraction;
 import com.altamiracorp.lumify.core.ingest.term.extraction.TermExtractionResult;
 import com.altamiracorp.lumify.core.user.User;
 import com.altamiracorp.lumify.mapping.DocumentMapping;
+import com.altamiracorp.lumify.mapping.MappingFileImportSupportingFileHandler;
 import com.altamiracorp.securegraph.Text;
 import com.altamiracorp.securegraph.Vertex;
 import com.altamiracorp.securegraph.property.StreamingPropertyValue;
@@ -20,7 +21,6 @@ import java.io.InputStreamReader;
 import java.io.StringReader;
 
 import static com.altamiracorp.lumify.core.model.properties.LumifyProperties.ROW_KEY;
-import static com.altamiracorp.lumify.core.model.properties.RawLumifyProperties.MAPPING_JSON;
 import static com.altamiracorp.lumify.core.model.properties.RawLumifyProperties.TEXT;
 import static org.junit.Assert.assertEquals;
 import static org.mockito.Mockito.*;
@@ -59,7 +59,7 @@ public class DocumentMappingEntityExtractorTest {
     public void setup() throws Exception {
         when(vertex.getId()).thenReturn(TEST_VERTEX_ID);
         when(vertex.getPropertyValue(ROW_KEY.getKey())).thenReturn(TEST_ROW_KEY);
-        when(vertex.getPropertyValue(MAPPING_JSON.getKey())).thenReturn(new Text(TEST_JSON_MAPPING));
+        when(vertex.getPropertyValue(MappingFileImportSupportingFileHandler.MAPPING_JSON.getKey())).thenReturn(new Text(TEST_JSON_MAPPING));
         when(jsonMapper.readValue(TEST_JSON_MAPPING, DocumentMapping.class)).thenReturn(docMapping);
 
         extractor = new DocumentMappingEntityExtractor();
