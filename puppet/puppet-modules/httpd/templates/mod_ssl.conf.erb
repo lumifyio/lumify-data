@@ -1,0 +1,46 @@
+# http://httpd.apache.org/docs/2.2/mod/mod_ssl.html
+
+LoadModule ssl_module modules/mod_ssl.so
+
+<IfModule ssl_module>
+    Listen <%= @httpd_ssl_listen_port %>
+
+    AddType application/x-x509-ca-cert .crt
+    AddType application/x-pkcs7-crl    .crl
+
+    SSLPassPhraseDialog  builtin
+
+    SSLSessionCache        "shmcb:<%= @httpd_log_dir %>/ssl_scache(512000)"
+    SSLSessionCacheTimeout  300
+
+    SSLMutex  "file:<%= @httpd_log_dir %>/ssl_mutex"
+
+    <VirtualHost _default_:<%= @httpd_ssl_listen_port %>>
+        DocumentRoot "<%= @httpd_ssl_document_root %>"
+        ServerName <%= @fqdn %>:<%= @httpd_ssl_listen_port %>
+        ServerAdmin httpd@<%= @domain %>
+        ErrorLog "<%= @httpd_log_dir %>/error_log"
+        TransferLog "<%= @httpd_log_dir %>/access_log"
+
+        SSLEngine on
+
+        SSLCipherSuite ALL:!ADH:!EXPORT56:RC4+RSA:+HIGH:+MEDIUM:+LOW:+SSLv2:+EXP:+eNULL
+
+        SSLCertificateFile "<%= @httpd_ssl_certificate_file %>"
+        SSLCertificateKeyFile "<%= @httpd_ssl_certificate_key_file %>"
+
+        <FilesMatch "\.(cgi|shtml|phtml|php)$">
+            SSLOptions +StdEnvVars
+        </FilesMatch>
+        <Directory "<%= @httpd_ssl_cgibin_root %>">
+            SSLOptions +StdEnvVars
+        </Directory>
+
+        BrowserMatch ".*MSIE.*" \
+            nokeepalive ssl-unclean-shutdown \
+            downgrade-1.0 force-response-1.0
+
+        CustomLog "<%= @httpd_log_dir %>/ssl_request_log" \
+            "%t %h %{SSL_PROTOCOL}x %{SSL_CIPHER}x \"%r\" %b"
+    </VirtualHost>
+</IfModule>

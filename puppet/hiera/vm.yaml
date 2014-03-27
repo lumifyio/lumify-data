@@ -33,6 +33,9 @@ jetty_trust_store_path: /opt/lumify/config/jetty.jks
 jetty_trust_store_password: OBF:1v2j1uum1xtv1zej1zer1xtn1uvk1v1v
 jetty_confidential_port: 8443
 jetty_client_auth: false
+httpd_ssl_listen_port: 443
+httpd_ssl_certificate_file: /opt/lumify/config/lumify.cert.pem
+httpd_ssl_certificate_key_file: /opt/lumify/config/lumify.key.pem
 mod_jk_workers:
   lumify1:
     host: %{ipaddress_eth1}
