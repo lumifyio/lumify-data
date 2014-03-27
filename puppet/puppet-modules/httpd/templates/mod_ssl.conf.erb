@@ -36,6 +36,10 @@ LoadModule ssl_module modules/mod_ssl.so
             SSLOptions +StdEnvVars
         </Directory>
 
+        <IfModule jk_module>
+            JkMountFile conf/extra/uriworkermap.properties
+        </IfModule>
+
         BrowserMatch ".*MSIE.*" \
             nokeepalive ssl-unclean-shutdown \
             downgrade-1.0 force-response-1.0
