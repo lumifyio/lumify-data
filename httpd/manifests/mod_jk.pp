@@ -14,7 +14,7 @@ class httpd::mod_jk($tmpdir="/usr/local/src") {
         }
 
         macro::download { "mod_jk-download":
-            url  => "http://supergsego.com/apache//tomcat/${project_name}/jk/${project_name}-${mod_jkVersion}-src.tar.gz",
+            url  => "http://archive.apache.org/dist/tomcat/${project_name}/jk/${project_name}-${mod_jkVersion}-src.tar.gz",
             path => $sources,
         } -> macro::extract { 'extract-mod_jk':
             file    => $sources,
