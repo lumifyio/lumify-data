@@ -3,7 +3,7 @@ package com.altamiracorp.lumify.storm.contentTypeSorter;
 import backtype.storm.task.OutputCollector;
 import backtype.storm.task.TopologyContext;
 import backtype.storm.tuple.Tuple;
-import com.altamiracorp.lumify.core.contentTypeExtraction.ContentTypeExtractor;
+import com.altamiracorp.lumify.core.contentType.MimeTypeMapper;
 import com.altamiracorp.lumify.core.ingest.ContentTypeSorter;
 import com.altamiracorp.lumify.core.util.LumifyLogger;
 import com.altamiracorp.lumify.core.util.LumifyLoggerFactory;
@@ -36,7 +36,7 @@ public class ContentTypeSorterBolt extends BaseLumifyBolt {
     private static final String LUMIFY_QUEUE_FILENAME = ".lumify-queue";
     private static final Charset LUMIFY_QUEUE_CHARSET = Charset.forName("UTF-8");
 
-    private ContentTypeExtractor contentTypeExtractor;
+    private MimeTypeMapper mimeTypeMapper;
     private String dataDir;
     private List<ContentTypeSorter> contentTypeSorters;
 
@@ -79,7 +79,7 @@ public class ContentTypeSorterBolt extends BaseLumifyBolt {
     }
 
     private String calculateQueueName(String fileName, InputStream in) throws Exception {
-        String mimeType = contentTypeExtractor.extract(in, FilenameUtils.getExtension(fileName));
+        String mimeType = mimeTypeMapper.guessMimeType(in, FilenameUtils.getExtension(fileName));
         String queueName = calculateQueueNameFromMimeType(mimeType);
         if (queueName != null) {
             return queueName;
@@ -137,8 +137,8 @@ public class ContentTypeSorterBolt extends BaseLumifyBolt {
     }
 
     @Inject
-    public void setContentTypeExtractor(@Nullable ContentTypeExtractor contentTypeExtractor) {
-        this.contentTypeExtractor = contentTypeExtractor;
+    public void setMimeTypeMapper(@Nullable MimeTypeMapper mimeTypeMapper) {
+        this.mimeTypeMapper = mimeTypeMapper;
     }
 
     private String calculateQueueNameFromMimeType(String mimeType) {
