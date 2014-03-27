@@ -9,6 +9,7 @@ import com.altamiracorp.securegraph.Vertex;
 import com.altamiracorp.securegraph.property.StreamingPropertyValue;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.inject.Inject;
+import org.apache.commons.io.IOUtils;
 
 import java.io.IOException;
 import java.io.InputStreamReader;
@@ -29,8 +30,9 @@ public class DocumentMappingEntityExtractor {
         TermExtractionResult termExtractionResult = new TermExtractionResult();
         LOGGER.debug("Processing graph vertex [%s]", artifactVertex.getId());
 
-        String mappingJsonString = MAPPING_JSON.getPropertyValue(artifactVertex);
-        if (mappingJsonString != null) {
+        StreamingPropertyValue mappingJson = MAPPING_JSON.getPropertyValue(artifactVertex);
+        if (mappingJson != null) {
+            String mappingJsonString = IOUtils.toString(mappingJson.getInputStream());
             DocumentMapping mapping = jsonMapper.readValue(mappingJsonString, DocumentMapping.class);
             StreamingPropertyValue textVal = TEXT.getPropertyValue(artifactVertex);
             termExtractionResult = mapping.mapDocument(new InputStreamReader(textVal.getInputStream()), getClass().getName());

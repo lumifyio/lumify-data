@@ -46,7 +46,7 @@ public class DocumentMappingTextExtractorWorker
         mapping.ingestDocument(work, writer);
         info.setText(writer.toString());
         info.setTitle(mapping.getSubject());
-        info.setMappingJson(jsonMapper.writeValueAsString(mapping));
+        //info.setMappingJson(jsonMapper.writeValueAsString(mapping));
         LOGGER.debug("Finished [DocumentMappingTextExtractorWorker]: %s", data.getFileName());
         return info;
     }
