@@ -17,7 +17,6 @@ import org.apache.commons.compress.archivers.ArchiveEntry;
 import org.apache.commons.compress.archivers.ArchiveException;
 import org.apache.commons.compress.archivers.ArchiveInputStream;
 import org.apache.commons.compress.archivers.ArchiveStreamFactory;
-import org.apache.commons.io.FilenameUtils;
 import org.apache.hadoop.fs.Path;
 
 import javax.annotation.Nullable;
@@ -79,7 +78,7 @@ public class ContentTypeSorterBolt extends BaseLumifyBolt {
     }
 
     private String calculateQueueName(String fileName, InputStream in) throws Exception {
-        String mimeType = mimeTypeMapper.guessMimeType(in, FilenameUtils.getExtension(fileName));
+        String mimeType = mimeTypeMapper.guessMimeType(in, fileName);
         String queueName = calculateQueueNameFromMimeType(mimeType);
         if (queueName != null) {
             return queueName;
