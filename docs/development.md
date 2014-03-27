@@ -9,6 +9,7 @@ The Lumify Vagrant configuration defines six Virtual Machines:
   - `rpm` - used to compile our dependencies
   - `puppet` - used to manage the local SMMC cluster
   - `dev` - used for development including closed source enterprise features **(DEFAULT)**
+  - `qlix` - used for QLIX integration development (w/ httpd, Tomcat, and MySQL)
   - `test` - used for automated integration testing
   - `demo-opensource` - used to create the downloadable open source demo VM
   - `demo-enterprise` - used to create an enterprise demo VM
@@ -28,10 +29,13 @@ In the root directory where you have cloned this repo:
         vagrant up dev
         vagrant ssh dev
 
-- if you're running the command from Altamira's McLean facility, you should append the proxy URL to make downloading faster: `PROXY_URL=http://10.0.1.243:3128 vagrant up dev`
+Or if you are on the #361 network in McLean (_or have your own caching proxy server_):
+
+        PROXY_URL=http://10.0.1.243:3128 vagrant up dev
+        vagrant ssh dev
+        
 - the first time you run `vagrant up` it will download a base CentOS 6.4 image and then provision the VM via Puppet taking several minutes and displaying tons of progress messages
 - subsequent times you run `vagrant up` will take less time and will skip Puppet provisioning unless you include the `--provision` option
-
 - after `vagrant ssh` you will be inside the VM as the `vagrant` user who has `sudo` privileges
 - the `/vagrant` directory inside the VM is mapped to the root directory on your host where you have cloned this repo
 - Lumify software is installed in the following directories:

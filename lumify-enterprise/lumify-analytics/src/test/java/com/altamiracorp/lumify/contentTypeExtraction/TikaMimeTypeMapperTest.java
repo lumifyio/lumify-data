@@ -12,7 +12,7 @@ import static org.junit.Assert.assertEquals;
 public class TikaMimeTypeMapperTest {
 
     @Test
-    public void textExtract() throws Exception {
+    public void testGuessMimeType() throws Exception {
         TikaMimeTypeMapper contentTypeExtractor = new TikaMimeTypeMapper();
         contentTypeExtractor.init(new HashMap());
         assertEquals("video/mp4", contentTypeExtractor.guessMimeType(TikaMimeTypeMapper.class.getResourceAsStream("/H_264.m4v"), "H_264.m4v"));
