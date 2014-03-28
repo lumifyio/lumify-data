@@ -37,7 +37,7 @@ class httpd::mod_ssl($httpdVersion='2.2.15', $tmpdir="/usr/local/src") {
   file { '/etc/httpd/modules/mod_ssl.so' :
     ensure => file,
     source => "file://${srcdir}/modules/ssl/.libs/mod_ssl.so",
-    require => Exec['mod_ssl-make'],
+    require => Exec['httpd-make'],
   }
 
   $httpd_ssl_listen_port = hiera('httpd_ssl_listen_port')
