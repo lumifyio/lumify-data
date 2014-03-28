@@ -17,12 +17,13 @@ include tomcat::worker
 class { 'mysql::server' :
   remove_default_accounts => true,
   restart => true,
+  override_options => { 'mysqld' => { 'bind-address' => '0.0.0.0' } }
 }
 
 mysql::db { 'lumify' :
   user     => 'lumify',
   password => 'lumify',
-  host     => 'localhost',
+  host     => '%',
   grant    => ['ALL'],
   require  => Class[mysql::server],
 }
