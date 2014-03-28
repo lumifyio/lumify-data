@@ -157,6 +157,8 @@ Vagrant.configure('2') do |config|
     qlix.vm.provision :puppet do |puppet|
       configure_puppet(puppet, 'qlix_vm.pp', ENV['PROXY_URL'])
     end
+    qlix.vm.provision :shell, :path => 'demo-vm/set-property.sh', :args => 'objectdetection.opencv.disabled=true'
+    qlix.vm.provision :shell, :path => 'demo-vm/set-property.sh', :args => 'clavin.disabled=true'
   end
 
   # used for automated integration testing
