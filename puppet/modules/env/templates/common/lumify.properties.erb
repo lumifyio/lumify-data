@@ -10,6 +10,7 @@ authentication.provider=<%= @authentication_provider %>
 fs.provider=com.altamiracorp.lumify.fs.hdfs.HdfsSession
 work-queue-repository=com.altamiracorp.lumify.model.bigtablequeue.BigTableWorkQueueRepository
 work-queue-repository.tableprefix=atc_accumuloqueue_
+user-repository=com.altamiracorp.lumify.core.model.user.SecureGraphUserRepository
 
 # Application-wide
 hadoop.url=hdfs://<%= @hadoop_masters[0] %>:8020
