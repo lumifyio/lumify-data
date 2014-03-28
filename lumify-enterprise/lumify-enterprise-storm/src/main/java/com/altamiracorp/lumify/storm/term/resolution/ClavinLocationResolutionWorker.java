@@ -46,7 +46,7 @@ public class ClavinLocationResolutionWorker implements TermResolutionWorker {
     /**
      * TODO: Don't hard-code this
      */
-    private static final String TARGET_ONTOLOGY_URI = "location";
+    private static final String TARGET_ONTOLOGY_URI = "http://lumify.io/dev#location";
 
     /**
      * The CLAVIN disabled configuration key.
