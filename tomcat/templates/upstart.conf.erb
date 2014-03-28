@@ -18,7 +18,7 @@ umask 0007
 respawn
 respawn limit 5 10
 
-env JAVA_HOME=<%= @java_home %>
+env JAVA_HOME=<%= @tomcat_java_home %>
 env CATALINA_HOME=<%= @home %> 
 env JAVA_OPTS=<%= @tomcat_java_opts %>
 
