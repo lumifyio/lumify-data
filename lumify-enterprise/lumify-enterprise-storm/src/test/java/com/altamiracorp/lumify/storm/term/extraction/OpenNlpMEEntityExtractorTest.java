@@ -52,19 +52,19 @@ public class OpenNlpMEEntityExtractorTest {
         for (TermMention term : results.getTermMentions()) {
             extractedTerms.put(term.getSign() + "-" + term.getOntologyClassUri(), term);
         }
-        assertTrue("A person wasn't found", extractedTerms.containsKey("Bob Robertson-person"));
-        TermMention bobRobertsonMentions = extractedTerms.get("Bob Robertson-person");
+        assertTrue("A person wasn't found", extractedTerms.containsKey("Bob Robertson-http://lumify.io/dev#person"));
+        TermMention bobRobertsonMentions = extractedTerms.get("Bob Robertson-http://lumify.io/dev#person");
         assertEquals(31, bobRobertsonMentions.getStart());
         assertEquals(44, bobRobertsonMentions.getEnd());
 
 
-        assertTrue("A location wasn't found", extractedTerms.containsKey("Benghazi-location"));
-        TermMention benghaziMentions = extractedTerms.get("Benghazi-location");
+        assertTrue("A location wasn't found", extractedTerms.containsKey("Benghazi-http://lumify.io/dev#location"));
+        TermMention benghaziMentions = extractedTerms.get("Benghazi-http://lumify.io/dev#location");
         assertEquals(189, benghaziMentions.getStart());
         assertEquals(197, benghaziMentions.getEnd());
 
-        assertTrue("An organization wasn't found", extractedTerms.containsKey("CNN-organization"));
-        TermMention cnnMentions = extractedTerms.get("CNN-organization");
+        assertTrue("An organization wasn't found", extractedTerms.containsKey("CNN-http://lumify.io/dev#organization"));
+        TermMention cnnMentions = extractedTerms.get("CNN-http://lumify.io/dev#organization");
         assertEquals(151, cnnMentions.getStart());
         assertEquals(154, cnnMentions.getEnd());
     }

@@ -21,7 +21,7 @@ import static com.google.common.base.Preconditions.checkNotNull;
 public class PhoneNumberExtractor {
     private static final LumifyLogger LOGGER = LumifyLoggerFactory.getLogger(PhoneNumberExtractor.class);
 
-    private static final String ENTITY_TYPE = "phoneNumber";
+    private static final String ENTITY_TYPE = "http://lumify.io/dev#phoneNumber";
     static final String DEFAULT_REGION_CODE = "defaultRegionCode";
     static final String DEFAULT_DEFAULT_REGION_CODE = "US";
 

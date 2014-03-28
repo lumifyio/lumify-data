@@ -1,19 +1,10 @@
 package com.altamiracorp.lumify.storm.term.extraction;
 
-import static com.google.common.base.Preconditions.checkNotNull;
-
 import com.altamiracorp.lumify.core.ingest.term.extraction.TermExtractionResult;
 import com.altamiracorp.lumify.core.ingest.term.extraction.TermMention;
 import com.altamiracorp.lumify.core.user.User;
 import com.altamiracorp.lumify.core.util.LumifyLogger;
 import com.altamiracorp.lumify.core.util.LumifyLoggerFactory;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.net.URI;
-import java.net.URISyntaxException;
-import java.util.ArrayList;
-import java.util.List;
 import opennlp.tools.namefind.TokenNameFinder;
 import opennlp.tools.tokenize.Tokenizer;
 import opennlp.tools.tokenize.TokenizerME;
@@ -24,6 +15,16 @@ import opennlp.tools.util.Span;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.Path;
+
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.net.URI;
+import java.net.URISyntaxException;
+import java.util.ArrayList;
+import java.util.List;
+
+import static com.google.common.base.Preconditions.checkNotNull;
 
 public abstract class OpenNlpEntityExtractor {
     private static final LumifyLogger LOGGER = LumifyLoggerFactory.getLogger(OpenNlpEntityExtractor.class);
@@ -85,11 +86,22 @@ public abstract class OpenNlpEntityExtractor {
         String name = Span.spansToStrings(new Span[]{foundName}, tokens)[0];
         int start = charOffset + tokenListPositions[foundName.getStart()].getStart();
         int end = charOffset + tokenListPositions[foundName.getEnd() - 1].getEnd();
+        String type = foundName.getType();
+        String ontologyClassUri;
+        if ("location".equals(type)) {
+            ontologyClassUri = "http://lumify.io/dev#location";
+        } else if ("organization".equals(type)) {
+            ontologyClassUri = "http://lumify.io/dev#organization";
+        } else if ("person".equals(type)) {
+            ontologyClassUri = "http://lumify.io/dev#person";
+        } else {
+            ontologyClassUri = "http://www.w3.org/2002/07/owl#Thing";
+        }
         return new TermMention.Builder()
                 .start(start)
                 .end(end)
                 .sign(name)
-                .ontologyClassUri(foundName.getType())
+                .ontologyClassUri(ontologyClassUri)
                 .resolved(false)
                 .useExisting(true)
                 .process(getClass().getName())
