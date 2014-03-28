@@ -4,6 +4,7 @@ import com.altamiracorp.lumify.core.ingest.ArtifactExtractedInfo;
 import com.altamiracorp.lumify.core.model.audit.AuditRepository;
 import com.altamiracorp.lumify.core.model.ontology.Concept;
 import com.altamiracorp.lumify.core.model.ontology.OntologyRepository;
+import com.altamiracorp.lumify.core.model.properties.LumifyProperties;
 import com.altamiracorp.lumify.core.security.LumifyVisibility;
 import com.altamiracorp.lumify.core.user.User;
 import com.altamiracorp.lumify.core.util.RowKeyHelper;
@@ -112,7 +113,7 @@ public class FacebookUserTest {
 
         returnedVertex = facebookUser.process(normalUserObject, graph, auditRepository, ontologyRepository, systemUser, authorizations);
 
-        assertEquals("facebookTest", returnedVertex.getPropertyValue("displayName"));
+        assertEquals("facebookTest", returnedVertex.getPropertyValue(LumifyProperties.DISPLAY_NAME.getKey()));
     }
 
     @Test(expected = RuntimeException.class)
@@ -131,7 +132,7 @@ public class FacebookUserTest {
 
         returnedVertex = facebookUser.process(fullUserObject, graph, auditRepository, ontologyRepository, systemUser, authorizations);
 
-        assertEquals("facebookTest", returnedVertex.getPropertyValue("displayName"));
+        assertEquals("facebookTest", returnedVertex.getPropertyValue(LumifyProperties.DISPLAY_NAME.getKey()));
     }
 
     @Test
