@@ -15,7 +15,7 @@ import com.google.inject.Inject;
 public class ZipCodeExtractorWorker extends TermExtractionWorker {
     private RegexEntityExtractor regExExtractor;
     private static final String ZIPCODE_REG_EX = "\\b\\d{5}-\\d{4}\\b|\\b\\d{5}\\b";
-    private static final String LOCATION_TYPE = "location";
+    private static final String LOCATION_TYPE = "http://lumify.io/dev#location";
 
     @Override
     public void prepare(Map conf, User user) throws Exception {

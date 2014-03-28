@@ -15,7 +15,7 @@ import com.google.inject.Inject;
 public class EmailAddressExtractorWorker extends TermExtractionWorker {
     private RegexEntityExtractor regExExtractor;
     private static final String EMAIL_REG_EX = "(?i)\\b[A-Z0-9._%+-]+@[A-Z0-9.-]+\\.[A-Z]{2,4}\\b";
-    private static final String EMAIL_TYPE = "emailAddress";
+    private static final String EMAIL_TYPE = "http://lumify.io/dev#emailAddress";
 
     @Override
     public void prepare(Map conf, User user) throws Exception {
