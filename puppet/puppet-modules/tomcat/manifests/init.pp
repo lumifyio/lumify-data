@@ -45,7 +45,10 @@ class tomcat(
     require => File[$extractdir],
   }
 
-  $tomcat_java_opts = hiera('tomcat_java_opts','')
+  if $tomcat_java_home == undef {
+    $tomcat_java_home = hiera('java_home', '')
+  }
+  $tomcat_java_opts = hiera('tomcat_java_opts', '')
 
   file { '/etc/init/tomcat.conf':
     ensure  => file,
