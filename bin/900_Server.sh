@@ -8,7 +8,7 @@ while [ -h "$SOURCE" ]; do
 done
 DIR="$(cd -P "$(dirname "$SOURCE")" && pwd)"
 
-classpath=$(${DIR}/classpath.sh lumify-public/lumify-web-server)
+classpath=$(${DIR}/classpath.sh lumify-public/lumify-web-server/lumify-jetty-server)
 if [ $? -ne 0 ]; then
   echo "${classpath}"
   exit
@@ -26,7 +26,7 @@ java ${debug_option} \
 -Djava.security.krb5.kdc= \
 -classpath ${classpath} \
 -Xmx1024M \
-com.altamiracorp.lumify.web.Server \
+com.altamiracorp.lumify.web.JettyWebServer \
 --port=8080 \
 --keyStorePath=${DIR}/../config/ssl/lumify.jks \
 --keyStorePassword=password
