@@ -209,5 +209,6 @@
         <module>lumify-enterprise-tools</module>
         <module>lumify-sphinx</module>
         <module>lumify-opencv-object-detector</module>
+        <module>lumify-tesseract</module>
     </modules>
 </project>
