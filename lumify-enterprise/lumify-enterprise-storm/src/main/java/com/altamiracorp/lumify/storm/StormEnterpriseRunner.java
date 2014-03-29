@@ -5,7 +5,6 @@ import backtype.storm.generated.StormTopology;
 import backtype.storm.topology.TopologyBuilder;
 import com.altamiracorp.lumify.core.config.ConfigurationHelper;
 import com.altamiracorp.lumify.core.model.workQueue.WorkQueueRepository;
-import com.altamiracorp.lumify.storm.audio.AudioBolt;
 import com.altamiracorp.lumify.storm.document.DocumentBolt;
 import com.altamiracorp.lumify.storm.image.ImageBolt;
 import com.altamiracorp.lumify.storm.structuredData.StructuredDataTextExtractorBolt;
@@ -106,7 +105,6 @@ public class StormEnterpriseRunner extends StormRunnerBase {
     public StormTopology createTopology(int parallelismHint) {
         TopologyBuilder builder = new TopologyBuilder();
         createVideoTopology(builder, parallelismHint);
-        createAudioTopology(builder, parallelismHint);
         createImageTopology(builder, parallelismHint);
         createDocumentTopology(builder, parallelismHint);
         createTextTopology(builder, parallelismHint);
@@ -132,14 +130,6 @@ public class StormEnterpriseRunner extends StormRunnerBase {
         builder.setSpout(name + "-spout", new HdfsFileSystemSpout("/video"), 1)
                 .setMaxTaskParallelism(1);
         builder.setBolt(name + "-bolt", new VideoBolt(), parallelismHint)
-                .shuffleGrouping(name + "-spout");
-    }
-
-    private void createAudioTopology(TopologyBuilder builder, int parallelismHint) {
-        String name = "audio";
-        builder.setSpout(name + "-spout", new HdfsFileSystemSpout("/audio"), 1)
-                .setMaxTaskParallelism(1);
-        builder.setBolt(name + "-bolt", new AudioBolt(), parallelismHint)
                 .shuffleGrouping(name + "-spout");
     }
 

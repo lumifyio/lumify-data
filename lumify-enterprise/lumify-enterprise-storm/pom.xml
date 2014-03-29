@@ -126,6 +126,18 @@
             <groupId>com.fasterxml.jackson.core</groupId>
             <artifactId>jackson-databind</artifactId>
         </dependency>
+
+        <!-- graph property worker dependencies -->
+        <dependency>
+            <groupId>com.altamiracorp.lumify</groupId>
+            <artifactId>lumify-ontology-dev</artifactId>
+            <version>${lumify.public.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>com.altamiracorp.lumify</groupId>
+            <artifactId>lumify-sphinx</artifactId>
+            <version>${project.version}</version>
+        </dependency>
     </dependencies>
 
     <build>
