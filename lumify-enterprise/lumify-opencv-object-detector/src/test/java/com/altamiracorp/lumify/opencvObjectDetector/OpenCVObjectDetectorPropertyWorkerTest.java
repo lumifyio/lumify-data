@@ -1,4 +1,4 @@
-package com.altamiracorp.lumify.objectDetection;
+package com.altamiracorp.lumify.opencvObjectDetector;
 
 import com.altamiracorp.lumify.core.ingest.ArtifactDetectedObject;
 import com.altamiracorp.lumify.core.model.videoFrames.VideoFrameRepository;
@@ -17,8 +17,7 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
 @RunWith(JUnit4.class)
-public class OpenCVObjectDetectorTest {
-
+public class OpenCVObjectDetectorPropertyWorkerTest {
     private static final String TEST_IMAGE = "cnn.jpg";
     private static final String CLASSIFIER = "haarcascade_frontalface_alt.xml";
 
@@ -32,8 +31,8 @@ public class OpenCVObjectDetectorTest {
 
     @Test
     public void testObjectDetection() throws Exception {
-        OpenCVObjectDetector objectDetector = new OpenCVObjectDetector();
-        objectDetector.loadLibrary();
+        OpenCVObjectDetectorPropertyWorker objectDetector = new OpenCVObjectDetectorPropertyWorker();
+        objectDetector.loadNativeLibrary();
         ClassLoader cl = Thread.currentThread().getContextClassLoader();
         BufferedImage bImage = ImageIO.read(cl.getResourceAsStream(TEST_IMAGE));
 
@@ -47,7 +46,6 @@ public class OpenCVObjectDetectorTest {
         assertEquals(434, detectedObject.getX1(), 0.0);
         assertEquals(117, detectedObject.getY1(), 0.0);
         assertEquals(637, detectedObject.getX2(), 0.0);
-        assertEquals( 320, detectedObject.getY2(), 0.0);
+        assertEquals(320, detectedObject.getY2(), 0.0);
     }
-
 }

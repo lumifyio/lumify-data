@@ -1,4 +1,4 @@
-package com.altamiracorp.lumify.util;
+package com.altamiracorp.lumify.opencvObjectDetector;
 
 import org.opencv.core.Core;
 import org.opencv.core.Mat;

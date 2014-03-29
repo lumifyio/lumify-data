@@ -208,5 +208,6 @@
         <module>lumify-enterprise-storm</module>
         <module>lumify-enterprise-tools</module>
         <module>lumify-sphinx</module>
+        <module>lumify-opencv-object-detector</module>
     </modules>
 </project>

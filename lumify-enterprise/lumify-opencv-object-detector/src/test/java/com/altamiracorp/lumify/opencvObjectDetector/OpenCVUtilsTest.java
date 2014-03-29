@@ -1,4 +1,4 @@
-package com.altamiracorp.lumify.util;
+package com.altamiracorp.lumify.opencvObjectDetector;
 
 
 import org.junit.Before;

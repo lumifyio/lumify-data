@@ -138,6 +138,11 @@
             <artifactId>lumify-sphinx</artifactId>
             <version>${project.version}</version>
         </dependency>
+        <dependency>
+            <groupId>com.altamiracorp.lumify</groupId>
+            <artifactId>lumify-opencv-object-detector</artifactId>
+            <version>${project.version}</version>
+        </dependency>
     </dependencies>
 
     <build>

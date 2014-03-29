@@ -6,7 +6,6 @@ import backtype.storm.topology.TopologyBuilder;
 import com.altamiracorp.lumify.core.config.ConfigurationHelper;
 import com.altamiracorp.lumify.core.model.workQueue.WorkQueueRepository;
 import com.altamiracorp.lumify.storm.document.DocumentBolt;
-import com.altamiracorp.lumify.storm.image.ImageBolt;
 import com.altamiracorp.lumify.storm.structuredData.StructuredDataTextExtractorBolt;
 import com.altamiracorp.lumify.storm.term.extraction.TermExtractionBolt;
 import com.altamiracorp.lumify.storm.video.VideoBolt;
@@ -105,24 +104,12 @@ public class StormEnterpriseRunner extends StormRunnerBase {
     public StormTopology createTopology(int parallelismHint) {
         TopologyBuilder builder = new TopologyBuilder();
         createVideoTopology(builder, parallelismHint);
-        createImageTopology(builder, parallelismHint);
         createDocumentTopology(builder, parallelismHint);
         createTextTopology(builder, parallelismHint);
         createProcessedVideoTopology(builder, parallelismHint);
         createStructuredDataTextTopology(builder, parallelismHint);
 
         return builder.createTopology();
-    }
-
-    private void createImageTopology(TopologyBuilder builder, int parallelismHint) {
-        String name = "image";
-        builder.setSpout(name + "-spout", new HdfsFileSystemSpout("/image"), 1)
-                .setMaxTaskParallelism(1);
-        builder.setSpout(name + "-user-spout", createWorkQueueRepositorySpout(WorkQueueRepository.USER_IMAGE_QUEUE_NAME), 1)
-                .setMaxTaskParallelism(1);
-        builder.setBolt(name + "-bolt", new ImageBolt(), parallelismHint)
-                .shuffleGrouping(name + "-spout")
-                .shuffleGrouping(name + "-user-spout");
     }
 
     private void createVideoTopology(TopologyBuilder builder, int parallelismHint) {
