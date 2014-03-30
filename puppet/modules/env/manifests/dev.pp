@@ -11,10 +11,14 @@ class env::dev {
               'lumify-tesseract-eng',
               'lumify-opencv',
               'lumify-pocketsphinx',
-              'sox',
             ] :
     ensure => present,
     require => File['/etc/yum.repos.d/lumify.repo'],
+  }
+
+  package { 'sox' :
+    ensure => present,
+    require => Package['lumify-ffmpeg'],
   }
 
   file { '/etc/profile.d/opencv.sh' :
