@@ -149,7 +149,7 @@ Vagrant.configure('2') do |config|
   end
 
   # used for QLIX integration development
-  config.vm.define 'qlix', :primary => true do |qlix|
+  config.vm.define 'qlix' do |qlix|
     configure_network(qlix, ENV['PRIVATE_NETWORK_IP'])
     provision_proxy(qlix, ENV['PROXY_URL'])
     qlix.vm.provision :shell, :inline => 'mkdir -p /data0'
