@@ -123,9 +123,10 @@ public class TermExtractionBolt extends BaseTextProcessingBolt {
         return results;
     }
 
-    private TermMentionModel saveTermMention(Vertex vertex, TermMention termMention) {
+    private TermMentionModel saveTermMention(Vertex artifactGraphVertex, TermMention termMention) {
         LOGGER.debug("Saving term mention '%s':%s (%d:%d)", termMention.getSign(), termMention.getOntologyClassUri(), termMention.getStart(), termMention.getEnd());
-        TermMentionModel termMentionModel = new TermMentionModel(new TermMentionRowKey(vertex.getId().toString(), termMention.getStart(), termMention.getEnd()));
+        Vertex vertex = null;
+        TermMentionModel termMentionModel = new TermMentionModel(new TermMentionRowKey(artifactGraphVertex.getId().toString(), termMention.getStart(), termMention.getEnd()));
         termMentionModel.getMetadata().setSign(termMention.getSign(), lumifyVisibility.getVisibility());
         termMentionModel.getMetadata().setOntologyClassUri(termMention.getOntologyClassUri(), lumifyVisibility.getVisibility());
         if (termMention.getProcess() != null && !termMention.getProcess().equals("")) {
@@ -183,10 +184,10 @@ public class TermExtractionBolt extends BaseTextProcessingBolt {
             }
 
             // TODO: a better way to check if the same edge exists instead of looking it up every time?
-            Edge edge = trySingle(vertex.getEdges(vertex, Direction.OUT, LabelName.RAW_HAS_ENTITY.toString(), getAuthorizations()));
+            Edge edge = trySingle(artifactGraphVertex.getEdges(vertex, Direction.OUT, LabelName.RAW_HAS_ENTITY.toString(), getAuthorizations()));
             if (edge == null) {
-                edge = graph.addEdge(vertex, vertex, LabelName.RAW_HAS_ENTITY.toString(), lumifyVisibility.getVisibility(), getAuthorizations());
-                auditRepository.auditRelationship(AuditAction.CREATE, vertex, vertex, edge, termMention.getProcess(), "", getUser(), lumifyVisibility.getVisibility());
+                edge = graph.addEdge(artifactGraphVertex, vertex, LabelName.RAW_HAS_ENTITY.toString(), lumifyVisibility.getVisibility(), getAuthorizations());
+                auditRepository.auditRelationship(AuditAction.CREATE, artifactGraphVertex, vertex, edge, termMention.getProcess(), "", getUser(), lumifyVisibility.getVisibility());
             }
 
             termMentionModel.getMetadata().setVertexId(vertex.getId().toString(), lumifyVisibility.getVisibility());
