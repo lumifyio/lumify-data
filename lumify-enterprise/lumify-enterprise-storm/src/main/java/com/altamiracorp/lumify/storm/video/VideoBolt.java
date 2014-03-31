@@ -5,6 +5,7 @@ import backtype.storm.task.TopologyContext;
 import com.altamiracorp.lumify.core.ingest.video.VideoTextExtractionWorker;
 import com.altamiracorp.lumify.storm.BaseArtifactProcessingBolt;
 import com.altamiracorp.securegraph.Vertex;
+
 import java.io.File;
 import java.io.IOException;
 import java.util.Map;

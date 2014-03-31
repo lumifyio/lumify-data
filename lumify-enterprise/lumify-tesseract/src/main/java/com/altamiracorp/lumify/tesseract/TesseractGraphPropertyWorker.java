@@ -50,6 +50,7 @@ public class TesseractGraphPropertyWorker extends GraphPropertyWorker {
         StreamingPropertyValue textValue = new StreamingPropertyValue(textIn, String.class);
 
         ExistingElementMutation<Vertex> m = data.getVertex().prepareMutation();
+        // TODO set the test property in metadata so we can handle video frames
         RawLumifyProperties.TEXT.addPropertyValue(m, TEXT_PROPERTY_KEY, textValue, data.getVertex().getVisibility());
         m.save();
         getGraph().flush();
@@ -71,7 +72,7 @@ public class TesseractGraphPropertyWorker extends GraphPropertyWorker {
 
     @Override
     public boolean isHandled(Vertex vertex, Property property) {
-        String mimeType = (String) property.getMetadata().get(RawLumifyProperties.MIME_TYPE.getKey());
+        String mimeType = (String) property.getMetadata().get(RawLumifyProperties.METADATA_MIME_TYPE);
         if (mimeType == null) {
             return false;
         }

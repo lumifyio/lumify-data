@@ -42,7 +42,7 @@ public class SphinxGraphPropertyWorker extends GraphPropertyWorker {
 
     @Override
     public boolean isHandled(Vertex vertex, Property property) {
-        String mimeType = (String) property.getMetadata().get(RawLumifyProperties.MIME_TYPE.getKey());
+        String mimeType = (String) property.getMetadata().get(RawLumifyProperties.METADATA_MIME_TYPE);
         return !(mimeType == null || !mimeType.startsWith("audio"));
     }
 

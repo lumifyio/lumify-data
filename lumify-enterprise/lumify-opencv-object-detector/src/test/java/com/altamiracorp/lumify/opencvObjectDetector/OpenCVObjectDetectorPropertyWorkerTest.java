@@ -1,12 +1,10 @@
 package com.altamiracorp.lumify.opencvObjectDetector;
 
 import com.altamiracorp.lumify.core.ingest.ArtifactDetectedObject;
-import com.altamiracorp.lumify.core.model.videoFrames.VideoFrameRepository;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.JUnit4;
-import org.mockito.Mock;
 import org.opencv.objdetect.CascadeClassifier;
 
 import javax.imageio.ImageIO;
@@ -20,9 +18,6 @@ import static org.junit.Assert.assertTrue;
 public class OpenCVObjectDetectorPropertyWorkerTest {
     private static final String TEST_IMAGE = "cnn.jpg";
     private static final String CLASSIFIER = "haarcascade_frontalface_alt.xml";
-
-    @Mock
-    VideoFrameRepository videoFrameRepository;
 
     @Before
     public void setUp() throws Exception {
