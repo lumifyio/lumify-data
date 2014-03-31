@@ -31,10 +31,7 @@ import java.io.*;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.nio.charset.Charset;
-import java.util.Arrays;
-import java.util.Date;
-import java.util.List;
-import java.util.Properties;
+import java.util.*;
 import java.util.regex.Pattern;
 
 public class TikaTextExtractorGraphPropertyWorker extends GraphPropertyWorker {
@@ -110,6 +107,9 @@ public class TikaTextExtractorGraphPropertyWorker extends GraphPropertyWorker {
         }
 
         String customImageMetadata = extractTextField(metadata, customFlickrMetadataKeys);
+        Map<String, Object> textMetadata = new HashMap<String, Object>();
+        textMetadata.put(RawLumifyProperties.METADATA_MIME_TYPE, "text/plain");
+
         if (customImageMetadata != null && !customImageMetadata.equals("")) {
             try {
                 JSONObject customImageMetadataJson = new JSONObject(customImageMetadata);
@@ -117,7 +117,7 @@ public class TikaTextExtractorGraphPropertyWorker extends GraphPropertyWorker {
                 text = new JSONObject(customImageMetadataJson.get("description").toString()).get("_content") +
                         "\n" + customImageMetadataJson.get("tags").toString();
                 StreamingPropertyValue textValue = new StreamingPropertyValue(new ByteArrayInputStream(text.getBytes()), String.class);
-                RawLumifyProperties.TEXT.addPropertyValue(m, MULTIVALUE_KEY, textValue, data.getVertex().getVisibility());
+                RawLumifyProperties.TEXT.addPropertyValue(m, MULTIVALUE_KEY, textValue, textMetadata, data.getVertex().getVisibility());
 
                 Date lastupdate = GenericDateExtractor
                         .extractSingleDate(customImageMetadataJson.get("lastupdate").toString());
@@ -131,7 +131,7 @@ public class TikaTextExtractorGraphPropertyWorker extends GraphPropertyWorker {
             }
         } else {
             StreamingPropertyValue textValue = new StreamingPropertyValue(new ByteArrayInputStream(text.getBytes()), String.class);
-            RawLumifyProperties.TEXT.addPropertyValue(m, MULTIVALUE_KEY, textValue, data.getVertex().getVisibility());
+            RawLumifyProperties.TEXT.addPropertyValue(m, MULTIVALUE_KEY, textValue, textMetadata, data.getVertex().getVisibility());
 
             RawLumifyProperties.CREATE_DATE.addPropertyValue(m, MULTIVALUE_KEY, extractDate(metadata), data.getVertex().getVisibility());
             String title = extractTextField(metadata, subjectKeys).replaceAll(",", " ");
@@ -143,6 +143,8 @@ public class TikaTextExtractorGraphPropertyWorker extends GraphPropertyWorker {
         }
 
         m.save();
+        getGraph().flush();
+        getWorkQueueRepository().pushGraphPropertyQueue(data.getVertex().getId(), MULTIVALUE_KEY, RawLumifyProperties.TEXT.getKey());
 
         return new GraphPropertyWorkResult();
     }

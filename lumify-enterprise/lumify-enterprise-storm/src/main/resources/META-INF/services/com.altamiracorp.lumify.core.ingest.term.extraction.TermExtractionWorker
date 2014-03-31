@@ -1,6 +1,5 @@
 com.altamiracorp.lumify.storm.term.extraction.OpenNlpMaximumEntropyEntityExtractorWorker
 com.altamiracorp.lumify.storm.term.extraction.OpenNlpDictionaryEntityExtractorWorker
-com.altamiracorp.lumify.storm.term.extraction.KnownEntityExtractorWorker
 com.altamiracorp.lumify.storm.term.extraction.PhoneNumberExtractorWorker
 com.altamiracorp.lumify.storm.term.extraction.EmailAddressExtractorWorker
 com.altamiracorp.lumify.storm.term.extraction.ZipCodeExtractorWorker

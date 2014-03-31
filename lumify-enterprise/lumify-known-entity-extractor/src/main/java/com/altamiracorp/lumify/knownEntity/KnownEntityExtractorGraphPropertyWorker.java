@@ -1,11 +1,17 @@
-package com.altamiracorp.lumify.storm.term.extraction;
+package com.altamiracorp.lumify.knownEntity;
 
-import com.altamiracorp.lumify.core.ingest.term.extraction.TermExtractionResult;
+import com.altamiracorp.lumify.core.ingest.graphProperty.GraphPropertyWorkData;
+import com.altamiracorp.lumify.core.ingest.graphProperty.GraphPropertyWorkResult;
+import com.altamiracorp.lumify.core.ingest.graphProperty.GraphPropertyWorker;
+import com.altamiracorp.lumify.core.ingest.graphProperty.GraphPropertyWorkerPrepareData;
 import com.altamiracorp.lumify.core.ingest.term.extraction.TermMention;
-import com.altamiracorp.lumify.core.user.User;
+import com.altamiracorp.lumify.core.model.properties.RawLumifyProperties;
+import com.altamiracorp.lumify.core.util.LumifyLogger;
+import com.altamiracorp.lumify.core.util.LumifyLoggerFactory;
+import com.altamiracorp.securegraph.Property;
+import com.altamiracorp.securegraph.Vertex;
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.io.IOUtils;
-import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.FileStatus;
 import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.Path;
@@ -17,30 +23,36 @@ import org.supercsv.prefs.CsvPreference;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.net.URLDecoder;
 import java.util.List;
 
-public class KnownEntityExtractor {
-    private FileSystem fs;
-    private String pathPrefix;
-
+public class KnownEntityExtractorGraphPropertyWorker extends GraphPropertyWorker {
+    private static final LumifyLogger LOGGER = LumifyLoggerFactory.getLogger(KnownEntityExtractorGraphPropertyWorker.class);
     private static final String PATH_PREFIX_CONFIG = "termextraction.knownEntities.pathPrefix";
     private static final String DEFAULT_PATH_PREFIX = "hdfs://";
-    private final AhoCorasick tree = new AhoCorasick();
+    private AhoCorasick tree;
 
-    public void prepare(Configuration configuration, User user) throws IOException {
-        pathPrefix = configuration.get(PATH_PREFIX_CONFIG, DEFAULT_PATH_PREFIX);
-        fs = FileSystem.get(configuration);
-        loadDictionaries();
+    @Override
+    public void prepare(GraphPropertyWorkerPrepareData workerPrepareData) throws Exception {
+        super.prepare(workerPrepareData);
+        String pathPrefix = (String) workerPrepareData.getStormConf().get(PATH_PREFIX_CONFIG);
+        if (pathPrefix == null) {
+            pathPrefix = DEFAULT_PATH_PREFIX;
+        }
+        FileSystem fs = workerPrepareData.getHdfsFileSystem();
+        this.tree = loadDictionaries(fs, pathPrefix);
     }
 
-    public TermExtractionResult extract(InputStream textInputStream) throws IOException {
-        TermExtractionResult termExtractionResult = new TermExtractionResult();
-        String text = IOUtils.toString(textInputStream); // TODO convert AhoCorasick to use InputStream
+    @Override
+    public GraphPropertyWorkResult execute(InputStream in, GraphPropertyWorkData data) throws Exception {
+        String text = IOUtils.toString(in); // TODO convert AhoCorasick to use InputStream
         List<OutputResult> searchResults = tree.completeSearch(text, false, true);
         for (OutputResult searchResult : searchResults) {
-            termExtractionResult.add(outputResultToTermMention(searchResult));
+            TermMention termMention = outputResultToTermMention(searchResult);
+            saveTermMention(data.getVertex(), termMention, getUser(), data.getVertex().getVisibility(), getAuthorizations());
         }
-        return termExtractionResult;
+
+        return new GraphPropertyWorkResult();
     }
 
     private TermMention outputResultToTermMention(OutputResult searchResult) {
@@ -58,28 +70,42 @@ public class KnownEntityExtractor {
                 .build();
     }
 
-    private void loadDictionaries() throws IOException {
-        Path hdfsDirectory = new Path(getPathPrefix() + "dictionaries");
-        if (!getFS().exists(hdfsDirectory)) {
-            getFS().mkdirs(hdfsDirectory);
+    @Override
+    public boolean isHandled(Vertex vertex, Property property) {
+        if (property.getName().equals(RawLumifyProperties.RAW.getKey())) {
+            return false;
         }
-        for (FileStatus dictionaryFileStatus : getFS().listStatus(hdfsDirectory)) {
+
+        String mimeType = (String) property.getMetadata().get(RawLumifyProperties.METADATA_MIME_TYPE);
+        return !(mimeType == null || !mimeType.startsWith("text"));
+    }
+
+    private static AhoCorasick loadDictionaries(FileSystem fs, String pathPrefix) throws IOException {
+        AhoCorasick tree = new AhoCorasick();
+        Path hdfsDirectory = new Path(pathPrefix, "dictionaries");
+        if (!fs.exists(hdfsDirectory)) {
+            fs.mkdirs(hdfsDirectory);
+        }
+        for (FileStatus dictionaryFileStatus : fs.listStatus(hdfsDirectory)) {
             Path hdfsPath = dictionaryFileStatus.getPath();
             if (hdfsPath.getName().startsWith(".") || !hdfsPath.getName().endsWith(".dict")) {
                 continue;
             }
+            LOGGER.info("Loading known entity dictionary %s", hdfsPath.toString());
             String conceptName = FilenameUtils.getBaseName(hdfsPath.getName());
-            InputStream dictionaryInputStream = getFS().open(hdfsPath);
+            conceptName = URLDecoder.decode(conceptName, "UTF-8");
+            InputStream dictionaryInputStream = fs.open(hdfsPath);
             try {
-                addDictionaryEntriesToTree(conceptName, dictionaryInputStream);
+                addDictionaryEntriesToTree(tree, conceptName, dictionaryInputStream);
             } finally {
                 dictionaryInputStream.close();
             }
         }
         tree.prepare();
+        return tree;
     }
 
-    private void addDictionaryEntriesToTree(String type, InputStream dictionaryInputStream) throws IOException {
+    private static void addDictionaryEntriesToTree(AhoCorasick tree, String type, InputStream dictionaryInputStream) throws IOException {
         CsvPreference csvPrefs = CsvPreference.EXCEL_PREFERENCE;
         CsvListReader csvReader = new CsvListReader(new InputStreamReader(dictionaryInputStream), csvPrefs);
         List<String> line;
@@ -91,16 +117,7 @@ public class KnownEntityExtractor {
         }
     }
 
-    protected String getPathPrefix() {
-        return pathPrefix;
-    }
-
-    protected FileSystem getFS() {
-        return fs;
-    }
-
-    private class Match {
-
+    private static class Match {
         private final String conceptTitle;
         private final String entityTitle;
         private final String matchText;

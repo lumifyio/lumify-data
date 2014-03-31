@@ -108,86 +108,92 @@ public class TermExtractionBolt extends BaseTextProcessingBolt {
         }
     }
 
-    private List<TermMentionWithGraphVertex> saveTermExtractions(Vertex artifactGraphVertex, TermExtractionResult termExtractionResult) {
+    private List<TermMentionWithGraphVertex> saveTermExtractions(Vertex vertex, TermExtractionResult termExtractionResult) {
         List<TermMention> termMentions = termExtractionResult.getTermMentions();
         List<TermMentionWithGraphVertex> results = new ArrayList<TermMentionWithGraphVertex>();
         for (TermMention termMention : termMentions) {
-            LOGGER.debug("Saving term mention '%s':%s (%d:%d)", termMention.getSign(), termMention.getOntologyClassUri(), termMention.getStart(), termMention.getEnd());
-            Vertex vertex = null;
-            TermMentionModel termMentionModel = new TermMentionModel(new TermMentionRowKey(artifactGraphVertex.getId().toString(), termMention.getStart(), termMention.getEnd()));
-            termMentionModel.getMetadata().setSign(termMention.getSign(), lumifyVisibility.getVisibility());
-            termMentionModel.getMetadata().setOntologyClassUri(termMention.getOntologyClassUri(), lumifyVisibility.getVisibility());
-            if (termMention.getProcess() != null && !termMention.getProcess().equals("")) {
-                termMentionModel.getMetadata().setAnalyticProcess(termMention.getProcess(), lumifyVisibility.getVisibility());
+            TermMentionModel termMentionModel = saveTermMention(vertex, termMention);
+            if (termMentionModel != null) {
+                graph.flush();
+                results.add(new TermMentionWithGraphVertex(termMentionModel, vertex));
             }
-
-            Concept concept = ontologyRepository.getConceptById(termMention.getOntologyClassUri());
-            if (concept == null) {
-                LOGGER.error("Could not find ontology graph vertex '%s'", termMention.getOntologyClassUri());
-                continue;
-            }
-            termMentionModel.getMetadata().setConceptGraphVertexId(concept.getId(), lumifyVisibility.getVisibility());
-
-            if (termMention.isResolved()) {
-                String title = termMention.getSign();
-                ElementMutation<Vertex> vertexElementMutation;
-                if (termMention.getUseExisting()) {
-                    if (termMention.getId() != null) {
-                        vertex = graph.getVertex(termMention.getId(), getAuthorizations());
-                    } else {
-                        vertex = trySingle(graph.query(getAuthorizations())
-                                .has(TITLE.getKey(), title)
-                                .has(CONCEPT_TYPE.getKey(), concept.getId())
-                                .vertices());
-                    }
-                }
-                if (vertex == null) {
-                    if (termMention.getId() != null) {
-                        vertexElementMutation = graph.prepareVertex(termMention.getId(), lumifyVisibility.getVisibility(), getAuthorizations());
-                    } else {
-                        vertexElementMutation = graph.prepareVertex(lumifyVisibility.getVisibility(), getAuthorizations());
-                    }
-                    TITLE.setProperty(vertexElementMutation, title, lumifyVisibility.getVisibility());
-                    CONCEPT_TYPE.setProperty(vertexElementMutation, concept.getId(), lumifyVisibility.getVisibility());
-                } else {
-                    vertexElementMutation = vertex.prepareMutation();
-                }
-
-                if (termMention.getPropertyValue() != null) {
-                    Map<String, Object> properties = termMention.getPropertyValue();
-                    for (String key : properties.keySet()) {
-                        // TODO should we wrap these properties in secure graph Text classes?
-                        // GS - No.  Leave it up to the property generator to provide Text objects if they
-                        // want index control; see CLAVIN for example
-                        vertexElementMutation.setProperty(key, properties.get(key), lumifyVisibility.getVisibility());
-                    }
-                }
-
-                if (!(vertexElementMutation instanceof ExistingElementMutation)) {
-                    vertex = vertexElementMutation.save();
-                    auditRepository.auditVertexElementMutation(AuditAction.UPDATE, vertexElementMutation, vertex, termMention.getProcess(), getUser(), lumifyVisibility.getVisibility());
-                } else {
-                    auditRepository.auditVertexElementMutation(AuditAction.UPDATE, vertexElementMutation, vertex, termMention.getProcess(), getUser(), lumifyVisibility.getVisibility());
-                    vertex = vertexElementMutation.save();
-                }
-
-                // TODO: a better way to check if the same edge exists instead of looking it up every time?
-                Edge edge = trySingle(artifactGraphVertex.getEdges(vertex, Direction.OUT, LabelName.RAW_HAS_ENTITY.toString(), getAuthorizations()));
-                if (edge == null) {
-                    edge = graph.addEdge(artifactGraphVertex, vertex, LabelName.RAW_HAS_ENTITY.toString(), lumifyVisibility.getVisibility(), getAuthorizations());
-                    auditRepository.auditRelationship(AuditAction.CREATE, artifactGraphVertex, vertex, edge, termMention.getProcess(), "", getUser(), lumifyVisibility.getVisibility());
-                }
-
-                termMentionModel.getMetadata().setVertexId(vertex.getId().toString(), lumifyVisibility.getVisibility());
-            }
-
-            termMentionRepository.save(termMentionModel, FlushFlag.NO_FLUSH);
-            results.add(new TermMentionWithGraphVertex(termMentionModel, vertex));
-            graph.flush();
         }
 
         termMentionRepository.flush();
         return results;
+    }
+
+    private TermMentionModel saveTermMention(Vertex vertex, TermMention termMention) {
+        LOGGER.debug("Saving term mention '%s':%s (%d:%d)", termMention.getSign(), termMention.getOntologyClassUri(), termMention.getStart(), termMention.getEnd());
+        TermMentionModel termMentionModel = new TermMentionModel(new TermMentionRowKey(vertex.getId().toString(), termMention.getStart(), termMention.getEnd()));
+        termMentionModel.getMetadata().setSign(termMention.getSign(), lumifyVisibility.getVisibility());
+        termMentionModel.getMetadata().setOntologyClassUri(termMention.getOntologyClassUri(), lumifyVisibility.getVisibility());
+        if (termMention.getProcess() != null && !termMention.getProcess().equals("")) {
+            termMentionModel.getMetadata().setAnalyticProcess(termMention.getProcess(), lumifyVisibility.getVisibility());
+        }
+
+        Concept concept = ontologyRepository.getConceptById(termMention.getOntologyClassUri());
+        if (concept == null) {
+            LOGGER.error("Could not find ontology graph vertex '%s'", termMention.getOntologyClassUri());
+            return null;
+        }
+        termMentionModel.getMetadata().setConceptGraphVertexId(concept.getId(), lumifyVisibility.getVisibility());
+
+        if (termMention.isResolved()) {
+            String title = termMention.getSign();
+            ElementMutation<Vertex> vertexElementMutation;
+            if (termMention.getUseExisting()) {
+                if (termMention.getId() != null) {
+                    vertex = graph.getVertex(termMention.getId(), getAuthorizations());
+                } else {
+                    vertex = trySingle(graph.query(getAuthorizations())
+                            .has(TITLE.getKey(), title)
+                            .has(CONCEPT_TYPE.getKey(), concept.getId())
+                            .vertices());
+                }
+            }
+            if (vertex == null) {
+                if (termMention.getId() != null) {
+                    vertexElementMutation = graph.prepareVertex(termMention.getId(), lumifyVisibility.getVisibility(), getAuthorizations());
+                } else {
+                    vertexElementMutation = graph.prepareVertex(lumifyVisibility.getVisibility(), getAuthorizations());
+                }
+                TITLE.setProperty(vertexElementMutation, title, lumifyVisibility.getVisibility());
+                CONCEPT_TYPE.setProperty(vertexElementMutation, concept.getId(), lumifyVisibility.getVisibility());
+            } else {
+                vertexElementMutation = vertex.prepareMutation();
+            }
+
+            if (termMention.getPropertyValue() != null) {
+                Map<String, Object> properties = termMention.getPropertyValue();
+                for (String key : properties.keySet()) {
+                    // TODO should we wrap these properties in secure graph Text classes?
+                    // GS - No.  Leave it up to the property generator to provide Text objects if they
+                    // want index control; see CLAVIN for example
+                    vertexElementMutation.setProperty(key, properties.get(key), lumifyVisibility.getVisibility());
+                }
+            }
+
+            if (!(vertexElementMutation instanceof ExistingElementMutation)) {
+                vertex = vertexElementMutation.save();
+                auditRepository.auditVertexElementMutation(AuditAction.UPDATE, vertexElementMutation, vertex, termMention.getProcess(), getUser(), lumifyVisibility.getVisibility());
+            } else {
+                auditRepository.auditVertexElementMutation(AuditAction.UPDATE, vertexElementMutation, vertex, termMention.getProcess(), getUser(), lumifyVisibility.getVisibility());
+                vertex = vertexElementMutation.save();
+            }
+
+            // TODO: a better way to check if the same edge exists instead of looking it up every time?
+            Edge edge = trySingle(vertex.getEdges(vertex, Direction.OUT, LabelName.RAW_HAS_ENTITY.toString(), getAuthorizations()));
+            if (edge == null) {
+                edge = graph.addEdge(vertex, vertex, LabelName.RAW_HAS_ENTITY.toString(), lumifyVisibility.getVisibility(), getAuthorizations());
+                auditRepository.auditRelationship(AuditAction.CREATE, vertex, vertex, edge, termMention.getProcess(), "", getUser(), lumifyVisibility.getVisibility());
+            }
+
+            termMentionModel.getMetadata().setVertexId(vertex.getId().toString(), lumifyVisibility.getVisibility());
+        }
+
+        termMentionRepository.save(termMentionModel, FlushFlag.NO_FLUSH);
+        return termMentionModel;
     }
 
     private void saveRelationships(List<TermRelationship> relationships, List<TermMentionWithGraphVertex> termMentionsWithGraphVertices) {
