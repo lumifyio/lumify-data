@@ -210,5 +210,7 @@
         <module>lumify-sphinx</module>
         <module>lumify-opencv-object-detector</module>
         <module>lumify-tesseract</module>
+        <module>lumify-tika-text-extractor</module>
+        <module>lumify-tika-mime-type</module>
     </modules>
 </project>

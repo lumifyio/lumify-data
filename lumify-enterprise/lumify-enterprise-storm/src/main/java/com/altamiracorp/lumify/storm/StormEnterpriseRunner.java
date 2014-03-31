@@ -5,7 +5,6 @@ import backtype.storm.generated.StormTopology;
 import backtype.storm.topology.TopologyBuilder;
 import com.altamiracorp.lumify.core.config.ConfigurationHelper;
 import com.altamiracorp.lumify.core.model.workQueue.WorkQueueRepository;
-import com.altamiracorp.lumify.storm.document.DocumentBolt;
 import com.altamiracorp.lumify.storm.structuredData.StructuredDataTextExtractorBolt;
 import com.altamiracorp.lumify.storm.term.extraction.TermExtractionBolt;
 import com.altamiracorp.lumify.storm.video.VideoBolt;
@@ -104,7 +103,6 @@ public class StormEnterpriseRunner extends StormRunnerBase {
     public StormTopology createTopology(int parallelismHint) {
         TopologyBuilder builder = new TopologyBuilder();
         createVideoTopology(builder, parallelismHint);
-        createDocumentTopology(builder, parallelismHint);
         createTextTopology(builder, parallelismHint);
         createProcessedVideoTopology(builder, parallelismHint);
         createStructuredDataTextTopology(builder, parallelismHint);
@@ -117,17 +115,6 @@ public class StormEnterpriseRunner extends StormRunnerBase {
         builder.setSpout(name + "-spout", new HdfsFileSystemSpout("/video"), 1)
                 .setMaxTaskParallelism(1);
         builder.setBolt(name + "-bolt", new VideoBolt(), parallelismHint)
-                .shuffleGrouping(name + "-spout");
-    }
-
-    private void createDocumentTopology(TopologyBuilder builder, int parallelismHint) {
-        String name = "document";
-        builder.setSpout(name + "-spout", createWorkQueueRepositorySpout(WorkQueueRepository.DOCUMENT_QUEUE_NAME), 1)
-                .setMaxTaskParallelism(1);
-        builder.setSpout(name + "-hdfs-spout", new HdfsFileSystemSpout("/document"), 1)
-                .setMaxTaskParallelism(1);
-        builder.setBolt(name + "-bolt", new DocumentBolt(), parallelismHint)
-                .shuffleGrouping(name + "-hdfs-spout")
                 .shuffleGrouping(name + "-spout");
     }
 

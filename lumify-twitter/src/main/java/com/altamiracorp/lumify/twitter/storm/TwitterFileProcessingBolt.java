@@ -24,13 +24,14 @@ import com.altamiracorp.lumify.core.util.LumifyLoggerFactory;
 import com.altamiracorp.lumify.storm.BaseFileProcessingBolt;
 import com.altamiracorp.lumify.storm.file.FileMetadata;
 import com.altamiracorp.lumify.twitter.TwitterConstants;
+import org.codehaus.plexus.util.FileUtils;
+
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.util.regex.Pattern;
 import java.util.zip.GZIPInputStream;
-import org.codehaus.plexus.util.FileUtils;
 
 /**
  * This bolt outputs each line of an input file it receives as
@@ -73,8 +74,7 @@ public class TwitterFileProcessingBolt extends BaseFileProcessingBolt {
     protected void processFile(final Tuple rootTuple, final String filename) throws Exception {
         LOGGER.info("Processing file: %s", filename);
         FileMetadata fileMd = new FileMetadata()
-                .setFileName(filename)
-                .setMimeType(getMimeType(filename));
+                .setFileName(filename);
         String filenameNoDate = fileMd.getFileNameWithoutDateSuffix().toLowerCase();
         if (isArchive(filenameNoDate)) {
             processArchive(rootTuple, fileMd);

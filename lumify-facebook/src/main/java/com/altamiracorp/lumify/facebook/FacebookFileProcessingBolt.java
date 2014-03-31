@@ -44,8 +44,7 @@ public class FacebookFileProcessingBolt extends BaseFileProcessingBolt {
     protected void processFile(final Tuple rootTuple, final String filename) throws Exception {
         LOGGER.info("Processing file: %s", filename);
         FileMetadata fileMd = new FileMetadata()
-                .setFileName(filename)
-                .setMimeType(getMimeType(filename));
+                .setFileName(filename);
         String filenameNoDate = fileMd.getFileNameWithoutDateSuffix().toLowerCase();
         if (isArchive(filenameNoDate)) {
             processArchive(rootTuple, fileMd);
