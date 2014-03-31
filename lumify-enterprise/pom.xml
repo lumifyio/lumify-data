@@ -213,5 +213,6 @@
         <module>lumify-tika-text-extractor</module>
         <module>lumify-tika-mime-type</module>
         <module>lumify-known-entity-extractor</module>
+        <module>lumify-phone-number-extractor</module>
     </modules>
 </project>
