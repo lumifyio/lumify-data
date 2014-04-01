@@ -5,6 +5,7 @@ import com.altamiracorp.lumify.account.model.AccountUser;
 import com.altamiracorp.lumify.core.model.user.UserRepository;
 import com.altamiracorp.miniweb.HandlerChain;
 import com.altamiracorp.miniweb.utils.UrlUtils;
+import com.altamiracorp.securegraph.Graph;
 import com.google.inject.Inject;
 
 import javax.servlet.http.HttpServletRequest;
@@ -14,6 +15,7 @@ import java.util.Date;
 public class CreateAccount extends BaseRequestHandler {
     private UserRepository userRepository;
     private AccountUserRepository accountUserRepository;
+    private Graph graph;
 
     @Inject
     public void setAccountUserRepository(AccountUserRepository accountUserRepository) {
@@ -24,6 +26,9 @@ public class CreateAccount extends BaseRequestHandler {
     public void setUserRepository(UserRepository userRepository) {
         this.userRepository = userRepository;
     }
+
+    @Inject
+    public void setGraph (Graph graph) { this.graph = graph; }
 
     @Override
     public void handle(HttpServletRequest request, HttpServletResponse response, HandlerChain chain) throws Exception {
@@ -46,7 +51,7 @@ public class CreateAccount extends BaseRequestHandler {
             return;
         }
 
-        userRepository.addUser(user.getData().getEmail(), password, new String[0]);
+        userRepository.addUser(graph.getIdGenerator().nextId().toString(), user.getData().getEmail(), password, new String[0]);
 
         // expire the token
         user.getData().setTokenExpiration(new Date());
