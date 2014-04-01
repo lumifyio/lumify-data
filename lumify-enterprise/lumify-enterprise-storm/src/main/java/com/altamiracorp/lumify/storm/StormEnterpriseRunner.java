@@ -5,8 +5,6 @@ import backtype.storm.generated.StormTopology;
 import backtype.storm.topology.TopologyBuilder;
 import com.altamiracorp.lumify.core.config.ConfigurationHelper;
 import com.altamiracorp.lumify.core.model.workQueue.WorkQueueRepository;
-import com.altamiracorp.lumify.storm.structuredData.StructuredDataTextExtractorBolt;
-import com.altamiracorp.lumify.storm.term.extraction.TermExtractionBolt;
 import com.altamiracorp.lumify.storm.video.VideoBolt;
 import com.altamiracorp.lumify.storm.video.VideoPreviewBolt;
 import org.apache.commons.cli.CommandLine;
@@ -103,9 +101,7 @@ public class StormEnterpriseRunner extends StormRunnerBase {
     public StormTopology createTopology(int parallelismHint) {
         TopologyBuilder builder = new TopologyBuilder();
         createVideoTopology(builder, parallelismHint);
-        createTextTopology(builder, parallelismHint);
         createProcessedVideoTopology(builder, parallelismHint);
-        createStructuredDataTextTopology(builder, parallelismHint);
 
         return builder.createTopology();
     }
@@ -115,22 +111,6 @@ public class StormEnterpriseRunner extends StormRunnerBase {
         builder.setSpout(name + "-spout", new HdfsFileSystemSpout("/video"), 1)
                 .setMaxTaskParallelism(1);
         builder.setBolt(name + "-bolt", new VideoBolt(), parallelismHint)
-                .shuffleGrouping(name + "-spout");
-    }
-
-    private void createStructuredDataTextTopology(TopologyBuilder builder, int parallelismHint) {
-        String name = "structuredData";
-        builder.setSpout(name + "-spout", new HdfsFileSystemSpout("/structuredData"), 1)
-                .setMaxTaskParallelism(1);
-        builder.setBolt(name + "-bolt", new StructuredDataTextExtractorBolt(), parallelismHint)
-                .shuffleGrouping(name + "-spout");
-    }
-
-    private void createTextTopology(TopologyBuilder builder, int parallelismHint) {
-        String name = "text";
-        builder.setSpout(name + "-spout", createWorkQueueRepositorySpout(WorkQueueRepository.TEXT_QUEUE_NAME), 1)
-                .setMaxTaskParallelism(1);
-        builder.setBolt(name + "-bolt", new TermExtractionBolt(), parallelismHint)
                 .shuffleGrouping(name + "-spout");
     }
 

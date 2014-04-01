@@ -3,8 +3,6 @@ package com.altamiracorp.lumify.opennlpme;
 import com.altamiracorp.lumify.core.ingest.graphProperty.GraphPropertyWorkData;
 import com.altamiracorp.lumify.core.ingest.graphProperty.GraphPropertyWorkerPrepareData;
 import com.altamiracorp.lumify.core.ingest.term.extraction.TermMention;
-import com.altamiracorp.lumify.core.model.termMention.TermMentionModel;
-import com.altamiracorp.lumify.core.model.termMention.TermMentionRowKey;
 import com.altamiracorp.lumify.core.user.User;
 import com.altamiracorp.securegraph.Vertex;
 import com.altamiracorp.securegraph.Visibility;
@@ -56,9 +54,9 @@ public class OpenNLPMaximumEntropyExtractorGraphPropertyWorkerTest {
         termMentions = new ArrayList<TermMention>();
         extractor = new OpenNLPMaximumEntropyExtractorGraphPropertyWorker() {
             @Override
-            protected TermMentionModel saveTermMention(Vertex vertex, TermMention termMention, Visibility visibility) {
+            protected TermMentionWithGraphVertex saveTermMention(Vertex vertex, TermMention termMention, Visibility visibility) {
                 termMentions.add(termMention);
-                return new TermMentionModel(new TermMentionRowKey(vertex.getId().toString()));
+                return null;
             }
         };
 

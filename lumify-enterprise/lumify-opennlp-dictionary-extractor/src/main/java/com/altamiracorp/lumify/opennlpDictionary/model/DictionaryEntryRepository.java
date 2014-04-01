@@ -72,4 +72,8 @@ public class DictionaryEntryRepository extends Repository<DictionaryEntry> {
         this.save(entry);
         return entry;
     }
+
+    public void initializeTable(User user) {
+        this.getModelSession().initializeTable(getTableName(), user.getModelUserContext());
+    }
 }

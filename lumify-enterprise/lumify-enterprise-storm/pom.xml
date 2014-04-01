@@ -135,6 +135,11 @@
         </dependency>
         <dependency>
             <groupId>com.altamiracorp.lumify</groupId>
+            <artifactId>lumify-import</artifactId>
+            <version>${lumify.public.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>com.altamiracorp.lumify</groupId>
             <artifactId>lumify-sphinx</artifactId>
             <version>${project.version}</version>
         </dependency>

@@ -46,10 +46,11 @@ public class OpenNLPDictionaryExtractorGraphPropertyWorker extends GraphProperty
     private DictionaryEntryRepository dictionaryEntryRepository;
     private Tokenizer tokenizer;
 
-
     @Override
     public void prepare(GraphPropertyWorkerPrepareData workerPrepareData) throws Exception {
         super.prepare(workerPrepareData);
+
+        dictionaryEntryRepository.initializeTable(workerPrepareData.getUser());
 
         String pathPrefix = (String) workerPrepareData.getStormConf().get(PATH_PREFIX_CONFIG);
         if (pathPrefix == null) {
