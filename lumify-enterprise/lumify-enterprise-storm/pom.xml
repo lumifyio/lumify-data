@@ -173,6 +173,11 @@
             <artifactId>lumify-phone-number-extractor</artifactId>
             <version>${project.version}</version>
         </dependency>
+        <dependency>
+            <groupId>com.altamiracorp.lumify</groupId>
+            <artifactId>lumify-opennlp-dictionary-extractor</artifactId>
+            <version>${project.version}</version>
+        </dependency>
     </dependencies>
 
     <build>

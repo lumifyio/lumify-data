@@ -10,7 +10,7 @@
     <modelVersion>4.0.0</modelVersion>
 
     <artifactId>lumify-phone-number-extractor</artifactId>
-    <description>Lumify: Phone Number Extractor</description>
+    <name>Lumify: Phone Number Extractor</name>
 
     <dependencies>
         <dependency>

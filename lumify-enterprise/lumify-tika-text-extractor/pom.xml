@@ -10,7 +10,7 @@
     <modelVersion>4.0.0</modelVersion>
 
     <artifactId>lumify-tika-text-extractor</artifactId>
-    <description>Lumify: Tika Text Extractor</description>
+    <name>Lumify: Tika Text Extractor</name>
 
     <dependencies>
         <dependency>

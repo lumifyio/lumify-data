@@ -10,7 +10,7 @@
     <modelVersion>4.0.0</modelVersion>
 
     <artifactId>lumify-opencv-object-detector</artifactId>
-    <description>Lumify: OpenCV Object Detector</description>
+    <name>Lumify: OpenCV Object Detector</name>
 
     <profiles>
         <!-- Build with OpenCV 2.4.6 -->

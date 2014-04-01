@@ -9,22 +9,24 @@
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
-    <artifactId>lumify-tika-mime-type</artifactId>
-    <name>Lumify: Tika Mime Type Mapper</name>
+    <artifactId>lumify-opennlp-dictionary-extractor-web</artifactId>
+    <name>Lumify: OpenNLP Dictionary Extractor: Web</name>
 
     <dependencies>
         <dependency>
             <groupId>com.altamiracorp.lumify</groupId>
-            <artifactId>lumify-core</artifactId>
+            <artifactId>lumify-web</artifactId>
             <version>${project.version}</version>
         </dependency>
         <dependency>
-            <groupId>org.apache.tika</groupId>
-            <artifactId>tika-core</artifactId>
+            <groupId>com.altamiracorp.lumify</groupId>
+            <artifactId>lumify-opennlp-dictionary-extractor</artifactId>
+            <version>${project.version}</version>
         </dependency>
         <dependency>
-            <groupId>org.apache.tika</groupId>
-            <artifactId>tika-parsers</artifactId>
+            <groupId>javax.servlet</groupId>
+            <artifactId>javax.servlet-api</artifactId>
+            <scope>provided</scope>
         </dependency>
     </dependencies>
 

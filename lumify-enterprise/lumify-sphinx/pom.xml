@@ -10,7 +10,7 @@
     <modelVersion>4.0.0</modelVersion>
 
     <artifactId>lumify-sphinx</artifactId>
-    <description>Lumify: Sphinx</description>
+    <name>Lumify: Sphinx</name>
 
     <dependencies>
         <dependency>

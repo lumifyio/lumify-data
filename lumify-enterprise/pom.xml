@@ -214,5 +214,7 @@
         <module>lumify-tika-mime-type</module>
         <module>lumify-known-entity-extractor</module>
         <module>lumify-phone-number-extractor</module>
+        <module>lumify-opennlp-dictionary-extractor</module>
+        <module>lumify-opennlp-dictionary-extractor-web</module>
     </modules>
 </project>

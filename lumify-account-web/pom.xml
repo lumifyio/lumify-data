@@ -19,7 +19,6 @@
         <commons.email.version>1.3.2</commons.email.version>
         <lumify.version>0.2.0-SNAPSHOT</lumify.version>
         <plugin.maven.war.version>2.3</plugin.maven.war.version>
-        <javax.servlet.api.version>3.0.1</javax.servlet.api.version>
     </properties>
 
     <repositories>
@@ -73,7 +72,6 @@
         <dependency>
             <groupId>javax.servlet</groupId>
             <artifactId>javax.servlet-api</artifactId>
-            <version>${javax.servlet.api.version}</version>
             <scope>provided</scope>
         </dependency>
         <dependency>
