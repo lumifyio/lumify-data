@@ -12,8 +12,9 @@ class rabbitmq {
   }
   
   service { 'rabbitmq-server' :
-    ensure => running,
-    enable => true,
+    ensure  => running,
+    enable  => true,
+    require => Package['rabbitmq-server'],
   }
   
   define enablePlugin {
