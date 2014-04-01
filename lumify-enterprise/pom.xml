@@ -216,5 +216,6 @@
         <module>lumify-phone-number-extractor</module>
         <module>lumify-opennlp-dictionary-extractor</module>
         <module>lumify-opennlp-dictionary-extractor-web</module>
+        <module>lumify-opennlp-me-extractor</module>
     </modules>
 </project>

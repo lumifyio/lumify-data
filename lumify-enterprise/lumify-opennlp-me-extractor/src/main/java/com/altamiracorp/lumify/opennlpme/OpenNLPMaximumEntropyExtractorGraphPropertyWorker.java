@@ -1,70 +1,78 @@
-package com.altamiracorp.lumify.storm.term.extraction;
+package com.altamiracorp.lumify.opennlpme;
 
-import com.altamiracorp.lumify.core.ingest.term.extraction.TermExtractionResult;
+import com.altamiracorp.lumify.core.ingest.graphProperty.GraphPropertyWorkData;
+import com.altamiracorp.lumify.core.ingest.graphProperty.GraphPropertyWorkResult;
+import com.altamiracorp.lumify.core.ingest.graphProperty.GraphPropertyWorker;
+import com.altamiracorp.lumify.core.ingest.graphProperty.GraphPropertyWorkerPrepareData;
 import com.altamiracorp.lumify.core.ingest.term.extraction.TermMention;
-import com.altamiracorp.lumify.core.user.User;
+import com.altamiracorp.lumify.core.model.properties.RawLumifyProperties;
 import com.altamiracorp.lumify.core.util.LumifyLogger;
 import com.altamiracorp.lumify.core.util.LumifyLoggerFactory;
+import com.altamiracorp.securegraph.Property;
+import com.altamiracorp.securegraph.Vertex;
+import opennlp.tools.namefind.NameFinderME;
 import opennlp.tools.namefind.TokenNameFinder;
+import opennlp.tools.namefind.TokenNameFinderModel;
 import opennlp.tools.tokenize.Tokenizer;
 import opennlp.tools.tokenize.TokenizerME;
 import opennlp.tools.tokenize.TokenizerModel;
 import opennlp.tools.util.ObjectStream;
 import opennlp.tools.util.PlainTextByLineStream;
 import opennlp.tools.util.Span;
-import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.Path;
 
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
-import java.net.URI;
-import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.List;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 
-public abstract class OpenNlpEntityExtractor {
-    private static final LumifyLogger LOGGER = LumifyLoggerFactory.getLogger(OpenNlpEntityExtractor.class);
+public class OpenNLPMaximumEntropyExtractorGraphPropertyWorker extends GraphPropertyWorker {
+    private static final LumifyLogger LOGGER = LumifyLoggerFactory.getLogger(OpenNLPMaximumEntropyExtractorGraphPropertyWorker.class);
     public static final String PATH_PREFIX_CONFIG = "termextraction.opennlp.pathPrefix";
     private static final String DEFAULT_PATH_PREFIX = "hdfs://";
     private static final int NEW_LINE_CHARACTER_LENGTH = 1;
 
-    private Tokenizer tokenizer;
     private List<TokenNameFinder> finders;
-    private User user;
+    private Tokenizer tokenizer;
 
-    public void prepare(Configuration configuration, User user) throws URISyntaxException, IOException, InterruptedException {
-        String pathPrefix = configuration.get(PATH_PREFIX_CONFIG, DEFAULT_PATH_PREFIX);
-        String hdfsRootDir = configuration.get(com.altamiracorp.lumify.core.config.Configuration.HADOOP_URL);
+    @Override
+    public void prepare(GraphPropertyWorkerPrepareData workerPrepareData) throws Exception {
+        super.prepare(workerPrepareData);
+
+        String pathPrefix = (String) workerPrepareData.getStormConf().get(PATH_PREFIX_CONFIG);
+        if (pathPrefix == null) {
+            pathPrefix = DEFAULT_PATH_PREFIX;
+        }
+        String hdfsRootDir = (String) workerPrepareData.getStormConf().get(com.altamiracorp.lumify.core.config.Configuration.HADOOP_URL);
         checkNotNull(hdfsRootDir, com.altamiracorp.lumify.core.config.Configuration.HADOOP_URL + " is a required configuration parameter");
-        FileSystem fs = FileSystem.get(new URI(hdfsRootDir), configuration, "hadoop");
-        this.user = user;
-        this.tokenizer = loadTokenizer(pathPrefix, fs);
-        this.finders = loadFinders(pathPrefix, fs);
+        this.tokenizer = loadTokenizer(pathPrefix, workerPrepareData.getHdfsFileSystem());
+        this.finders = loadFinders(pathPrefix, workerPrepareData.getHdfsFileSystem());
     }
 
-    public TermExtractionResult extract(InputStream textInputStream)
-            throws Exception {
-        TermExtractionResult termExtractionResult = new TermExtractionResult();
-
-        ObjectStream<String> untokenizedLineStream = new PlainTextByLineStream(new InputStreamReader(textInputStream));
+    @Override
+    public GraphPropertyWorkResult execute(InputStream in, GraphPropertyWorkData data) throws Exception {
+        ObjectStream<String> untokenizedLineStream = new PlainTextByLineStream(new InputStreamReader(in));
         String line;
         int charOffset = 0;
 
         LOGGER.debug("Processing artifact content stream");
         while ((line = untokenizedLineStream.read()) != null) {
             ArrayList<TermMention> newTermMenitons = processLine(line, charOffset);
-            termExtractionResult.addAllTermMentions(newTermMenitons);
+            for (TermMention termMention : newTermMenitons) {
+                saveTermMention(data.getVertex(), termMention, data.getVertex().getVisibility());
+            }
+            getGraph().flush();
             charOffset += line.length() + NEW_LINE_CHARACTER_LENGTH;
         }
 
         untokenizedLineStream.close();
         LOGGER.debug("Stream processing completed");
 
-        return termExtractionResult;
+        return new GraphPropertyWorkResult();
     }
 
     private ArrayList<TermMention> processLine(String line, int charOffset) {
@@ -88,6 +96,8 @@ public abstract class OpenNlpEntityExtractor {
         int end = charOffset + tokenListPositions[foundName.getEnd() - 1].getEnd();
         String type = foundName.getType();
         String ontologyClassUri;
+
+        // TODO abstract this out so that it doesn't depend on the dev ontology.
         if ("location".equals(type)) {
             ontologyClassUri = "http://lumify.io/dev#location";
         } else if ("organization".equals(type)) {
@@ -108,7 +118,37 @@ public abstract class OpenNlpEntityExtractor {
                 .build();
     }
 
-    protected abstract List<TokenNameFinder> loadFinders(String pathPrefix, FileSystem fs) throws IOException;
+    @Override
+    public boolean isHandled(Vertex vertex, Property property) {
+        if (property.getName().equals(RawLumifyProperties.RAW.getKey())) {
+            return false;
+        }
+
+        String mimeType = (String) property.getMetadata().get(RawLumifyProperties.METADATA_MIME_TYPE);
+        return !(mimeType == null || !mimeType.startsWith("text"));
+    }
+
+    protected List<TokenNameFinder> loadFinders(String pathPrefix, FileSystem fs)
+            throws IOException {
+        Path finderHdfsPaths[] = {
+                new Path(pathPrefix + "/en-ner-location.bin"),
+                new Path(pathPrefix + "/en-ner-organization.bin"),
+                new Path(pathPrefix + "/en-ner-person.bin")};
+        List<TokenNameFinder> finders = new ArrayList<TokenNameFinder>();
+        for (Path finderHdfsPath : finderHdfsPaths) {
+            InputStream finderModelInputStream = fs.open(finderHdfsPath);
+            TokenNameFinderModel model = null;
+            try {
+                model = new TokenNameFinderModel(finderModelInputStream);
+            } finally {
+                finderModelInputStream.close();
+            }
+            NameFinderME finder = new NameFinderME(model);
+            finders.add(finder);
+        }
+
+        return finders;
+    }
 
     protected Tokenizer loadTokenizer(String pathPrefix, FileSystem fs) throws IOException {
         Path tokenizerHdfsPath = new Path(pathPrefix + "/en-token.bin");
@@ -122,9 +162,5 @@ public abstract class OpenNlpEntityExtractor {
         }
 
         return new TokenizerME(tokenizerModel);
-    }
-
-    public User getUser() {
-        return user;
     }
 }
