@@ -11,6 +11,11 @@ class rabbitmq {
 		source   => "http://www.rabbitmq.com/releases/rabbitmq-server/v${rabbitMQVersion}/rabbitmq-server-${rabbitMQVersion}-1.noarch.rpm",
   }
   
+  service { 'rabbitmq-server' :
+    ensure => running,
+    enable => true,
+  }
+  
   define enablePlugin {
     exec { "${title}" :
       command     => "/usr/sbin/rabbitmq-plugins enable ${title}",

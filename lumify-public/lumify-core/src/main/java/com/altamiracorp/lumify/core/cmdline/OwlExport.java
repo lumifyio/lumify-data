@@ -1,7 +1,5 @@
-package com.altamiracorp.lumify.tools;
+package com.altamiracorp.lumify.core.cmdline;
 
-import com.altamiracorp.bigtable.model.ModelSession;
-import com.altamiracorp.lumify.core.cmdline.CommandLineBase;
 import com.altamiracorp.lumify.core.exception.LumifyException;
 import com.altamiracorp.lumify.core.model.ontology.OntologyRepository;
 import com.google.inject.Inject;
@@ -20,7 +18,6 @@ import java.util.List;
 
 public class OwlExport extends CommandLineBase {
     private OntologyRepository ontologyRepository;
-    private ModelSession modelSession;
     private String outFileName;
     private IRI documentIRI;
 
@@ -105,10 +102,5 @@ public class OwlExport extends CommandLineBase {
     @Inject
     public void setOntologyRepository(OntologyRepository ontologyRepository) {
         this.ontologyRepository = ontologyRepository;
-    }
-
-    @Inject
-    public void setModelSession(ModelSession modelSession) {
-        this.modelSession = modelSession;
     }
 }
