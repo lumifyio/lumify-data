@@ -219,5 +219,9 @@
         <module>lumify-opennlp-me-extractor</module>
         <module>lumify-zipcode-extractor</module>
         <module>lumify-email-extractor</module>
+        <module>lumify-ccextractor</module>
+        <module>lumify-subrip-parser</module>
+        <module>lumify-youtube-transcript</module>
+        <module>lumify-subrip-transcript</module>
     </modules>
 </project>

@@ -5,7 +5,6 @@ import backtype.storm.generated.StormTopology;
 import backtype.storm.topology.TopologyBuilder;
 import com.altamiracorp.lumify.core.config.ConfigurationHelper;
 import com.altamiracorp.lumify.core.model.workQueue.WorkQueueRepository;
-import com.altamiracorp.lumify.storm.video.VideoBolt;
 import com.altamiracorp.lumify.storm.video.VideoPreviewBolt;
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.OptionBuilder;
@@ -100,18 +99,9 @@ public class StormEnterpriseRunner extends StormRunnerBase {
 
     public StormTopology createTopology(int parallelismHint) {
         TopologyBuilder builder = new TopologyBuilder();
-        createVideoTopology(builder, parallelismHint);
         createProcessedVideoTopology(builder, parallelismHint);
 
         return builder.createTopology();
-    }
-
-    private void createVideoTopology(TopologyBuilder builder, int parallelismHint) {
-        String name = "video";
-        builder.setSpout(name + "-spout", new HdfsFileSystemSpout("/video"), 1)
-                .setMaxTaskParallelism(1);
-        builder.setBolt(name + "-bolt", new VideoBolt(), parallelismHint)
-                .shuffleGrouping(name + "-spout");
     }
 
     private void createProcessedVideoTopology(TopologyBuilder builder, int parallelismHint) {

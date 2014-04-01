@@ -1,4 +1,4 @@
-package com.altamiracorp.lumify.storm.video;
+package com.altamiracorp.lumify.youtube;
 
 import com.altamiracorp.lumify.core.ingest.video.VideoTranscript;
 import org.w3c.dom.Document;
