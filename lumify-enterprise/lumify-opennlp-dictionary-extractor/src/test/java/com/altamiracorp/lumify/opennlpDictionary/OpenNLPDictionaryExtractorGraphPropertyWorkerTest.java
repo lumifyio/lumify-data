@@ -6,7 +6,6 @@ import com.altamiracorp.lumify.core.ingest.term.extraction.TermMention;
 import com.altamiracorp.lumify.core.model.termMention.TermMentionModel;
 import com.altamiracorp.lumify.core.model.termMention.TermMentionRowKey;
 import com.altamiracorp.lumify.core.user.User;
-import com.altamiracorp.securegraph.Authorizations;
 import com.altamiracorp.securegraph.Vertex;
 import com.altamiracorp.securegraph.Visibility;
 import com.altamiracorp.securegraph.inmemory.InMemoryAuthorizations;
@@ -66,7 +65,7 @@ public class OpenNLPDictionaryExtractorGraphPropertyWorkerTest {
             }
 
             @Override
-            protected TermMentionModel saveTermMention(Vertex vertex, TermMention termMention, User user, Visibility visibility, Authorizations authorizations) {
+            protected TermMentionModel saveTermMention(Vertex vertex, TermMention termMention, Visibility visibility) {
                 termMentions.add(termMention);
                 return new TermMentionModel(new TermMentionRowKey(vertex.getId().toString()));
             }

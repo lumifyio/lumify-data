@@ -4,7 +4,6 @@ import com.altamiracorp.lumify.core.ingest.graphProperty.GraphPropertyWorkData;
 import com.altamiracorp.lumify.core.ingest.graphProperty.GraphPropertyWorkResult;
 import com.altamiracorp.lumify.core.ingest.graphProperty.GraphPropertyWorker;
 import com.altamiracorp.lumify.core.ingest.graphProperty.GraphPropertyWorkerPrepareData;
-import com.altamiracorp.lumify.core.ingest.term.extraction.TermExtractionResult;
 import com.altamiracorp.lumify.core.ingest.term.extraction.TermMention;
 import com.altamiracorp.lumify.core.model.properties.RawLumifyProperties;
 import com.altamiracorp.lumify.core.util.LumifyLogger;
@@ -64,8 +63,6 @@ public class OpenNLPDictionaryExtractorGraphPropertyWorker extends GraphProperty
 
     @Override
     public GraphPropertyWorkResult execute(InputStream in, GraphPropertyWorkData data) throws Exception {
-        TermExtractionResult termExtractionResult = new TermExtractionResult();
-
         ObjectStream<String> untokenizedLineStream = new PlainTextByLineStream(new InputStreamReader(in));
         String line;
         int charOffset = 0;
@@ -73,7 +70,10 @@ public class OpenNLPDictionaryExtractorGraphPropertyWorker extends GraphProperty
         LOGGER.debug("Processing artifact content stream");
         while ((line = untokenizedLineStream.read()) != null) {
             ArrayList<TermMention> newTermMenitons = processLine(line, charOffset);
-            termExtractionResult.addAllTermMentions(newTermMenitons);
+            for (TermMention termMention : newTermMenitons) {
+                saveTermMention(data.getVertex(), termMention, data.getVertex().getVisibility());
+            }
+            getGraph().flush();
             charOffset += line.length() + NEW_LINE_CHARACTER_LENGTH;
         }
 

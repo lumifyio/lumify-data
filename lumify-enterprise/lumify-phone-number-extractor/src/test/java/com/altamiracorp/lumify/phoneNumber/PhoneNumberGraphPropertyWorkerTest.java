@@ -7,7 +7,10 @@ import com.altamiracorp.lumify.core.model.properties.RawLumifyProperties;
 import com.altamiracorp.lumify.core.model.termMention.TermMentionModel;
 import com.altamiracorp.lumify.core.model.termMention.TermMentionRowKey;
 import com.altamiracorp.lumify.core.user.User;
-import com.altamiracorp.securegraph.*;
+import com.altamiracorp.securegraph.Property;
+import com.altamiracorp.securegraph.Vertex;
+import com.altamiracorp.securegraph.VertexBuilder;
+import com.altamiracorp.securegraph.Visibility;
 import com.altamiracorp.securegraph.inmemory.InMemoryAuthorizations;
 import com.altamiracorp.securegraph.inmemory.InMemoryGraph;
 import com.altamiracorp.securegraph.property.StreamingPropertyValue;
@@ -50,7 +53,7 @@ public class PhoneNumberGraphPropertyWorkerTest {
         termMentions = new ArrayList<TermMention>();
         extractor = new PhoneNumberGraphPropertyWorker() {
             @Override
-            protected TermMentionModel saveTermMention(Vertex vertex, TermMention termMention, User user, Visibility visibility, Authorizations authorizations) {
+            protected TermMentionModel saveTermMention(Vertex vertex, TermMention termMention, Visibility visibility) {
                 termMentions.add(termMention);
                 return new TermMentionModel(new TermMentionRowKey(vertex.getId().toString()));
             }
