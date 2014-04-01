@@ -155,11 +155,6 @@
         </dependency>
         <dependency>
             <groupId>com.altamiracorp.lumify</groupId>
-            <artifactId>lumify-video-frame-extract</artifactId>
-            <version>${project.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>com.altamiracorp.lumify</groupId>
             <artifactId>lumify-tika-mime-type</artifactId>
             <version>${project.version}</version>
         </dependency>
