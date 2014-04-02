@@ -1,0 +1,5 @@
+dn: cn=c-users,ou=groups,o=Lumify,c=US
+objectclass: groupofuniquenames
+cn: c-users
+description: Users whose names start with C
+uniqueMember: cn=Carlos,ou=people,o=Lumify,c=US
