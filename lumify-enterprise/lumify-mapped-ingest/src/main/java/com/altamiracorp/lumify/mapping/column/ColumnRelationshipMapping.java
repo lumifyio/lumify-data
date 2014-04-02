@@ -8,6 +8,7 @@ package com.altamiracorp.lumify.mapping.column;
 
 import com.altamiracorp.lumify.core.ingest.term.extraction.TermMention;
 import com.altamiracorp.lumify.core.ingest.term.extraction.TermRelationship;
+import com.altamiracorp.securegraph.Visibility;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
 import com.fasterxml.jackson.annotation.JsonSubTypes;
@@ -33,8 +34,9 @@ public interface ColumnRelationshipMapping {
      * entities.
      * @param entities the map of entity keys to entities resolved from the current input row
      * @param row the columns of the current row
+     * @param visibility
      * @return the relationship defined by this mapping or <code>null</code>
      * if it could not be created
      */
-    TermRelationship createRelationship(final Map<String, TermMention> entities, final List<String> row);
+    TermRelationship createRelationship(final Map<String, TermMention> entities, final List<String> row, Visibility visibility);
 }

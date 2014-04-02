@@ -1,6 +1,7 @@
 package com.altamiracorp.lumify.mapping.column;
 
 import com.altamiracorp.lumify.core.ingest.term.extraction.TermMention;
+import com.altamiracorp.securegraph.Visibility;
 
 import java.util.Collections;
 import java.util.HashMap;
@@ -110,13 +111,14 @@ public abstract class AbstractColumnEntityMapping implements ColumnEntityMapping
      * Generate a TermMention, with all associated properties, from the columns
      * of a row in a columnar document.
      *
-     * @param row       the columns of the input row
-     * @param offset    the current document offset
-     * @param processId the ID of the process reading this document
+     * @param row        the columns of the input row
+     * @param offset     the current document offset
+     * @param processId  the ID of the process reading this document
+     * @param visibility
      * @return the generated TermMention
      */
     @Override
-    public final TermMention mapTerm(final List<String> row, final int offset, final String processId) {
+    public final TermMention mapTerm(final List<String> row, final int offset, final String processId, Visibility visibility) {
         Object id = idColumn != null ? idColumn.getValue(row) : null;
         String sign = signColumn.getValue(row);
         String conceptURI = getConceptURI(row);
@@ -129,12 +131,10 @@ public abstract class AbstractColumnEntityMapping implements ColumnEntityMapping
                 mention = null;
             }
         } else {
-            TermMention.Builder builder = new TermMention.Builder()
+            int start = offset;
+            int end = offset + sign.length();
+            TermMention.Builder builder = new TermMention.Builder(start, end, sign, conceptURI, visibility)
                     .id(id)
-                    .start(offset)
-                    .end(offset + sign.length())
-                    .sign(sign)
-                    .ontologyClassUri(conceptURI)
                     .useExisting(useExisting)
                     .resolved(true)
                     .process(processId);

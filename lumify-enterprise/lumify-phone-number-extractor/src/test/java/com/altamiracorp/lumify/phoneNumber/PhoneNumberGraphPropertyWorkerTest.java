@@ -53,7 +53,7 @@ public class PhoneNumberGraphPropertyWorkerTest {
     public void setUp() throws Exception {
         extractor = new PhoneNumberGraphPropertyWorker() {
             @Override
-            protected List<TermMentionWithGraphVertex> saveTermMentions(Vertex artifactGraphVertex, Iterable<TermMention> termMentions, Visibility visibility) {
+            protected List<TermMentionWithGraphVertex> saveTermMentions(Vertex artifactGraphVertex, Iterable<TermMention> termMentions) {
                 PhoneNumberGraphPropertyWorkerTest.this.termMentions = toList(termMentions);
                 return null;
             }

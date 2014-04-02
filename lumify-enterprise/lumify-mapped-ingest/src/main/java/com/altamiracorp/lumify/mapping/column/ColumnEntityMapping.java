@@ -1,6 +1,7 @@
 package com.altamiracorp.lumify.mapping.column;
 
 import com.altamiracorp.lumify.core.ingest.term.extraction.TermMention;
+import com.altamiracorp.securegraph.Visibility;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
@@ -40,7 +41,8 @@ public interface ColumnEntityMapping extends Comparable<ColumnEntityMapping> {
      * @param row the columns of the input row
      * @param offset the current document offset
      * @param processId the ID of the process reading this document
+     * @param visibility
      * @return the generated TermMention
      */
-    TermMention mapTerm(final List<String> row, final int offset, final String processId);
+    TermMention mapTerm(final List<String> row, final int offset, final String processId, Visibility visibility);
 }

@@ -9,7 +9,6 @@ import com.altamiracorp.lumify.core.model.ontology.OntologyRepository;
 import com.altamiracorp.lumify.core.util.LumifyLogger;
 import com.altamiracorp.lumify.core.util.LumifyLoggerFactory;
 import com.altamiracorp.securegraph.Vertex;
-import com.altamiracorp.securegraph.Visibility;
 import com.altamiracorp.securegraph.type.GeoPoint;
 import com.bericotech.clavin.extractor.LocationOccurrence;
 import com.bericotech.clavin.gazetteer.GeoName;
@@ -132,7 +131,7 @@ public class ClavinTermMentionFilter extends TermMentionFilter {
     }
 
     @Override
-    public Iterable<TermMention> apply(Vertex artifactGraphVertex, Iterable<TermMention> termMentions, Visibility visibility) throws IOException, ParseException {
+    public Iterable<TermMention> apply(Vertex artifactGraphVertex, Iterable<TermMention> termMentions) throws IOException, ParseException {
         List<LocationOccurrence> locationOccurrences = getLocationOccurrencesFromTermMentions(termMentions);
         LOGGER.info("Found %d Locations in %d terms.", locationOccurrences.size(), count(termMentions));
         List<ResolvedLocation> resolvedLocationNames = resolver.resolveLocations(locationOccurrences, fuzzy);

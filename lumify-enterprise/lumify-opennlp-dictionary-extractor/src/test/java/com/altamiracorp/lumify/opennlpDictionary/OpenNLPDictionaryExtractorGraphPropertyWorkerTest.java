@@ -6,7 +6,6 @@ import com.altamiracorp.lumify.core.ingest.graphProperty.TermMentionFilter;
 import com.altamiracorp.lumify.core.ingest.term.extraction.TermMention;
 import com.altamiracorp.lumify.core.user.User;
 import com.altamiracorp.securegraph.Vertex;
-import com.altamiracorp.securegraph.Visibility;
 import com.altamiracorp.securegraph.inmemory.InMemoryAuthorizations;
 import com.google.inject.Injector;
 import opennlp.tools.dictionary.Dictionary;
@@ -64,7 +63,7 @@ public class OpenNLPDictionaryExtractorGraphPropertyWorkerTest {
             }
 
             @Override
-            protected List<TermMentionWithGraphVertex> saveTermMentions(Vertex artifactGraphVertex, Iterable<TermMention> termMentions, Visibility visibility) {
+            protected List<TermMentionWithGraphVertex> saveTermMentions(Vertex artifactGraphVertex, Iterable<TermMention> termMentions) {
                 OpenNLPDictionaryExtractorGraphPropertyWorkerTest.this.termMentions = toList(termMentions);
                 return null;
             }

@@ -10,25 +10,12 @@
 
 package com.altamiracorp.lumify.mapping.column;
 
-import static org.junit.Assert.*;
-import static org.mockito.Mockito.*;
-
 import com.altamiracorp.lumify.core.ingest.term.extraction.TermExtractionResult;
 import com.altamiracorp.lumify.core.ingest.term.extraction.TermMention;
 import com.altamiracorp.lumify.core.ingest.term.extraction.TermRelationship;
 import com.altamiracorp.lumify.mapping.column.AbstractColumnDocumentMapping.Row;
 import com.altamiracorp.lumify.mapping.csv.CsvDocumentMapping;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.Reader;
-import java.io.Writer;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
+import com.altamiracorp.securegraph.Visibility;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -36,8 +23,18 @@ import org.mockito.Mock;
 import org.powermock.core.classloader.annotations.PrepareForTest;
 import org.powermock.modules.junit4.PowerMockRunner;
 
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.Reader;
+import java.io.Writer;
+import java.util.*;
+
+import static org.junit.Assert.*;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
+
 @RunWith(PowerMockRunner.class)
-@PrepareForTest({ CsvDocumentMapping.class })
+@PrepareForTest({CsvDocumentMapping.class})
 public class AbstractColumnDocumentMappingTest {
     private static final String TEST_SUBJECT = "Test Subject";
     private static final String TEST_PROCESS_ID = "testProcess";
@@ -74,6 +71,8 @@ public class AbstractColumnDocumentMappingTest {
     private Delegate delegate;
 
     private AbstractColumnDocumentMapping instance;
+
+    private Visibility visibility = new Visibility("");
 
     @Before
     public void setup() {
@@ -132,7 +131,7 @@ public class AbstractColumnDocumentMappingTest {
     public void testMapDocument_EmptyDocument() throws Exception {
         when(rowIter.hasNext()).thenReturn(false);
         TermExtractionResult expected = new TermExtractionResult();
-        TermExtractionResult actual = instance.mapDocument(mappingReader, TEST_PROCESS_ID);
+        TermExtractionResult actual = instance.mapDocument(mappingReader, TEST_PROCESS_ID, visibility);
         assertEquals(expected, actual);
     }
 
@@ -147,8 +146,8 @@ public class AbstractColumnDocumentMappingTest {
         int line1Term1Offset = lineOffset1;
         int line1Term2Offset = line1Term1Offset + fields1.get(0).length() + 1;
         int line1Term3Offset = line1Term2Offset + fields1.get(1).length() + fields1.get(2).length() + 2;
-        TermRelationship resolvedRel1 = new TermRelationship(line1entity1, line1entity2, LIVES_AT);
-        TermRelationship resolvedRel2 = new TermRelationship(line1entity3, line1entity1, KNOWS);
+        TermRelationship resolvedRel1 = new TermRelationship(line1entity1, line1entity2, LIVES_AT, visibility);
+        TermRelationship resolvedRel2 = new TermRelationship(line1entity3, line1entity1, KNOWS, visibility);
         Map<String, TermMention> line1map = new HashMap<String, TermMention>();
         line1map.put(ENTITY1_ID, line1entity1);
         line1map.put(ENTITY2_ID, line1entity2);
@@ -156,11 +155,11 @@ public class AbstractColumnDocumentMappingTest {
 
         when(rowIter.hasNext()).thenReturn(true, false);
         when(rowIter.next()).thenReturn(new Row(lineOffset1, fields1));
-        when(entity1.mapTerm(fields1, line1Term1Offset, TEST_PROCESS_ID)).thenReturn(line1entity1);
-        when(entity2.mapTerm(fields1, line1Term2Offset, TEST_PROCESS_ID)).thenReturn(line1entity2);
-        when(entity3.mapTerm(fields1, line1Term3Offset, TEST_PROCESS_ID)).thenReturn(line1entity3);
-        when(rel1.createRelationship(line1map, fields1)).thenReturn(resolvedRel1);
-        when(rel2.createRelationship(line1map, fields1)).thenReturn(resolvedRel2);
+        when(entity1.mapTerm(fields1, line1Term1Offset, TEST_PROCESS_ID, visibility)).thenReturn(line1entity1);
+        when(entity2.mapTerm(fields1, line1Term2Offset, TEST_PROCESS_ID, visibility)).thenReturn(line1entity2);
+        when(entity3.mapTerm(fields1, line1Term3Offset, TEST_PROCESS_ID, visibility)).thenReturn(line1entity3);
+        when(rel1.createRelationship(line1map, fields1, visibility)).thenReturn(resolvedRel1);
+        when(rel2.createRelationship(line1map, fields1, visibility)).thenReturn(resolvedRel2);
 
         List<TermMention> expectedMentions = Arrays.asList(line1entity1, line1entity2, line1entity3);
         List<TermRelationship> expectedRelationships = Arrays.asList(resolvedRel1, resolvedRel2);
@@ -169,7 +168,7 @@ public class AbstractColumnDocumentMappingTest {
         expected.addAllTermMentions(expectedMentions);
         expected.addAllRelationships(expectedRelationships);
 
-        TermExtractionResult result = instance.mapDocument(mappingReader, TEST_PROCESS_ID);
+        TermExtractionResult result = instance.mapDocument(mappingReader, TEST_PROCESS_ID, visibility);
         assertEquals(expected, result);
     }
 
@@ -214,11 +213,11 @@ public class AbstractColumnDocumentMappingTest {
         line3map.put(ENTITY2_ID, line3entity2);
         line3map.put(ENTITY3_ID, line3entity3);
 
-        TermRelationship resolvedRel1 = new TermRelationship(line1entity1, line1entity2, LIVES_AT);
-        TermRelationship resolvedRel2 = new TermRelationship(line1entity3, line1entity1, KNOWS);
-        TermRelationship resolvedRel3 = new TermRelationship(line2entity3, line2entity1, KNOWS);
-        TermRelationship resolvedRel4 = new TermRelationship(line3entity1, line3entity2, LIVES_AT);
-        TermRelationship resolvedRel5 = new TermRelationship(line3entity3, line3entity1, KNOWS);
+        TermRelationship resolvedRel1 = new TermRelationship(line1entity1, line1entity2, LIVES_AT, visibility);
+        TermRelationship resolvedRel2 = new TermRelationship(line1entity3, line1entity1, KNOWS, visibility);
+        TermRelationship resolvedRel3 = new TermRelationship(line2entity3, line2entity1, KNOWS, visibility);
+        TermRelationship resolvedRel4 = new TermRelationship(line3entity1, line3entity2, LIVES_AT, visibility);
+        TermRelationship resolvedRel5 = new TermRelationship(line3entity3, line3entity1, KNOWS, visibility);
 
         when(rowIter.hasNext()).thenReturn(true, true, true, false);
         when(rowIter.next()).thenReturn(
@@ -226,20 +225,20 @@ public class AbstractColumnDocumentMappingTest {
                 new Row(lineOffset2, fields2),
                 new Row(lineOffset3, fields3)
         );
-        when(entity1.mapTerm(fields1, line1Term1Offset, TEST_PROCESS_ID)).thenReturn(line1entity1);
-        when(entity2.mapTerm(fields1, line1Term2Offset, TEST_PROCESS_ID)).thenReturn(line1entity2);
-        when(entity3.mapTerm(fields1, line1Term3Offset, TEST_PROCESS_ID)).thenReturn(line1entity3);
-        when(entity1.mapTerm(fields2, line2Term1Offset, TEST_PROCESS_ID)).thenReturn(line2entity1);
-        when(entity2.mapTerm(fields2, line2Term2Offset, TEST_PROCESS_ID)).thenReturn(null);
-        when(entity3.mapTerm(fields2, line2Term3Offset, TEST_PROCESS_ID)).thenReturn(line2entity3);
-        when(entity1.mapTerm(fields3, line3Term1Offset, TEST_PROCESS_ID)).thenReturn(line3entity1);
-        when(entity2.mapTerm(fields3, line3Term2Offset, TEST_PROCESS_ID)).thenReturn(line3entity2);
-        when(entity3.mapTerm(fields3, line3Term3Offset, TEST_PROCESS_ID)).thenReturn(line3entity3);
-        when(rel1.createRelationship(line1map, fields1)).thenReturn(resolvedRel1);
-        when(rel2.createRelationship(line1map, fields1)).thenReturn(resolvedRel2);
-        when(rel2.createRelationship(line2map, fields2)).thenReturn(resolvedRel3);
-        when(rel1.createRelationship(line3map, fields3)).thenReturn(resolvedRel4);
-        when(rel2.createRelationship(line3map, fields3)).thenReturn(resolvedRel5);
+        when(entity1.mapTerm(fields1, line1Term1Offset, TEST_PROCESS_ID, visibility)).thenReturn(line1entity1);
+        when(entity2.mapTerm(fields1, line1Term2Offset, TEST_PROCESS_ID, visibility)).thenReturn(line1entity2);
+        when(entity3.mapTerm(fields1, line1Term3Offset, TEST_PROCESS_ID, visibility)).thenReturn(line1entity3);
+        when(entity1.mapTerm(fields2, line2Term1Offset, TEST_PROCESS_ID, visibility)).thenReturn(line2entity1);
+        when(entity2.mapTerm(fields2, line2Term2Offset, TEST_PROCESS_ID, visibility)).thenReturn(null);
+        when(entity3.mapTerm(fields2, line2Term3Offset, TEST_PROCESS_ID, visibility)).thenReturn(line2entity3);
+        when(entity1.mapTerm(fields3, line3Term1Offset, TEST_PROCESS_ID, visibility)).thenReturn(line3entity1);
+        when(entity2.mapTerm(fields3, line3Term2Offset, TEST_PROCESS_ID, visibility)).thenReturn(line3entity2);
+        when(entity3.mapTerm(fields3, line3Term3Offset, TEST_PROCESS_ID, visibility)).thenReturn(line3entity3);
+        when(rel1.createRelationship(line1map, fields1, visibility)).thenReturn(resolvedRel1);
+        when(rel2.createRelationship(line1map, fields1, visibility)).thenReturn(resolvedRel2);
+        when(rel2.createRelationship(line2map, fields2, visibility)).thenReturn(resolvedRel3);
+        when(rel1.createRelationship(line3map, fields3, visibility)).thenReturn(resolvedRel4);
+        when(rel2.createRelationship(line3map, fields3, visibility)).thenReturn(resolvedRel5);
 
         List<TermMention> expectedMentions = Arrays.asList(
                 line1entity1, line1entity2, line1entity3,
@@ -257,7 +256,7 @@ public class AbstractColumnDocumentMappingTest {
         expected.addAllTermMentions(expectedMentions);
         expected.addAllRelationships(expectedRelationships);
 
-        TermExtractionResult result = instance.mapDocument(mappingReader, TEST_PROCESS_ID);
+        TermExtractionResult result = instance.mapDocument(mappingReader, TEST_PROCESS_ID, visibility);
         assertEquals(expected, result);
     }
 
@@ -268,12 +267,12 @@ public class AbstractColumnDocumentMappingTest {
 
     @SuppressWarnings("unchecked")
     private void doConstructorTest(final String testName, final Map<String, ColumnEntityMapping> entities,
-            final Class<? extends Throwable> expectedError) {
+                                   final Class<? extends Throwable> expectedError) {
         doConstructorTest(testName, TEST_SUBJECT, entities, Collections.EMPTY_LIST, expectedError);
     }
 
     private void doConstructorTest(final String testName, final String subject, final Map<String, ColumnEntityMapping> entities,
-            final List<ColumnRelationshipMapping> relationships, final Class<? extends Throwable> expectedError) {
+                                   final List<ColumnRelationshipMapping> relationships, final Class<? extends Throwable> expectedError) {
         try {
             new TestImpl(subject, entities, relationships);
             fail(String.format("[%s] Expected %s.", testName, expectedError.getName()));
@@ -304,13 +303,13 @@ public class AbstractColumnDocumentMappingTest {
     }
 
     private void doConstructorTest_Rels(final String testName, final List<ColumnRelationshipMapping> rels,
-            final List<ColumnRelationshipMapping> expRels) {
+                                        final List<ColumnRelationshipMapping> expRels) {
         doConstructorTest(testName, TEST_SUBJECT, entityMap, rels, TEST_SUBJECT, entityMap, expRels);
     }
 
     private void doConstructorTest(final String testName, final String subject, final Map<String, ColumnEntityMapping> entities,
-            final List<ColumnRelationshipMapping> relationships, final String expSubject,
-            final Map<String, ColumnEntityMapping> expEntities, final List<ColumnRelationshipMapping> expRelationships) {
+                                   final List<ColumnRelationshipMapping> relationships, final String expSubject,
+                                   final Map<String, ColumnEntityMapping> expEntities, final List<ColumnRelationshipMapping> expRelationships) {
         AbstractColumnDocumentMapping mapping = new TestImpl(subject, entities, relationships);
         assertEquals(testName, expSubject, mapping.getSubject());
         assertEquals(testName, expEntities, mapping.getEntities());
@@ -319,6 +318,7 @@ public class AbstractColumnDocumentMappingTest {
 
     private static interface Delegate {
         Iterable<Row> getRows(Reader reader);
+
         void ingestDocument(InputStream inputDoc, Writer outputDoc) throws IOException;
     }
 

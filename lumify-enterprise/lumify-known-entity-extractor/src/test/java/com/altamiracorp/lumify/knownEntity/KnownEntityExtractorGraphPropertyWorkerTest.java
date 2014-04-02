@@ -50,7 +50,7 @@ public class KnownEntityExtractorGraphPropertyWorkerTest {
         dictionaryPath = getClass().getResource(".").getPath();
         extractor = new KnownEntityExtractorGraphPropertyWorker() {
             @Override
-            protected List<TermMentionWithGraphVertex> saveTermMentions(Vertex artifactGraphVertex, Iterable<TermMention> termMentions, Visibility visibility) {
+            protected List<TermMentionWithGraphVertex> saveTermMentions(Vertex artifactGraphVertex, Iterable<TermMention> termMentions) {
                 KnownEntityExtractorGraphPropertyWorkerTest.this.termMentions = toList(termMentions);
                 return null;
             }

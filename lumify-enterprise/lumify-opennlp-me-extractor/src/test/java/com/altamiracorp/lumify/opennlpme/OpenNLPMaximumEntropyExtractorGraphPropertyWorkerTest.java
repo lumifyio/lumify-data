@@ -6,7 +6,6 @@ import com.altamiracorp.lumify.core.ingest.graphProperty.TermMentionFilter;
 import com.altamiracorp.lumify.core.ingest.term.extraction.TermMention;
 import com.altamiracorp.lumify.core.user.User;
 import com.altamiracorp.securegraph.Vertex;
-import com.altamiracorp.securegraph.Visibility;
 import com.altamiracorp.securegraph.inmemory.InMemoryAuthorizations;
 import com.google.inject.Injector;
 import org.apache.hadoop.conf.Configuration;
@@ -55,7 +54,7 @@ public class OpenNLPMaximumEntropyExtractorGraphPropertyWorkerTest {
         configuration.set(com.altamiracorp.lumify.core.config.Configuration.HADOOP_URL, "");
         extractor = new OpenNLPMaximumEntropyExtractorGraphPropertyWorker() {
             @Override
-            protected List<TermMentionWithGraphVertex> saveTermMentions(Vertex artifactGraphVertex, Iterable<TermMention> termMentions, Visibility visibility) {
+            protected List<TermMentionWithGraphVertex> saveTermMentions(Vertex artifactGraphVertex, Iterable<TermMention> termMentions) {
                 OpenNLPMaximumEntropyExtractorGraphPropertyWorkerTest.this.termMentions = toList(termMentions);
                 return null;
             }

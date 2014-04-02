@@ -11,6 +11,7 @@ import com.altamiracorp.lumify.opennlpDictionary.model.DictionaryEntry;
 import com.altamiracorp.lumify.opennlpDictionary.model.DictionaryEntryRepository;
 import com.altamiracorp.securegraph.Property;
 import com.altamiracorp.securegraph.Vertex;
+import com.altamiracorp.securegraph.Visibility;
 import com.google.inject.Inject;
 import opennlp.tools.dictionary.Dictionary;
 import opennlp.tools.namefind.DictionaryNameFinder;
@@ -70,25 +71,25 @@ public class OpenNLPDictionaryExtractorGraphPropertyWorker extends GraphProperty
         LOGGER.debug("Processing artifact content stream");
         List<TermMention> termMentions = new ArrayList<TermMention>();
         while ((line = untokenizedLineStream.read()) != null) {
-            ArrayList<TermMention> newTermMentions = processLine(line, charOffset);
+            ArrayList<TermMention> newTermMentions = processLine(line, charOffset, data.getVertex().getVisibility());
             termMentions.addAll(newTermMentions);
             getGraph().flush();
             charOffset += line.length() + NEW_LINE_CHARACTER_LENGTH;
         }
-        saveTermMentions(data.getVertex(), termMentions, data.getVertex().getVisibility());
+        saveTermMentions(data.getVertex(), termMentions);
 
         untokenizedLineStream.close();
         LOGGER.debug("Stream processing completed");
     }
 
-    private ArrayList<TermMention> processLine(String line, int charOffset) {
+    private ArrayList<TermMention> processLine(String line, int charOffset, Visibility visibility) {
         ArrayList<TermMention> termMentions = new ArrayList<TermMention>();
         String tokenList[] = tokenizer.tokenize(line);
         Span[] tokenListPositions = tokenizer.tokenizePos(line);
         for (TokenNameFinder finder : finders) {
             Span[] foundSpans = finder.find(tokenList);
             for (Span span : foundSpans) {
-                TermMention termMention = createTermMention(charOffset, span, tokenList, tokenListPositions);
+                TermMention termMention = createTermMention(charOffset, span, tokenList, tokenListPositions, visibility);
                 termMentions.add(termMention);
             }
             finder.clearAdaptiveData();
@@ -96,16 +97,12 @@ public class OpenNLPDictionaryExtractorGraphPropertyWorker extends GraphProperty
         return termMentions;
     }
 
-    private TermMention createTermMention(int charOffset, Span foundName, String[] tokens, Span[] tokenListPositions) {
+    private TermMention createTermMention(int charOffset, Span foundName, String[] tokens, Span[] tokenListPositions, Visibility visibility) {
         String name = Span.spansToStrings(new Span[]{foundName}, tokens)[0];
         int start = charOffset + tokenListPositions[foundName.getStart()].getStart();
         int end = charOffset + tokenListPositions[foundName.getEnd() - 1].getEnd();
         String ontologyClassUri = foundName.getType();
-        return new TermMention.Builder()
-                .start(start)
-                .end(end)
-                .sign(name)
-                .ontologyClassUri(ontologyClassUri)
+        return new TermMention.Builder(start, end, name, ontologyClassUri, visibility)
                 .resolved(false)
                 .useExisting(true)
                 .process(getClass().getName())

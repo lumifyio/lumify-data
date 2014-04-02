@@ -8,6 +8,7 @@ package com.altamiracorp.lumify.mapping;
 
 import com.altamiracorp.lumify.core.ingest.term.extraction.TermExtractionResult;
 import com.altamiracorp.lumify.mapping.csv.CsvDocumentMapping;
+import com.altamiracorp.securegraph.Visibility;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonSubTypes;
 import com.fasterxml.jackson.annotation.JsonSubTypes.Type;
@@ -51,9 +52,10 @@ public interface DocumentMapping {
      * @param inputDoc the document to read; typically reading from output Writer provided to
      * <code>ingestDocument()</code>
      * @param processId the ID of the process reading this document
+     * @param visibility
      * @return the Term mentions and relationships found in the provided document as indicated by
      * this mapping
      * @throws IOException if an error occurs while applying the mapping
      */
-    TermExtractionResult mapDocument(final Reader inputDoc, final String processId) throws IOException;
+    TermExtractionResult mapDocument(final Reader inputDoc, final String processId, Visibility visibility) throws IOException;
 }

@@ -6,24 +6,19 @@
 
 package com.altamiracorp.lumify.mapping.column;
 
-import static com.google.common.base.Preconditions.checkArgument;
-import static com.google.common.base.Preconditions.checkNotNull;
-
 import com.altamiracorp.lumify.core.ingest.term.extraction.TermExtractionResult;
 import com.altamiracorp.lumify.core.ingest.term.extraction.TermMention;
 import com.altamiracorp.lumify.core.ingest.term.extraction.TermRelationship;
 import com.altamiracorp.lumify.mapping.DocumentMapping;
+import com.altamiracorp.securegraph.Visibility;
 import com.fasterxml.jackson.annotation.JsonProperty;
+
 import java.io.IOException;
 import java.io.Reader;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-import java.util.SortedSet;
-import java.util.TreeSet;
+import java.util.*;
+
+import static com.google.common.base.Preconditions.checkArgument;
+import static com.google.common.base.Preconditions.checkNotNull;
 
 /**
  * Base class for Columnar document mappings.
@@ -46,12 +41,13 @@ public abstract class AbstractColumnDocumentMapping implements DocumentMapping {
 
     /**
      * Create a new AbstractColumnDocumentMapping.
-     * @param subject the subject for the ingested Document
-     * @param entities the entity mappings
+     *
+     * @param subject       the subject for the ingested Document
+     * @param entities      the entity mappings
      * @param relationships the relationship mappings
      */
     protected AbstractColumnDocumentMapping(final String subject, final Map<String, ColumnEntityMapping> entities,
-            final List<ColumnRelationshipMapping> relationships) {
+                                            final List<ColumnRelationshipMapping> relationships) {
         checkArgument(subject != null && !subject.trim().isEmpty(), "Subject must be provided.");
         checkNotNull(entities, "At least one entity mapping must be provided.");
         checkArgument(!entities.isEmpty(), "At least one entity mapping must be provided.");
@@ -91,13 +87,14 @@ public abstract class AbstractColumnDocumentMapping implements DocumentMapping {
     /**
      * Get an Iterable that returns the rows of the input document
      * that will be processed.
+     *
      * @param reader a Reader over the input document
      * @return an Iterable over the rows of the input document
      */
     protected abstract Iterable<Row> getRows(final Reader reader) throws IOException;
 
     @Override
-    public final TermExtractionResult mapDocument(final Reader reader, final String processId) throws IOException {
+    public final TermExtractionResult mapDocument(final Reader reader, final String processId, Visibility visibility) throws IOException {
         TermExtractionResult results = new TermExtractionResult();
         Iterable<Row> rows = getRows(reader);
         for (Row row : rows) {
@@ -128,7 +125,7 @@ public abstract class AbstractColumnDocumentMapping implements DocumentMapping {
                     offset += (columns.get(lastCol) != null ? columns.get(lastCol).length() : 0) + 1;
                 }
                 try {
-                    mention = colMapping.mapTerm(columns, offset, processId);
+                    mention = colMapping.mapTerm(columns, offset, processId, visibility);
                     if (mention != null) {
                         // no need to update offset here, it will get updated by the block
                         // above when the next term is processed or, if this is the last term,
@@ -149,7 +146,7 @@ public abstract class AbstractColumnDocumentMapping implements DocumentMapping {
                 // if both Terms were successfully extracted
                 List<TermRelationship> relationships = new ArrayList<TermRelationship>();
                 for (ColumnRelationshipMapping relMapping : relationshipMappings) {
-                    TermRelationship rel = relMapping.createRelationship(termMap, columns);
+                    TermRelationship rel = relMapping.createRelationship(termMap, columns, visibility);
                     if (rel != null) {
                         relationships.add(rel);
                     }

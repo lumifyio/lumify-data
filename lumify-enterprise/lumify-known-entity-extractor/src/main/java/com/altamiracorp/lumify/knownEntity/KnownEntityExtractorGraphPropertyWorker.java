@@ -9,6 +9,7 @@ import com.altamiracorp.lumify.core.util.LumifyLogger;
 import com.altamiracorp.lumify.core.util.LumifyLoggerFactory;
 import com.altamiracorp.securegraph.Property;
 import com.altamiracorp.securegraph.Vertex;
+import com.altamiracorp.securegraph.Visibility;
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.io.IOUtils;
 import org.apache.hadoop.fs.FileStatus;
@@ -49,22 +50,20 @@ public class KnownEntityExtractorGraphPropertyWorker extends GraphPropertyWorker
         List<OutputResult> searchResults = tree.completeSearch(text, false, true);
         List<TermMention> termMentions = new ArrayList<TermMention>();
         for (OutputResult searchResult : searchResults) {
-            TermMention termMention = outputResultToTermMention(searchResult);
+            TermMention termMention = outputResultToTermMention(searchResult, data.getVertex().getVisibility());
             termMentions.add(termMention);
             getGraph().flush();
         }
-        saveTermMentions(data.getVertex(), termMentions, data.getVertex().getVisibility());
+        saveTermMentions(data.getVertex(), termMentions);
     }
 
-    private TermMention outputResultToTermMention(OutputResult searchResult) {
+    private TermMention outputResultToTermMention(OutputResult searchResult, Visibility visibility) {
         Match match = (Match) searchResult.getOutput();
         int start = searchResult.getStartIndex();
         int end = searchResult.getLastIndex();
-        return new TermMention.Builder()
-                .start(start)
-                .end(end)
-                .sign(match.getEntityTitle())
-                .ontologyClassUri(match.getConceptTitle())
+        String sign = match.getEntityTitle();
+        String ontologyClassUri = match.getConceptTitle();
+        return new TermMention.Builder(start, end, sign, ontologyClassUri, visibility)
                 .resolved(true)
                 .useExisting(true)
                 .process(getClass().getName())

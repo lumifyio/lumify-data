@@ -9,6 +9,7 @@ import com.altamiracorp.lumify.core.util.LumifyLogger;
 import com.altamiracorp.lumify.core.util.LumifyLoggerFactory;
 import com.altamiracorp.securegraph.Property;
 import com.altamiracorp.securegraph.Vertex;
+import com.altamiracorp.securegraph.Visibility;
 import com.google.common.base.Charsets;
 import com.google.common.collect.Iterables;
 import com.google.common.io.CharStreams;
@@ -55,26 +56,22 @@ public class PhoneNumberGraphPropertyWorker extends GraphPropertyWorker {
         final Iterable<PhoneNumberMatch> phoneNumbers = phoneNumberUtil.findNumbers(text, defaultRegionCode);
         List<TermMention> termMentions = new ArrayList<TermMention>();
         for (final PhoneNumberMatch phoneNumber : phoneNumbers) {
-            TermMention termMention = createTerm(phoneNumber);
+            TermMention termMention = createTerm(phoneNumber, data.getVertex().getVisibility());
             termMentions.add(termMention);
         }
 
-        saveTermMentions(data.getVertex(), termMentions, data.getVertex().getVisibility());
+        saveTermMentions(data.getVertex(), termMentions);
         getGraph().flush();
 
         LOGGER.debug("Number of phone numbers extracted: %d", Iterables.size(phoneNumbers));
     }
 
-    private TermMention createTerm(final PhoneNumberMatch phoneNumber) {
+    private TermMention createTerm(final PhoneNumberMatch phoneNumber, Visibility visibility) {
         final String formattedNumber = phoneNumberUtil.format(phoneNumber.number(), PhoneNumberUtil.PhoneNumberFormat.E164);
         int start = phoneNumber.start();
         int end = phoneNumber.end();
 
-        return new TermMention.Builder()
-                .start(start)
-                .end(end)
-                .sign(formattedNumber)
-                .ontologyClassUri(entityType)
+        return new TermMention.Builder(start, end, formattedNumber, entityType, visibility)
                 .resolved(false)
                 .useExisting(true)
                 .process(getClass().getName())
