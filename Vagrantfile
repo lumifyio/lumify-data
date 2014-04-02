@@ -42,7 +42,7 @@ def provision_proxy(config, proxy_url)
     """
     script = """
       echo 'proxy=#{proxy_url}' >> /etc/yum.conf
-      for repo in /etc/yum.repos.d/*.repo; do sed -i -e 's/mirrorlist=/#mirrorlist=/' -e 's/#baseurl=/baseurl=/' ${repo}; done
+      for repo in /etc/yum.repos.d/*.repo; do grep -q 'mirrorlist=' ${repo} && sed -i -e 's/mirrorlist=/#mirrorlist=/' -e 's/#*baseurl=/baseurl=/' ${repo}; done
       echo 'registry = http://registry.npmjs.org/' >> /usr/etc/npmrc
       echo 'proxy = #{proxy_url}' >> /usr/etc/npmrc
     """
@@ -51,7 +51,7 @@ def provision_proxy(config, proxy_url)
   else
     script = """
       sed -i -e '/^proxy=/d' /etc/yum.conf
-      for repo in /etc/yum.repos.d/*.repo; do sed -i -e 's/#mirrorlist=/mirrorlist=/' -e 's/baseurl=/#baseurl=/' ${repo}; done
+      for repo in /etc/yum.repos.d/*.repo; do grep -q 'mirrorlist=' && sed -i -e 's/#*mirrorlist=/mirrorlist=/' -e 's/baseurl=/#baseurl=/' ${repo}; done
       [ -f /usr/etc/npmrc ] && sed -i -e '/^registry =/d' /usr/etc/npmrc || true
       [ -f /usr/etc/npmrc ] && sed -i -e '/^proxy =/d' /usr/etc/npmrc || true
     """
