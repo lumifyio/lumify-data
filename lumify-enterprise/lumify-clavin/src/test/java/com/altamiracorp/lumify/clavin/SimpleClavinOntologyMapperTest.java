@@ -23,9 +23,9 @@ import org.junit.runners.Parameterized.Parameters;
 @RunWith(Parameterized.class)
 public class SimpleClavinOntologyMapperTest {
     private static final String DEFAULT_VALUE = "defaultValue";
-    private static final String CITY = "city";
-    private static final String COUNTRY = "country";
-    private static final String STATE = "state";
+    private static final String CITY = "http://lumify.io/dev#city";
+    private static final String COUNTRY = "http://lumify.io/dev#country";
+    private static final String STATE = "http://lumify.io/dev#state";
 
     @Parameters(name="${index}: getUri([{0},{1}],{2})={3}")
     public static Iterable<Object[]> data() {
