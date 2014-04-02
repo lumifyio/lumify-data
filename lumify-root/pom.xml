@@ -697,7 +697,7 @@
                         </execution>
                     </executions>
                 </plugin>
-                <plugin>
+<!--                <plugin>
                     <groupId>com.shankyank.mojo</groupId>
                     <artifactId>template-resgen-maven-plugin</artifactId>
                     <version>${plugin.template.resgen.version}</version>
@@ -723,6 +723,7 @@
                         </dependency>
                     </dependencies>
                 </plugin>
+-->
                 <!-- Cobertura: Code Coverage Check -->
                 <plugin>
                     <groupId>org.codehaus.mojo</groupId>
