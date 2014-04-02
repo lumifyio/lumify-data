@@ -1,7 +1,6 @@
 package com.altamiracorp.lumify.subrip;
 
 import com.altamiracorp.lumify.core.ingest.graphProperty.GraphPropertyWorkData;
-import com.altamiracorp.lumify.core.ingest.graphProperty.GraphPropertyWorkResult;
 import com.altamiracorp.lumify.core.ingest.graphProperty.GraphPropertyWorker;
 import com.altamiracorp.lumify.core.ingest.video.VideoTranscript;
 import com.altamiracorp.lumify.core.model.properties.MediaLumifyProperties;
@@ -18,7 +17,7 @@ public class SubRipTranscriptGraphPropertyWorker extends GraphPropertyWorker {
     private static final String PROPERTY_KEY = SubRipTranscriptGraphPropertyWorker.class.getName();
 
     @Override
-    public GraphPropertyWorkResult execute(InputStream in, GraphPropertyWorkData data) throws Exception {
+    public void execute(InputStream in, GraphPropertyWorkData data) throws Exception {
         StreamingPropertyValue youtubeccValue = SubRipTranscriptFileImportSupportingFileHandler.SUBRIP_CC.getPropertyValue(data.getVertex());
         VideoTranscript videoTranscript = SubRip.read(youtubeccValue.getInputStream());
 
@@ -28,8 +27,6 @@ public class SubRipTranscriptGraphPropertyWorker extends GraphPropertyWorker {
 
         getGraph().flush();
         getWorkQueueRepository().pushGraphPropertyQueue(data.getVertex().getId(), PROPERTY_KEY, MediaLumifyProperties.VIDEO_TRANSCRIPT.getKey());
-
-        return null;
     }
 
 

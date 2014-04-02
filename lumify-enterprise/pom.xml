@@ -223,5 +223,6 @@
         <module>lumify-subrip-parser</module>
         <module>lumify-youtube-transcript</module>
         <module>lumify-subrip-transcript</module>
+        <module>lumify-clavin</module>
     </modules>
 </project>

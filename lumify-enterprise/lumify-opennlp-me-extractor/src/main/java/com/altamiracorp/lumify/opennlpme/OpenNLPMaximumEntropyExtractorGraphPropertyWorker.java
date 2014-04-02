@@ -1,7 +1,6 @@
 package com.altamiracorp.lumify.opennlpme;
 
 import com.altamiracorp.lumify.core.ingest.graphProperty.GraphPropertyWorkData;
-import com.altamiracorp.lumify.core.ingest.graphProperty.GraphPropertyWorkResult;
 import com.altamiracorp.lumify.core.ingest.graphProperty.GraphPropertyWorker;
 import com.altamiracorp.lumify.core.ingest.graphProperty.GraphPropertyWorkerPrepareData;
 import com.altamiracorp.lumify.core.ingest.term.extraction.TermMention;
@@ -54,25 +53,23 @@ public class OpenNLPMaximumEntropyExtractorGraphPropertyWorker extends GraphProp
     }
 
     @Override
-    public GraphPropertyWorkResult execute(InputStream in, GraphPropertyWorkData data) throws Exception {
+    public void execute(InputStream in, GraphPropertyWorkData data) throws Exception {
         ObjectStream<String> untokenizedLineStream = new PlainTextByLineStream(new InputStreamReader(in));
         String line;
         int charOffset = 0;
 
         LOGGER.debug("Processing artifact content stream");
+        List<TermMention> termMenitons = new ArrayList<TermMention>();
         while ((line = untokenizedLineStream.read()) != null) {
-            ArrayList<TermMention> newTermMenitons = processLine(line, charOffset);
-            for (TermMention termMention : newTermMenitons) {
-                saveTermMention(data.getVertex(), termMention, data.getVertex().getVisibility());
-            }
+            ArrayList<TermMention> newTermMentions = processLine(line, charOffset);
+            termMenitons.addAll(newTermMentions);
             getGraph().flush();
             charOffset += line.length() + NEW_LINE_CHARACTER_LENGTH;
         }
+        saveTermMentions(data.getVertex(), termMenitons, data.getVertex().getVisibility());
 
         untokenizedLineStream.close();
         LOGGER.debug("Stream processing completed");
-
-        return new GraphPropertyWorkResult();
     }
 
     private ArrayList<TermMention> processLine(String line, int charOffset) {

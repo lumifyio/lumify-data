@@ -1,7 +1,6 @@
 package com.altamiracorp.lumify.tesseract;
 
 import com.altamiracorp.lumify.core.ingest.graphProperty.GraphPropertyWorkData;
-import com.altamiracorp.lumify.core.ingest.graphProperty.GraphPropertyWorkResult;
 import com.altamiracorp.lumify.core.ingest.graphProperty.GraphPropertyWorker;
 import com.altamiracorp.lumify.core.ingest.graphProperty.GraphPropertyWorkerPrepareData;
 import com.altamiracorp.lumify.core.model.properties.RawLumifyProperties;
@@ -35,15 +34,15 @@ public class TesseractGraphPropertyWorker extends GraphPropertyWorker {
     }
 
     @Override
-    public GraphPropertyWorkResult execute(InputStream in, GraphPropertyWorkData data) throws Exception {
+    public void execute(InputStream in, GraphPropertyWorkData data) throws Exception {
         BufferedImage image = ImageIO.read(in);
         if (image == null) {
             LOGGER.error("Could not load image from property %s on vertex %s", data.getProperty().toString(), data.getVertex().getId());
-            return null;
+            return;
         }
         String ocrResults = extractTextFromImage(image);
         if (ocrResults == null) {
-            return null;
+            return;
         }
 
         InputStream textIn = new ByteArrayInputStream(ocrResults.getBytes());
@@ -55,8 +54,6 @@ public class TesseractGraphPropertyWorker extends GraphPropertyWorker {
         m.save();
         getGraph().flush();
         getWorkQueueRepository().pushGraphPropertyQueue(data.getVertex().getId(), TEXT_PROPERTY_KEY, RawLumifyProperties.TEXT.getKey());
-
-        return new GraphPropertyWorkResult();
     }
 
     private String extractTextFromImage(BufferedImage image) throws TesseractException {

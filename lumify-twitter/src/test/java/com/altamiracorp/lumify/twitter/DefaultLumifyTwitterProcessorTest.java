@@ -17,7 +17,6 @@
 package com.altamiracorp.lumify.twitter;
 
 import com.altamiracorp.bigtable.model.user.ModelUserContext;
-import com.altamiracorp.lumify.core.ingest.term.extraction.TermRegexFinder;
 import com.altamiracorp.lumify.core.model.audit.AuditRepository;
 import com.altamiracorp.lumify.core.model.ontology.Concept;
 import com.altamiracorp.lumify.core.model.ontology.OntologyRepository;
@@ -48,7 +47,7 @@ import static org.mockito.Mockito.when;
  * Abstract base class for testing Twitter bolts.
  */
 @RunWith(PowerMockRunner.class)
-@PrepareForTest({TermRegexFinder.class, DefaultLumifyTwitterProcessor.class})
+@PrepareForTest({DefaultLumifyTwitterProcessor.class})
 public class DefaultLumifyTwitterProcessorTest {
     private static final String TEST_PROCESS_ID = "twitter-processor-test";
     private static final String TEST_QUEUE_NAME = "testQueue";

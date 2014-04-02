@@ -2,6 +2,7 @@ package com.altamiracorp.lumify.phoneNumber;
 
 import com.altamiracorp.lumify.core.ingest.graphProperty.GraphPropertyWorkData;
 import com.altamiracorp.lumify.core.ingest.graphProperty.GraphPropertyWorkerPrepareData;
+import com.altamiracorp.lumify.core.ingest.graphProperty.TermMentionFilter;
 import com.altamiracorp.lumify.core.ingest.term.extraction.TermMention;
 import com.altamiracorp.lumify.core.model.properties.RawLumifyProperties;
 import com.altamiracorp.lumify.core.user.User;
@@ -25,8 +26,10 @@ import java.io.ByteArrayInputStream;
 import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
+import static com.altamiracorp.securegraph.util.IterableUtils.toList;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
@@ -43,16 +46,15 @@ public class PhoneNumberGraphPropertyWorkerTest {
     private InMemoryAuthorizations authorizations;
     private InMemoryGraph graph;
     private Visibility visibility;
-    private ArrayList<TermMention> termMentions;
+    private List<TermMention> termMentions;
 
 
     @Before
     public void setUp() throws Exception {
-        termMentions = new ArrayList<TermMention>();
         extractor = new PhoneNumberGraphPropertyWorker() {
             @Override
-            protected TermMentionWithGraphVertex saveTermMention(Vertex vertex, TermMention termMention, Visibility visibility) {
-                termMentions.add(termMention);
+            protected List<TermMentionWithGraphVertex> saveTermMentions(Vertex artifactGraphVertex, Iterable<TermMention> termMentions, Visibility visibility) {
+                PhoneNumberGraphPropertyWorkerTest.this.termMentions = toList(termMentions);
                 return null;
             }
         };
@@ -61,7 +63,8 @@ public class PhoneNumberGraphPropertyWorkerTest {
         FileSystem hdfsFileSystem = null;
         authorizations = new InMemoryAuthorizations();
         Injector injector = null;
-        GraphPropertyWorkerPrepareData workerPrepareData = new GraphPropertyWorkerPrepareData(stormConf, hdfsFileSystem, user, authorizations, injector);
+        List<TermMentionFilter> termMentionFilters = new ArrayList<TermMentionFilter>();
+        GraphPropertyWorkerPrepareData workerPrepareData = new GraphPropertyWorkerPrepareData(stormConf, termMentionFilters, hdfsFileSystem, user, authorizations, injector);
         graph = new InMemoryGraph();
         visibility = new Visibility("");
         extractor.prepare(workerPrepareData);

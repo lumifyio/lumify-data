@@ -2,6 +2,7 @@ package com.altamiracorp.lumify.knownEntity;
 
 import com.altamiracorp.lumify.core.ingest.graphProperty.GraphPropertyWorkData;
 import com.altamiracorp.lumify.core.ingest.graphProperty.GraphPropertyWorkerPrepareData;
+import com.altamiracorp.lumify.core.ingest.graphProperty.TermMentionFilter;
 import com.altamiracorp.lumify.core.ingest.term.extraction.TermMention;
 import com.altamiracorp.lumify.core.model.properties.RawLumifyProperties;
 import com.altamiracorp.lumify.core.user.User;
@@ -27,6 +28,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import static com.altamiracorp.securegraph.util.IterableUtils.toList;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
@@ -45,12 +47,11 @@ public class KnownEntityExtractorGraphPropertyWorkerTest {
 
     @Before
     public void setup() throws Exception {
-        termMentions = new ArrayList<TermMention>();
         dictionaryPath = getClass().getResource(".").getPath();
         extractor = new KnownEntityExtractorGraphPropertyWorker() {
             @Override
-            protected TermMentionWithGraphVertex saveTermMention(Vertex vertex, TermMention termMention, Visibility visibility) {
-                termMentions.add(termMention);
+            protected List<TermMentionWithGraphVertex> saveTermMentions(Vertex artifactGraphVertex, Iterable<TermMention> termMentions, Visibility visibility) {
+                KnownEntityExtractorGraphPropertyWorkerTest.this.termMentions = toList(termMentions);
                 return null;
             }
         };
@@ -58,7 +59,8 @@ public class KnownEntityExtractorGraphPropertyWorkerTest {
         FileSystem hdfsFileSystem = FileSystem.get(new Configuration());
         authorizations = new InMemoryAuthorizations();
         Injector injector = null;
-        GraphPropertyWorkerPrepareData workerPrepareData = new GraphPropertyWorkerPrepareData(stormConf, hdfsFileSystem, user, authorizations, injector);
+        List<TermMentionFilter> termMentionFilters = new ArrayList<TermMentionFilter>();
+        GraphPropertyWorkerPrepareData workerPrepareData = new GraphPropertyWorkerPrepareData(stormConf, termMentionFilters, hdfsFileSystem, user, authorizations, injector);
         graph = new InMemoryGraph();
         visibility = new Visibility("");
         extractor.prepare(workerPrepareData);

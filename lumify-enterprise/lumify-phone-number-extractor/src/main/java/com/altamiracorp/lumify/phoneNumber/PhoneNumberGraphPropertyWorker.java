@@ -1,7 +1,6 @@
 package com.altamiracorp.lumify.phoneNumber;
 
 import com.altamiracorp.lumify.core.ingest.graphProperty.GraphPropertyWorkData;
-import com.altamiracorp.lumify.core.ingest.graphProperty.GraphPropertyWorkResult;
 import com.altamiracorp.lumify.core.ingest.graphProperty.GraphPropertyWorker;
 import com.altamiracorp.lumify.core.ingest.graphProperty.GraphPropertyWorkerPrepareData;
 import com.altamiracorp.lumify.core.ingest.term.extraction.TermMention;
@@ -18,6 +17,8 @@ import com.google.i18n.phonenumbers.PhoneNumberUtil;
 
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.util.ArrayList;
+import java.util.List;
 
 public class PhoneNumberGraphPropertyWorker extends GraphPropertyWorker {
     private static final LumifyLogger LOGGER = LumifyLoggerFactory.getLogger(PhoneNumberGraphPropertyWorker.class);
@@ -46,21 +47,22 @@ public class PhoneNumberGraphPropertyWorker extends GraphPropertyWorker {
     }
 
     @Override
-    public GraphPropertyWorkResult execute(InputStream in, GraphPropertyWorkData data) throws Exception {
+    public void execute(InputStream in, GraphPropertyWorkData data) throws Exception {
         LOGGER.debug("Extracting phone numbers from provided text");
 
         final String text = CharStreams.toString(new InputStreamReader(in, Charsets.UTF_8));
 
         final Iterable<PhoneNumberMatch> phoneNumbers = phoneNumberUtil.findNumbers(text, defaultRegionCode);
+        List<TermMention> termMentions = new ArrayList<TermMention>();
         for (final PhoneNumberMatch phoneNumber : phoneNumbers) {
             TermMention termMention = createTerm(phoneNumber);
-            saveTermMention(data.getVertex(), termMention, data.getVertex().getVisibility());
-            getGraph().flush();
+            termMentions.add(termMention);
         }
 
-        LOGGER.debug("Number of phone numbers extracted: %d", Iterables.size(phoneNumbers));
+        saveTermMentions(data.getVertex(), termMentions, data.getVertex().getVisibility());
+        getGraph().flush();
 
-        return new GraphPropertyWorkResult();
+        LOGGER.debug("Number of phone numbers extracted: %d", Iterables.size(phoneNumbers));
     }
 
     private TermMention createTerm(final PhoneNumberMatch phoneNumber) {

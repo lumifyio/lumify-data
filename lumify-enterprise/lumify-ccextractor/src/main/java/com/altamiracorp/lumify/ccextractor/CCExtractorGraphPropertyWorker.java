@@ -1,7 +1,6 @@
 package com.altamiracorp.lumify.ccextractor;
 
 import com.altamiracorp.lumify.core.ingest.graphProperty.GraphPropertyWorkData;
-import com.altamiracorp.lumify.core.ingest.graphProperty.GraphPropertyWorkResult;
 import com.altamiracorp.lumify.core.ingest.graphProperty.GraphPropertyWorker;
 import com.altamiracorp.lumify.core.ingest.video.VideoTranscript;
 import com.altamiracorp.lumify.core.model.properties.MediaLumifyProperties;
@@ -21,7 +20,7 @@ public class CCExtractorGraphPropertyWorker extends GraphPropertyWorker {
     private ProcessRunner processRunner;
 
     @Override
-    public GraphPropertyWorkResult execute(InputStream in, GraphPropertyWorkData data) throws Exception {
+    public void execute(InputStream in, GraphPropertyWorkData data) throws Exception {
         File ccFile = File.createTempFile("ccextract", "txt");
         ccFile.delete();
         try {
@@ -47,8 +46,6 @@ public class CCExtractorGraphPropertyWorker extends GraphPropertyWorker {
         } finally {
             ccFile.delete();
         }
-
-        return new GraphPropertyWorkResult();
     }
 
     @Override

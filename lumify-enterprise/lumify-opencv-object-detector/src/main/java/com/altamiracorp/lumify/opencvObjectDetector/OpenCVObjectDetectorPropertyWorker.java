@@ -3,7 +3,6 @@ package com.altamiracorp.lumify.opencvObjectDetector;
 import com.altamiracorp.lumify.core.exception.LumifyException;
 import com.altamiracorp.lumify.core.ingest.ArtifactDetectedObject;
 import com.altamiracorp.lumify.core.ingest.graphProperty.GraphPropertyWorkData;
-import com.altamiracorp.lumify.core.ingest.graphProperty.GraphPropertyWorkResult;
 import com.altamiracorp.lumify.core.ingest.graphProperty.GraphPropertyWorker;
 import com.altamiracorp.lumify.core.ingest.graphProperty.GraphPropertyWorkerPrepareData;
 import com.altamiracorp.lumify.core.model.detectedObjects.DetectedObjectRepository;
@@ -97,13 +96,11 @@ public class OpenCVObjectDetectorPropertyWorker extends GraphPropertyWorker {
     }
 
     @Override
-    public GraphPropertyWorkResult execute(InputStream in, GraphPropertyWorkData data) throws Exception {
+    public void execute(InputStream in, GraphPropertyWorkData data) throws Exception {
         BufferedImage bImage = ImageIO.read(in);
 
         List<ArtifactDetectedObject> detectedObjects = detectObjects(bImage);
         saveDetectedObjects(data.getVertex(), detectedObjects);
-
-        return new GraphPropertyWorkResult();
     }
 
     private void saveDetectedObjects(Vertex vertex, List<ArtifactDetectedObject> detectedObjects) {

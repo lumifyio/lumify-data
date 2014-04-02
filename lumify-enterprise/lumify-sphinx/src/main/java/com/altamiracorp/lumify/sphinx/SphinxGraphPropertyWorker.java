@@ -1,7 +1,6 @@
 package com.altamiracorp.lumify.sphinx;
 
 import com.altamiracorp.lumify.core.ingest.graphProperty.GraphPropertyWorkData;
-import com.altamiracorp.lumify.core.ingest.graphProperty.GraphPropertyWorkResult;
 import com.altamiracorp.lumify.core.ingest.graphProperty.GraphPropertyWorker;
 import com.altamiracorp.lumify.core.ingest.video.VideoTranscript;
 import com.altamiracorp.lumify.core.model.properties.MediaLumifyProperties;
@@ -24,10 +23,10 @@ public class SphinxGraphPropertyWorker extends GraphPropertyWorker {
     private ProcessRunner processRunner;
 
     @Override
-    public GraphPropertyWorkResult execute(InputStream in, GraphPropertyWorkData data) throws Exception {
+    public void execute(InputStream in, GraphPropertyWorkData data) throws Exception {
         VideoTranscript transcript = extractTranscriptFromAudio(data.getLocalFile());
         if (transcript == null) {
-            return null;
+            return;
         }
 
         ExistingElementMutation<Vertex> m = data.getVertex().prepareMutation();
@@ -36,8 +35,6 @@ public class SphinxGraphPropertyWorker extends GraphPropertyWorker {
 
         getGraph().flush();
         getWorkQueueRepository().pushGraphPropertyQueue(data.getVertex().getId(), MULTI_VALUE_KEY, MediaLumifyProperties.VIDEO_TRANSCRIPT.getKey());
-
-        return new GraphPropertyWorkResult();
     }
 
     @Override

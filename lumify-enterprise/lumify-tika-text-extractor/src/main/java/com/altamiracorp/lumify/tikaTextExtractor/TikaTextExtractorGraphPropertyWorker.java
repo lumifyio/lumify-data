@@ -1,7 +1,6 @@
 package com.altamiracorp.lumify.tikaTextExtractor;
 
 import com.altamiracorp.lumify.core.ingest.graphProperty.GraphPropertyWorkData;
-import com.altamiracorp.lumify.core.ingest.graphProperty.GraphPropertyWorkResult;
 import com.altamiracorp.lumify.core.ingest.graphProperty.GraphPropertyWorker;
 import com.altamiracorp.lumify.core.ingest.graphProperty.GraphPropertyWorkerPrepareData;
 import com.altamiracorp.lumify.core.model.properties.LumifyProperties;
@@ -88,7 +87,7 @@ public class TikaTextExtractorGraphPropertyWorker extends GraphPropertyWorker {
     }
 
     @Override
-    public GraphPropertyWorkResult execute(InputStream in, GraphPropertyWorkData data) throws Exception {
+    public void execute(InputStream in, GraphPropertyWorkData data) throws Exception {
         String mimeType = (String) data.getProperty().getMetadata().get(RawLumifyProperties.METADATA_MIME_TYPE);
 
         Metadata metadata = new Metadata();
@@ -145,8 +144,6 @@ public class TikaTextExtractorGraphPropertyWorker extends GraphPropertyWorker {
         m.save();
         getGraph().flush();
         getWorkQueueRepository().pushGraphPropertyQueue(data.getVertex().getId(), MULTIVALUE_KEY, RawLumifyProperties.TEXT.getKey());
-
-        return new GraphPropertyWorkResult();
     }
 
     private String extractText(InputStream in, String mimeType, Metadata metadata) throws IOException, SAXException, TikaException, BoilerpipeProcessingException {

@@ -1,7 +1,6 @@
 package com.altamiracorp.lumify.tikaMimeType;
 
 import com.altamiracorp.lumify.core.ingest.graphProperty.GraphPropertyWorkData;
-import com.altamiracorp.lumify.core.ingest.graphProperty.GraphPropertyWorkResult;
 import com.altamiracorp.lumify.core.ingest.graphProperty.GraphPropertyWorker;
 import com.altamiracorp.lumify.core.ingest.graphProperty.GraphPropertyWorkerPrepareData;
 import com.altamiracorp.lumify.core.model.properties.RawLumifyProperties;
@@ -25,11 +24,11 @@ public class MimeTypeGraphPropertyWorker extends GraphPropertyWorker {
     }
 
     @Override
-    public GraphPropertyWorkResult execute(InputStream in, GraphPropertyWorkData data) throws Exception {
+    public void execute(InputStream in, GraphPropertyWorkData data) throws Exception {
         String fileName = RawLumifyProperties.FILE_NAME.getPropertyValue(data.getVertex());
         String mimeType = mimeTypeMapper.guessMimeType(in, fileName);
         if (mimeType == null) {
-            return new GraphPropertyWorkResult();
+            return;
         }
 
         ExistingElementMutation<Vertex> m = data.getVertex().prepareMutation();
@@ -39,8 +38,6 @@ public class MimeTypeGraphPropertyWorker extends GraphPropertyWorker {
 
         getGraph().flush();
         getWorkQueueRepository().pushGraphPropertyQueue(data.getVertex().getId(), data.getProperty().getKey(), data.getProperty().getName());
-
-        return new GraphPropertyWorkResult();
     }
 
     @Override

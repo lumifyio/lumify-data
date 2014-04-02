@@ -1,7 +1,6 @@
 package com.altamiracorp.lumify.knownEntity;
 
 import com.altamiracorp.lumify.core.ingest.graphProperty.GraphPropertyWorkData;
-import com.altamiracorp.lumify.core.ingest.graphProperty.GraphPropertyWorkResult;
 import com.altamiracorp.lumify.core.ingest.graphProperty.GraphPropertyWorker;
 import com.altamiracorp.lumify.core.ingest.graphProperty.GraphPropertyWorkerPrepareData;
 import com.altamiracorp.lumify.core.ingest.term.extraction.TermMention;
@@ -24,6 +23,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.net.URLDecoder;
+import java.util.ArrayList;
 import java.util.List;
 
 public class KnownEntityExtractorGraphPropertyWorker extends GraphPropertyWorker {
@@ -44,16 +44,16 @@ public class KnownEntityExtractorGraphPropertyWorker extends GraphPropertyWorker
     }
 
     @Override
-    public GraphPropertyWorkResult execute(InputStream in, GraphPropertyWorkData data) throws Exception {
+    public void execute(InputStream in, GraphPropertyWorkData data) throws Exception {
         String text = IOUtils.toString(in); // TODO convert AhoCorasick to use InputStream
         List<OutputResult> searchResults = tree.completeSearch(text, false, true);
+        List<TermMention> termMentions = new ArrayList<TermMention>();
         for (OutputResult searchResult : searchResults) {
             TermMention termMention = outputResultToTermMention(searchResult);
-            saveTermMention(data.getVertex(), termMention, data.getVertex().getVisibility());
+            termMentions.add(termMention);
             getGraph().flush();
         }
-
-        return new GraphPropertyWorkResult();
+        saveTermMentions(data.getVertex(), termMentions, data.getVertex().getVisibility());
     }
 
     private TermMention outputResultToTermMention(OutputResult searchResult) {

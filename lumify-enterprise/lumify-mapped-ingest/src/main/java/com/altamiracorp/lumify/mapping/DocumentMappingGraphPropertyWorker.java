@@ -1,7 +1,6 @@
 package com.altamiracorp.lumify.mapping;
 
 import com.altamiracorp.lumify.core.ingest.graphProperty.GraphPropertyWorkData;
-import com.altamiracorp.lumify.core.ingest.graphProperty.GraphPropertyWorkResult;
 import com.altamiracorp.lumify.core.ingest.graphProperty.GraphPropertyWorker;
 import com.altamiracorp.lumify.core.ingest.term.extraction.TermExtractionResult;
 import com.altamiracorp.lumify.core.model.properties.LumifyProperties;
@@ -23,7 +22,7 @@ public class DocumentMappingGraphPropertyWorker extends GraphPropertyWorker {
     private ObjectMapper jsonMapper;
 
     @Override
-    public GraphPropertyWorkResult execute(InputStream in, GraphPropertyWorkData data) throws Exception {
+    public void execute(InputStream in, GraphPropertyWorkData data) throws Exception {
         StreamingPropertyValue mappingJson = MappingFileImportSupportingFileHandler.MAPPING_JSON.getPropertyValue(data.getVertex());
         String mappingJsonString = IOUtils.toString(mappingJson.getInputStream());
         DocumentMapping mapping = jsonMapper.readValue(mappingJsonString, DocumentMapping.class);
@@ -33,7 +32,6 @@ public class DocumentMappingGraphPropertyWorker extends GraphPropertyWorker {
         } else {
             executeTermExtraction(in, data, mapping);
         }
-        return new GraphPropertyWorkResult();
     }
 
     private void executeTextExtraction(InputStream in, GraphPropertyWorkData data, DocumentMapping mapping) throws IOException {
