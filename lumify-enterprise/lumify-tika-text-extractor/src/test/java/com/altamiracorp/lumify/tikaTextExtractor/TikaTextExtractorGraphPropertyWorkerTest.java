@@ -1,8 +1,10 @@
 package com.altamiracorp.lumify.tikaTextExtractor;
 
 import com.altamiracorp.lumify.core.ingest.graphProperty.GraphPropertyWorkData;
+import com.altamiracorp.lumify.core.ingest.graphProperty.GraphPropertyWorkerPrepareData;
 import com.altamiracorp.lumify.core.model.properties.LumifyProperties;
 import com.altamiracorp.lumify.core.model.properties.RawLumifyProperties;
+import com.altamiracorp.lumify.core.model.workQueue.WorkQueueRepository;
 import com.altamiracorp.securegraph.*;
 import com.altamiracorp.securegraph.inmemory.InMemoryAuthorizations;
 import com.altamiracorp.securegraph.inmemory.InMemoryGraph;
@@ -11,11 +13,14 @@ import org.apache.commons.io.IOUtils;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
 import java.io.ByteArrayInputStream;
 import java.io.InputStream;
 import java.util.Date;
+import java.util.HashMap;
+import java.util.Map;
 
 import static org.junit.Assert.assertEquals;
 
@@ -24,12 +29,22 @@ public class TikaTextExtractorGraphPropertyWorkerTest {
     private Graph graph;
     private Visibility visibility;
     private Authorizations authorizations;
+    private TikaTextExtractorGraphPropertyWorker textExtractor;
+
+    @Mock
+    private WorkQueueRepository workQueueRepository;
 
     @Before
-    public void before() {
+    public void before() throws Exception {
         graph = new InMemoryGraph();
         visibility = new Visibility("");
         authorizations = new InMemoryAuthorizations();
+        textExtractor = new TikaTextExtractorGraphPropertyWorker();
+
+        GraphPropertyWorkerPrepareData prepareData = new GraphPropertyWorkerPrepareData(null, null, null, null, null, null);
+        textExtractor.prepare(prepareData);
+        textExtractor.setGraph(graph);
+        textExtractor.setWorkQueueRepository(workQueueRepository);
     }
 
     @Test
@@ -46,13 +61,8 @@ public class TikaTextExtractorGraphPropertyWorkerTest {
         data += "<p>The numbers speak for themselves. Vista, universally acknowledged as a failure, actually had significantly better adoption numbers than Windows 8. At similar points in their roll-outs, Vista had a desktop market share of 4.52% compared to Windows 8's share of 2.67%. Underlining just how poorly Windows 8's adoption has gone, Vista didn't even have the advantage of holiday season sales to boost its numbers. Tablets--and not Surface RT tablets--were what people bought last December, not Windows 8 PCs.</p>\n";
         data += "</body>";
         data += "</html>";
-        VertexBuilder v = graph.prepareVertex("v1", visibility, authorizations);
-        StreamingPropertyValue textValue = new StreamingPropertyValue(new ByteArrayInputStream(data.getBytes()), byte[].class);
-        textValue.searchIndex(false);
-        RawLumifyProperties.RAW.setProperty(v, textValue, visibility);
-        v.save();
+        createVertex(data);
 
-        TikaTextExtractorGraphPropertyWorker textExtractor = new TikaTextExtractorGraphPropertyWorker();
         InputStream in = new ByteArrayInputStream(data.getBytes());
         Vertex vertex = graph.getVertex("v1", authorizations);
         Property property = vertex.getProperty(RawLumifyProperties.RAW.getKey());
@@ -70,6 +80,16 @@ public class TikaTextExtractorGraphPropertyWorkerTest {
         assertEquals(new Date(1357063760000L), RawLumifyProperties.CREATE_DATE.getPropertyValue(vertex));
     }
 
+    private void createVertex(String data) {
+        VertexBuilder v = graph.prepareVertex("v1", visibility, authorizations);
+        StreamingPropertyValue textValue = new StreamingPropertyValue(new ByteArrayInputStream(data.getBytes()), byte[].class);
+        textValue.searchIndex(false);
+        Map<String, Object> metadata = new HashMap<String, Object>();
+        metadata.put(RawLumifyProperties.METADATA_MIME_TYPE, "text/html");
+        RawLumifyProperties.RAW.setProperty(v, textValue, metadata, visibility);
+        v.save();
+    }
+
     @Test
     public void testExtractWithEmptyHtml() throws Exception {
         String data = "<html>";
@@ -80,13 +100,8 @@ public class TikaTextExtractorGraphPropertyWorkerTest {
         data += "<body>";
         data += "</body>";
         data += "</html>";
-        VertexBuilder v = graph.prepareVertex("v1", visibility, authorizations);
-        StreamingPropertyValue textValue = new StreamingPropertyValue(new ByteArrayInputStream(data.getBytes()), byte[].class);
-        textValue.searchIndex(false);
-        RawLumifyProperties.RAW.setProperty(v, textValue, visibility);
-        v.save();
+        createVertex(data);
 
-        TikaTextExtractorGraphPropertyWorker textExtractor = new TikaTextExtractorGraphPropertyWorker();
         InputStream in = new ByteArrayInputStream(data.getBytes());
         Vertex vertex = graph.getVertex("v1", authorizations);
         Property property = vertex.getProperty(RawLumifyProperties.RAW.getKey());
@@ -107,13 +122,8 @@ public class TikaTextExtractorGraphPropertyWorkerTest {
         data += "<p>The numbers speak for themselves. Vista, universally acknowledged as a failure, actually had significantly better adoption numbers than Windows 8. At similar points in their roll-outs, Vista had a desktop market share of 4.52% compared to Windows 8's share of 2.67%. Underlining just how poorly Windows 8's adoption has gone, Vista didn't even have the advantage of holiday season sales to boost its numbers. Tablets--and not Surface RT tablets--were what people bought last December, not Windows 8 PCs.</p>";
         data += "</body>";
         data += "</html>";
-        VertexBuilder v = graph.prepareVertex("v1", visibility, authorizations);
-        StreamingPropertyValue textValue = new StreamingPropertyValue(new ByteArrayInputStream(data.getBytes()), byte[].class);
-        textValue.searchIndex(false);
-        RawLumifyProperties.RAW.setProperty(v, textValue, visibility);
-        v.save();
+        createVertex(data);
 
-        TikaTextExtractorGraphPropertyWorker textExtractor = new TikaTextExtractorGraphPropertyWorker();
         InputStream in = new ByteArrayInputStream(data.getBytes());
         Vertex vertex = graph.getVertex("v1", authorizations);
         Property property = vertex.getProperty(RawLumifyProperties.RAW.getKey());

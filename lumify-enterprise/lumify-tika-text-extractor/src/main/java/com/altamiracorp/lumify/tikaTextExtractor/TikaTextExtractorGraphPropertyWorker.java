@@ -33,6 +33,8 @@ import java.nio.charset.Charset;
 import java.util.*;
 import java.util.regex.Pattern;
 
+import static com.google.common.base.Preconditions.checkNotNull;
+
 public class TikaTextExtractorGraphPropertyWorker extends GraphPropertyWorker {
     private static final LumifyLogger LOGGER = LumifyLoggerFactory.getLogger(TikaTextExtractorGraphPropertyWorker.class);
 
@@ -89,6 +91,7 @@ public class TikaTextExtractorGraphPropertyWorker extends GraphPropertyWorker {
     @Override
     public void execute(InputStream in, GraphPropertyWorkData data) throws Exception {
         String mimeType = (String) data.getProperty().getMetadata().get(RawLumifyProperties.METADATA_MIME_TYPE);
+        checkNotNull(mimeType, RawLumifyProperties.METADATA_MIME_TYPE + " is a required metadata field");
 
         Metadata metadata = new Metadata();
         String text = extractText(in, mimeType, metadata);

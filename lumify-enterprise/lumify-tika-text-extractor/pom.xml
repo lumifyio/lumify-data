@@ -12,6 +12,11 @@
     <artifactId>lumify-tika-text-extractor</artifactId>
     <name>Lumify: Tika Text Extractor</name>
 
+    <properties>
+        <nekohtml.version>1.9.18</nekohtml.version>
+        <natty.version>0.7</natty.version>
+    </properties>
+
     <dependencies>
         <dependency>
             <groupId>com.altamiracorp.lumify</groupId>
@@ -29,6 +34,12 @@
         <dependency>
             <groupId>com.joestelmach</groupId>
             <artifactId>natty</artifactId>
+            <version>${natty.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>net.sourceforge.nekohtml</groupId>
+            <artifactId>nekohtml</artifactId>
+            <version>${nekohtml.version}</version>
         </dependency>
     </dependencies>
 
