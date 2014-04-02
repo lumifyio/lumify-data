@@ -1,0 +1,8 @@
+dn: cn=all-users,ou=groups,o=Lumify,c=US
+objectclass: groupofuniquenames
+cn: all-users
+description: All Users
+uniqueMember: cn=Alice,ou=people,o=Lumify,c=US
+uniqueMember: cn=Bob,ou=people,o=Lumify,c=US
+uniqueMember: cn=Carlos,ou=people,o=Lumify,c=US
+uniqueMember: cn=Diane,ou=people,o=Lumify,c=US

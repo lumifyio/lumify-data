@@ -1,0 +1,4 @@
+dn: ou=people,o=Lumify,c=US
+objectclass:organizationalunit
+ou: users
+description: Lumify People
