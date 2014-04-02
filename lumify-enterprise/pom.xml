@@ -12,7 +12,7 @@
     <artifactId>lumify-enterprise</artifactId>
     <packaging>pom</packaging>
 
-    <name>Lumify Enterprise</name>
+    <name>Lumify: Enterprise</name>
 
     <scm>
         <url>https://github.com/altamiracorp/lumify-enterprise</url>

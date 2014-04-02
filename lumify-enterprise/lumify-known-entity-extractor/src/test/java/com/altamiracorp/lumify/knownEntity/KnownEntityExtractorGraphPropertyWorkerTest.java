@@ -38,7 +38,6 @@ public class KnownEntityExtractorGraphPropertyWorkerTest {
 
     @Mock
     private User user;
-    private Configuration config;
     String dictionaryPath;
     List<TermMention> termMentions;
     private InMemoryAuthorizations authorizations;
@@ -55,7 +54,8 @@ public class KnownEntityExtractorGraphPropertyWorkerTest {
                 return null;
             }
         };
-        Map stormConf = new HashMap();
+        Map<String, String> stormConf = new HashMap<String, String>();
+        stormConf.put(KnownEntityExtractorGraphPropertyWorker.PATH_PREFIX_CONFIG, "file://" + dictionaryPath);
         FileSystem hdfsFileSystem = FileSystem.get(new Configuration());
         authorizations = new InMemoryAuthorizations();
         Injector injector = null;
@@ -64,8 +64,7 @@ public class KnownEntityExtractorGraphPropertyWorkerTest {
         graph = new InMemoryGraph();
         visibility = new Visibility("");
         extractor.prepare(workerPrepareData);
-        config = new Configuration();
-        config.set("termextraction.knownEntities.pathPrefix", "file://" + dictionaryPath);
+        extractor.setGraph(graph);
     }
 
     @Test
@@ -76,6 +75,7 @@ public class KnownEntityExtractorGraphPropertyWorkerTest {
         RawLumifyProperties.TEXT.setProperty(vertexBuilder, textPropertyValue, visibility);
         Vertex vertex = vertexBuilder.save();
 
+        in = getClass().getResourceAsStream("bffls.txt");
         Property property = vertex.getProperty(RawLumifyProperties.TEXT.getKey());
         GraphPropertyWorkData workData = new GraphPropertyWorkData(vertex, property);
         extractor.execute(in, workData);

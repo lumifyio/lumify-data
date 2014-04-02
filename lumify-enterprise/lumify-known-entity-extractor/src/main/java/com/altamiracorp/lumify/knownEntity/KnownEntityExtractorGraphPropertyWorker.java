@@ -29,8 +29,8 @@ import java.util.List;
 
 public class KnownEntityExtractorGraphPropertyWorker extends GraphPropertyWorker {
     private static final LumifyLogger LOGGER = LumifyLoggerFactory.getLogger(KnownEntityExtractorGraphPropertyWorker.class);
-    private static final String PATH_PREFIX_CONFIG = "termextraction.knownEntities.pathPrefix";
-    private static final String DEFAULT_PATH_PREFIX = "hdfs://";
+    public static final String PATH_PREFIX_CONFIG = "termextraction.knownEntities.pathPrefix";
+    public static final String DEFAULT_PATH_PREFIX = "hdfs://";
     private AhoCorasick tree;
 
     @Override

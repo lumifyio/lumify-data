@@ -10,7 +10,7 @@
     </parent>
     <artifactId>lumify-mapped-ingest</artifactId>
 
-    <name>Lumify Enterprise: Mapped Ingest</name>
+    <name>Lumify: Mapped Ingest</name>
 
     <dependencies>
         <dependency>
