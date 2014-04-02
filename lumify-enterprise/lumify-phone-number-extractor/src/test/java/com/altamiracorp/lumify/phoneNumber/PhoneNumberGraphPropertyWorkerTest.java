@@ -68,6 +68,7 @@ public class PhoneNumberGraphPropertyWorkerTest {
         graph = new InMemoryGraph();
         visibility = new Visibility("");
         extractor.prepare(workerPrepareData);
+        extractor.setGraph(graph);
     }
 
     @Test
@@ -80,6 +81,7 @@ public class PhoneNumberGraphPropertyWorkerTest {
 
         Property property = vertex.getProperty(RawLumifyProperties.TEXT.getKey());
         GraphPropertyWorkData workData = new GraphPropertyWorkData(vertex, property);
+        in = asStream(PHONE_TEXT);
         extractor.execute(in, workData);
 
         assertEquals("Incorrect number of phone numbers extracted", 2, termMentions.size());
@@ -104,6 +106,7 @@ public class PhoneNumberGraphPropertyWorkerTest {
 
         Property property = vertex.getProperty(RawLumifyProperties.TEXT.getKey());
         GraphPropertyWorkData workData = new GraphPropertyWorkData(vertex, property);
+        in = asStream(PHONE_NEW_LINES);
         extractor.execute(in, workData);
 
         assertEquals("Incorrect number of phone numbers extracted", 2, termMentions.size());
@@ -128,6 +131,7 @@ public class PhoneNumberGraphPropertyWorkerTest {
 
         Property property = vertex.getProperty(RawLumifyProperties.TEXT.getKey());
         GraphPropertyWorkData workData = new GraphPropertyWorkData(vertex, property);
+        in = asStream(PHONE_MISSING);
         extractor.execute(in, workData);
 
         assertTrue("Phone number extracted when there were no phone numbers", termMentions.isEmpty());
