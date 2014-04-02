@@ -5,8 +5,11 @@ import com.altamiracorp.lumify.core.ingest.graphProperty.GraphPropertyWorkerPrep
 import com.altamiracorp.lumify.core.ingest.graphProperty.TermMentionFilter;
 import com.altamiracorp.lumify.core.ingest.term.extraction.TermMention;
 import com.altamiracorp.lumify.core.user.User;
+import com.altamiracorp.lumify.opennlpDictionary.model.DictionaryEntryRepository;
 import com.altamiracorp.securegraph.Vertex;
+import com.altamiracorp.securegraph.Visibility;
 import com.altamiracorp.securegraph.inmemory.InMemoryAuthorizations;
+import com.altamiracorp.securegraph.inmemory.InMemoryGraph;
 import com.google.inject.Injector;
 import opennlp.tools.dictionary.Dictionary;
 import opennlp.tools.namefind.DictionaryNameFinder;
@@ -40,21 +43,22 @@ public class OpenNLPDictionaryExtractorGraphPropertyWorkerTest {
     @Mock
     private User user;
 
-    private Configuration configuration;
-
     private String text = "This is a sentence that is going to tell you about a guy named "
             + "Bob Robertson who lives in Boston, MA and works for a company called Altamira Corporation";
 
     private InMemoryAuthorizations authorizations;
 
+    @Mock
+    private DictionaryEntryRepository dictionaryEntryRepository;
+
     List<TermMention> termMentions;
+    private InMemoryGraph graph;
 
     @Before
     public void setUp() throws Exception {
         final List<TokenNameFinder> finders = loadFinders();
-        configuration = new Configuration();
-        configuration.set(OpenNLPDictionaryExtractorGraphPropertyWorker.PATH_PREFIX_CONFIG, "file:///" + getClass().getResource(RESOURCE_CONFIG_DIR).getFile());
-        configuration.set(com.altamiracorp.lumify.core.config.Configuration.HADOOP_URL, "");
+
+        graph = new InMemoryGraph();
 
         extractor = new OpenNLPDictionaryExtractorGraphPropertyWorker() {
             @Override
@@ -68,7 +72,11 @@ public class OpenNLPDictionaryExtractorGraphPropertyWorkerTest {
                 return null;
             }
         };
-        Map stormConf = new HashMap();
+        extractor.setDictionaryEntryRepository(dictionaryEntryRepository);
+        extractor.setGraph(graph);
+
+        Map<String, String> stormConf = new HashMap<String, String>();
+        stormConf.put(OpenNLPDictionaryExtractorGraphPropertyWorker.PATH_PREFIX_CONFIG, "file:///" + getClass().getResource(RESOURCE_CONFIG_DIR).getFile());
         FileSystem hdfsFileSystem = FileSystem.get(new Configuration());
         authorizations = new InMemoryAuthorizations();
         Injector injector = null;
@@ -79,23 +87,14 @@ public class OpenNLPDictionaryExtractorGraphPropertyWorkerTest {
 
     @Test
     public void testEntityExtraction() throws Exception {
-        GraphPropertyWorkData workData = null;
+        Vertex vertex = graph.prepareVertex("v1", new Visibility(""), new InMemoryAuthorizations())
+                .setProperty("text", "none", new Visibility(""))
+                .save();
+
+        GraphPropertyWorkData workData = new GraphPropertyWorkData(vertex, vertex.getProperty("text"));
         extractor.execute(new ByteArrayInputStream(text.getBytes()), workData);
         assertEquals(3, termMentions.size());
-        ArrayList<String> signs = new ArrayList<String>();
-        for (TermMention term : termMentions) {
-            signs.add(term.getSign());
-        }
 
-        assertTrue("Bob Robertson not found", signs.contains("Bob Robertson"));
-        assertTrue("Altamira Corporation not found", signs.contains("Altamira Corporation"));
-        assertTrue("Boston , MA not found", signs.contains("Boston , MA"));
-    }
-
-    @Test
-    public void testEntityExtractionSetsMentionRelativeToArtifactNotSentence() throws Exception {
-        GraphPropertyWorkData workData = null;
-        extractor.execute(new ByteArrayInputStream(text.getBytes()), workData);
         boolean found = false;
         for (TermMention term : termMentions) {
             if (term.getSign().equals("Bob Robertson")) {
@@ -106,6 +105,15 @@ public class OpenNLPDictionaryExtractorGraphPropertyWorkerTest {
             }
         }
         assertTrue("Expected name not found!", found);
+
+        ArrayList<String> signs = new ArrayList<String>();
+        for (TermMention term : termMentions) {
+            signs.add(term.getSign());
+        }
+
+        assertTrue("Bob Robertson not found", signs.contains("Bob Robertson"));
+        assertTrue("Altamira Corporation not found", signs.contains("Altamira Corporation"));
+        assertTrue("Boston , MA not found", signs.contains("Boston , MA"));
     }
 
     private List<TokenNameFinder> loadFinders() {

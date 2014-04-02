@@ -56,8 +56,6 @@ public class OpenNLPDictionaryExtractorGraphPropertyWorker extends GraphProperty
         if (pathPrefix == null) {
             pathPrefix = DEFAULT_PATH_PREFIX;
         }
-        String hdfsRootDir = (String) workerPrepareData.getStormConf().get(com.altamiracorp.lumify.core.config.Configuration.HADOOP_URL);
-        checkNotNull(hdfsRootDir, com.altamiracorp.lumify.core.config.Configuration.HADOOP_URL + " is a required configuration parameter");
         this.tokenizer = loadTokenizer(pathPrefix, workerPrepareData.getHdfsFileSystem());
         this.finders = loadFinders();
     }

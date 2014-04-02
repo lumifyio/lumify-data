@@ -6,7 +6,9 @@ import com.altamiracorp.lumify.core.ingest.graphProperty.TermMentionFilter;
 import com.altamiracorp.lumify.core.ingest.term.extraction.TermMention;
 import com.altamiracorp.lumify.core.user.User;
 import com.altamiracorp.securegraph.Vertex;
+import com.altamiracorp.securegraph.Visibility;
 import com.altamiracorp.securegraph.inmemory.InMemoryAuthorizations;
+import com.altamiracorp.securegraph.inmemory.InMemoryGraph;
 import com.google.inject.Injector;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.FileSystem;
@@ -45,13 +47,12 @@ public class OpenNLPMaximumEntropyExtractorGraphPropertyWorkerTest {
     List<TermMention> termMentions;
 
     private InMemoryAuthorizations authorizations;
+    private InMemoryGraph graph;
 
     @Before
     public void setUp() throws Exception {
-        Configuration configuration = new Configuration();
+        graph = new InMemoryGraph();
 
-        configuration.set(OpenNLPMaximumEntropyExtractorGraphPropertyWorker.PATH_PREFIX_CONFIG, "file:///" + getClass().getResource(RESOURCE_CONFIG_DIR).getFile());
-        configuration.set(com.altamiracorp.lumify.core.config.Configuration.HADOOP_URL, "");
         extractor = new OpenNLPMaximumEntropyExtractorGraphPropertyWorker() {
             @Override
             protected List<TermMentionWithGraphVertex> saveTermMentions(Vertex artifactGraphVertex, Iterable<TermMention> termMentions) {
@@ -59,8 +60,11 @@ public class OpenNLPMaximumEntropyExtractorGraphPropertyWorkerTest {
                 return null;
             }
         };
+        extractor.setGraph(graph);
 
-        Map stormConf = new HashMap();
+        Map<String, String> stormConf = new HashMap<String, String>();
+        stormConf.put(OpenNLPMaximumEntropyExtractorGraphPropertyWorker.PATH_PREFIX_CONFIG, "file:///" + getClass().getResource(RESOURCE_CONFIG_DIR).getFile());
+
         FileSystem hdfsFileSystem = FileSystem.get(new Configuration());
         authorizations = new InMemoryAuthorizations();
         Injector injector = null;
@@ -71,7 +75,11 @@ public class OpenNLPMaximumEntropyExtractorGraphPropertyWorkerTest {
 
     @Test
     public void testEntityExtraction() throws Exception {
-        GraphPropertyWorkData workData = null;
+        Vertex vertex = graph.prepareVertex("v1", new Visibility(""), new InMemoryAuthorizations())
+                .setProperty("text", "none", new Visibility(""))
+                .save();
+
+        GraphPropertyWorkData workData = new GraphPropertyWorkData(vertex, vertex.getProperty("text"));
         extractor.execute(new ByteArrayInputStream(text.getBytes()), workData);
         HashMap<String, TermMention> extractedTerms = new HashMap<String, TermMention>();
         for (TermMention term : termMentions) {
