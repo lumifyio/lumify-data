@@ -285,7 +285,8 @@ public class DefaultLumifyTwitterProcessor extends BaseArtifactProcessor impleme
                 }
                 checkNotNull(sign, "Term sign cannot be null");
                 JSONArray indices = entity.getJSONArray("indices");
-                TermMentionRowKey termMentionRowKey = new TermMentionRowKey(tweetId, indices.getLong(0), indices.getLong(1));
+                String propertyKey = "";
+                TermMentionRowKey termMentionRowKey = new TermMentionRowKey(tweetId, propertyKey, indices.getLong(0), indices.getLong(1));
                 TermMentionModel termMention = new TermMentionModel(termMentionRowKey);
                 termMention.getMetadata()
                         .setSign(sign, lumifyVisibility.getVisibility())
