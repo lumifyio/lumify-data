@@ -53,7 +53,7 @@ public class DocumentMappingGraphPropertyWorker extends GraphPropertyWorker {
     }
 
     private void executeTermExtraction(InputStream in, GraphPropertyWorkData data, DocumentMapping mapping) throws IOException {
-        TermExtractionResult termExtractionResult = mapping.mapDocument(new InputStreamReader(in), getClass().getName(), data.getVertex().getVisibility());
+        TermExtractionResult termExtractionResult = mapping.mapDocument(new InputStreamReader(in), getClass().getName(), data.getProperty().getKey(), data.getVertex().getVisibility());
         saveTermExtractionResult(data.getVertex(), termExtractionResult);
     }
 

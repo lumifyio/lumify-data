@@ -28,8 +28,6 @@ import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.List;
 
-import static com.google.common.base.Preconditions.checkNotNull;
-
 public class OpenNLPMaximumEntropyExtractorGraphPropertyWorker extends GraphPropertyWorker {
     private static final LumifyLogger LOGGER = LumifyLoggerFactory.getLogger(OpenNLPMaximumEntropyExtractorGraphPropertyWorker.class);
     public static final String PATH_PREFIX_CONFIG = "termextraction.opennlp.pathPrefix";
@@ -60,7 +58,7 @@ public class OpenNLPMaximumEntropyExtractorGraphPropertyWorker extends GraphProp
         LOGGER.debug("Processing artifact content stream");
         List<TermMention> termMenitons = new ArrayList<TermMention>();
         while ((line = untokenizedLineStream.read()) != null) {
-            ArrayList<TermMention> newTermMentions = processLine(line, charOffset, data.getVertex().getVisibility());
+            ArrayList<TermMention> newTermMentions = processLine(line, charOffset, data.getProperty().getKey(), data.getVertex().getVisibility());
             termMenitons.addAll(newTermMentions);
             getGraph().flush();
             charOffset += line.length() + NEW_LINE_CHARACTER_LENGTH;
@@ -71,14 +69,14 @@ public class OpenNLPMaximumEntropyExtractorGraphPropertyWorker extends GraphProp
         LOGGER.debug("Stream processing completed");
     }
 
-    private ArrayList<TermMention> processLine(String line, int charOffset, Visibility visibility) {
+    private ArrayList<TermMention> processLine(String line, int charOffset, String propertyKey, Visibility visibility) {
         ArrayList<TermMention> termMentions = new ArrayList<TermMention>();
         String tokenList[] = tokenizer.tokenize(line);
         Span[] tokenListPositions = tokenizer.tokenizePos(line);
         for (TokenNameFinder finder : finders) {
             Span[] foundSpans = finder.find(tokenList);
             for (Span span : foundSpans) {
-                TermMention termMention = createTermMention(charOffset, span, tokenList, tokenListPositions, visibility);
+                TermMention termMention = createTermMention(charOffset, span, tokenList, tokenListPositions, propertyKey, visibility);
                 termMentions.add(termMention);
             }
             finder.clearAdaptiveData();
@@ -86,7 +84,7 @@ public class OpenNLPMaximumEntropyExtractorGraphPropertyWorker extends GraphProp
         return termMentions;
     }
 
-    private TermMention createTermMention(int charOffset, Span foundName, String[] tokens, Span[] tokenListPositions, Visibility visibility) {
+    private TermMention createTermMention(int charOffset, Span foundName, String[] tokens, Span[] tokenListPositions, String propertyKey, Visibility visibility) {
         String name = Span.spansToStrings(new Span[]{foundName}, tokens)[0];
         int start = charOffset + tokenListPositions[foundName.getStart()].getStart();
         int end = charOffset + tokenListPositions[foundName.getEnd() - 1].getEnd();
@@ -103,7 +101,7 @@ public class OpenNLPMaximumEntropyExtractorGraphPropertyWorker extends GraphProp
         } else {
             ontologyClassUri = "http://www.w3.org/2002/07/owl#Thing";
         }
-        return new TermMention.Builder(start, end, name, ontologyClassUri, visibility)
+        return new TermMention.Builder(start, end, name, ontologyClassUri, propertyKey, visibility)
                 .resolved(false)
                 .useExisting(true)
                 .process(getClass().getName())

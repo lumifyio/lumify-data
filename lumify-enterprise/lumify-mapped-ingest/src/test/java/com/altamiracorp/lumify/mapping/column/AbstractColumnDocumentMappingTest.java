@@ -131,7 +131,7 @@ public class AbstractColumnDocumentMappingTest {
     public void testMapDocument_EmptyDocument() throws Exception {
         when(rowIter.hasNext()).thenReturn(false);
         TermExtractionResult expected = new TermExtractionResult();
-        TermExtractionResult actual = instance.mapDocument(mappingReader, TEST_PROCESS_ID, visibility);
+        TermExtractionResult actual = instance.mapDocument(mappingReader, TEST_PROCESS_ID, "", visibility);
         assertEquals(expected, actual);
     }
 
@@ -155,9 +155,9 @@ public class AbstractColumnDocumentMappingTest {
 
         when(rowIter.hasNext()).thenReturn(true, false);
         when(rowIter.next()).thenReturn(new Row(lineOffset1, fields1));
-        when(entity1.mapTerm(fields1, line1Term1Offset, TEST_PROCESS_ID, visibility)).thenReturn(line1entity1);
-        when(entity2.mapTerm(fields1, line1Term2Offset, TEST_PROCESS_ID, visibility)).thenReturn(line1entity2);
-        when(entity3.mapTerm(fields1, line1Term3Offset, TEST_PROCESS_ID, visibility)).thenReturn(line1entity3);
+        when(entity1.mapTerm(fields1, line1Term1Offset, TEST_PROCESS_ID, "", visibility)).thenReturn(line1entity1);
+        when(entity2.mapTerm(fields1, line1Term2Offset, TEST_PROCESS_ID, "", visibility)).thenReturn(line1entity2);
+        when(entity3.mapTerm(fields1, line1Term3Offset, TEST_PROCESS_ID, "", visibility)).thenReturn(line1entity3);
         when(rel1.createRelationship(line1map, fields1, visibility)).thenReturn(resolvedRel1);
         when(rel2.createRelationship(line1map, fields1, visibility)).thenReturn(resolvedRel2);
 
@@ -168,7 +168,7 @@ public class AbstractColumnDocumentMappingTest {
         expected.addAllTermMentions(expectedMentions);
         expected.addAllRelationships(expectedRelationships);
 
-        TermExtractionResult result = instance.mapDocument(mappingReader, TEST_PROCESS_ID, visibility);
+        TermExtractionResult result = instance.mapDocument(mappingReader, TEST_PROCESS_ID, "", visibility);
         assertEquals(expected, result);
     }
 
@@ -225,15 +225,15 @@ public class AbstractColumnDocumentMappingTest {
                 new Row(lineOffset2, fields2),
                 new Row(lineOffset3, fields3)
         );
-        when(entity1.mapTerm(fields1, line1Term1Offset, TEST_PROCESS_ID, visibility)).thenReturn(line1entity1);
-        when(entity2.mapTerm(fields1, line1Term2Offset, TEST_PROCESS_ID, visibility)).thenReturn(line1entity2);
-        when(entity3.mapTerm(fields1, line1Term3Offset, TEST_PROCESS_ID, visibility)).thenReturn(line1entity3);
-        when(entity1.mapTerm(fields2, line2Term1Offset, TEST_PROCESS_ID, visibility)).thenReturn(line2entity1);
-        when(entity2.mapTerm(fields2, line2Term2Offset, TEST_PROCESS_ID, visibility)).thenReturn(null);
-        when(entity3.mapTerm(fields2, line2Term3Offset, TEST_PROCESS_ID, visibility)).thenReturn(line2entity3);
-        when(entity1.mapTerm(fields3, line3Term1Offset, TEST_PROCESS_ID, visibility)).thenReturn(line3entity1);
-        when(entity2.mapTerm(fields3, line3Term2Offset, TEST_PROCESS_ID, visibility)).thenReturn(line3entity2);
-        when(entity3.mapTerm(fields3, line3Term3Offset, TEST_PROCESS_ID, visibility)).thenReturn(line3entity3);
+        when(entity1.mapTerm(fields1, line1Term1Offset, TEST_PROCESS_ID, "", visibility)).thenReturn(line1entity1);
+        when(entity2.mapTerm(fields1, line1Term2Offset, TEST_PROCESS_ID, "", visibility)).thenReturn(line1entity2);
+        when(entity3.mapTerm(fields1, line1Term3Offset, TEST_PROCESS_ID, "", visibility)).thenReturn(line1entity3);
+        when(entity1.mapTerm(fields2, line2Term1Offset, TEST_PROCESS_ID, "", visibility)).thenReturn(line2entity1);
+        when(entity2.mapTerm(fields2, line2Term2Offset, TEST_PROCESS_ID, "", visibility)).thenReturn(null);
+        when(entity3.mapTerm(fields2, line2Term3Offset, TEST_PROCESS_ID, "", visibility)).thenReturn(line2entity3);
+        when(entity1.mapTerm(fields3, line3Term1Offset, TEST_PROCESS_ID, "", visibility)).thenReturn(line3entity1);
+        when(entity2.mapTerm(fields3, line3Term2Offset, TEST_PROCESS_ID, "", visibility)).thenReturn(line3entity2);
+        when(entity3.mapTerm(fields3, line3Term3Offset, TEST_PROCESS_ID, "", visibility)).thenReturn(line3entity3);
         when(rel1.createRelationship(line1map, fields1, visibility)).thenReturn(resolvedRel1);
         when(rel2.createRelationship(line1map, fields1, visibility)).thenReturn(resolvedRel2);
         when(rel2.createRelationship(line2map, fields2, visibility)).thenReturn(resolvedRel3);
@@ -256,7 +256,7 @@ public class AbstractColumnDocumentMappingTest {
         expected.addAllTermMentions(expectedMentions);
         expected.addAllRelationships(expectedRelationships);
 
-        TermExtractionResult result = instance.mapDocument(mappingReader, TEST_PROCESS_ID, visibility);
+        TermExtractionResult result = instance.mapDocument(mappingReader, TEST_PROCESS_ID, "", visibility);
         assertEquals(expected, result);
     }
 

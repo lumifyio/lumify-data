@@ -56,7 +56,7 @@ public class PhoneNumberGraphPropertyWorker extends GraphPropertyWorker {
         final Iterable<PhoneNumberMatch> phoneNumbers = phoneNumberUtil.findNumbers(text, defaultRegionCode);
         List<TermMention> termMentions = new ArrayList<TermMention>();
         for (final PhoneNumberMatch phoneNumber : phoneNumbers) {
-            TermMention termMention = createTerm(phoneNumber, data.getVertex().getVisibility());
+            TermMention termMention = createTerm(phoneNumber, data.getProperty().getKey(), data.getVertex().getVisibility());
             termMentions.add(termMention);
         }
 
@@ -66,12 +66,12 @@ public class PhoneNumberGraphPropertyWorker extends GraphPropertyWorker {
         LOGGER.debug("Number of phone numbers extracted: %d", Iterables.size(phoneNumbers));
     }
 
-    private TermMention createTerm(final PhoneNumberMatch phoneNumber, Visibility visibility) {
+    private TermMention createTerm(final PhoneNumberMatch phoneNumber, String propertyKey, Visibility visibility) {
         final String formattedNumber = phoneNumberUtil.format(phoneNumber.number(), PhoneNumberUtil.PhoneNumberFormat.E164);
         int start = phoneNumber.start();
         int end = phoneNumber.end();
 
-        return new TermMention.Builder(start, end, formattedNumber, entityType, visibility)
+        return new TermMention.Builder(start, end, formattedNumber, entityType, propertyKey, visibility)
                 .resolved(false)
                 .useExisting(true)
                 .process(getClass().getName())

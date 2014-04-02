@@ -94,7 +94,7 @@ public abstract class AbstractColumnDocumentMapping implements DocumentMapping {
     protected abstract Iterable<Row> getRows(final Reader reader) throws IOException;
 
     @Override
-    public final TermExtractionResult mapDocument(final Reader reader, final String processId, Visibility visibility) throws IOException {
+    public final TermExtractionResult mapDocument(final Reader reader, final String processId, String propertyKey, Visibility visibility) throws IOException {
         TermExtractionResult results = new TermExtractionResult();
         Iterable<Row> rows = getRows(reader);
         for (Row row : rows) {
@@ -125,7 +125,7 @@ public abstract class AbstractColumnDocumentMapping implements DocumentMapping {
                     offset += (columns.get(lastCol) != null ? columns.get(lastCol).length() : 0) + 1;
                 }
                 try {
-                    mention = colMapping.mapTerm(columns, offset, processId, visibility);
+                    mention = colMapping.mapTerm(columns, offset, processId, propertyKey, visibility);
                     if (mention != null) {
                         // no need to update offset here, it will get updated by the block
                         // above when the next term is processed or, if this is the last term,

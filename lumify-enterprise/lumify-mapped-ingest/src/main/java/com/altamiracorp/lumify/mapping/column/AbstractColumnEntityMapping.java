@@ -118,7 +118,7 @@ public abstract class AbstractColumnEntityMapping implements ColumnEntityMapping
      * @return the generated TermMention
      */
     @Override
-    public final TermMention mapTerm(final List<String> row, final int offset, final String processId, Visibility visibility) {
+    public final TermMention mapTerm(final List<String> row, final int offset, final String processId, String propertyKey, Visibility visibility) {
         Object id = idColumn != null ? idColumn.getValue(row) : null;
         String sign = signColumn.getValue(row);
         String conceptURI = getConceptURI(row);
@@ -133,7 +133,7 @@ public abstract class AbstractColumnEntityMapping implements ColumnEntityMapping
         } else {
             int start = offset;
             int end = offset + sign.length();
-            TermMention.Builder builder = new TermMention.Builder(start, end, sign, conceptURI, visibility)
+            TermMention.Builder builder = new TermMention.Builder(start, end, sign, conceptURI, propertyKey, visibility)
                     .id(id)
                     .useExisting(useExisting)
                     .resolved(true)

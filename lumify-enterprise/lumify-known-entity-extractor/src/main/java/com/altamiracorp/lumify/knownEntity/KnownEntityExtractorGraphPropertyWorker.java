@@ -50,20 +50,20 @@ public class KnownEntityExtractorGraphPropertyWorker extends GraphPropertyWorker
         List<OutputResult> searchResults = tree.completeSearch(text, false, true);
         List<TermMention> termMentions = new ArrayList<TermMention>();
         for (OutputResult searchResult : searchResults) {
-            TermMention termMention = outputResultToTermMention(searchResult, data.getVertex().getVisibility());
+            TermMention termMention = outputResultToTermMention(searchResult, data.getProperty().getKey(), data.getVertex().getVisibility());
             termMentions.add(termMention);
             getGraph().flush();
         }
         saveTermMentions(data.getVertex(), termMentions);
     }
 
-    private TermMention outputResultToTermMention(OutputResult searchResult, Visibility visibility) {
+    private TermMention outputResultToTermMention(OutputResult searchResult, String propertyKey, Visibility visibility) {
         Match match = (Match) searchResult.getOutput();
         int start = searchResult.getStartIndex();
         int end = searchResult.getLastIndex();
         String sign = match.getEntityTitle();
         String ontologyClassUri = match.getConceptTitle();
-        return new TermMention.Builder(start, end, sign, ontologyClassUri, visibility)
+        return new TermMention.Builder(start, end, sign, ontologyClassUri, propertyKey, visibility)
                 .resolved(true)
                 .useExisting(true)
                 .process(getClass().getName())
