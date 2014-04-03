@@ -4,6 +4,11 @@ include httpd
 include httpd::mod_jk
 include httpd::mod_ssl
 
+service { 'httpd' :
+  ensure => running,
+  require => Package['httpd'],
+}
+
 class { 'java::tar' :
   version => '7u51',
   dir     => '/opt',
@@ -26,6 +31,17 @@ mysql::db { 'lumify' :
   host     => '%',
   grant    => ['ALL'],
   require  => Class[mysql::server],
+}
+
+package { [ 'openldap-servers',
+            'openldap-clients',
+          ] :
+  ensure => present,
+}
+
+service { 'slapd' :
+  ensure => running,
+  require => Package['openldap-servers'],
 }
 
 file { '/opt/lumify/config/lumify.cert.pem' :
