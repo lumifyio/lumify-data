@@ -143,7 +143,7 @@ public class ClavinLocationResolutionWorker implements TermResolutionWorker {
         resolver = new LuceneLocationResolver(indexDirectory, maxHitDepth, maxContextWindow);
 
         Set<String> tCon = new HashSet<String>();
-        Concept rootConcept = ontologyRepo.getConceptById(TARGET_ONTOLOGY_URI);
+        Concept rootConcept = ontologyRepo.getConceptByVertexId(TARGET_ONTOLOGY_URI);
         List<Concept> concepts = ontologyRepo.getAllLeafNodesByConcept(rootConcept);
         for (Concept con : concepts) {
             tCon.add(con.getTitle());
