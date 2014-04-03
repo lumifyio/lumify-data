@@ -1,0 +1,65 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+
+    <parent>
+        <groupId>com.altamiracorp.lumify</groupId>
+        <artifactId>lumify-root</artifactId>
+        <version>0.2.0-SNAPSHOT</version>
+    </parent>
+
+    <artifactId>lumify-ldap-auth</artifactId>
+    <name>Lumify LDAP Authentication and Authorization</name>
+
+    <scm>
+        <url>https://github.com/altamiracorp/lumify-ldap-auth</url>
+        <connection>scm:git:git://github.com:altamiracorp/lumify-ldap-auth.git</connection>
+        <developerConnection>scm:git:ssh://git@github.com:altamiracorp/lumify-ldap-auth.git</developerConnection>
+    </scm>
+
+    <properties>
+        <!-- Dependency Versions -->
+        <lumify.version>0.2.0-SNAPSHOT</lumify.version>
+        <javax.servlet.api.version>3.0.1</javax.servlet.api.version>
+    </properties>
+
+    <dependencies>
+        <dependency>
+            <groupId>com.altamiracorp.lumify</groupId>
+            <artifactId>lumify-web</artifactId>
+            <version>${lumify.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>javax.servlet</groupId>
+            <artifactId>javax.servlet-api</artifactId>
+            <scope>provided</scope>
+            <version>${javax.servlet.api.version}</version>
+        </dependency>
+    </dependencies>
+
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-clean-plugin</artifactId>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-source-plugin</artifactId>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-compiler-plugin</artifactId>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-dependency-plugin</artifactId>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-surefire-plugin</artifactId>
+            </plugin>
+        </plugins>
+    </build>
+</project>
