@@ -39,6 +39,10 @@
         </dependency>
         <dependency>
             <groupId>com.altamiracorp.lumify</groupId>
+            <artifactId>lumify-sql</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.altamiracorp.lumify</groupId>
             <artifactId>lumify-fs-hdfs</artifactId>
         </dependency>
         <dependency>
