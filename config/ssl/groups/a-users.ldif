@@ -1,5 +1,5 @@
-dn: cn=a-users,ou=groups,o=Lumify,c=US
+dn: cn=a-users,ou=groups,dc=lumify,dc=io
 objectclass: groupofuniquenames
 cn: a-users
 description: Users whose names start with A
-uniqueMember: cn=Alice,ou=people,o=Lumify,c=US
+uniqueMember: cn=Alice,ou=people,dc=lumify,dc=io
