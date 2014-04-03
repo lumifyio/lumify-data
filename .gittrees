@@ -34,3 +34,7 @@
 	url = git@github.com:altamiracorp/lumify-wikipedia.git
 	path = lumify-wikipedia
 	branch = master
+[subtree "lumify-ldap-auth"]
+	url = git@github.com:altamiracorp/lumify-ldap-auth.git
+	path = lumify-ldap-auth
+	branch = master
