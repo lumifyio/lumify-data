@@ -41,7 +41,7 @@ public class FacebookUser {
         String name = userJson.getString(NAME);
         Long name_uid = userJson.getLong(UID);
         String username = userJson.getString(USERNAME);
-        Concept emailConcept = ontologyRepository.getConceptById(EMAIL_ADDRESS);
+        Concept emailConcept = ontologyRepository.getConceptByVertexId(EMAIL_ADDRESS);
 
         Vertex userVertex;
         String userVid = generateUserVertexId(name_uid.toString());

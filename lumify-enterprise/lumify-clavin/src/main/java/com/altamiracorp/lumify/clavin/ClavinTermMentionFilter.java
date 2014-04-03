@@ -122,7 +122,7 @@ public class ClavinTermMentionFilter extends TermMentionFilter {
         resolver = new LuceneLocationResolver(indexDirectory, maxHitDepth, maxContextWindow);
 
         Set<String> tCon = new HashSet<String>();
-        Concept rootConcept = ontologyRepository.getConceptById(TARGET_ONTOLOGY_URI);
+        Concept rootConcept = ontologyRepository.getConceptByVertexId(TARGET_ONTOLOGY_URI);
         List<Concept> concepts = ontologyRepository.getAllLeafNodesByConcept(rootConcept);
         for (Concept con : concepts) {
             tCon.add(con.getTitle());
