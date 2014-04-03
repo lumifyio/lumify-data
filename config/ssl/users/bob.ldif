@@ -1,4 +1,4 @@
-dn: cn=Bob,ou=people,o=Lumify,c=US
+dn: cn=Bob,ou=people,dc=lumify,dc=io
 objectClass: top
 objectClass: person
 objectClass: organizationalPerson

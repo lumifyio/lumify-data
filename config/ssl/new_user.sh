@@ -6,7 +6,7 @@ last_name=$2
 cn=${first_name}
 cn_filename=$(echo -n ${cn} | tr 'A-Z' 'a-z' | tr -cs 'a-z' '_')
 
-LDIF_GROUP_DN='ou=people,o=Lumify,c=US'
+LDIF_GROUP_DN='ou=people,dc=lumify,dc=io'
 OPENSSL_CONF=./openssl.cnf
 
 openssl req -new -nodes -subj "/CN=${cn}" -newkey rsa:2048 \
