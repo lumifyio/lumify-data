@@ -81,7 +81,7 @@ public class FacebookUser {
             if (queryEmailVertex == null) {
                 ElementMutation<Vertex> emailBuilder = graph.prepareVertex(lumifyVisibility.getVisibility(), authorizations);
                 TITLE.setProperty(emailBuilder, email, lumifyVisibility.getVisibility());
-                CONCEPT_TYPE.setProperty(emailBuilder, emailConcept.getId(), lumifyVisibility.getVisibility());
+                CONCEPT_TYPE.setProperty(emailBuilder, emailConcept.getTitle(), lumifyVisibility.getVisibility());
                 emailVertex = emailBuilder.save();
                 auditRepository.auditVertexElementMutation(AuditAction.UPDATE, emailBuilder, emailVertex, PROCESS, user, lumifyVisibility.getVisibility());
             } else {

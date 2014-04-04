@@ -172,9 +172,9 @@ public class DefaultLumifyTwitterProcessorTest {
         when(graph.getVertex(HANDLE_CONCEPT_ID, authorizations)).thenReturn(handleConceptVertex);
         when(tweetVertex.getId()).thenReturn(TWEET_VERTEX_ID);
         when(tweeterVertex.getId()).thenReturn(TWEETER_VERTEX_ID);
-        when(handleConcept.getId()).thenReturn(HANDLE_CONCEPT_ID);
-        when(hashtagConcept.getId()).thenReturn(HASHTAG_CONCEPT_ID);
-        when(urlConcept.getId()).thenReturn(URL_CONCEPT_ID);
+        when(handleConcept.getTitle()).thenReturn(HANDLE_CONCEPT_ID);
+        when(hashtagConcept.getTitle()).thenReturn(HASHTAG_CONCEPT_ID);
+        when(urlConcept.getTitle()).thenReturn(URL_CONCEPT_ID);
     }
 
 //    @Test
