@@ -4,9 +4,28 @@ include httpd
 include httpd::mod_jk
 include httpd::mod_ssl
 
+file { '/opt/lumify/config/lumify.cert.pem' :
+  ensure => file,
+  source => 'file:///vagrant/config/ssl/lumify.cert.pem',
+  owner   => 'root',
+  group   => 'root',
+  mode    => 'u=rw,go=r',
+}
+
+file { '/opt/lumify/config/lumify.key.pem' :
+  ensure => file,
+  source => 'file:///vagrant/config/ssl/lumify.key.pem',
+  owner   => 'root',
+  group   => 'root',
+  mode    => 'u=rw,go=r',
+}
+
 service { 'httpd' :
   ensure => running,
-  require => Package['httpd'],
+  require => [ Package['httpd'],
+               File['/opt/lumify/config/lumify.cert.pem'],
+               File['/opt/lumify/config/lumify.key.pem']
+             ],
 }
 
 class { 'java::tar' :
@@ -42,20 +61,4 @@ package { [ 'openldap-servers',
 service { 'slapd' :
   ensure => running,
   require => Package['openldap-servers'],
-}
-
-file { '/opt/lumify/config/lumify.cert.pem' :
-  ensure => file,
-  source => 'file:///vagrant/config/ssl/lumify.cert.pem',
-  owner   => 'root',
-  group   => 'root',
-  mode    => 'u=rw,go=r',
-}
-
-file { '/opt/lumify/config/lumify.key.pem' :
-  ensure => file,
-  source => 'file:///vagrant/config/ssl/lumify.key.pem',
-  owner   => 'root',
-  group   => 'root',
-  mode    => 'u=rw,go=r',
 }

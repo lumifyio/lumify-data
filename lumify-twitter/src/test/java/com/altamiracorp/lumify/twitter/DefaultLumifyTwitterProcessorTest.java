@@ -162,18 +162,18 @@ public class DefaultLumifyTwitterProcessorTest {
         Whitebox.setInternalState(DefaultLumifyTwitterProcessor.class, logger);
 
         when(user.getModelUserContext()).thenReturn(modelUserContext);
-        when(ontologyRepository.getConceptByVertexId(CONCEPT_TWITTER_HANDLE)).thenReturn(handleConcept);
-        when(ontologyRepository.getConceptByVertexId(CONCEPT_TWITTER_URL)).thenReturn(urlConcept);
-        when(ontologyRepository.getConceptByVertexId(CONCEPT_TWITTER_HASHTAG)).thenReturn(hashtagConcept);
+        when(ontologyRepository.getConceptByIRI(CONCEPT_TWITTER_HANDLE)).thenReturn(handleConcept);
+        when(ontologyRepository.getConceptByIRI(CONCEPT_TWITTER_URL)).thenReturn(urlConcept);
+        when(ontologyRepository.getConceptByIRI(CONCEPT_TWITTER_HASHTAG)).thenReturn(hashtagConcept);
         when(ontologyRepository.getDisplayNameForLabel(TWEETED_RELATIONSHIP)).thenReturn(TWEETED_RELATIONSHIP_LABEL);
         when(ontologyRepository.getDisplayNameForLabel(TwitterEntityType.MENTION.getRelationshipLabel())).
                 thenReturn(MENTION_RELATIONSIHP_LABEL);
         when(graph.getVertex(HANDLE_CONCEPT_ID, authorizations)).thenReturn(handleConceptVertex);
         when(tweetVertex.getId()).thenReturn(TWEET_VERTEX_ID);
         when(tweeterVertex.getId()).thenReturn(TWEETER_VERTEX_ID);
-        when(handleConcept.getId()).thenReturn(HANDLE_CONCEPT_ID);
-        when(hashtagConcept.getId()).thenReturn(HASHTAG_CONCEPT_ID);
-        when(urlConcept.getId()).thenReturn(URL_CONCEPT_ID);
+        when(handleConcept.getTitle()).thenReturn(HANDLE_CONCEPT_ID);
+        when(hashtagConcept.getTitle()).thenReturn(HASHTAG_CONCEPT_ID);
+        when(urlConcept.getTitle()).thenReturn(URL_CONCEPT_ID);
     }
 
 //    @Test

@@ -106,10 +106,10 @@ public class FacebookUserTest {
     @Test
     public void testNormalUserProcess() throws Exception {
         facebookUser = new FacebookUser();
-        when(ontologyRepository.getConceptByVertexId("facebookProfile")).thenReturn(facebookConcept);
-        when(ontologyRepository.getConceptByVertexId("emailAddress")).thenReturn(emailConcept);
-        when(facebookConcept.getId()).thenReturn("32");
-        when(emailConcept.getId()).thenReturn("48");
+        when(ontologyRepository.getConceptByIRI("facebookProfile")).thenReturn(facebookConcept);
+        when(ontologyRepository.getConceptByIRI("emailAddress")).thenReturn(emailConcept);
+        when(facebookConcept.getTitle()).thenReturn("32");
+        when(emailConcept.getTitle()).thenReturn("48");
 
         returnedVertex = facebookUser.process(normalUserObject, graph, auditRepository, ontologyRepository, systemUser, authorizations);
 
@@ -125,10 +125,10 @@ public class FacebookUserTest {
     @Test
     public void testFullUserProcess() throws Exception {
         facebookUser = new FacebookUser();
-        when(ontologyRepository.getConceptByVertexId("facebookProfile")).thenReturn(facebookConcept);
-        when(ontologyRepository.getConceptByVertexId("emailAddress")).thenReturn(emailConcept);
-        when(facebookConcept.getId()).thenReturn("32");
-        when(emailConcept.getId()).thenReturn("48");
+        when(ontologyRepository.getConceptByIRI("facebookProfile")).thenReturn(facebookConcept);
+        when(ontologyRepository.getConceptByIRI("emailAddress")).thenReturn(emailConcept);
+        when(facebookConcept.getTitle()).thenReturn("32");
+        when(emailConcept.getTitle()).thenReturn("48");
 
         returnedVertex = facebookUser.process(fullUserObject, graph, auditRepository, ontologyRepository, systemUser, authorizations);
 

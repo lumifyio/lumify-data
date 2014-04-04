@@ -41,7 +41,7 @@ public class FacebookUser {
         String name = userJson.getString(NAME);
         Long name_uid = userJson.getLong(UID);
         String username = userJson.getString(USERNAME);
-        Concept emailConcept = ontologyRepository.getConceptByVertexId(EMAIL_ADDRESS);
+        Concept emailConcept = ontologyRepository.getConceptByIRI(EMAIL_ADDRESS);
 
         Vertex userVertex;
         String userVid = generateUserVertexId(name_uid.toString());
@@ -81,7 +81,7 @@ public class FacebookUser {
             if (queryEmailVertex == null) {
                 ElementMutation<Vertex> emailBuilder = graph.prepareVertex(lumifyVisibility.getVisibility(), authorizations);
                 TITLE.setProperty(emailBuilder, email, lumifyVisibility.getVisibility());
-                CONCEPT_TYPE.setProperty(emailBuilder, emailConcept.getId(), lumifyVisibility.getVisibility());
+                CONCEPT_TYPE.setProperty(emailBuilder, emailConcept.getTitle(), lumifyVisibility.getVisibility());
                 emailVertex = emailBuilder.save();
                 auditRepository.auditVertexElementMutation(AuditAction.UPDATE, emailBuilder, emailVertex, PROCESS, user, lumifyVisibility.getVisibility());
             } else {

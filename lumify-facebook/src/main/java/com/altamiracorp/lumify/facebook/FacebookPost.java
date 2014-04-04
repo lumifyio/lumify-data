@@ -68,8 +68,8 @@ public class FacebookPost {
         Long name_uid = post.getLong(AUTHOR_UID);
         String author_uid = name_uid.toString();
         LOGGER.info("Saving Facebook post to accumulo and as graph vertex: ", posting.getId());
-        Concept profileConcept = ontologyRepository.getConceptByVertexId(FACEBOOK_PROFILE);
-        String profileConceptId = profileConcept.getId().toString();
+        Concept profileConcept = ontologyRepository.getConceptByIRI(FACEBOOK_PROFILE);
+        String profileConceptId = profileConcept.getTitle();
 
         //create entities for each of the ids tagged or author and the relationships
         Vertex authorVertex;
