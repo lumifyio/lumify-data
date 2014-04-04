@@ -14,7 +14,7 @@ work-queue-repository.tableprefix=atc_accumuloqueue_
 # Application-wide
 hadoop.url=hdfs://<%= @hadoop_masters[0] %>:8020
 zookeeper.serverNames=<%= @zookeeper_nodes.values.collect {|node| node.split(':')[0]}.join(',') %>
-fs.default.name=hdfs://<%= @hadoop_masters[0] %>:8020
+fs.defaultFS=hdfs://<%= @hadoop_masters[0] %>:8020
 
 # Accumulo specific
 bigtable.accumulo.instanceName=lumify
