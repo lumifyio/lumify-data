@@ -23,7 +23,6 @@ import com.altamiracorp.lumify.core.model.audit.AuditAction;
 import com.altamiracorp.lumify.core.model.audit.AuditRepository;
 import com.altamiracorp.lumify.core.model.ontology.Concept;
 import com.altamiracorp.lumify.core.model.ontology.OntologyRepository;
-import com.altamiracorp.lumify.core.model.properties.LumifyProperties;
 import com.altamiracorp.lumify.core.model.properties.LumifyProperty;
 import com.altamiracorp.lumify.core.model.termMention.TermMentionModel;
 import com.altamiracorp.lumify.core.model.termMention.TermMentionRowKey;
@@ -167,9 +166,9 @@ public class DefaultLumifyTwitterProcessor extends BaseArtifactProcessor impleme
         byte[] jsonBytes = jsonTweet.toString().getBytes(TWITTER_CHARSET);
         String rowKey = RowKeyHelper.buildSHA256KeyString(jsonBytes);
 
-        Concept concept = getOntologyRepository().getConceptByVertexId(CONCEPT_TWEET);
+        Concept concept = getOntologyRepository().getConceptByIRI(CONCEPT_TWEET);
         ElementMutation<Vertex> artifactMutation = findOrPrepareArtifactVertex(rowKey, getAuthorizations());
-        CONCEPT_TYPE.setProperty(artifactMutation, concept.getId(), lumifyVisibility.getVisibility());
+        CONCEPT_TYPE.setProperty(artifactMutation, concept.getTitle(), lumifyVisibility.getVisibility());
         TITLE.setProperty(artifactMutation, tweetText, lumifyVisibility.getVisibility());
         SOURCE.setProperty(artifactMutation, TWITTER_SOURCE, lumifyVisibility.getVisibility());
         AUTHOR.setProperty(artifactMutation, tweeterScreenName, lumifyVisibility.getVisibility());
@@ -216,7 +215,7 @@ public class DefaultLumifyTwitterProcessor extends BaseArtifactProcessor impleme
         User lumifyUser = getUser();
         Graph graph = getGraph();
 
-        Concept handleConcept = getOntologyRepository().getConceptByVertexId(CONCEPT_TWITTER_HANDLE);
+        Concept handleConcept = getOntologyRepository().getConceptByIRI(CONCEPT_TWITTER_HANDLE);
 
         String id = TWITTER_USER_PREFIX + jsonUser.get("id");
         Vertex userVertex = graph.getVertex(id, getAuthorizations());
@@ -229,7 +228,7 @@ public class DefaultLumifyTwitterProcessor extends BaseArtifactProcessor impleme
         }
 
         TITLE.setProperty(userVertexMutation, screenName, lumifyVisibility.getVisibility());
-        CONCEPT_TYPE.setProperty(userVertexMutation, handleConcept.getId(), lumifyVisibility.getVisibility());
+        CONCEPT_TYPE.setProperty(userVertexMutation, handleConcept.getTitle(), lumifyVisibility.getVisibility());
 
         setOptionalProps(userVertexMutation, jsonUser, OPTIONAL_USER_PROPERTY_MAP);
 
@@ -260,9 +259,7 @@ public class DefaultLumifyTwitterProcessor extends BaseArtifactProcessor impleme
             OntologyRepository ontRepo = getOntologyRepository();
             AuditRepository auditRepo = getAuditRepository();
 
-            Concept concept = ontRepo.getConceptByVertexId(entityType.getConceptName());
-            Vertex conceptVertex = concept.getVertex();
-            String relDispName = conceptVertex.getPropertyValue(LumifyProperties.DISPLAY_NAME.getKey(), 0).toString();
+            Concept concept = ontRepo.getConceptByIRI(entityType.getConceptName());
 
             JSONArray entities = jsonTweet.getJSONObject("entities").getJSONArray(entityType.getJsonKey());
             List<TermMentionModel> mentions = new ArrayList<TermMentionModel>();
@@ -290,8 +287,8 @@ public class DefaultLumifyTwitterProcessor extends BaseArtifactProcessor impleme
                 TermMentionModel termMention = new TermMentionModel(termMentionRowKey);
                 termMention.getMetadata()
                         .setSign(sign, lumifyVisibility.getVisibility())
-                        .setOntologyClassUri((String) conceptVertex.getPropertyValue(LumifyProperties.DISPLAY_NAME.getKey(), 0), lumifyVisibility.getVisibility())
-                        .setConceptGraphVertexId(concept.getId(), lumifyVisibility.getVisibility())
+                        .setOntologyClassUri(concept.getDisplayName(), lumifyVisibility.getVisibility())
+                        .setConceptGraphVertexId(concept.getTitle(), lumifyVisibility.getVisibility())
                         .setVertexId(id, lumifyVisibility.getVisibility());
                 mentions.add(termMention);
             }
@@ -311,7 +308,7 @@ public class DefaultLumifyTwitterProcessor extends BaseArtifactProcessor impleme
 
                 TITLE.setProperty(termVertexMutation, sign, lumifyVisibility.getVisibility());
                 ROW_KEY.setProperty(termVertexMutation, rowKey, lumifyVisibility.getVisibility());
-                CONCEPT_TYPE.setProperty(termVertexMutation, concept.getId(), lumifyVisibility.getVisibility());
+                CONCEPT_TYPE.setProperty(termVertexMutation, concept.getTitle(), lumifyVisibility.getVisibility());
 
                 if (!(termVertexMutation instanceof ExistingElementMutation)) {
                     termVertex = termVertexMutation.save();
@@ -360,9 +357,9 @@ public class DefaultLumifyTwitterProcessor extends BaseArtifactProcessor impleme
                 StreamingPropertyValue raw = new StreamingPropertyValue(new ByteArrayInputStream(rawImg), byte[].class);
                 raw.searchIndex(false);
 
-                Concept concept = getOntologyRepository().getConceptByVertexId(CONCEPT_TWITTER_PROFILE_IMAGE);
+                Concept concept = getOntologyRepository().getConceptByIRI(CONCEPT_TWITTER_PROFILE_IMAGE);
                 ElementMutation<Vertex> imageBuilder = findOrPrepareArtifactVertex(rowKey, getAuthorizations());
-                CONCEPT_TYPE.setProperty(imageBuilder, concept.getId(), lumifyVisibility.getVisibility());
+                CONCEPT_TYPE.setProperty(imageBuilder, concept.getTitle(), lumifyVisibility.getVisibility());
                 TITLE.setProperty(imageBuilder, String.format(IMAGE_ARTIFACT_TITLE_FMT, screenName), lumifyVisibility.getVisibility());
                 SOURCE.setProperty(imageBuilder, IMAGE_ARTIFACT_SOURCE, lumifyVisibility.getVisibility());
                 MIME_TYPE.setProperty(imageBuilder, PROFILE_IMAGE_MIME_TYPE, lumifyVisibility.getVisibility());
