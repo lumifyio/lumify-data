@@ -82,7 +82,7 @@ public class DictionaryImporter extends CommandLineBase {
             LOGGER.info("Importing dictionary file: " + fileStatus.getPath().toString());
             String conceptName = FilenameUtils.getBaseName(fileStatus.getPath().toString());
             conceptName = URLDecoder.decode(conceptName, "UTF-8");
-            Concept concept = ontologyRepository.getConceptByVertexId(conceptName);
+            Concept concept = ontologyRepository.getConceptByIRI(conceptName);
             checkNotNull(concept, "Could not find concept with name " + conceptName);
             writeFile(fs.open(fileStatus.getPath()), conceptName, user);
         }
