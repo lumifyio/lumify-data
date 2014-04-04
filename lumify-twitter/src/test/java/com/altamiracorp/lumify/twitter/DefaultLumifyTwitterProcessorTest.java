@@ -163,9 +163,9 @@ public class DefaultLumifyTwitterProcessorTest {
         Whitebox.setInternalState(DefaultLumifyTwitterProcessor.class, logger);
 
         when(user.getModelUserContext()).thenReturn(modelUserContext);
-        when(ontologyRepository.getConceptByVertexId(CONCEPT_TWITTER_HANDLE)).thenReturn(handleConcept);
-        when(ontologyRepository.getConceptByVertexId(CONCEPT_TWITTER_URL)).thenReturn(urlConcept);
-        when(ontologyRepository.getConceptByVertexId(CONCEPT_TWITTER_HASHTAG)).thenReturn(hashtagConcept);
+        when(ontologyRepository.getConceptByIRI(CONCEPT_TWITTER_HANDLE)).thenReturn(handleConcept);
+        when(ontologyRepository.getConceptByIRI(CONCEPT_TWITTER_URL)).thenReturn(urlConcept);
+        when(ontologyRepository.getConceptByIRI(CONCEPT_TWITTER_HASHTAG)).thenReturn(hashtagConcept);
         when(ontologyRepository.getDisplayNameForLabel(TWEETED_RELATIONSHIP)).thenReturn(TWEETED_RELATIONSHIP_LABEL);
         when(ontologyRepository.getDisplayNameForLabel(TwitterEntityType.MENTION.getRelationshipLabel())).
                 thenReturn(MENTION_RELATIONSIHP_LABEL);

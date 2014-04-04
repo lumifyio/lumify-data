@@ -102,11 +102,10 @@ public class ConceptMappedColumnRelationshipMappingTest {
         pMap.put(personConcept, rootConcept);
         pMap.put(terroristConcept, personConcept);
         for (Map.Entry<String, Concept> entry : cMap.entrySet()) {
-            when(ontologyRepo.getConceptByVertexId(entry.getKey())).thenReturn(entry.getValue());
+            when(ontologyRepo.getConceptByIRI(entry.getKey())).thenReturn(entry.getValue());
             when(entry.getValue().getId()).thenReturn(entry.getKey());
             when(entry.getValue().getTitle()).thenReturn(entry.getKey());
             when(ontologyRepo.getParentConcept(entry.getValue())).thenReturn(pMap.get(entry.getValue()));
-            when(ontologyRepo.getParentConcept(entry.getKey())).thenReturn(pMap.get(entry.getValue()));
         }
     }
 
