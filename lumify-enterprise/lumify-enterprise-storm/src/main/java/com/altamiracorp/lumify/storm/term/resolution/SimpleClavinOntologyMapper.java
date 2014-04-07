@@ -19,17 +19,17 @@ public class SimpleClavinOntologyMapper implements ClavinOntologyMapper {
     /**
      * The city URI.
      */
-    private static final String CITY = "city";
+    private static final String CITY = "http://lumify.io/dev#city";
 
     /**
      * The country URI.
      */
-    private static final String COUNTRY = "country";
+    private static final String COUNTRY = "http://lumify.io/dev#country";
 
     /**
      * The state URI.
      */
-    private static final String STATE = "state";
+    private static final String STATE = "http://lumify.io/dev#state";
 
     @Override
     public String getOntologyClassUri(final ResolvedLocation location, final String defaultValue) {
