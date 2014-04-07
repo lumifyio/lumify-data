@@ -121,12 +121,12 @@ public class TermExtractionBolt extends BaseTextProcessingBolt {
                 termMentionModel.getMetadata().setAnalyticProcess(termMention.getProcess(), lumifyVisibility.getVisibility());
             }
 
-            Concept concept = ontologyRepository.getConceptById(termMention.getOntologyClassUri());
+            Concept concept = ontologyRepository.getConceptByIRI(termMention.getOntologyClassUri());
             if (concept == null) {
                 LOGGER.error("Could not find ontology graph vertex '%s'", termMention.getOntologyClassUri());
                 continue;
             }
-            termMentionModel.getMetadata().setConceptGraphVertexId(concept.getId(), lumifyVisibility.getVisibility());
+            termMentionModel.getMetadata().setConceptGraphVertexId(concept.getTitle(), lumifyVisibility.getVisibility());
 
             if (termMention.isResolved()) {
                 String title = termMention.getSign();
@@ -137,7 +137,7 @@ public class TermExtractionBolt extends BaseTextProcessingBolt {
                     } else {
                         vertex = trySingle(graph.query(getAuthorizations())
                                 .has(TITLE.getKey(), title)
-                                .has(CONCEPT_TYPE.getKey(), concept.getId())
+                                .has(CONCEPT_TYPE.getKey(), concept.getTitle())
                                 .vertices());
                     }
                 }
@@ -148,7 +148,7 @@ public class TermExtractionBolt extends BaseTextProcessingBolt {
                         vertexElementMutation = graph.prepareVertex(lumifyVisibility.getVisibility(), getAuthorizations());
                     }
                     TITLE.setProperty(vertexElementMutation, title, lumifyVisibility.getVisibility());
-                    CONCEPT_TYPE.setProperty(vertexElementMutation, concept.getId(), lumifyVisibility.getVisibility());
+                    CONCEPT_TYPE.setProperty(vertexElementMutation, concept.getTitle(), lumifyVisibility.getVisibility());
                 } else {
                     vertexElementMutation = vertex.prepareMutation();
                 }

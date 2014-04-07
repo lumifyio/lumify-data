@@ -22,10 +22,6 @@ storm_nimbus_host: %{ipaddress_eth1}
 storm_nimbus_thrift_port: 6627
 storm_supervisor_slots_ports: [6700, 6701, 6702, 6703]
 storm_ui_port: 8081
-hue_http_host: '0.0.0.0'
-hue_http_port: 8888
-hue_timezone: 'America/New York'
-hue_secret_key: ADwtoR9YCSVbiwFmAtr28qtm4OFlSmOpLs4MK81B
 authentication_provider: com.altamiracorp.lumify.web.UsernameOnlyAuthenticationProvider
 jetty_key_store_path: /opt/lumify/config/jetty.jks
 jetty_key_store_password: OBF:1v2j1uum1xtv1zej1zer1xtn1uvk1v1v

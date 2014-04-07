@@ -1,22 +1,19 @@
 package com.altamiracorp.lumify.mapping.column;
 
-import static org.junit.Assert.*;
-import static org.mockito.Mockito.*;
-
 import com.altamiracorp.lumify.core.ingest.term.extraction.TermMention;
 import com.altamiracorp.lumify.core.model.ontology.Concept;
 import com.altamiracorp.lumify.core.model.ontology.OntologyRepository;
 import com.altamiracorp.lumify.mapping.column.ConceptMappedColumnRelationshipMapping.ConceptMapping;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
+
+import java.util.*;
+
+import static org.junit.Assert.*;
+import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
 public class ConceptMappedColumnRelationshipMappingTest {
@@ -102,11 +99,10 @@ public class ConceptMappedColumnRelationshipMappingTest {
         pMap.put(personConcept, rootConcept);
         pMap.put(terroristConcept, personConcept);
         for (Map.Entry<String, Concept> entry : cMap.entrySet()) {
-            when(ontologyRepo.getConceptById(entry.getKey())).thenReturn(entry.getValue());
-            when(entry.getValue().getId()).thenReturn(entry.getKey());
+            when(ontologyRepo.getConceptByIRI(entry.getKey())).thenReturn(entry.getValue());
+            when(entry.getValue().getTitle()).thenReturn(entry.getKey());
             when(entry.getValue().getTitle()).thenReturn(entry.getKey());
             when(ontologyRepo.getParentConcept(entry.getValue())).thenReturn(pMap.get(entry.getValue()));
-            when(ontologyRepo.getParentConcept(entry.getKey())).thenReturn(pMap.get(entry.getValue()));
         }
     }
 
@@ -119,12 +115,12 @@ public class ConceptMappedColumnRelationshipMappingTest {
 
     @Test
     public void testLegalConstruction() {
-        ConceptMapping[] expected = new ConceptMapping[] {
-            FOO_SOURCE_MAPPING,
-            FOO_BAR_MAPPING,
-            BAR_TARGET_MAPPING,
-            TERRORIST_LOCATION_MAPPING,
-            CITY_PERSON_MAPPING
+        ConceptMapping[] expected = new ConceptMapping[]{
+                FOO_SOURCE_MAPPING,
+                FOO_BAR_MAPPING,
+                BAR_TARGET_MAPPING,
+                TERRORIST_LOCATION_MAPPING,
+                CITY_PERSON_MAPPING
         };
         assertEquals(Arrays.asList(expected), createInstance(expected).getLabelMappings());
     }
@@ -206,14 +202,14 @@ public class ConceptMappedColumnRelationshipMappingTest {
     }
 
     private void doGetLabelTest(final String testName, final ConceptMappedColumnRelationshipMapping instance,
-            final String sourceConcept, final String targetConcept, final String expLabel) {
+                                final String sourceConcept, final String targetConcept, final String expLabel) {
         when(srcMention.getOntologyClassUri()).thenReturn(sourceConcept);
         when(tgtMention.getOntologyClassUri()).thenReturn(targetConcept);
         doGetLabelTest(testName, instance, srcMention, tgtMention, expLabel);
     }
 
     private void doGetLabelTest(final String testName, final ConceptMappedColumnRelationshipMapping instance,
-            final TermMention source, final TermMention target, final String expLabel) {
+                                final TermMention source, final TermMention target, final String expLabel) {
         String label = instance.getLabel(source, target, null);
         assertEquals(String.format("[%s]: ", testName), expLabel, label);
     }
@@ -236,7 +232,7 @@ public class ConceptMappedColumnRelationshipMappingTest {
     }
 
     private void doTestMappingConstructor_SourceTarget(final String testName, final String source, final String target,
-            final Class<? extends Throwable> expError) {
+                                                       final Class<? extends Throwable> expError) {
         doTestMappingConstructor(testName, source, target, FOO_BAR_LABEL, expError);
     }
 
@@ -245,7 +241,7 @@ public class ConceptMappedColumnRelationshipMappingTest {
     }
 
     private void doTestMappingConstructor(final String testName, final String source, final String target, final String label,
-            final Class<? extends Throwable> expError) {
+                                          final Class<? extends Throwable> expError) {
         try {
             new ConceptMapping(source, target, label);
             fail(String.format("[%s]: Expected %s", testName, expError.getName()));
@@ -256,7 +252,7 @@ public class ConceptMappedColumnRelationshipMappingTest {
     }
 
     private void doTestMappingConstructor_SourceTarget(final String testName, final String source, final String target,
-            final String expSource, final String expTarget) {
+                                                       final String expSource, final String expTarget) {
         doTestMappingConstructor(testName, source, target, FOO_BAR_LABEL, expSource, expTarget, FOO_BAR_LABEL);
     }
 
@@ -265,7 +261,7 @@ public class ConceptMappedColumnRelationshipMappingTest {
     }
 
     private void doTestMappingConstructor(final String testName, final String source, final String target, final String label,
-            final String expSource, final String expTarget, final String expLabel) {
+                                          final String expSource, final String expTarget, final String expLabel) {
         ConceptMapping mapping = new ConceptMapping(source, target, label);
         String msg = String.format("[%s]: ", testName);
         assertEquals(msg, expSource, mapping.getSourceConcept());
