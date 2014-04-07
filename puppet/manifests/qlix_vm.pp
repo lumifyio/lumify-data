@@ -22,6 +22,7 @@ file { '/opt/lumify/config/lumify.key.pem' :
 
 service { 'httpd' :
   ensure => running,
+  enable => true,
   require => [ Package['httpd'],
                File['/opt/lumify/config/lumify.cert.pem'],
                File['/opt/lumify/config/lumify.key.pem']
@@ -60,5 +61,6 @@ package { [ 'openldap-servers',
 
 service { 'slapd' :
   ensure => running,
+  enable => true,
   require => Package['openldap-servers'],
 }
