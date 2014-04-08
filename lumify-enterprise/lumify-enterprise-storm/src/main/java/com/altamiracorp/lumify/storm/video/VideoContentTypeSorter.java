@@ -14,7 +14,7 @@ public class VideoContentTypeSorter implements ContentTypeSorter {
     public String getQueueNameFromMimeType(String mimeType) {
         mimeType = mimeType.toLowerCase();
 
-        if (mimeType.contains("video") || mimeType.contains("mp4")) {
+        if (mimeType.contains("video")) {
             return QUEUE_NAME;
         }
 
