@@ -103,15 +103,16 @@ public class OpenCVObjectDetectorPropertyWorker extends GraphPropertyWorker {
         saveDetectedObjects(data.getVertex(), detectedObjects);
     }
 
-    private void saveDetectedObjects(Vertex vertex, List<ArtifactDetectedObject> detectedObjects) {
+    private void saveDetectedObjects(Vertex artifactVertex, List<ArtifactDetectedObject> detectedObjects) {
         for (ArtifactDetectedObject detectedObject : detectedObjects) {
-            saveDetectedObject(vertex, detectedObject);
+            saveDetectedObject(artifactVertex, detectedObject);
         }
     }
 
-    private void saveDetectedObject(Vertex vertex, ArtifactDetectedObject detectedObject) {
+    private void saveDetectedObject(Vertex artifactVertex, ArtifactDetectedObject detectedObject) {
         detectedObjectRepository.saveDetectedObject(
-                vertex.getId(),
+                artifactVertex.getId(),
+                null,
                 null,
                 detectedObject.getConcept(),
                 detectedObject.getX1(), detectedObject.getY1(), detectedObject.getX2(), detectedObject.getY2(),
