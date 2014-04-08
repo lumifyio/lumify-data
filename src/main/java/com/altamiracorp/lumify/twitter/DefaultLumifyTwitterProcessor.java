@@ -51,6 +51,7 @@ import static com.altamiracorp.lumify.core.model.properties.EntityLumifyProperti
 import static com.altamiracorp.lumify.core.model.properties.LumifyProperties.*;
 import static com.altamiracorp.lumify.core.model.properties.RawLumifyProperties.*;
 import static com.altamiracorp.lumify.twitter.TwitterConstants.*;
+import static com.altamiracorp.securegraph.util.IterableUtils.toList;
 import static com.google.common.base.Preconditions.checkNotNull;
 
 /**
@@ -387,8 +388,8 @@ public class DefaultLumifyTwitterProcessor extends BaseArtifactProcessor impleme
                 tweeterVertex = tweeterVertexMutation.save();
                 imageVertex = imageBuilder.save();
 
-                Iterator<Edge> edges = tweeterVertex.getEdges(imageVertex, Direction.IN, ENTITY_HAS_IMAGE_HANDLE_PHOTO, getAuthorizations()).iterator();
-                if (!edges.hasNext()) {
+                List<Edge> edges = toList(tweeterVertex.getEdges(imageVertex, Direction.IN, ENTITY_HAS_IMAGE_HANDLE_PHOTO, getAuthorizations()));
+                if (edges.size() == 0) {
                     Edge edge = graph.addEdge(tweeterVertex, imageVertex, ENTITY_HAS_IMAGE_HANDLE_PHOTO, lumifyVisibility.getVisibility(), getAuthorizations());
                     auditRepo.auditRelationship(AuditAction.CREATE, tweeterVertex, imageVertex, edge, processId, "", user, lumifyVisibility.getVisibility());
                 }
