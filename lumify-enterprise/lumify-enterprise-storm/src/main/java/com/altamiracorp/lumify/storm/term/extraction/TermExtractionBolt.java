@@ -114,19 +114,15 @@ public class TermExtractionBolt extends BaseTextProcessingBolt {
         for (TermMention termMention : termMentions) {
             LOGGER.debug("Saving term mention '%s':%s (%d:%d)", termMention.getSign(), termMention.getOntologyClassUri(), termMention.getStart(), termMention.getEnd());
             Vertex vertex = null;
-            TermMentionModel termMentionModel = new TermMentionModel(new TermMentionRowKey(artifactGraphVertex.getId().toString(), termMention.getStart(), termMention.getEnd()));
-            termMentionModel.getMetadata().setSign(termMention.getSign(), lumifyVisibility.getVisibility());
-            termMentionModel.getMetadata().setOntologyClassUri(termMention.getOntologyClassUri(), lumifyVisibility.getVisibility());
-            if (termMention.getProcess() != null && !termMention.getProcess().equals("")) {
-                termMentionModel.getMetadata().setAnalyticProcess(termMention.getProcess(), lumifyVisibility.getVisibility());
-            }
+            Edge edge = null;
 
             Concept concept = ontologyRepository.getConceptByIRI(termMention.getOntologyClassUri());
             if (concept == null) {
                 LOGGER.error("Could not find ontology graph vertex '%s'", termMention.getOntologyClassUri());
                 continue;
             }
-            termMentionModel.getMetadata().setConceptGraphVertexId(concept.getTitle(), lumifyVisibility.getVisibility());
+
+            TermMentionRowKey termMentionRowKey;
 
             if (termMention.isResolved()) {
                 String title = termMention.getSign();
@@ -172,13 +168,29 @@ public class TermExtractionBolt extends BaseTextProcessingBolt {
                 }
 
                 // TODO: a better way to check if the same edge exists instead of looking it up every time?
-                Edge edge = trySingle(artifactGraphVertex.getEdges(vertex, Direction.OUT, LabelName.RAW_HAS_ENTITY.toString(), getAuthorizations()));
+                edge = trySingle(artifactGraphVertex.getEdges(vertex, Direction.OUT, LabelName.RAW_HAS_ENTITY.toString(), getAuthorizations()));
                 if (edge == null) {
                     edge = graph.addEdge(artifactGraphVertex, vertex, LabelName.RAW_HAS_ENTITY.toString(), lumifyVisibility.getVisibility(), getAuthorizations());
                     auditRepository.auditRelationship(AuditAction.CREATE, artifactGraphVertex, vertex, edge, termMention.getProcess(), "", getUser(), lumifyVisibility.getVisibility());
                 }
 
+                termMentionRowKey = new TermMentionRowKey(artifactGraphVertex.getId().toString(), termMention.getStart(), termMention.getEnd(), edge.getId().toString());
+            } else {
+                termMentionRowKey = new TermMentionRowKey(artifactGraphVertex.getId().toString(), termMention.getStart(), termMention.getEnd());
+            }
+
+            TermMentionModel termMentionModel = new TermMentionModel(termMentionRowKey);
+            termMentionModel.getMetadata().setSign(termMention.getSign(), lumifyVisibility.getVisibility());
+            termMentionModel.getMetadata().setOntologyClassUri(termMention.getOntologyClassUri(), lumifyVisibility.getVisibility());
+            if (termMention.getProcess() != null && !termMention.getProcess().equals("")) {
+                termMentionModel.getMetadata().setAnalyticProcess(termMention.getProcess(), lumifyVisibility.getVisibility());
+            }
+
+            termMentionModel.getMetadata().setConceptGraphVertexId(concept.getTitle(), lumifyVisibility.getVisibility());
+
+            if (vertex != null && edge != null) {
                 termMentionModel.getMetadata().setVertexId(vertex.getId().toString(), lumifyVisibility.getVisibility());
+                termMentionModel.getMetadata().setEdgeId(edge.getId().toString(), lumifyVisibility.getVisibility());
             }
 
             termMentionRepository.save(termMentionModel, FlushFlag.NO_FLUSH);

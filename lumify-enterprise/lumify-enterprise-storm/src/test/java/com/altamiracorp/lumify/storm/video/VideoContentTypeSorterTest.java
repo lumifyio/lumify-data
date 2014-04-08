@@ -22,8 +22,6 @@ public class VideoContentTypeSorterTest {
         sorter = new VideoContentTypeSorter();
         String result = sorter.getQueueNameFromMimeType("video");
         assertEquals(VideoContentTypeSorter.QUEUE_NAME, result);
-        result = sorter.getQueueNameFromMimeType("mp4");
-        assertEquals(VideoContentTypeSorter.QUEUE_NAME, result);
         assertNull(sorter.getQueueNameFromMimeType("image"));
 
     }
