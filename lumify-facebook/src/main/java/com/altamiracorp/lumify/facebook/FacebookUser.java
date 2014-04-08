@@ -24,11 +24,13 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.Iterator;
+import java.util.List;
 
 import static com.altamiracorp.lumify.core.model.ontology.OntologyLumifyProperties.CONCEPT_TYPE;
 import static com.altamiracorp.lumify.core.model.properties.EntityLumifyProperties.GEO_LOCATION;
 import static com.altamiracorp.lumify.core.model.properties.LumifyProperties.*;
 import static com.altamiracorp.lumify.facebook.FacebookConstants.*;
+import static com.altamiracorp.securegraph.util.IterableUtils.toList;
 
 public class FacebookUser {
     private static final LumifyLogger LOGGER = LumifyLoggerFactory.getLogger(FacebookBolt.class);
@@ -165,8 +167,8 @@ public class FacebookUser {
 
         String labelDisplay = ontologyRepository.getDisplayNameForLabel(ENTITY_HAS_IMAGE_PROFILE_PHOTO);
 
-        Iterator<Edge> edges = userVertex.getEdges(pictureVertex, Direction.IN, labelDisplay, authorizations).iterator();
-        if (!edges.hasNext()) {
+        List<Edge> edges = toList(userVertex.getEdges(pictureVertex, Direction.IN, labelDisplay, authorizations));
+        if (edges.size() == 0) {
             Edge edge = graph.addEdge(userVertex, pictureVertex, ENTITY_HAS_IMAGE_PROFILE_PHOTO, lumifyVisibility.getVisibility(), authorizations);
             auditRepository.auditRelationship(AuditAction.CREATE, userVertex, pictureVertex, edge, PROCESS, "", user, lumifyVisibility.getVisibility());
         }
