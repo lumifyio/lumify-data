@@ -1,7 +1,7 @@
 #!/bin/bash -u
 
-LDAP_MANAGER_PASSWORD=$1
-LDAP_MANAGER_DN='cn=root,dc=361,dc=lumify,dc=io'
+LDAP_MANAGER_DN=$1
+LDAP_MANAGER_PASSWORD=$2
 
 ldapadd -x -D ${LDAP_MANAGER_DN} -w ${LDAP_MANAGER_PASSWORD} -v -f init.ldif
 

@@ -6,6 +6,7 @@ import com.google.common.collect.Lists;
 import com.unboundid.ldap.sdk.*;
 import com.unboundid.util.ssl.SSLUtil;
 import com.unboundid.util.ssl.TrustAllTrustManager;
+import org.apache.commons.codec.binary.Base64;
 
 import javax.net.ssl.SSLSocketFactory;
 import java.io.File;
@@ -15,6 +16,7 @@ import java.util.Arrays;
 import java.util.List;
 
 public class LdapSearchService {
+    public static final int NO_SUCH_OBJECT_RESULT_CODE = 32;
     private static final int DEFAULT_MAX_CONNECTIONS = 10;
     private static final String DEFAULT_CERTIFICATE_ATTRIBUTE = "userCertificate;binary";
 
@@ -24,7 +26,7 @@ public class LdapSearchService {
     public static void main(String[] args) throws LDAPException, GeneralSecurityException, IOException {
         LdapSearchService ldapSearchService = new LdapSearchService();
 
-        ldapSearchService.initializePool("192.168.33.10", 636, "192.168.33.10", 636, DEFAULT_MAX_CONNECTIONS, "cn=root,dc=361,dc=lumify,dc=io", "lumify");
+        ldapSearchService.initializePool("192.168.33.10", 636, "192.168.33.10", 636, DEFAULT_MAX_CONNECTIONS, "cn=root,dc=lumify,dc=io", "lumify");
 
         ldapSearchService.searchConfiguration.searchBase = "dc=lumify,dc=io";
         ldapSearchService.searchConfiguration.searchScope = SearchScope.SUB;
@@ -83,7 +85,16 @@ public class LdapSearchService {
         if (certificate != null) {
             attributeNames.add(searchConfiguration.certificateAttributeName);
         }
-        SearchResult results = pool.search(searchConfiguration.searchBase, searchConfiguration.searchScope, filter, attributeNames.toArray(new String[attributeNames.size()]));
+
+        SearchResult results;
+        try {
+            results = pool.search(searchConfiguration.searchBase, searchConfiguration.searchScope, filter, attributeNames.toArray(new String[attributeNames.size()]));
+        } catch (LDAPSearchException lse) {
+            if (lse.getResultCode().intValue() == NO_SUCH_OBJECT_RESULT_CODE) {
+                throw new LumifyException("no results for LDAP search: " + filter, lse);
+            }
+            throw lse;
+        }
 
         if (results.getEntryCount() == 0) {
             throw new LumifyException("no results for LDAP search: " + filter);
@@ -120,7 +131,7 @@ public class LdapSearchService {
             if (attribute.size() > 1) {
                 for (byte[] value : attribute.getValueByteArrays()) {
                     sb.append("\n  ");
-                    sb.append(Arrays.toString(value));
+                    sb.append(Base64.encodeBase64String(value));
                     sb.append(" (");
                     sb.append(value.length);
                     sb.append(" bytes)");
@@ -128,7 +139,7 @@ public class LdapSearchService {
             } else {
                 byte[] value = attribute.getValueByteArray();
                 sb.append(" ");
-                sb.append(Arrays.toString(value));
+                sb.append(Base64.encodeBase64String(value));
                 sb.append(" (");
                 sb.append(value.length);
                 sb.append(" bytes)");
