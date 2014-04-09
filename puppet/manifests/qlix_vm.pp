@@ -40,7 +40,7 @@ $tomcat_java_home = '/opt/jdk1.7.0_51'
 include tomcat::worker
 
 class { 'mysql::server' :
-  remove_default_accounts => true,
+  # remove_default_accounts => true,
   restart => true,
   override_options => { 'mysqld' => { 'bind-address' => '0.0.0.0' } }
 }
@@ -53,14 +53,101 @@ mysql::db { 'lumify' :
   require  => Class[mysql::server],
 }
 
-package { [ 'openldap-servers',
-            'openldap-clients',
-          ] :
+package { 'openldap-servers' :
   ensure => present,
+}
+
+package { 'openldap-clients' :
+  ensure => present,
+}
+
+file { '/etc/openldap/certs/lumify.cert.pem' :
+  ensure => file,
+  source => 'file:///vagrant/config/ssl/lumify.cert.pem',
+  owner   => 'root',
+  group   => 'root',
+  mode    => 'u=rw,go=r',
+  require => Package['openldap-servers'],
+}
+
+file { '/etc/openldap/certs/lumify.key.pem' :
+  ensure => file,
+  source => 'file:///vagrant/config/ssl/lumify.key.pem',
+  owner   => 'root',
+  group   => 'root',
+  mode    => 'u=rw,go=r',
+  require => Package['openldap-servers'],
+}
+
+exec { 'enable-ldaps' :
+  command => "/bin/sed -i -e 's/SLAPD_LDAPS=.*/SLAPD_LDAPS=yes/' /etc/sysconfig/ldap",
+  unless  => "/bin/grep -q 'SLAPD_LDAPS=yes' /etc/sysconfig/ldap",
+  notify  => Service['slapd'],
+  require => [ Package['openldap-servers'],
+               File['/etc/openldap/certs/lumify.cert.pem'],
+               File['/etc/openldap/certs/lumify.key.pem']
+             ],
+}
+
+$ldap_config_username = 'cn=config'
+$ldap_config_password = 'lumify'
+$ldap_config_ldif_filename = '/etc/openldap/slapd.d/cn\=config/olcDatabase\=\{0\}config.ldif'
+
+exec { 'set-ldap-config-password' :
+  command => "/bin/echo -n 'olcRootPW: ' >> ${ldap_config_ldif_filename} && /usr/sbin/slappasswd -s '${ldap_password}' >> ${ldap_config_ldif_filename}",
+  unless  => "/bin/grep -q 'olcRootPW' ${ldap_config_ldif_filename}",
+  notify  => Service['slapd'],
+  require => Package['openldap-servers'],
+}
+
+$ldap_bdb_suffix = 'dc=lumify,dc=io'
+$ldap_bdb_rootdn = 'cn=root,dc=lumify,dc=io'
+$ldap_bdb_password = 'lumify'
+$ldap_bdb_ldif_filename = '/etc/openldap/slapd.d/cn\=config/olcDatabase\=\{2\}bdb.ldif'
+
+exec { 'set-ldap-bdb-suffix' :
+  command => "/bin/sed -i -e 's/olcSuffix:.*/olcSuffix: ${ldap_bdb_suffix}/' ${ldap_bdb_ldif_filename}",
+  unless  => "/bin/grep -q 'olcSuffix: ${ldap_bdb_suffix}' ${ldap_bdb_ldif_filename}",
+  notify  => Service['slapd'],
+  require => Package['openldap-servers'],
+}
+
+exec { 'set-ldap-bdb-rootdn' :
+  command => "/bin/sed -i -e 's/olcRootDN:.*/olcRootDN: ${ldap_bdb_rootdn}/' ${ldap_bdb_ldif_filename}",
+  unless  => "/bin/grep -q 'olcRootDN: ${ldap_bdb_rootdn}' ${ldap_bdb_ldif_filename}",
+  notify  => Service['slapd'],
+  require => Package['openldap-servers'],
+}
+
+exec { 'set-ldap-bdb-password' :
+  command => "/bin/echo -n 'olcRootPW: ' >> ${ldap_bdb_ldif_filename} && /usr/sbin/slappasswd -s '${ldap_bdb_password}' >> ${ldap_bdb_ldif_filename}",
+  unless  => "/bin/grep -q 'olcRootPW' ${ldap_bdb_ldif_filename}",
+  notify  => Service['slapd'],
+  require => Package['openldap-servers'],
 }
 
 service { 'slapd' :
   ensure => running,
   enable => true,
-  require => Package['openldap-servers'],
+  require => [ Package['openldap-servers'],
+               Exec['enable-ldaps'],
+               Exec['set-ldap-config-password']
+             ],
+}
+
+exec { 'configure-ldaps' :
+  command => "/usr/bin/ldapmodify -x -D '${ldap_config_username}' -w '${ldap_config_password}' -v -f /vagrant/config/ssl/tls.ldif",
+  unless  => "/usr/bin/ldapsearch -x -D '${ldap_config_username}' -w '${ldap_config_password}' -LLL -b 'cn=config' '(objectclass=olcGlobal)' olcTLSCertificateFile | /bin/grep -q /etc/openldap/certs/lumify.cert.pem",
+  require => [ Package['openldap-clients'],
+               Service['slapd'],
+             ],
+}
+
+exec { 'ldap-add' :
+  cwd     => '/vagrant/config/ssl',
+  command => "/vagrant/config/ssl/ldap_add.sh '${ldap_bdb_rootdn}' '${ldap_bdb_password}'",
+  unless  => "/usr/bin/ldapsearch -x -D '${ldap_bdb_rootdn}' -w '${ldap_bdb_password}' -LLL -b '${ldap_bdb_suffix}' '(cn=Alice)' cn | grep -q Alice",
+  require => [ Package['openldap-clients'],
+               Service['slapd'],
+             ],
 }
