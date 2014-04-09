@@ -1,4 +1,4 @@
-package com.altamira.lumify.ldap;
+package com.altamiracorp.lumify.ldap;
 
 
 import com.altamiracorp.lumify.core.exception.LumifyException;
@@ -15,45 +15,47 @@ import java.util.Arrays;
 import java.util.List;
 
 public class LdapSearchService {
-    private static int DEFAULT_MAX_CONNECTIONS = 10;
-    private static String DEFAULT_CERTIFICATE_ATTRIBUTE = "userCertificate;binary";
+    private static final int DEFAULT_MAX_CONNECTIONS = 10;
+    private static final String DEFAULT_CERTIFICATE_ATTRIBUTE = "userCertificate;binary";
 
-    private static LDAPConnectionPool pool;
-    private static SearchConfiguration searchConfiguration = new SearchConfiguration();
+    private LDAPConnectionPool pool;
+    private SearchConfiguration searchConfiguration = new SearchConfiguration();
 
     public static void main(String[] args) throws LDAPException, GeneralSecurityException, IOException {
-        initializePool("192.168.33.10", 636, "192.168.33.10", 636, DEFAULT_MAX_CONNECTIONS, "cn=root,dc=361,dc=lumify,dc=io", "lumify");
+        LdapSearchService ldapSearchService = new LdapSearchService();
 
-        searchConfiguration.searchBase = "dc=lumify,dc=io";
-        searchConfiguration.searchScope = SearchScope.SUB;
-        searchConfiguration.certificateAttributeName = DEFAULT_CERTIFICATE_ATTRIBUTE;
-        searchConfiguration.attributeNames = Lists.newArrayList("displayName", "employeeNumber", "telephoneNumber");
+        ldapSearchService.initializePool("192.168.33.10", 636, "192.168.33.10", 636, DEFAULT_MAX_CONNECTIONS, "cn=root,dc=361,dc=lumify,dc=io", "lumify");
 
-        SearchResultEntry result = null;
+        ldapSearchService.searchConfiguration.searchBase = "dc=lumify,dc=io";
+        ldapSearchService.searchConfiguration.searchScope = SearchScope.SUB;
+        ldapSearchService.searchConfiguration.certificateAttributeName = DEFAULT_CERTIFICATE_ATTRIBUTE;
+        ldapSearchService.searchConfiguration.attributeNames = Lists.newArrayList("displayName", "employeeNumber", "telephoneNumber");
+
+        SearchResultEntry result;
 
         if (args.length == 1) {
             byte[] cert = org.apache.commons.io.FileUtils.readFileToByteArray(new File(args[0]));
-            result = search("cn=Alice", cert);
+            result = ldapSearchService.search("cn=Alice", cert);
         } else {
-            result = search("cn=Alice");
+            result = ldapSearchService.search("cn=Alice");
         }
         System.out.println();
         System.out.println(result.getDN());
         for (Attribute attribute : result.getAttributes()) {
-            System.out.println(attributeToString(attribute));
+            System.out.println(ldapSearchService.attributeToString(attribute));
         }
 
-        result = search("cn=Bob");
+        result = ldapSearchService.search("cn=Bob");
         System.out.println();
         System.out.println(result.getDN());
         for (Attribute attribute : result.getAttributes()) {
-            System.out.println(attributeToString(attribute));
+            System.out.println(ldapSearchService.attributeToString(attribute));
         }
     }
 
-    private static void initializePool(String primaryLdapServerHostname, int primaryLadpServerPort, String failoverLdapServerHostname, int failoverLadpServerPort, int maxConnections, String bindDn, String bindPassword) throws LDAPException, GeneralSecurityException {
+    private void initializePool(String primaryLdapServerHostname, int primaryLdapServerPort, String failoverLdapServerHostname, int failoverLadpServerPort, int maxConnections, String bindDn, String bindPassword) throws LDAPException, GeneralSecurityException {
         String[] addresses = {primaryLdapServerHostname, failoverLdapServerHostname};
-        int[] ports = {primaryLadpServerPort, failoverLadpServerPort};
+        int[] ports = {primaryLdapServerPort, failoverLadpServerPort};
 
         SSLUtil sslUtil = new SSLUtil(new TrustAllTrustManager());
         SSLSocketFactory socketFactory = sslUtil.createSSLSocketFactory();
@@ -63,7 +65,7 @@ public class LdapSearchService {
         pool = new LDAPConnectionPool(failoverSet, bindRequest, maxConnections);
     }
 
-    private static SearchResultEntry search(String dn, byte[] certificate) throws LDAPException {
+    private SearchResultEntry search(String dn, byte[] certificate) throws LDAPException {
         if (pool == null) {
             throw new LumifyException("the LDAP connection pool in uninitialized");
         }
@@ -105,11 +107,11 @@ public class LdapSearchService {
         }
     }
 
-    private static SearchResultEntry search(String dn) throws LDAPException {
+    private SearchResultEntry search(String dn) throws LDAPException {
         return search(dn, null);
     }
 
-    private static String attributeToString(Attribute attribute) {
+    private String attributeToString(Attribute attribute) {
         StringBuilder sb = new StringBuilder();
         sb.append(attribute.getName());
         sb.append(":");
@@ -118,7 +120,7 @@ public class LdapSearchService {
             if (attribute.size() > 1) {
                 for (byte[] value : attribute.getValueByteArrays()) {
                     sb.append("\n  ");
-                    sb.append(value.toString());
+                    sb.append(Arrays.toString(value));
                     sb.append(" (");
                     sb.append(value.length);
                     sb.append(" bytes)");
@@ -126,7 +128,7 @@ public class LdapSearchService {
             } else {
                 byte[] value = attribute.getValueByteArray();
                 sb.append(" ");
-                sb.append(value.toString());
+                sb.append(Arrays.toString(value));
                 sb.append(" (");
                 sb.append(value.length);
                 sb.append(" bytes)");
