@@ -32,5 +32,5 @@ displayname: ${first_name} ${last_name}-Y-
 employeenumber: $(($(cat CA/serial) - 1))
 givenname: ${first_name}
 sn: ${last_name}
-usercertificate;binary::${cert}
+usercertificate;binary:: ${cert}
 EOF

@@ -8,7 +8,7 @@ displayname: Bob Maluga-Y-
 employeenumber: 2
 givenname: Bob
 sn: Maluga
-usercertificate;binary::MIIDeTCCAuKgAwIBAgIBAjANBgkqhkiG9w0BAQUFADB9MQswCQYDVQQGEwJVUzER
+usercertificate;binary:: MIIDeTCCAuKgAwIBAgIBAjANBgkqhkiG9w0BAQUFADB9MQswCQYDVQQGEwJVUzER
  MA8GA1UECBMIVmlyZ2luaWExDzANBgNVBAcTBlJlc3RvbjEqMCgGA1UEChMhQWx0
  YW1pcmEgVGVjaG5vbG9naWVzIENvcnBvcmF0aW9uMQ0wCwYDVQQLDARJUiZEMQ8w
  DQYDVQQDEwZsdW1pZnkwHhcNMTQwNDAyMTQzMzQwWhcNMTYwNDAxMTQzMzQwWjAO
