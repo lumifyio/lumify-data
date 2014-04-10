@@ -12,6 +12,7 @@ import com.altamiracorp.lumify.core.ingest.term.extraction.TermExtractionResult;
 import com.altamiracorp.lumify.core.ingest.term.extraction.TermMention;
 import com.altamiracorp.lumify.core.model.ontology.Concept;
 import com.altamiracorp.lumify.core.model.ontology.OntologyRepository;
+import com.altamiracorp.lumify.core.model.properties.EntityLumifyProperties;
 import com.altamiracorp.lumify.core.user.User;
 import com.altamiracorp.securegraph.type.GeoPoint;
 import com.bericotech.clavin.extractor.LocationOccurrence;
@@ -31,8 +32,6 @@ import org.powermock.reflect.Whitebox;
 import java.io.File;
 import java.util.*;
 
-import static com.altamiracorp.lumify.core.model.properties.EntityLumifyProperties.GEO_LOCATION;
-import static com.altamiracorp.lumify.core.model.properties.EntityLumifyProperties.GEO_LOCATION_DESCRIPTION;
 import static com.altamiracorp.lumify.storm.term.resolution.ClavinLocationResolutionWorker.*;
 import static org.hamcrest.CoreMatchers.instanceOf;
 import static org.junit.Assert.*;
@@ -127,20 +126,18 @@ public class ClavinLocationResolutionWorkerTest {
     private static final double ALDIE_LONG = -77.6414d;
     private static final double WASHINGTON_LAT = 38.8951d;
     private static final double WASHINGTON_LONG = -77.0367d;
-    private static final GeoPoint ALDIE_POINT = new GeoPoint(ALDIE_LAT, ALDIE_LONG);
-    private static final GeoPoint WASHINGTON_POINT = new GeoPoint(WASHINGTON_LAT, WASHINGTON_LONG);
+    private static final GeoPoint ALDIE_POINT = new GeoPoint(ALDIE_LAT, ALDIE_LONG, ALDIE);
+    private static final GeoPoint WASHINGTON_POINT = new GeoPoint(WASHINGTON_LAT, WASHINGTON_LONG, WASHINGTON);
     private static final Map<String, Object> ALDIE_PROPS;
     private static final Map<String, Object> WASHINGTON_PROPS;
 
     static {
         Map<String, Object> aldieProps = new HashMap<String, Object>();
-        aldieProps.put(GEO_LOCATION.getKey(), GEO_LOCATION.wrap(ALDIE_POINT));
-        aldieProps.put(GEO_LOCATION_DESCRIPTION.getKey(), GEO_LOCATION_DESCRIPTION.wrap(ALDIE));
+        aldieProps.put(EntityLumifyProperties.GEO_LOCATION.getKey(), EntityLumifyProperties.GEO_LOCATION.wrap(ALDIE_POINT));
         ALDIE_PROPS = Collections.unmodifiableMap(aldieProps);
 
         Map<String, Object> dcProps = new HashMap<String, Object>();
-        dcProps.put(GEO_LOCATION.getKey(), GEO_LOCATION.wrap(WASHINGTON_POINT));
-        dcProps.put(GEO_LOCATION_DESCRIPTION.getKey(), GEO_LOCATION_DESCRIPTION.wrap(WASHINGTON));
+        dcProps.put(EntityLumifyProperties.GEO_LOCATION.getKey(), EntityLumifyProperties.GEO_LOCATION.wrap(WASHINGTON_POINT));
         WASHINGTON_PROPS = Collections.unmodifiableMap(dcProps);
     }
 

@@ -16,6 +16,7 @@ import com.altamiracorp.lumify.core.ingest.term.extraction.TermMention;
 import com.altamiracorp.lumify.core.ingest.term.extraction.TermResolutionWorker;
 import com.altamiracorp.lumify.core.model.ontology.Concept;
 import com.altamiracorp.lumify.core.model.ontology.OntologyRepository;
+import com.altamiracorp.lumify.core.model.properties.EntityLumifyProperties;
 import com.altamiracorp.lumify.core.user.User;
 import com.altamiracorp.lumify.core.util.LumifyLogger;
 import com.altamiracorp.lumify.core.util.LumifyLoggerFactory;
@@ -28,10 +29,6 @@ import com.google.inject.Inject;
 
 import java.io.File;
 import java.util.*;
-
-import static com.altamiracorp.lumify.core.model.properties.EntityLumifyProperties.GEO_LOCATION;
-import static com.altamiracorp.lumify.core.model.properties.EntityLumifyProperties.GEO_LOCATION_DESCRIPTION;
-import static com.altamiracorp.lumify.core.model.properties.EntityLumifyProperties.SOURCE;
 
 /**
  * This TermResolutionWorker uses the CLAVIN processor to refine
@@ -178,16 +175,15 @@ public class ClavinLocationResolutionWorker implements TermResolutionWorker {
                     loc = resolvedLocationOffsetMap.get(termMention.getStart());
                     if (isLocation(termMention) && loc != null) {
                         String id = String.format("CLAVIN-%d", loc.getGeoname().getGeonameID());
+                        GeoPoint geoPoint = new GeoPoint(loc.getGeoname().getLatitude(), loc.getGeoname().getLongitude(), termMention.getSign());
                         resolvedMention = new TermMention.Builder(termMention)
                                 .id(id)
                                 .resolved(true)
                                 .useExisting(true)
                                 .sign(toSign(loc))
                                 .ontologyClassUri(ontologyMapper.getOntologyClassUri(loc, termMention.getOntologyClassUri()))
-                                .setProperty(GEO_LOCATION.getKey(),
-                                        GEO_LOCATION.wrap(new GeoPoint(loc.getGeoname().getLatitude(), loc.getGeoname().getLongitude())))
-                                .setProperty(GEO_LOCATION_DESCRIPTION.getKey(), GEO_LOCATION_DESCRIPTION.wrap(termMention.getSign()))
-                                .setProperty(SOURCE.getKey(), "CLAVIN")
+                                .setProperty(EntityLumifyProperties.GEO_LOCATION.getKey(), EntityLumifyProperties.GEO_LOCATION.wrap(geoPoint))
+                                .setProperty(EntityLumifyProperties.SOURCE.getKey(), "CLAVIN")
                                 .process(processId)
                                 .build();
                         updateMap.put(termMention, resolvedMention);
