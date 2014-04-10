@@ -52,8 +52,8 @@
 
         <!-- Dependency Versions -->
         <accumulo.version>1.5.0</accumulo.version>
-        <altamira.bigtable.version>0.3.0-SNAPSHOT</altamira.bigtable.version>
-        <altamira.miniweb.version>0.2.0-SNAPSHOT</altamira.miniweb.version>
+        <altamira.bigtable.version>0.3.0</altamira.bigtable.version>
+        <altamira.miniweb.version>0.2.0</altamira.miniweb.version>
         <ant.version>1.4.1</ant.version>
         <atmosphere.version>2.1.1</atmosphere.version>
         <commons.cli.version>1.2</commons.cli.version>
@@ -81,7 +81,7 @@
         <lesscss.version>1.3.3</lesscss.version>
         <log4j.version>1.2.17</log4j.version>
         <metrics.version>3.0.1</metrics.version>
-        <securegraph.version>0.2.0-SNAPSHOT</securegraph.version>
+        <securegraph.version>0.3.0-SNAPSHOT</securegraph.version>
         <slf4j.version>1.7.5</slf4j.version>
         <storm.version>0.8.2</storm.version>
         <zip4j.version>1.3.1</zip4j.version>
@@ -729,6 +729,7 @@
                         </dependency>
                     </dependencies>
                 </plugin>
+
                 <!-- Cobertura: Code Coverage Check -->
                 <plugin>
                     <groupId>org.codehaus.mojo</groupId>

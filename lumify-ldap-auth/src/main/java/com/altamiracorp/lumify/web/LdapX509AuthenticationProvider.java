@@ -1,9 +1,9 @@
 package com.altamiracorp.lumify.web;
 
 import com.altamiracorp.lumify.core.model.user.UserRepository;
-import com.altamiracorp.lumify.core.user.UserProvider;
 import com.altamiracorp.lumify.core.util.LumifyLogger;
 import com.altamiracorp.lumify.core.util.LumifyLoggerFactory;
+import com.altamiracorp.securegraph.Graph;
 import com.google.inject.Inject;
 
 import javax.naming.InvalidNameException;
@@ -16,8 +16,8 @@ public class LdapX509AuthenticationProvider extends X509AuthenticationProvider {
     private static final LumifyLogger LOGGER = LumifyLoggerFactory.getLogger(LdapX509AuthenticationProvider.class);
 
     @Inject
-    public LdapX509AuthenticationProvider(final UserRepository userRepository, final UserProvider userProvider) {
-        super(userRepository, userProvider);
+    public LdapX509AuthenticationProvider(final UserRepository userRepository, final Graph graph) {
+        super(userRepository, graph);
     }
 
     @Override

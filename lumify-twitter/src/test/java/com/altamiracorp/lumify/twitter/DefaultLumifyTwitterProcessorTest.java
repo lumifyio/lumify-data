@@ -21,9 +21,9 @@ import com.altamiracorp.lumify.core.model.audit.AuditRepository;
 import com.altamiracorp.lumify.core.model.ontology.Concept;
 import com.altamiracorp.lumify.core.model.ontology.OntologyRepository;
 import com.altamiracorp.lumify.core.model.termMention.TermMentionRepository;
+import com.altamiracorp.lumify.core.model.user.UserRepository;
 import com.altamiracorp.lumify.core.model.workQueue.WorkQueueRepository;
 import com.altamiracorp.lumify.core.user.User;
-import com.altamiracorp.lumify.core.user.UserProvider;
 import com.altamiracorp.lumify.core.util.LumifyLogger;
 import com.altamiracorp.securegraph.Authorizations;
 import com.altamiracorp.securegraph.Graph;
@@ -91,7 +91,7 @@ public class DefaultLumifyTwitterProcessorTest {
     @Mock
     private AuditRepository auditRepository;
     @Mock
-    private UserProvider userProvider;
+    private UserRepository userRepository;
     @Mock
     private User user;
     @Mock
@@ -151,11 +151,10 @@ public class DefaultLumifyTwitterProcessorTest {
     @Before
     public void setup() throws Exception {
         instance = new DefaultLumifyTwitterProcessor();
-        user = userProvider.getSystemUser();
+        user = userRepository.getSystemUser();
         instance.setOntologyRepository(ontologyRepository);
         instance.setGraph(graph);
         instance.setAuditRepository(auditRepository);
-        instance.setUser(userProvider);
         instance.setTermMentionRepository(termMentionRepository);
         instance.setWorkQueueRepository(workQueueRepository);
         instance.setUrlStreamCreator(urlStreamCreator);
