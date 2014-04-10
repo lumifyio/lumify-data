@@ -216,5 +216,6 @@
         <module>lumify-youtube-transcript</module>
         <module>lumify-subrip-transcript</module>
         <module>lumify-clavin</module>
+        <module>lumify-jetty-server-enterprise</module>
     </modules>
 </project>
