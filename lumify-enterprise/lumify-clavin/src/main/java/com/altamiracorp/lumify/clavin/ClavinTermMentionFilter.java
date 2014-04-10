@@ -21,7 +21,8 @@ import java.io.File;
 import java.io.IOException;
 import java.util.*;
 
-import static com.altamiracorp.lumify.core.model.properties.EntityLumifyProperties.*;
+import static com.altamiracorp.lumify.core.model.properties.EntityLumifyProperties.GEO_LOCATION;
+import static com.altamiracorp.lumify.core.model.properties.EntityLumifyProperties.SOURCE;
 import static com.altamiracorp.securegraph.util.IterableUtils.count;
 
 /**
@@ -71,7 +72,6 @@ public class ClavinTermMentionFilter extends TermMentionFilter {
      */
     public static final boolean DEFAULT_FUZZY_MATCHING = false;
 
-    private File indexDirectory;
     private LuceneLocationResolver resolver;
     private boolean fuzzy;
     private ClavinOntologyMapper ontologyMapper;
@@ -91,7 +91,7 @@ public class ClavinTermMentionFilter extends TermMentionFilter {
             throw new IllegalArgumentException(String.format("%s must be configured.", CLAVIN_INDEX_DIRECTORY));
         }
         LOGGER.debug("Configuring CLAVIN index [%s]: %s", CLAVIN_INDEX_DIRECTORY, idxDirPath);
-        indexDirectory = new File(idxDirPath);
+        File indexDirectory = new File(idxDirPath);
         if (!indexDirectory.exists() || !indexDirectory.isDirectory()) {
             throw new IllegalArgumentException(String.format("CLAVIN index cannot be found at configured (%s) location: %s",
                     CLAVIN_INDEX_DIRECTORY, idxDirPath));
@@ -155,15 +155,14 @@ public class ClavinTermMentionFilter extends TermMentionFilter {
             loc = resolvedLocationOffsetMap.get(termMention.getStart());
             if (isLocation(termMention) && loc != null) {
                 String id = String.format("CLAVIN-%d", loc.getGeoname().getGeonameID());
+                GeoPoint geoPoint = new GeoPoint(loc.getGeoname().getLatitude(), loc.getGeoname().getLongitude(), termMention.getSign());
                 resolvedMention = new TermMention.Builder(termMention)
                         .id(id)
                         .resolved(true)
                         .useExisting(true)
                         .sign(toSign(loc))
                         .ontologyClassUri(ontologyMapper.getOntologyClassUri(loc, termMention.getOntologyClassUri()))
-                        .setProperty(GEO_LOCATION.getKey(),
-                                GEO_LOCATION.wrap(new GeoPoint(loc.getGeoname().getLatitude(), loc.getGeoname().getLongitude())))
-                        .setProperty(GEO_LOCATION_DESCRIPTION.getKey(), GEO_LOCATION_DESCRIPTION.wrap(termMention.getSign()))
+                        .setProperty(GEO_LOCATION.getKey(), GEO_LOCATION.wrap(geoPoint))
                         .setProperty(SOURCE.getKey(), "CLAVIN")
                         .process(processId)
                         .build();
