@@ -19,9 +19,9 @@ package com.altamiracorp.lumify.twitter;
 import com.altamiracorp.lumify.core.json.IntegerJsonProperty;
 import com.altamiracorp.lumify.core.json.JSONObjectJsonProperty;
 import com.altamiracorp.lumify.core.json.StringJsonProperty;
-import com.altamiracorp.lumify.core.model.properties.DateLumifyProperty;
-import com.altamiracorp.lumify.core.model.properties.IdentityLumifyProperty;
-import com.altamiracorp.lumify.core.model.properties.TextLumifyProperty;
+import com.altamiracorp.lumify.core.model.properties.types.DateLumifyProperty;
+import com.altamiracorp.lumify.core.model.properties.types.IdentityLumifyProperty;
+import com.altamiracorp.lumify.core.model.properties.types.TextLumifyProperty;
 
 import java.nio.charset.Charset;
 

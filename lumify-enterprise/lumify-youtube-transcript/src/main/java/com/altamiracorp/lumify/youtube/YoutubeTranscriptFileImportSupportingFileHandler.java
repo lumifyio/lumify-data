@@ -1,7 +1,7 @@
 package com.altamiracorp.lumify.youtube;
 
 import com.altamiracorp.lumify.core.ingest.FileImportSupportingFileHandler;
-import com.altamiracorp.lumify.core.model.properties.StreamingLumifyProperty;
+import com.altamiracorp.lumify.core.model.properties.types.StreamingLumifyProperty;
 import com.altamiracorp.securegraph.VertexBuilder;
 import com.altamiracorp.securegraph.Visibility;
 import com.altamiracorp.securegraph.property.StreamingPropertyValue;

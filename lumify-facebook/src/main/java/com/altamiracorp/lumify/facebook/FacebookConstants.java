@@ -1,7 +1,7 @@
 package com.altamiracorp.lumify.facebook;
 
-import com.altamiracorp.lumify.core.model.properties.DateLumifyProperty;
-import com.altamiracorp.lumify.core.model.properties.TextLumifyProperty;
+import com.altamiracorp.lumify.core.model.properties.types.DateLumifyProperty;
+import com.altamiracorp.lumify.core.model.properties.types.TextLumifyProperty;
 import com.altamiracorp.securegraph.TextIndexHint;
 
 public interface FacebookConstants {

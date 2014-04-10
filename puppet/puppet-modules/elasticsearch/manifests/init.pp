@@ -67,14 +67,14 @@ class elasticsearch(
   file { "elasticsearch-env-config":
     path    => "${configdir}/elasticsearch.yml",
     ensure  => file,
-    content => template("elasticsearch/elasticsearch.yml.erb"),
+    content => template("elasticsearch/elasticsearch-${version}.yml.erb"),
     require => File["${homedir}/config"],
   }
 
   file { "elasticsearch-logging-config":
     path    => "${configdir}/logging.yml",
     ensure  => file,
-    content => template("elasticsearch/logging.yml.erb"),
+    content => template("elasticsearch/logging-${version}.yml.erb"),
     require => File["${homedir}/config"],
   }
 
