@@ -1,4 +1,6 @@
-V	160401141602Z		01	unknown	/CN=Alice
-V	160401143340Z		02	unknown	/CN=Bob
-V	160401151539Z		03	unknown	/CN=Carlos
-V	160401153030Z		04	unknown	/CN=Diane
+V	240408183947Z		01	unknown	/C=US/ST=Virginia/O=Lumify/CN=#361 Certificate Authority
+V	160410184549Z		02	unknown	/C=US/ST=Virginia/L=McLean/O=Lumify/CN=lumify-vm.lumify.io
+V	160410185045Z		03	unknown	/CN=Alice
+V	160410185430Z		04	unknown	/CN=Bob
+V	160410185502Z		05	unknown	/CN=Carlos
+V	160410185532Z		06	unknown	/CN=Diane

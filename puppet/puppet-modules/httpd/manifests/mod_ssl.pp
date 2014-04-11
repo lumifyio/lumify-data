@@ -43,6 +43,7 @@ class httpd::mod_ssl($httpdVersion='2.2.15', $tmpdir="/usr/local/src") {
   $httpd_ssl_listen_port = hiera('httpd_ssl_listen_port')
   $httpd_ssl_certificate_file = hiera('httpd_ssl_certificate_file')
   $httpd_ssl_certificate_key_file = hiera('httpd_ssl_certificate_key_file')
+  $httpd_ssl_ca_certificate_file = hiera('httpd_ssl_ca_certificate_file', '')
   $httpd_log_dir = hiera('httpd_log_dir', '/var/log/httpd')
   $httpd_ssl_document_root = hiera('httpd_ssl_document_root', '/var/www/html')
   $httpd_ssl_cgibin_root = hiera('httpd_ssl_cgibin_root', '/var/www/cgi-bin')
