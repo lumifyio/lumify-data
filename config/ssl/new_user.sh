@@ -19,6 +19,12 @@ openssl ca -config ${OPENSSL_CONF} -policy policy_anything \
 
 rm users/${cn_filename}.request.pem
 
+openssl pkcs12 -export -name ${cn_filename} \
+               -chain -CAfile lumify-ca.cert.pem -caname lumify-ca \
+               -inkey users/${cn_filename}.key.pem \
+               -in users/${cn_filename}.cert.pem \
+               -out users/${cn_filename}.pkcs12
+
 cert=$(sed -n '/-----BEGIN CERTIFICATE-----/,$p' users/${cn_filename}.cert.pem | awk '!/-----/ {printf "%s%s\n", (NR == 2 ? "" : " "), $1}')
 
 cat <<EOF > users/${cn_filename}.ldif

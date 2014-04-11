@@ -2,4 +2,4 @@ dn: dc=lumify,dc=io
 objectclass: dcObject
 objectclass: organization
 o: Lumify
-dc: lumify 
+dc: lumify

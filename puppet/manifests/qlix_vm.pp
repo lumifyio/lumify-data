@@ -4,17 +4,25 @@ include httpd
 include httpd::mod_jk
 include httpd::mod_ssl
 
-file { '/opt/lumify/config/lumify.cert.pem' :
+file { '/opt/lumify/config/lumify-vm.lumify.io.cert.pem' :
   ensure => file,
-  source => 'file:///vagrant/config/ssl/lumify.cert.pem',
+  source => 'file:///vagrant/config/ssl/lumify-vm.lumify.io.cert.pem',
   owner   => 'root',
   group   => 'root',
   mode    => 'u=rw,go=r',
 }
 
-file { '/opt/lumify/config/lumify.key.pem' :
+file { '/opt/lumify/config/lumify-vm.lumify.io.key.pem' :
   ensure => file,
-  source => 'file:///vagrant/config/ssl/lumify.key.pem',
+  source => 'file:///vagrant/config/ssl/lumify-vm.lumify.io.key.pem',
+  owner   => 'root',
+  group   => 'root',
+  mode    => 'u=rw,go=r',
+}
+
+file { '/opt/lumify/config/lumify-ca.cert.pem' :
+  ensure => file,
+  source => 'file:///vagrant/config/ssl/lumify-ca.cert.pem',
   owner   => 'root',
   group   => 'root',
   mode    => 'u=rw,go=r',
@@ -24,8 +32,9 @@ service { 'httpd' :
   ensure => running,
   enable => true,
   require => [ Package['httpd'],
-               File['/opt/lumify/config/lumify.cert.pem'],
-               File['/opt/lumify/config/lumify.key.pem']
+               File['/opt/lumify/config/lumify-vm.lumify.io.cert.pem'],
+               File['/opt/lumify/config/lumify-vm.lumify.io.key.pem'],
+               File['/opt/lumify/config/lumify-ca.cert.pem']
              ],
 }
 
@@ -61,18 +70,27 @@ package { 'openldap-clients' :
   ensure => present,
 }
 
-file { '/etc/openldap/certs/lumify.cert.pem' :
+file { '/etc/openldap/certs/lumify-vm.lumify.io.cert.pem' :
   ensure => file,
-  source => 'file:///vagrant/config/ssl/lumify.cert.pem',
+  source => 'file:///vagrant/config/ssl/lumify-vm.lumify.io.cert.pem',
   owner   => 'root',
   group   => 'root',
   mode    => 'u=rw,go=r',
   require => Package['openldap-servers'],
 }
 
-file { '/etc/openldap/certs/lumify.key.pem' :
+file { '/etc/openldap/certs/lumify-vm.lumify.io.key.pem' :
   ensure => file,
-  source => 'file:///vagrant/config/ssl/lumify.key.pem',
+  source => 'file:///vagrant/config/ssl/lumify-vm.lumify.io.key.pem',
+  owner   => 'root',
+  group   => 'root',
+  mode    => 'u=rw,go=r',
+  require => Package['openldap-servers'],
+}
+
+file { '/etc/openldap/certs/lumify-ca.cert.pem' :
+  ensure => file,
+  source => 'file:///vagrant/config/ssl/lumify-ca.cert.pem',
   owner   => 'root',
   group   => 'root',
   mode    => 'u=rw,go=r',
@@ -84,8 +102,9 @@ exec { 'enable-ldaps' :
   unless  => "/bin/grep -q 'SLAPD_LDAPS=yes' /etc/sysconfig/ldap",
   notify  => Service['slapd'],
   require => [ Package['openldap-servers'],
-               File['/etc/openldap/certs/lumify.cert.pem'],
-               File['/etc/openldap/certs/lumify.key.pem']
+               File['/etc/openldap/certs/lumify-vm.lumify.io.cert.pem'],
+               File['/etc/openldap/certs/lumify-vm.lumify.io.key.pem'],
+               File['/etc/openldap/certs/lumify-ca.cert.pem']
              ],
 }
 
@@ -137,7 +156,7 @@ service { 'slapd' :
 
 exec { 'configure-ldaps' :
   command => "/usr/bin/ldapmodify -x -D '${ldap_config_username}' -w '${ldap_config_password}' -v -f /vagrant/config/ssl/tls.ldif",
-  unless  => "/usr/bin/ldapsearch -x -D '${ldap_config_username}' -w '${ldap_config_password}' -LLL -b 'cn=config' '(objectclass=olcGlobal)' olcTLSCertificateFile | /bin/grep -q /etc/openldap/certs/lumify.cert.pem",
+  unless  => "/usr/bin/ldapsearch -x -D '${ldap_config_username}' -w '${ldap_config_password}' -LLL -b 'cn=config' '(objectclass=olcGlobal)' olcTLSCertificateFile | /bin/grep -q /etc/openldap/certs/lumify-vm.lumify.io.cert.pem",
   require => [ Package['openldap-clients'],
                Service['slapd'],
              ],
