@@ -5,15 +5,15 @@ import com.altamiracorp.lumify.core.ingest.graphProperty.GraphPropertyWorker;
 import com.altamiracorp.lumify.core.model.ontology.OntologyLumifyProperties;
 import com.altamiracorp.lumify.core.model.properties.LumifyProperties;
 import com.altamiracorp.lumify.core.model.properties.RawLumifyProperties;
-import com.altamiracorp.securegraph.EdgeBuilder;
-import com.altamiracorp.securegraph.Property;
-import com.altamiracorp.securegraph.Vertex;
-import com.altamiracorp.securegraph.VertexBuilder;
+import com.altamiracorp.securegraph.*;
 import com.altamiracorp.securegraph.property.StreamingPropertyValue;
 
 import java.io.InputStream;
+import java.util.List;
 import java.util.jar.JarEntry;
 import java.util.jar.JarInputStream;
+
+import static com.altamiracorp.securegraph.util.IterableUtils.toList;
 
 public class JarFileGraphPropertyWorker extends GraphPropertyWorker {
     @Override
@@ -21,10 +21,16 @@ public class JarFileGraphPropertyWorker extends GraphPropertyWorker {
         OntologyLumifyProperties.CONCEPT_TYPE.setProperty(data.getVertex(), Ontology.CONCEPT_TYPE_JAR_FILE, data.getProperty().getVisibility());
         RawLumifyProperties.MIME_TYPE.setProperty(data.getVertex(), "application/java-archive", data.getProperty().getVisibility());
 
+        List<Vertex> existingFileVerticies = toList(data.getVertex().getVertices(Direction.BOTH, Ontology.EDGE_LABEL_JAR_CONTAINS, getAuthorizations()));
+
         JarInputStream jarInputStream = new JarInputStream(in);
         JarEntry jarEntry;
         while ((jarEntry = jarInputStream.getNextJarEntry()) != null) {
             if (jarEntry.isDirectory()) {
+                continue;
+            }
+
+            if (fileAlreadyExists(existingFileVerticies, jarEntry.getName())) {
                 continue;
             }
 
@@ -39,6 +45,16 @@ public class JarFileGraphPropertyWorker extends GraphPropertyWorker {
 
             getWorkQueueRepository().pushGraphPropertyQueue(jarEntryVertex.getId(), RawLumifyProperties.RAW.getProperty(jarEntryVertex));
         }
+    }
+
+    private boolean fileAlreadyExists(List<Vertex> existingFileVerticies, String fileName) {
+        for (Vertex v : existingFileVerticies) {
+            String existingFileName = RawLumifyProperties.FILE_NAME.getPropertyValue(v);
+            if (existingFileName.equals(fileName)) {
+                return true;
+            }
+        }
+        return false;
     }
 
     private void createJarContainsFileEdge(Vertex jarEntryVertex, GraphPropertyWorkData data) {
