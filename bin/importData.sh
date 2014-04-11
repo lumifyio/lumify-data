@@ -24,11 +24,11 @@ fi
 
 java ${debug_option} \
 -Xmx512m \
--XX:MaxPermSize=128m \
 -Djava.awt.headless=true \
 -Dfile.encoding=UTF-8 \
 -Djava.library.path=$LD_LIBRARY_PATH \
 -classpath ${classpath} \
-com.altamiracorp.lumify.storm.StormEnterpriseRunner \
+com.altamiracorp.lumify.tools.Import \
 --datadir=${dir} \
---local
+--queuedups
+
