@@ -60,9 +60,9 @@ install osm2pgsql
                 wget
 
     cd ~
-    curl http://sourceforge.net/projects/boost/files/boost/1.53.0/boost_1_53_0.tar.gz/download -o boost_1_53_0.tar.gz
-    tar xzf boost_1_53_0.tar.gz
-    cd boost_1_53_0
+    curl -L http://sourceforge.net/projects/boost/files/boost/1.55.0/boost_1_55_0.tar.gz/download -o boost_1_55_0.tar.gz
+    tar xzf boost_1_55_0.tar.gz
+    cd boost_1_55_0
     ./bootstrap.sh
     ./bjam install
 
