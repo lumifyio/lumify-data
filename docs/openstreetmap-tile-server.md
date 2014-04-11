@@ -24,6 +24,9 @@ the database will be at least 1TB, initialize data files and update the start sc
     sed -i'' -e 's|PGDATA=.*|PGDATA=/home/postgres/data|' /etc/init.d/postgresql
     sed -i'' -e 's|PGLOG=.*|PGLOG=/home/postgres/pgstartup.log|' /etc/init.d/postgresql
     chkconfig postgresql on
+    
+    # TODO: disable selinux
+    
     service postgresql start
 
 
@@ -147,7 +150,7 @@ run the tile server
                                                       --cachedir=/home/maptiles/cache \
                                                       --fontsdir=/usr/local/lib/mapnik/fonts
 
-    # http://nic-hadoop-smmc02:9999/openlayers/index.html
+    # http://10.0.1.201:9999/openlayers/index.html
 
 
 import the planet
