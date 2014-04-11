@@ -113,11 +113,11 @@
         </dependency>
 
         <!-- graph property worker dependencies -->
-        <dependency>
-            <groupId>com.altamiracorp.lumify</groupId>
-            <artifactId>lumify-ontology-dev</artifactId>
-            <version>${lumify.public.version}</version>
-        </dependency>
+        <!--<dependency>-->
+            <!--<groupId>com.altamiracorp.lumify</groupId>-->
+            <!--<artifactId>lumify-ontology-dev</artifactId>-->
+            <!--<version>${lumify.public.version}</version>-->
+        <!--</dependency>-->
         <dependency>
             <groupId>com.altamiracorp.lumify</groupId>
             <artifactId>lumify-import</artifactId>

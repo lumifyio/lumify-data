@@ -18,6 +18,11 @@
             <artifactId>lumify-core</artifactId>
             <version>${project.version}</version>
         </dependency>
+        <dependency>
+            <groupId>bcel</groupId>
+            <artifactId>bcel</artifactId>
+            <version>5.1</version>
+        </dependency>
     </dependencies>
 
     <build>
