@@ -6,6 +6,7 @@ import com.altamiracorp.lumify.core.ingest.graphProperty.GraphPropertyWorkerPrep
 import com.altamiracorp.lumify.core.model.properties.RawLumifyProperties;
 import com.altamiracorp.lumify.core.util.LumifyLogger;
 import com.altamiracorp.lumify.core.util.LumifyLoggerFactory;
+import com.altamiracorp.lumify.core.util.RowKeyHelper;
 import com.altamiracorp.securegraph.Property;
 import com.altamiracorp.securegraph.Vertex;
 import com.altamiracorp.securegraph.mutation.ExistingElementMutation;
@@ -45,15 +46,16 @@ public class TesseractGraphPropertyWorker extends GraphPropertyWorker {
             return;
         }
 
+        String textPropertyKey = RowKeyHelper.buildMajor(TEXT_PROPERTY_KEY, data.getProperty().getName(), data.getProperty().getKey());
+
         InputStream textIn = new ByteArrayInputStream(ocrResults.getBytes());
         StreamingPropertyValue textValue = new StreamingPropertyValue(textIn, String.class);
 
         ExistingElementMutation<Vertex> m = data.getVertex().prepareMutation();
-        // TODO set the test property in metadata so we can handle video frames
-        RawLumifyProperties.TEXT.addPropertyValue(m, TEXT_PROPERTY_KEY, textValue, data.getVertex().getVisibility());
+        RawLumifyProperties.TEXT.addPropertyValue(m, textPropertyKey, textValue, data.getVertex().getVisibility());
         m.save();
         getGraph().flush();
-        getWorkQueueRepository().pushGraphPropertyQueue(data.getVertex().getId(), TEXT_PROPERTY_KEY, RawLumifyProperties.TEXT.getKey());
+        getWorkQueueRepository().pushGraphPropertyQueue(data.getVertex().getId(), textPropertyKey, RawLumifyProperties.TEXT.getKey());
     }
 
     private String extractTextFromImage(BufferedImage image) throws TesseractException {
