@@ -217,5 +217,6 @@
         <module>lumify-subrip-transcript</module>
         <module>lumify-clavin</module>
         <module>lumify-jetty-server-enterprise</module>
+        <module>lumify-java-code-ingest</module>
     </modules>
 </project>
