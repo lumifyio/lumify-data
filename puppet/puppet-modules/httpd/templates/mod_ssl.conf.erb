@@ -55,6 +55,6 @@ LoadModule ssl_module modules/mod_ssl.so
             downgrade-1.0 force-response-1.0
 
         CustomLog "<%= @httpd_log_dir %>/ssl_request_log" \
-            "%t %h %{SSL_PROTOCOL}x %{SSL_CIPHER}x \"%r\" %b"
+            "%t %h [%{SSL_CLIENT_S_DN}x] %{SSL_PROTOCOL}x %{SSL_CIPHER}x \"%r\" %b"
     </VirtualHost>
 </IfModule>
