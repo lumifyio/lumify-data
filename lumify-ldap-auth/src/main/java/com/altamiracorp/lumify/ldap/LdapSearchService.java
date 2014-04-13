@@ -56,6 +56,7 @@ public class LdapSearchService {
     }
 
     private void initializePool(String primaryLdapServerHostname, int primaryLdapServerPort, String failoverLdapServerHostname, int failoverLadpServerPort, int maxConnections, String bindDn, String bindPassword) throws LDAPException, GeneralSecurityException {
+        // TODO: allow for a single server
         String[] addresses = {primaryLdapServerHostname, failoverLdapServerHostname};
         int[] ports = {primaryLdapServerPort, failoverLadpServerPort};
 
@@ -68,6 +69,9 @@ public class LdapSearchService {
     }
 
     private SearchResultEntry search(String dn, byte[] certificate) throws LDAPException {
+        // TODO: support X509Certificate object
+        // TODO: populate groups
+
         if (pool == null) {
             throw new LumifyException("the LDAP connection pool in uninitialized");
         }
@@ -163,6 +167,7 @@ public class LdapSearchService {
         // required
         protected String searchBase;
         protected SearchScope searchScope;
+        // TODO: user and group search scopes
         protected List<String> attributeNames;
 
         // optional
