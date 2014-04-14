@@ -193,11 +193,11 @@
             <artifactId>lumify-subrip-transcript</artifactId>
             <version>${project.version}</version>
         </dependency>
-        <dependency>
-            <groupId>com.altamiracorp.lumify</groupId>
-            <artifactId>lumify-clavin</artifactId>
-            <version>${project.version}</version>
-        </dependency>
+        <!--<dependency>-->
+            <!--<groupId>com.altamiracorp.lumify</groupId>-->
+            <!--<artifactId>lumify-clavin</artifactId>-->
+            <!--<version>${project.version}</version>-->
+        <!--</dependency>-->
         <dependency>
             <groupId>com.altamiracorp.lumify</groupId>
             <artifactId>lumify-java-code-ingest</artifactId>
