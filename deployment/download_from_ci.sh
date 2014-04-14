@@ -39,6 +39,7 @@ _download lumify/lumify-version-inspector "*with-dependencies.jar" lumify-versio
 _download lumify/lumify-web-war           "*.war"                  lumify.war
 _download lumify/lumify-wikipedia-mr      "*with-dependencies.jar" lumify-wikipedia-mr.jar
 _download lumify/lumify-wikipedia-storm   "*with-dependencies.jar" lumify-wikipedia-storm.jar
+_download lumify/lumify-import            "*with-dependencies.jar" lumify-import.jar
 _download bigtable/bigtable-ui-war        "*.war"                  bigtable-ui.war
 _download jmxui/jmx-ui-webapp             "*.war"                  jmx-ui.war
 _download securegraph/securegraph-tools   "*with-dependencies.jar" securegraph-tools.jar
