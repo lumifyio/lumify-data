@@ -50,6 +50,9 @@ public class JarFileGraphPropertyWorker extends GraphPropertyWorker {
     private boolean fileAlreadyExists(List<Vertex> existingFileVerticies, String fileName) {
         for (Vertex v : existingFileVerticies) {
             String existingFileName = RawLumifyProperties.FILE_NAME.getPropertyValue(v);
+            if (existingFileName == null) {
+                return false;
+            }
             if (existingFileName.equals(fileName)) {
                 return true;
             }

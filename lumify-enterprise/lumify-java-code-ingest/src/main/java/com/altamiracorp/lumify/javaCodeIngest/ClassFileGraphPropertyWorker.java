@@ -5,10 +5,7 @@ import com.altamiracorp.lumify.core.ingest.graphProperty.GraphPropertyWorker;
 import com.altamiracorp.lumify.core.model.ontology.OntologyLumifyProperties;
 import com.altamiracorp.lumify.core.model.properties.LumifyProperties;
 import com.altamiracorp.lumify.core.model.properties.RawLumifyProperties;
-import com.altamiracorp.securegraph.Edge;
-import com.altamiracorp.securegraph.Property;
-import com.altamiracorp.securegraph.Vertex;
-import com.altamiracorp.securegraph.VertexBuilder;
+import com.altamiracorp.securegraph.*;
 import org.apache.bcel.classfile.ClassParser;
 import org.apache.bcel.classfile.Field;
 import org.apache.bcel.classfile.JavaClass;
@@ -17,10 +14,14 @@ import org.apache.bcel.generic.*;
 
 import java.io.InputStream;
 
+import static com.altamiracorp.lumify.core.util.CollectionUtil.singleOrDefault;
+
 public class ClassFileGraphPropertyWorker extends GraphPropertyWorker {
     @Override
     public void execute(InputStream in, GraphPropertyWorkData data) throws Exception {
         RawLumifyProperties.MIME_TYPE.setProperty(data.getVertex(), "application/x-java-class", data.getVertex().getVisibility());
+
+        Vertex jarVertex = singleOrDefault(data.getVertex().getVertices(Direction.BOTH, Ontology.EDGE_LABEL_JAR_CONTAINS, getAuthorizations()), null);
 
         String fileName = RawLumifyProperties.FILE_NAME.getPropertyValue(data.getVertex());
 
@@ -28,6 +29,10 @@ public class ClassFileGraphPropertyWorker extends GraphPropertyWorker {
         ConstantPoolGen constants = new ConstantPoolGen(javaClass.getConstantPool());
 
         Vertex classVertex = createClassVertex(javaClass, data);
+        if (jarVertex != null) {
+            getGraph().addEdge(jarVertex, classVertex, Ontology.EDGE_LABEL_JAR_CONTAINS, data.getProperty().getVisibility(), getAuthorizations());
+        }
+
         for (Method method : javaClass.getMethods()) {
             createMethodVertex(method, classVertex, javaClass, constants, data);
         }
