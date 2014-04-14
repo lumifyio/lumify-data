@@ -38,14 +38,27 @@ public class ClassFileGraphPropertyWorker extends GraphPropertyWorker {
     private Vertex createClassVertex(JavaClass javaClass, GraphPropertyWorkData data) {
         String classId = JavaCodeIngestIdGenerator.createClassId(javaClass);
         VertexBuilder vertexBuilder = getGraph().prepareVertex(classId, data.getVertex().getVisibility(), getAuthorizations());
-        LumifyProperties.TITLE.setProperty(vertexBuilder, javaClass.getClassName(), data.getProperty().getVisibility());
-        OntologyLumifyProperties.CONCEPT_TYPE.setProperty(vertexBuilder, Ontology.CONCEPT_TYPE_CLASS, data.getProperty().getVisibility());
+        LumifyProperties.TITLE.setProperty(vertexBuilder, classNameToTitle(javaClass.getClassName()), data.getProperty().getVisibility());
+        Ontology.CLASS_NAME.setProperty(vertexBuilder, javaClass.getClassName(), data.getProperty().getVisibility());
+        if (javaClass.isInterface()) {
+            OntologyLumifyProperties.CONCEPT_TYPE.setProperty(vertexBuilder, Ontology.CONCEPT_TYPE_INTERFACE, data.getProperty().getVisibility());
+        } else {
+            OntologyLumifyProperties.CONCEPT_TYPE.setProperty(vertexBuilder, Ontology.CONCEPT_TYPE_CLASS, data.getProperty().getVisibility());
+        }
         Vertex v = vertexBuilder.save();
 
         String containsClassEdgeId = JavaCodeIngestIdGenerator.createFileContainsClassEdgeId(data.getVertex(), v);
         getGraph().addEdge(containsClassEdgeId, data.getVertex(), v, Ontology.EDGE_LABEL_CLASS_FILE_CONTAINS_CLASS, data.getProperty().getVisibility(), getAuthorizations());
 
         return v;
+    }
+
+    private String classNameToTitle(String className) {
+        int i = className.lastIndexOf('.');
+        if (i < 0) {
+            return className;
+        }
+        return className.substring(i + 1);
     }
 
     private void createMethodVertex(Method method, Vertex classVertex, JavaClass javaClass, ConstantPoolGen constants, GraphPropertyWorkData data) {

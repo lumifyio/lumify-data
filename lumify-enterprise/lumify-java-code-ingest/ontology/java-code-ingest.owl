@@ -93,6 +93,27 @@
     <!-- 
     ///////////////////////////////////////////////////////////////////////////////////////
     //
+    // Data properties
+    //
+    ///////////////////////////////////////////////////////////////////////////////////////
+     -->
+
+    
+
+
+    <!-- http://lumify.io/java-code-ingest#className -->
+
+    <owl:DatatypeProperty rdf:about="http://lumify.io/java-code-ingest#className">
+        <rdfs:label xml:lang="en">Class Name</rdfs:label>
+        <rdfs:domain rdf:resource="http://lumify.io/java-code-ingest#code"/>
+        <rdfs:range rdf:resource="&xsd;string"/>
+    </owl:DatatypeProperty>
+    
+
+
+    <!-- 
+    ///////////////////////////////////////////////////////////////////////////////////////
+    //
     // Classes
     //
     ///////////////////////////////////////////////////////////////////////////////////////
@@ -106,6 +127,7 @@
     <owl:Class rdf:about="http://lumify.io/java-code-ingest#class">
         <rdfs:label xml:lang="en">Class</rdfs:label>
         <rdfs:subClassOf rdf:resource="http://lumify.io/java-code-ingest#code"/>
+        <lumify:glyphIconFileName xml:lang="en">java-class.png</lumify:glyphIconFileName>
     </owl:Class>
     
 
@@ -133,6 +155,7 @@
     <owl:Class rdf:about="http://lumify.io/java-code-ingest#field">
         <rdfs:label xml:lang="en">Field</rdfs:label>
         <rdfs:subClassOf rdf:resource="http://lumify.io/java-code-ingest#code"/>
+        <lumify:glyphIconFileName xml:lang="en">java-field.png</lumify:glyphIconFileName>
     </owl:Class>
     
 
@@ -142,6 +165,16 @@
     <owl:Class rdf:about="http://lumify.io/java-code-ingest#file">
         <rdfs:label xml:lang="en">File</rdfs:label>
         <rdfs:subClassOf rdf:resource="http://lumify.io/java-code-ingest#code"/>
+    </owl:Class>
+    
+
+
+    <!-- http://lumify.io/java-code-ingest#interface -->
+
+    <owl:Class rdf:about="http://lumify.io/java-code-ingest#interface">
+        <rdfs:label xml:lang="en">Interface</rdfs:label>
+        <rdfs:subClassOf rdf:resource="http://lumify.io/java-code-ingest#code"/>
+        <lumify:glyphIconFileName xml:lang="en">java-interface.png</lumify:glyphIconFileName>
     </owl:Class>
     
 
@@ -161,6 +194,7 @@
     <owl:Class rdf:about="http://lumify.io/java-code-ingest#method">
         <rdfs:label xml:lang="en">Method</rdfs:label>
         <rdfs:subClassOf rdf:resource="http://lumify.io/java-code-ingest#code"/>
+        <lumify:glyphIconFileName xml:lang="en">java-method.png</lumify:glyphIconFileName>
     </owl:Class>
 </rdf:RDF>
 
