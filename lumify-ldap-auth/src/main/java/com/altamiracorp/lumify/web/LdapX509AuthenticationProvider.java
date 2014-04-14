@@ -3,12 +3,12 @@ package com.altamiracorp.lumify.web;
 import com.altamiracorp.lumify.core.model.user.UserRepository;
 import com.altamiracorp.lumify.core.util.LumifyLogger;
 import com.altamiracorp.lumify.core.util.LumifyLoggerFactory;
+import com.altamiracorp.lumify.ldap.LdapSearchService;
 import com.altamiracorp.miniweb.HandlerChain;
 import com.altamiracorp.securegraph.Graph;
 import com.google.inject.Inject;
 import org.apache.commons.codec.binary.Base64;
 
-import javax.naming.InvalidNameException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.ByteArrayInputStream;
@@ -22,10 +22,12 @@ public class LdapX509AuthenticationProvider extends X509AuthenticationProvider {
     public static final String CLIENT_CERT_HEADER = "SSL_CLIENT_CERT";
 
     private static final LumifyLogger LOGGER = LumifyLoggerFactory.getLogger(LdapX509AuthenticationProvider.class);
+    private LdapSearchService ldapSearchService;
 
     @Inject
-    public LdapX509AuthenticationProvider(final UserRepository userRepository, final Graph graph) {
+    public LdapX509AuthenticationProvider(final UserRepository userRepository, final Graph graph, final LdapSearchService ldapSearchService) {
         super(userRepository, graph);
+        this.ldapSearchService = ldapSearchService;
     }
 
     @Override
