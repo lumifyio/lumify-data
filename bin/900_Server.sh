@@ -28,5 +28,5 @@ java ${debug_option} \
 -Xmx1024M \
 com.altamiracorp.lumify.web.JettyWebServer \
 --port=8080 \
---keyStorePath=${DIR}/../config/ssl/lumify.jks \
+--keyStorePath=${DIR}/../config/ssl/lumify-vm.lumify.io.jks \
 --keyStorePassword=password

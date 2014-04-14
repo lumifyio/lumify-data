@@ -1,14 +1,14 @@
 dn: cn=config
 changetype: modify
 replace: olcTLSCACertificateFile
-olcTLSCACertificateFile: /etc/openldap/certs/lumify.cert.pem
+olcTLSCACertificateFile: /etc/openldap/certs/lumify-ca.cert.pem
 
 dn: cn=config
 changetype: modify
 replace: olcTLSCertificateFile
-olcTLSCertificateFile: /etc/openldap/certs/lumify.cert.pem
+olcTLSCertificateFile: /etc/openldap/certs/lumify-vm.lumify.io.cert.pem
 
 dn: cn=config
 changetype: modify
 replace: olcTLSCertificateKeyFile
-olcTLSCertificateKeyFile: /etc/openldap/certs/lumify.key.pem
+olcTLSCertificateKeyFile: /etc/openldap/certs/lumify-vm.lumify.io.key.pem

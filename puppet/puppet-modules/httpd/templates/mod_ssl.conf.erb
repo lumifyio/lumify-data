@@ -29,6 +29,16 @@ LoadModule ssl_module modules/mod_ssl.so
         SSLCertificateFile "<%= @httpd_ssl_certificate_file %>"
         SSLCertificateKeyFile "<%= @httpd_ssl_certificate_key_file %>"
 
+        <% if @httpd_ssl_ca_certificate_file != '' -%>
+        SSLCACertificateFile "<%= @httpd_ssl_ca_certificate_file %>"
+        SSLVerifyClient require
+        RequestHeader set SSL_CLIENT_S_DN "%{SSL_CLIENT_S_DN}s"
+        RequestHeader set SSL_CLIENT_CERT "%{SSL_CLIENT_CERT}s"
+        <% else -%>
+        # SSLCACertificateFile, SSLVerifyClient, and mod_ssl RequestHeaders
+        # were not configured because no value for 'httpd_ssl_ca_certificate_file' was provided via Hiera
+        <% end -%>
+
         <FilesMatch "\.(cgi|shtml|phtml|php)$">
             SSLOptions +StdEnvVars
         </FilesMatch>
@@ -45,6 +55,6 @@ LoadModule ssl_module modules/mod_ssl.so
             downgrade-1.0 force-response-1.0
 
         CustomLog "<%= @httpd_log_dir %>/ssl_request_log" \
-            "%t %h %{SSL_PROTOCOL}x %{SSL_CIPHER}x \"%r\" %b"
+            "%t %h [%{SSL_CLIENT_S_DN}x] %{SSL_PROTOCOL}x %{SSL_CIPHER}x \"%r\" %b"
     </VirtualHost>
 </IfModule>
