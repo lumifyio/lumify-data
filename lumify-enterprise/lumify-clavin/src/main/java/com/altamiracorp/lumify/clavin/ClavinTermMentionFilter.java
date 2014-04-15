@@ -24,6 +24,7 @@ import java.util.*;
 import static com.altamiracorp.lumify.core.model.properties.EntityLumifyProperties.GEO_LOCATION;
 import static com.altamiracorp.lumify.core.model.properties.EntityLumifyProperties.SOURCE;
 import static com.altamiracorp.securegraph.util.IterableUtils.count;
+import static com.google.common.base.Preconditions.checkNotNull;
 
 /**
  * This TermResolutionWorker uses the CLAVIN processor to refine
@@ -123,6 +124,7 @@ public class ClavinTermMentionFilter extends TermMentionFilter {
 
         Set<String> tCon = new HashSet<String>();
         Concept rootConcept = ontologyRepository.getConceptByIRI(TARGET_ONTOLOGY_URI);
+        checkNotNull(rootConcept, "Could not find concept " + TARGET_ONTOLOGY_URI);
         List<Concept> concepts = ontologyRepository.getAllLeafNodesByConcept(rootConcept);
         for (Concept con : concepts) {
             tCon.add(con.getTitle());
