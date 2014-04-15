@@ -14,11 +14,13 @@ user-repository=com.altamiracorp.lumify.core.model.user.SecureGraphUserRepositor
 workspace-repository=com.altamiracorp.lumify.core.model.workspace.SecureGraphWorkspaceRepository
 authorization-repository=com.altamiracorp.lumify.core.model.user.AccumuloAuthorizationRepository
 ontology-repository=com.altamiracorp.lumify.core.model.ontology.SecureGraphOntologyRepository
+audit-repository=com.altamiracorp.lumify.core.model.audit.SecureGraphAuditRepository
 
 # Application-wide
 hadoop.url=hdfs://<%= @hadoop_masters[0] %>:8020
 zookeeper.serverNames=<%= @zookeeper_nodes.values.collect {|node| node.split(':')[0]}.join(',') %>
 fs.defaultFS=hdfs://<%= @hadoop_masters[0] %>:8020
+hdfs-libcache-directory=hdfs://<%= @hadoop_masters[0] %>/lumify/libcache
 
 # Accumulo specific
 bigtable.accumulo.instanceName=lumify
