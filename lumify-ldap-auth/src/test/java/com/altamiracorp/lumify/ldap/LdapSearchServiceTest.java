@@ -14,7 +14,7 @@ public class LdapSearchServiceTest {
 
     @Test
     public void searchForAliceWithMatchingCert() throws GeneralSecurityException, LDAPException {
-        LdapSearchService service = new LdapSearchService(getServerConfig(), getSearchConfig());
+        LdapSearchService service = new LdapSearchServiceImpl(getServerConfig(), getSearchConfig());
         SearchResultEntry result = service.search("cn=Alice", getAliceCert());
 
         assertNotNull(result);
@@ -28,7 +28,7 @@ public class LdapSearchServiceTest {
 
     @Test
     public void searchForBob() throws GeneralSecurityException, LDAPException {
-        LdapSearchService service = new LdapSearchService(getServerConfig(), getSearchConfig());
+        LdapSearchService service = new LdapSearchServiceImpl(getServerConfig(), getSearchConfig());
         SearchResultEntry result = service.search("cn=Bob");
 
         assertNotNull(result);

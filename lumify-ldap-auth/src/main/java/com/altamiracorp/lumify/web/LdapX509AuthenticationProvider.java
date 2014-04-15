@@ -7,6 +7,7 @@ import com.altamiracorp.lumify.ldap.LdapSearchService;
 import com.altamiracorp.miniweb.HandlerChain;
 import com.altamiracorp.securegraph.Graph;
 import com.google.inject.Inject;
+import com.unboundid.ldap.sdk.SearchResultEntry;
 import org.apache.commons.codec.binary.Base64;
 
 import javax.servlet.http.HttpServletRequest;
@@ -51,6 +52,9 @@ public class LdapX509AuthenticationProvider extends X509AuthenticationProvider {
             respondWithAuthenticationFailure(response);
             return;
         }
+
+        SearchResultEntry searchResultEntry = ldapSearchService.search(getClientDN(request), cert);
+        LOGGER.info("searchResultEntry = " + searchResultEntry.toLDIFString());
 
         /*
         String username = getUsername(cert);
