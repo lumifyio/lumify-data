@@ -3,11 +3,41 @@ class env::common::config {
     ensure => directory,
   }
 
-  # TODO: change the permissions and make it more restrictive. Possible create a lumify group and add all the users to it
+  group { 'lumify' :
+    ensure => present,
+    name => 'lumify',
+  }
+  exec { 'group-lumify-add-jetty' :
+    command => '/usr/sbin/usermod -a -G lumify jetty',
+    returns => [ 0, 6 ],
+    require => [ Group['lumify'] ],
+  }
+  exec { 'group-lumify-add-tomcat' :
+    command => '/usr/sbin/usermod -a -G lumify tomcat',
+    returns => [ 0, 6 ],
+    require => [ Group['lumify'] ],
+  }
+  exec { 'group-lumify-add-storm' :
+    command => '/usr/sbin/usermod -a -G lumify storm',
+    returns => [ 0, 6 ],
+    require => [ Group['lumify'] ],
+  }
+  exec { 'group-lumify-add-hdfs' :
+    command => '/usr/sbin/usermod -a -G lumify hdfs',
+    returns => [ 0, 6 ],
+    require => [ Group['lumify'] ],
+  }
+  exec { 'group-lumify-add-mapred' :
+    command => '/usr/sbin/usermod -a -G lumify mapred',
+    returns => [ 0, 6 ],
+    require => [ Group['lumify'] ],
+  }
+
   file { '/opt/lumify/logs' :
     ensure => directory,
-    mode => 'u=rwx,g=rwx,o=rwx',
-    require => [ File['/opt/lumify'] ],
+    group => 'lumify',
+    mode => 'u=rwx,g=rwxs,o=rx',
+    require => [ File['/opt/lumify'], Group['lumify'] ],
   }
 
   $syslog_server = hiera('syslog_server', '')
