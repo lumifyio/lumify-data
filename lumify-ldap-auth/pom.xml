@@ -21,7 +21,6 @@
 
     <properties>
         <!-- Dependency Versions -->
-        <lumify.version>0.2.0-SNAPSHOT</lumify.version>
         <unboundid.ldapsdk.version>2.3.6</unboundid.ldapsdk.version>
         <javax.servlet.api.version>3.0.1</javax.servlet.api.version>
     </properties>
@@ -30,7 +29,8 @@
         <dependency>
             <groupId>com.altamiracorp.lumify</groupId>
             <artifactId>lumify-web</artifactId>
-            <version>${lumify.version}</version>
+            <version>${project.version}</version>
+            <scope>provided</scope>
         </dependency>
         <dependency>
             <groupId>com.unboundid</groupId>
@@ -44,6 +44,32 @@
             <version>${javax.servlet.api.version}</version>
         </dependency>
     </dependencies>
+
+    <profiles>
+        <profile>
+            <id>uber-jar</id>
+            <build>
+                <plugins>
+                    <plugin>
+                        <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-assembly-plugin</artifactId>
+                        <configuration>
+                            <descriptor>src/main/assembly/descriptor.xml</descriptor>
+                        </configuration>
+                        <executions>
+                            <execution>
+                                <id>make-assembly</id>
+                                <phase>package</phase>
+                                <goals>
+                                    <goal>single</goal>
+                                </goals>
+                            </execution>
+                        </executions>
+                    </plugin>
+                </plugins>
+            </build>
+        </profile>
+    </profiles>
 
     <build>
         <plugins>
