@@ -5,6 +5,7 @@ import com.altamiracorp.lumify.core.config.Configuration;
 import com.altamiracorp.lumify.core.exception.LumifyException;
 import com.altamiracorp.lumify.ldap.LdapSearchConfiguration;
 import com.altamiracorp.lumify.ldap.LdapSearchService;
+import com.altamiracorp.lumify.ldap.LdapSearchServiceImpl;
 import com.altamiracorp.lumify.ldap.LdapServerConfiguration;
 import com.google.inject.Binder;
 import com.google.inject.Provider;
@@ -24,7 +25,7 @@ public class LdapX509AuthenticationProviderBootstrapBindingProvider implements B
                         configuration.setConfigurables(ldapSearchConfiguration, "ldap");
 
                         try {
-                            return new LdapSearchService(ldapServerConfiguration, ldapSearchConfiguration);
+                            return new LdapSearchServiceImpl(ldapServerConfiguration, ldapSearchConfiguration);
                         } catch (Exception e) {
                             throw new LumifyException("failed to configure ldap search service", e);
                         }
