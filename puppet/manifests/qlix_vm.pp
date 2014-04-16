@@ -48,18 +48,49 @@ class { 'java::tar' :
 $tomcat_java_home = '/opt/jdk1.7.0_51'
 include tomcat::worker
 
-class { 'mysql::server' :
-  # remove_default_accounts => true,
-  restart => true,
-  override_options => { 'mysqld' => { 'bind-address' => '0.0.0.0' } }
+$mysql_databases = {
+  'lumify' => {
+    ensure  => 'present',
+    charset => 'utf8',
+  },
 }
 
-mysql::db { 'lumify' :
-  user     => 'lumify',
-  password => 'lumify',
-  host     => '%',
-  grant    => ['ALL'],
-  require  => Class[mysql::server],
+$mysql_password = '*2AD2DCE7BF4A4A7CC54AA964F76F920772B4947C'
+$mysql_users = {
+  'lumify@localhost' => {
+    ensure         => 'present',
+    password_hash  => $mysql_password,
+  },
+  'lumify@%' => {
+    ensure         => 'present',
+    password_hash  => $mysql_password,
+  },
+}
+
+$mysql_grants = {
+  'lumify@localhost/lumify.*' => {
+    ensure     => 'present',
+    options    => ['GRANT'],
+    privileges => ['ALL'],
+    table      => 'lumify.*',
+    user       => 'lumify@localhost',
+  },
+  'lumify@%/lumify.*' => {
+    ensure     => 'present',
+    options    => ['GRANT'],
+    privileges => ['ALL'],
+    table      => 'lumify.*',
+    user       => 'lumify@%',
+  },
+}
+
+class { 'mysql::server' :
+  remove_default_accounts => true,
+  restart => true,
+  override_options => { 'mysqld' => { 'bind-address' => '0.0.0.0' } },
+  databases => $myql_databases,
+  users => $mysql_users,
+  grants => $mysql_grants,
 }
 
 package { 'openldap-servers' :
