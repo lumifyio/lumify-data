@@ -19,6 +19,9 @@ term-mention-repository=com.altamiracorp.lumify.core.model.termMention.BigTableT
 detected-object-repository=com.altamiracorp.lumify.core.model.detectedObjects.BigTableDetectedObjectRepository
 artifact-thumbnail-repository=com.altamiracorp.lumify.core.model.artifactThumbnails.BigTableArtifactThumbnailRepository
 
+# Ontology
+iri.entityImage=http://lumify.io/dev#image
+
 # Application-wide
 hadoop.url=hdfs://<%= @hadoop_masters[0] %>:8020
 zookeeper.serverNames=<%= @zookeeper_nodes.values.collect {|node| node.split(':')[0]}.join(',') %>
