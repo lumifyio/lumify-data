@@ -44,7 +44,7 @@ public class LdapX509AuthenticationProvider extends X509AuthenticationProvider {
     protected X509Certificate extractCertificate(HttpServletRequest request) {
         X509Certificate cert = super.extractCertificate(request);
         if (cert != null) {
-            LOGGER.info("using cert from " + CERTIFICATE_REQUEST_ATTRIBUTE + " request attribute");
+            LOGGER.info("using cert from %s request attribute", CERTIFICATE_REQUEST_ATTRIBUTE);
         } else {
             try {
                 cert = getHeaderClientCert(request);
@@ -52,31 +52,35 @@ public class LdapX509AuthenticationProvider extends X509AuthenticationProvider {
                 throw new LumifyException("failed to extract cert from request header", e);
             }
             if (cert != null) {
-                LOGGER.info("using cert from " + CLIENT_CERT_HEADER + " request header");
-                LOGGER.info("request header client DN is " + getHeaderClientDN(request));
+                LOGGER.info("using cert from %s request header", CLIENT_CERT_HEADER);
+                LOGGER.info("client dn from %s request header is %s", CLIENT_DN_HEADER, getHeaderClientDN(request));
             } else {
-                LOGGER.error("no certificate found in request attribute or header");
+                LOGGER.error("no certificate found in request attribute %s or request header %s", CERTIFICATE_REQUEST_ATTRIBUTE, CLIENT_CERT_HEADER);
                 return null;
             }
         }
         return cert;
     }
 
+    @Override
     protected User getUser(HttpServletRequest request, X509Certificate cert) {
-        SearchResultEntry searchResultEntry = ldapSearchService.search(getHeaderClientDN(request), cert);
-        LOGGER.info("searchResultEntry = " + searchResultEntry.toLDIFString());
+        // TODO: use DN from cert because we might be using attributes and not headers
+        String dn = getHeaderClientDN(request);
+
+        SearchResultEntry searchResultEntry = ldapSearchService.search(dn, cert);
+        LOGGER.info("searchResultEntry is\n" + searchResultEntry.toLDIFString());
 
         String username;
-        if (this.usernameAttribute.toLowerCase().equals("dn")) {
-            username = super.getUsername(cert);
-        } else {
+        if (this.usernameAttribute != null) {
             username = searchResultEntry.getAttributeValue(this.usernameAttribute);
+        } else {
+            username = super.getUsername(cert);
         }
 
         String displayName = searchResultEntry.getAttributeValue(this.displayNameAttribute);
 
         User user = getUserRepository().findOrAddUser(username, displayName, X509_USER_PASSWORD, new String[0]);
-        LOGGER.info("user is " + user.toString());
+        LOGGER.info("user is %s", user.toString());
         return user;
     }
 
