@@ -40,14 +40,6 @@
     </licenses>
 
     <profiles>
-        <!-- Use this profile to build when deploying to a clustered environment. -->
-        <profile>
-            <id>cluster</id>
-            <properties>
-                <cluster.dependency.scope>provided</cluster.dependency.scope>
-            </properties>
-        </profile>
-
         <!-- Builds the Storm Uber-JAR -->
         <profile>
             <id>uber-jar</id>
@@ -102,11 +94,13 @@
             <groupId>com.altamiracorp.lumify</groupId>
             <artifactId>lumify-core</artifactId>
             <version>${lumify.version}</version>
+            <scope>provided</scope>
         </dependency>
         <dependency>
             <groupId>com.altamiracorp.lumify</groupId>
             <artifactId>lumify-storm</artifactId>
             <version>${lumify.version}</version>
+            <scope>provided</scope>
         </dependency>
 
         <dependency>
