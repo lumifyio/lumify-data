@@ -29,18 +29,19 @@
             <groupId>com.altamiracorp.lumify</groupId>
             <artifactId>lumify-storm</artifactId>
             <version>${lumify.version}</version>
+            <scope>provided</scope>
         </dependency>
         <dependency>
             <groupId>com.google.guava</groupId>
             <artifactId>guava</artifactId>
             <version>${storm.guava.version}</version>
-            <scope>${cluster.dependency.scope}</scope>
+            <scope>provided</scope>
         </dependency>
         <dependency>
             <groupId>log4j</groupId>
             <artifactId>log4j</artifactId>
             <version>${storm.log4j.version}</version>
-            <scope>${cluster.dependency.scope}</scope>
+            <scope>provided</scope>
         </dependency>
         <dependency>
             <groupId>org.apache.httpcomponents</groupId>
@@ -50,18 +51,19 @@
             <groupId>org.slf4j</groupId>
             <artifactId>slf4j-api</artifactId>
             <version>${storm.slf4j.version}</version>
+            <scope>provided</scope>
         </dependency>
         <dependency>
             <groupId>org.slf4j</groupId>
             <artifactId>slf4j-log4j12</artifactId>
             <version>${storm.slf4j.version}</version>
-            <scope>${cluster.dependency.scope}</scope>
+            <scope>provided</scope>
         </dependency>
         <dependency>
             <groupId>storm</groupId>
             <artifactId>storm</artifactId>
             <version>${storm.version}</version>
-            <scope>${cluster.dependency.scope}</scope>
+            <scope>provided</scope>
             <exclusions>
                 <exclusion>
                     <groupId>commons-io</groupId>
@@ -75,11 +77,6 @@
             <groupId>org.facebook4j</groupId>
             <artifactId>facebook4j-core</artifactId>
             <version>[2.0,)</version>
-        </dependency>
-        <dependency>
-            <groupId>com.altamiracorp.lumify</groupId>
-            <artifactId>lumify-storm</artifactId>
-            <version>${project.version}</version>
         </dependency>
     </dependencies>
 
@@ -113,14 +110,6 @@
     </build>
 
     <profiles>
-        <!-- Use this profile to build when deploying to a clustered environment. -->
-        <profile>
-            <id>cluster</id>
-            <properties>
-                <cluster.dependency.scope>provided</cluster.dependency.scope>
-            </properties>
-        </profile>
-
         <!-- Builds the Storm Uber-JAR -->
         <profile>
             <id>uber-jar</id>
