@@ -22,9 +22,15 @@ class env::cluster::node {
     require => File['/etc/yum.repos.d/lumify.repo'],
   }
 
-  # install sox after lumify-ffmpeg because of conflicting libs
+  # install sox last because of conflicting libs
   package { 'sox' :
     ensure => present,
-    require => Package['lumify-ffmpeg'],
+    require => Package[ 'lumify-ffmpeg',
+                        'lumify-ccextractor',
+                        'lumify-tesseract',
+                        'lumify-tesseract-eng',
+                        'lumify-opencv',
+                        'lumify-pocketsphinx',
+                      ],
   }
 }
