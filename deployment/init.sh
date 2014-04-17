@@ -85,6 +85,7 @@ function stage_stormmaster {
   heading 'stage artifacts on the storm nimbus server'
   local stormmaster_host=$(awk '/stormmaster/ {print $1}' ${HOSTS_FILE})
   scp ${SSH_OPTS} *.jar \
+                  setup_libcache.sh \
                   ${stormmaster_host}:
 }
 

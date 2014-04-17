@@ -127,8 +127,9 @@ case ${component} in
     bundle_init
     bundle_puppet
     bundle_config
-    FILE_LIST="${FILE_LIST} setup_import.sh"
     FILE_LIST="${FILE_LIST} download_from_ci.sh"
+    FILE_LIST="${FILE_LIST} setup_libcache.sh"
+    FILE_LIST="${FILE_LIST} setup_import.sh"
     #bundle_war
     #bundle_storm
     ;;
