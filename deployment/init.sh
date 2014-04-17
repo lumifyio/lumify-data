@@ -1,6 +1,7 @@
 #!/bin/bash -eu
 
-PUPPETLABS_RPM_URL='http://yum.puppetlabs.com/el/6/products/i386/puppetlabs-release-6-7.noarch.rpm'
+PUPPETLABS_RPM_NAME='puppetlabs-release-6-7.noarch'
+PUPPETLABS_RPM_URL="http://yum.puppetlabs.com/el/6/products/i386/${PUPPETLABS_RPM_NAME}.rpm"
 SSH_OPTS='-o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -o LogLevel=QUIET'
 
 HOSTS_FILE=$1
@@ -24,13 +25,13 @@ function setup_local {
   # TODO: reboot?
 
   heading 'add the PuppetLabs yum repo, install and enable puppet'
-  rpm -ivh ${PUPPETLABS_RPM_URL}
+  rpm -q ${PUPPETLABS_RPM_NAME} || rpm -ivh ${PUPPETLABS_RPM_URL}
   yum -y install puppet-server
   chkconfig puppetmaster on
   chkconfig puppet on
 
   heading 'setup SSL certs'
-  puppet cert generate $(hostname) --dns_alt_names=puppet
+  [ -f /var/lib/puppet/ssl/certs/$(hostname).pem ] || puppet cert generate $(hostname) --dns_alt_names=puppet
   awk -v localhost=$(hostname) '$2!=localhost {print $2}' ${HOSTS_FILE} > /etc/puppet/autosign.conf
 
   heading 'insert firewall rules for the puppermaster and tinyproxy services'
@@ -49,8 +50,8 @@ function setup_local {
 EO_PUPPET_CONF
 
   heading 'install PuppetLabs modules'
-  puppet module install puppetlabs/firewall --version 0.4.2
-  puppet module install puppetlabs/ntp
+  puppet module list | grep -q puppetlabs-firewall || puppet module install puppetlabs-firewall --version 0.4.2
+  puppet module list | grep -q puppetlabs-ntp || puppet module install puppetlabs-ntp
 
   heading 'install our configuration and modules, start the puppetmaster service'
   ./update.sh start
@@ -122,7 +123,7 @@ net.ipv6.conf.all.disable_ipv6 = 1
 EO_SYSCTL_CONF
 
   heading "${other_host}: add the PuppetLabs yum repo, install and enable puppet"
-  ssh ${SSH_OPTS} ${other_host} http_proxy=http://$(hostname):8080 rpm -ivh ${PUPPETLABS_RPM_URL}
+  ssh ${SSH_OPTS} ${other_host} "rpm -q ${PUPPETLABS_RPM_NAME} || http_proxy=http://$(hostname):8080 rpm -ivh ${PUPPETLABS_RPM_URL}"
   ssh ${SSH_OPTS} ${other_host} yum -y install puppet
   ssh ${SSH_OPTS} ${other_host} chkconfig puppet on
 
