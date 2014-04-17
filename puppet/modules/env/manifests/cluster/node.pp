@@ -25,12 +25,12 @@ class env::cluster::node {
   # install sox last because of conflicting libs
   package { 'sox' :
     ensure => present,
-    require => Package[ 'lumify-ffmpeg',
-                        'lumify-ccextractor',
-                        'lumify-tesseract',
-                        'lumify-tesseract-eng',
-                        'lumify-opencv',
-                        'lumify-pocketsphinx',
-                      ],
+    require => [ Package['lumify-ffmpeg'],
+                 Package['lumify-ccextractor'],
+                 Package['lumify-tesseract'],
+                 Package['lumify-tesseract-eng'],
+                 Package['lumify-opencv'],
+                 Package['lumify-pocketsphinx']
+               ],
   }
 }
