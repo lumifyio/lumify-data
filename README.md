@@ -23,7 +23,7 @@ twitter.query= # Keywords to search Twitter for, e.g. twitter
 	
 3. Clone the repository from github using either of the links from the [main page](https://github.com/altamiracorp/lumify-twitter)
 4. cd into your ```lumify-twitter``` directory
-5. <a name="step-5"/>```mvn clean package -Puber-jar```
+5. <a name="step-5"/>```mvn clean package```
 6. ```cd target```
 7. Copy the jar file to location of where you are running your Storm Topology for Lumify.
    * In the [Lumify Pre-Built VM](https://github.com/altamiracorp/lumify/blob/master/docs/PREBUILT_VM.md), please run the following command ```/opt/storm/bin/storm jar [location of jar file] com.altamiracorp.lumify.twitter.storm.StormRunner```
