@@ -35,8 +35,8 @@
     </appender>
     <% end -%>
 
-    <logger name="com.altamiracorp.lumify" additivity="false">
-        <level value="INFO" />
+    <logger name="com.altamiracorp" additivity="false">
+        <level value="DEBUG" />
         <appender-ref ref="log" />
         <% if @syslog_server != '' -%>
         <appender-ref ref="syslog" />
