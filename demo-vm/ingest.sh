@@ -2,7 +2,7 @@
 
 tgz_file=$1
 
-cd /vagrant && mvn package -P uber-jar,web-war -DskipTests 2>&1 | tee /vagrant/mvn.out
+cd /vagrant && mvn package -P web-war -DskipTests 2>&1 | tee /vagrant/mvn.out
 
 /opt/lumify/format.sh
 
