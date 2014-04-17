@@ -1,5 +1,6 @@
 package com.altamiracorp.lumify.web;
 
+import com.altamiracorp.lumify.core.config.Configuration;
 import com.altamiracorp.lumify.core.exception.LumifyException;
 import com.altamiracorp.lumify.core.model.user.UserRepository;
 import com.altamiracorp.lumify.core.user.User;
@@ -22,22 +23,17 @@ import java.security.cert.X509Certificate;
 import java.util.Arrays;
 
 public class LdapX509AuthenticationProvider extends X509AuthenticationProvider {
-    public static final String CLIENT_DN_HEADER = "SSL_CLIENT_S_DN";
-    public static final String CLIENT_CERT_HEADER = "SSL_CLIENT_CERT";
-
     private static final LumifyLogger LOGGER = LumifyLoggerFactory.getLogger(LdapX509AuthenticationProvider.class);
     private LdapSearchService ldapSearchService;
-    private String usernameAttribute;
-    private String displayNameAttribute;
+    private LdapX509AuthenticationConfiguration ldapX509AuthenticationConfiguration;
 
     @Inject
-    public LdapX509AuthenticationProvider(final UserRepository userRepository, final Graph graph, final LdapSearchService ldapSearchService) {
+    public LdapX509AuthenticationProvider(final UserRepository userRepository, final Graph graph, final LdapSearchService ldapSearchService, final Configuration configuration) {
         super(userRepository, graph);
         this.ldapSearchService = ldapSearchService;
 
-        // TODO: configure these values from .properties
-        this.usernameAttribute = "employeeNumber";
-        this.displayNameAttribute = "displayName";
+        ldapX509AuthenticationConfiguration = new LdapX509AuthenticationConfiguration();
+        configuration.setConfigurables(ldapX509AuthenticationConfiguration, "ldap-x509-authentication");
     }
 
     @Override
@@ -52,10 +48,10 @@ public class LdapX509AuthenticationProvider extends X509AuthenticationProvider {
                 throw new LumifyException("failed to extract cert from request header", e);
             }
             if (cert != null) {
-                LOGGER.info("using cert from %s request header", CLIENT_CERT_HEADER);
-                LOGGER.info("client dn from %s request header is %s", CLIENT_DN_HEADER, getHeaderClientDN(request));
+                LOGGER.info("using cert from %s request header", ldapX509AuthenticationConfiguration.getClientCertHeader());
+                LOGGER.info("client dn from %s request header is %s", ldapX509AuthenticationConfiguration.getClientDnHeader(), getHeaderClientDN(request));
             } else {
-                LOGGER.error("no certificate found in request attribute %s or request header %s", CERTIFICATE_REQUEST_ATTRIBUTE, CLIENT_CERT_HEADER);
+                LOGGER.error("no certificate found in request attribute %s or request header %s", CERTIFICATE_REQUEST_ATTRIBUTE, ldapX509AuthenticationConfiguration.getClientCertHeader());
                 return null;
             }
         }
@@ -71,13 +67,18 @@ public class LdapX509AuthenticationProvider extends X509AuthenticationProvider {
         LOGGER.info("searchResultEntry is\n" + searchResultEntry.toLDIFString());
 
         String username;
-        if (this.usernameAttribute != null) {
-            username = searchResultEntry.getAttributeValue(this.usernameAttribute);
+        if (ldapX509AuthenticationConfiguration.getUsernameAttribute() != null) {
+            username = searchResultEntry.getAttributeValue(ldapX509AuthenticationConfiguration.getUsernameAttribute());
         } else {
             username = super.getUsername(cert);
         }
 
-        String displayName = searchResultEntry.getAttributeValue(this.displayNameAttribute);
+        String displayName;
+        if (ldapX509AuthenticationConfiguration.getDisplayNameAttribute() != null) {
+            displayName = searchResultEntry.getAttributeValue(ldapX509AuthenticationConfiguration.getDisplayNameAttribute());
+        } else {
+            displayName = username;
+        }
 
         User user = getUserRepository().findOrAddUser(username, displayName, X509_USER_PASSWORD, new String[0]);
         LOGGER.info("user is %s", user.toString());
@@ -90,7 +91,7 @@ public class LdapX509AuthenticationProvider extends X509AuthenticationProvider {
     }
 
     private String getHeaderClientDN(HttpServletRequest request) {
-        String dnComponents = request.getHeader(CLIENT_DN_HEADER);
+        String dnComponents = request.getHeader(ldapX509AuthenticationConfiguration.getClientDnHeader());
         if (dnComponents.startsWith("/")) {
             dnComponents = dnComponents.substring("/".length());
         }
@@ -99,7 +100,7 @@ public class LdapX509AuthenticationProvider extends X509AuthenticationProvider {
     }
 
     private X509Certificate getHeaderClientCert(HttpServletRequest request) throws NoSuchAlgorithmException, CertificateException {
-        String pemCertText = request.getHeader(CLIENT_CERT_HEADER);
+        String pemCertText = request.getHeader(ldapX509AuthenticationConfiguration.getClientCertHeader());
         pemCertText = pemCertText.replaceAll("-----(BEGIN|END) CERTIFICATE-----", "");
         pemCertText = pemCertText.replaceAll("\\n", "");
         byte[] certBytes = Base64.decodeBase64(pemCertText);
