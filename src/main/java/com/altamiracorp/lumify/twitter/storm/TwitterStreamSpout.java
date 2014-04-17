@@ -26,7 +26,7 @@ import java.util.concurrent.LinkedBlockingQueue;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 
-import com.altamiracorp.lumify.storm.BaseLumifyJsonBolt;
+import com.altamiracorp.lumify.twitter.BaseLumifyJsonBolt;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 

@@ -4,9 +4,8 @@ import backtype.storm.Config;
 import backtype.storm.generated.StormTopology;
 import backtype.storm.topology.BoltDeclarer;
 import backtype.storm.topology.TopologyBuilder;
-import com.altamiracorp.lumify.storm.BaseFileSystemSpout;
-import com.altamiracorp.lumify.storm.HdfsFileSystemSpout;
 import com.altamiracorp.lumify.storm.StormRunnerBase;
+import com.altamiracorp.lumify.twitter.HdfsFileSystemSpout;
 import com.altamiracorp.lumify.twitter.TwitterConstants;
 import com.altamiracorp.lumify.twitter.TwitterEntityType;
 import org.apache.commons.cli.CommandLine;
@@ -69,6 +68,8 @@ public class StormRunner extends StormRunnerBase {
      * DEFAULT_HDFS_DATA_ROOT.
      */
     private static final String HDFS_ROOT_PATH_PROPERTY = "twitter.hdfs.dataRoot";
+
+    public static final String DATADIR_CONFIG_NAME = "datadir";
 
     /**
      * The property key for the HDFS subdirectory containing the raw tweet files
@@ -149,7 +150,7 @@ public class StormRunner extends StormRunnerBase {
             if (!hdfsTweetSubdir.startsWith("/")) {
                 hdfsTweetSubdir = "/" + hdfsTweetSubdir;
             }
-            conf.put(BaseFileSystemSpout.DATADIR_CONFIG_NAME, hdfsDataRoot);
+            conf.put(DATADIR_CONFIG_NAME, hdfsDataRoot);
         }
     }
 
@@ -169,10 +170,10 @@ public class StormRunner extends StormRunnerBase {
                 .shuffleGrouping(KAFKA_SPOUT_NAME);
         builder.setBolt(URL_BOLT_NAME, new TweetEntityExtractionBolt(TwitterEntityType.URL), parallelismHint)
                 .shuffleGrouping(KAFKA_SPOUT_NAME);
-        
+
         BoltDeclarer queueBolt = builder.setBolt(KAFKA_BOLT_NAME, new TweetQueueOutputBolt(TwitterConstants.TWITTER_QUEUE_NAME),
                 parallelismHint);
-        
+
         if (startQuerySpout) {
             builder.setSpout(QUERY_SPOUT_NAME, new TwitterStreamSpout(), 1);
             queueBolt.shuffleGrouping(QUERY_SPOUT_NAME);

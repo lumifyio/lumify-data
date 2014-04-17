@@ -21,8 +21,8 @@ import backtype.storm.tuple.Tuple;
 import backtype.storm.tuple.Values;
 import com.altamiracorp.lumify.core.util.LumifyLogger;
 import com.altamiracorp.lumify.core.util.LumifyLoggerFactory;
-import com.altamiracorp.lumify.storm.BaseFileProcessingBolt;
-import com.altamiracorp.lumify.storm.file.FileMetadata;
+import com.altamiracorp.lumify.twitter.BaseFileProcessingBolt;
+import com.altamiracorp.lumify.twitter.FileMetadata;
 import com.altamiracorp.lumify.twitter.TwitterConstants;
 import org.codehaus.plexus.util.FileUtils;
 

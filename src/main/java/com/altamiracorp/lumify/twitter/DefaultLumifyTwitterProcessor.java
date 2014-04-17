@@ -17,8 +17,7 @@
 package com.altamiracorp.lumify.twitter;
 
 import com.altamiracorp.bigtable.model.FlushFlag;
-import com.altamiracorp.lumify.core.ingest.BaseArtifactProcessor;
-import com.altamiracorp.lumify.core.json.JsonProperty;
+import com.altamiracorp.lumify.twitter.json.JsonProperty;
 import com.altamiracorp.lumify.core.model.audit.AuditAction;
 import com.altamiracorp.lumify.core.model.audit.AuditRepository;
 import com.altamiracorp.lumify.core.model.ontology.Concept;
