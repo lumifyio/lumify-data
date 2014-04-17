@@ -1,4 +1,4 @@
-package com.altamiracorp.lumify.storm;
+package com.altamiracorp.lumify.twitter;
 
 import backtype.storm.spout.SpoutOutputCollector;
 import backtype.storm.task.TopologyContext;
@@ -53,7 +53,8 @@ public abstract class BaseFileSystemSpout extends BaseRichSpout {
                     public Integer getValue() {
                         return workingFiles.size();
                     }
-                });
+                }
+        );
     }
 
     protected abstract String getPath();

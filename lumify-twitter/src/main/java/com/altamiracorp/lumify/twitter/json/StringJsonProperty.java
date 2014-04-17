@@ -14,17 +14,17 @@
  * limitations under the License.
  */
 
-package com.altamiracorp.lumify.core.json;
+package com.altamiracorp.lumify.twitter.json;
 
 /**
- * A Long-valued JSON property.
+ * A String-valued JSON property.
  */
-public class LongJsonProperty extends BaseDirectJsonProperty<Long> {
+public class StringJsonProperty extends BaseDirectJsonProperty<String> {
     /**
-     * Create a new LongJsonProperty.
+     * Create a new JsonStringProperty.
      * @param key the property key
      */
-    public LongJsonProperty(final String key) {
-        super(key, JsonType.LONG);
+    public StringJsonProperty(final String key) {
+        super(key, JsonType.STRING);
     }
 }

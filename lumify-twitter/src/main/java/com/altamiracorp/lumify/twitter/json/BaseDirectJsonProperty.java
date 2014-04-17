@@ -14,17 +14,29 @@
  * limitations under the License.
  */
 
-package com.altamiracorp.lumify.core.json;
+package com.altamiracorp.lumify.twitter.json;
 
 /**
- * A Double-valued JSON property.
+ * Base class for JsonProperty subtypes whose output and JSON values
+ * are the same type.
  */
-public class DoubleJsonProperty extends BaseDirectJsonProperty<Double> {
+public abstract class BaseDirectJsonProperty<T> extends JsonProperty<T, T> {
     /**
-     * Create a new JsonDoubleProperty.
+     * Create a new BaseDirectJsonProperty.
      * @param key the property key
+     * @param type the JsonType
      */
-    public DoubleJsonProperty(final String key) {
-        super(key, JsonType.DOUBLE);
+    protected BaseDirectJsonProperty(final String key, final JsonType type) {
+        super(key, type);
+    }
+
+    @Override
+    protected final T fromJSON(final T jsonValue) {
+        return jsonValue;
+    }
+
+    @Override
+    protected final T toJSON(final T value) {
+        return value;
     }
 }

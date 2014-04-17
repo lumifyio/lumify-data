@@ -21,7 +21,7 @@ import static org.mockito.Mockito.*;
 
 import backtype.storm.topology.OutputFieldsDeclarer;
 import backtype.storm.tuple.Tuple;
-import com.altamiracorp.lumify.storm.BaseLumifyJsonBolt;
+import com.altamiracorp.lumify.twitter.BaseLumifyJsonBolt;
 import java.util.Arrays;
 import java.util.List;
 

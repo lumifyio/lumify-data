@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.altamiracorp.lumify.storm;
+package com.altamiracorp.lumify.twitter;
 
 import backtype.storm.tuple.Tuple;
 import org.json.JSONException;

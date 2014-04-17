@@ -16,7 +16,7 @@
 
 package com.altamiracorp.lumify.twitter.storm;
 
-import com.altamiracorp.lumify.storm.BaseLumifyJsonBolt;
+import com.altamiracorp.lumify.twitter.BaseLumifyJsonBolt;
 import com.altamiracorp.lumify.twitter.LumifyTwitterProcessor;
 import com.google.inject.Inject;
 

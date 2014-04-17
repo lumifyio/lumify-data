@@ -18,7 +18,7 @@ package com.altamiracorp.lumify.twitter.storm;
 
 import backtype.storm.tuple.Fields;
 import com.altamiracorp.lumify.model.KafkaJsonEncoder;
-import com.altamiracorp.lumify.storm.BaseLumifyJsonBolt;
+import com.altamiracorp.lumify.twitter.BaseLumifyJsonBolt;
 import com.altamiracorp.lumify.twitter.LumifyTwitterProcessor;
 import com.altamiracorp.lumify.twitter.TwitterConstants;
 import com.altamiracorp.securegraph.Vertex;

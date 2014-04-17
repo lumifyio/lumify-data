@@ -1,4 +1,4 @@
-package com.altamiracorp.lumify.storm.file;
+package com.altamiracorp.lumify.twitter;
 
 import org.apache.commons.io.FilenameUtils;
 

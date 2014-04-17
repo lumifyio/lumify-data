@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.altamiracorp.lumify.storm;
+package com.altamiracorp.lumify.twitter;
 
 import backtype.storm.task.OutputCollector;
 import backtype.storm.task.TopologyContext;

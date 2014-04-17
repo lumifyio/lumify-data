@@ -16,7 +16,7 @@
 
 package com.altamiracorp.lumify.twitter;
 
-import com.altamiracorp.lumify.core.json.JsonProperty;
+import com.altamiracorp.lumify.twitter.json.JsonProperty;
 import com.altamiracorp.lumify.core.util.LumifyLogger;
 import com.altamiracorp.lumify.core.util.LumifyLoggerFactory;
 import java.text.DateFormat;

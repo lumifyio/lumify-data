@@ -12,7 +12,6 @@ import backtype.storm.tuple.Values;
 import static com.altamiracorp.lumify.facebook.FacebookConstants.*;
 import com.altamiracorp.lumify.core.util.LumifyLogger;
 import com.altamiracorp.lumify.core.util.LumifyLoggerFactory;
-import com.altamiracorp.lumify.storm.FieldNames;
 import facebook4j.Facebook;
 import facebook4j.FacebookException;
 import facebook4j.FacebookFactory;

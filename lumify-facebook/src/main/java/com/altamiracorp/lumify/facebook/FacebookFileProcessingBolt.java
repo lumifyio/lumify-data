@@ -4,15 +4,10 @@ package com.altamiracorp.lumify.facebook;
 import backtype.storm.task.OutputCollector;
 import backtype.storm.tuple.Tuple;
 import backtype.storm.tuple.Values;
-import com.altamiracorp.lumify.core.ingest.ArtifactExtractedInfo;
 import com.altamiracorp.lumify.core.user.User;
 import com.altamiracorp.lumify.core.util.LumifyLogger;
 import com.altamiracorp.lumify.core.util.LumifyLoggerFactory;
-import com.altamiracorp.lumify.storm.BaseFileProcessingBolt;
-import static com.altamiracorp.lumify.facebook.FacebookConstants.*;
-import com.altamiracorp.lumify.storm.file.FileMetadata;
 import com.altamiracorp.securegraph.Vertex;
-import com.google.inject.Inject;
 import org.apache.hadoop.fs.FileSystem;
 import org.codehaus.plexus.util.FileUtils;
 
@@ -22,6 +17,8 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.util.regex.Pattern;
 import java.util.zip.GZIPInputStream;
+
+import static com.altamiracorp.lumify.facebook.FacebookConstants.GZIP_EXTENSION;
 
 public class FacebookFileProcessingBolt extends BaseFileProcessingBolt {
     private static final LumifyLogger LOGGER = LumifyLoggerFactory.getLogger(FacebookFileProcessingBolt.class);

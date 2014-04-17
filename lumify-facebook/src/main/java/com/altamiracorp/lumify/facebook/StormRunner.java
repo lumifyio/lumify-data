@@ -3,8 +3,8 @@ package com.altamiracorp.lumify.facebook;
 import backtype.storm.Config;
 import backtype.storm.generated.StormTopology;
 import backtype.storm.topology.TopologyBuilder;
-import com.altamiracorp.lumify.storm.BaseFileSystemSpout;
-import com.altamiracorp.lumify.storm.HdfsFileSystemSpout;
+import com.altamiracorp.lumify.facebook.BaseFileSystemSpout;
+import com.altamiracorp.lumify.facebook.HdfsFileSystemSpout;
 import com.altamiracorp.lumify.storm.StormRunnerBase;
 import org.apache.commons.cli.CommandLine;
 
@@ -20,6 +20,7 @@ public class StormRunner extends StormRunnerBase {
     private static final String DEFAULT_HDFS_DATA_ROOT = "/lumify/data";
     private String hdfsDataRoot;
     private String hdfsFacebookSubdir;
+    public static final String DATADIR_CONFIG_NAME = "datadir";
 
 
     public static void main(String[] args) throws Exception {
@@ -51,7 +52,7 @@ public class StormRunner extends StormRunnerBase {
             if (!hdfsFacebookSubdir.startsWith("/")) {
                 hdfsFacebookSubdir = "/" + hdfsFacebookSubdir;
             }
-            conf.put(BaseFileSystemSpout.DATADIR_CONFIG_NAME, hdfsDataRoot);
+            conf.put(DATADIR_CONFIG_NAME, hdfsDataRoot);
         }
         if (!(startFileSpout || startStreamingSpout)) {
             throw new IllegalStateException("Must have at least one Facebook spout when running Facebook Storm Topology");

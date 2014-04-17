@@ -1,4 +1,4 @@
-package com.altamiracorp.lumify.core.ingest;
+package com.altamiracorp.lumify.twitter;
 
 import com.altamiracorp.lumify.core.ingest.video.VideoTranscript;
 import org.apache.commons.lang.StringUtils;

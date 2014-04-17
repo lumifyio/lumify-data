@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.altamiracorp.lumify.core.json;
+package com.altamiracorp.lumify.twitter.json;
 
 import com.altamiracorp.lumify.core.util.LumifyLogger;
 import com.altamiracorp.lumify.core.util.LumifyLoggerFactory;

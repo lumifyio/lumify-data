@@ -1,12 +1,11 @@
 package com.altamiracorp.lumify.facebook;
 
 import backtype.storm.tuple.Tuple;
-import com.altamiracorp.lumify.core.ingest.ArtifactExtractedInfo;
+import com.altamiracorp.lumify.facebook.ArtifactExtractedInfo;
 import com.altamiracorp.lumify.core.model.ontology.OntologyLumifyProperties;
 import com.altamiracorp.lumify.core.security.LumifyVisibility;
 import com.altamiracorp.lumify.core.util.LumifyLogger;
 import com.altamiracorp.lumify.core.util.LumifyLoggerFactory;
-import com.altamiracorp.lumify.storm.BaseLumifyBolt;
 import com.altamiracorp.securegraph.Vertex;
 import org.apache.hadoop.fs.FileSystem;
 import org.json.JSONObject;

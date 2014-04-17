@@ -14,17 +14,19 @@
  * limitations under the License.
  */
 
-package com.altamiracorp.lumify.core.json;
+package com.altamiracorp.lumify.twitter.json;
+
+import org.json.JSONObject;
 
 /**
- * An Integer-valued JSON property.
+ * A JSON property whose value is a sub-JSONObject.
  */
-public class IntegerJsonProperty extends BaseDirectJsonProperty<Integer> {
+public class JSONObjectJsonProperty extends BaseDirectJsonProperty<JSONObject> {
     /**
-     * Create a new IntegerJsonProperty.
+     * Create a new JSONObjectJsonProperty.
      * @param key the property key
      */
-    public IntegerJsonProperty(final String key) {
-        super(key, JsonType.INTEGER);
+    public JSONObjectJsonProperty(final String key) {
+        super(key, JsonType.OBJECT);
     }
 }
