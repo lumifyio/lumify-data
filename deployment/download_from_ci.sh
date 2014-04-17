@@ -41,7 +41,6 @@ _download_enterprise_uber_jar lumify-clavin
 _download_enterprise_uber_jar lumify-email-extractor
 _download_enterprise_uber_jar lumify-enterprise-storm
 _download_enterprise_uber_jar lumify-enterprise-tools
-_download_enterprise_uber_jar lumify-enterprise.iml
 _download_enterprise_uber_jar lumify-java-code-ingest
 _download_enterprise_uber_jar lumify-jetty-server-enterprise
 _download_enterprise_uber_jar lumify-known-entity-extractor
