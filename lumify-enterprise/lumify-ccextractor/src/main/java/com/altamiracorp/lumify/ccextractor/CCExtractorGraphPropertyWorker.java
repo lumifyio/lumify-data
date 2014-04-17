@@ -38,7 +38,7 @@ public class CCExtractorGraphPropertyWorker extends GraphPropertyWorker {
             VideoTranscript videoTranscript = SubRip.read(ccFile);
 
             ExistingElementMutation<Vertex> m = data.getVertex().prepareMutation();
-            MediaLumifyProperties.VIDEO_TRANSCRIPT.addPropertyValue(m, PROPERTY_KEY, videoTranscript, data.getVertex().getVisibility());
+            MediaLumifyProperties.VIDEO_TRANSCRIPT.addPropertyValue(m, PROPERTY_KEY, videoTranscript, data.getPropertyMetadata(), data.getVisibility());
             m.save();
 
             getGraph().flush();

@@ -105,11 +105,11 @@ public class TikaTextExtractorGraphPropertyWorker extends GraphPropertyWorker {
 
         String author = extractTextField(metadata, authorKeys);
         if (author != null && author.length() > 0) {
-            RawLumifyProperties.AUTHOR.addPropertyValue(m, MULTIVALUE_KEY, author, data.getVertex().getVisibility());
+            RawLumifyProperties.AUTHOR.addPropertyValue(m, MULTIVALUE_KEY, author, data.getPropertyMetadata(), data.getVisibility());
         }
 
         String customImageMetadata = extractTextField(metadata, customFlickrMetadataKeys);
-        Map<String, Object> textMetadata = new HashMap<String, Object>();
+        Map<String, Object> textMetadata = data.getPropertyMetadata();
         textMetadata.put(RawLumifyProperties.METADATA_MIME_TYPE, "text/plain");
 
         if (customImageMetadata != null && !customImageMetadata.equals("")) {
@@ -119,26 +119,26 @@ public class TikaTextExtractorGraphPropertyWorker extends GraphPropertyWorker {
                 text = new JSONObject(customImageMetadataJson.get("description").toString()).get("_content") +
                         "\n" + customImageMetadataJson.get("tags").toString();
                 StreamingPropertyValue textValue = new StreamingPropertyValue(new ByteArrayInputStream(text.getBytes()), String.class);
-                RawLumifyProperties.TEXT.addPropertyValue(m, MULTIVALUE_KEY, textValue, textMetadata, data.getVertex().getVisibility());
+                RawLumifyProperties.TEXT.addPropertyValue(m, MULTIVALUE_KEY, textValue, textMetadata, data.getVisibility());
 
                 Date lastupdate = GenericDateExtractor
                         .extractSingleDate(customImageMetadataJson.get("lastupdate").toString());
-                RawLumifyProperties.CREATE_DATE.addPropertyValue(m, MULTIVALUE_KEY, lastupdate, data.getVertex().getVisibility());
+                RawLumifyProperties.CREATE_DATE.addPropertyValue(m, MULTIVALUE_KEY, lastupdate, data.getPropertyMetadata(), data.getVisibility());
 
                 // TODO set("retrievalTime", Long.parseLong(customImageMetadataJson.get("atc:retrieval-timestamp").toString()));
 
-                LumifyProperties.TITLE.addPropertyValue(m, MULTIVALUE_KEY, customImageMetadataJson.get("title").toString(), data.getVertex().getVisibility());
+                LumifyProperties.TITLE.addPropertyValue(m, MULTIVALUE_KEY, customImageMetadataJson.get("title").toString(), data.getPropertyMetadata(), data.getVisibility());
             } catch (JSONException e) {
                 LOGGER.warn("Image returned invalid custom metadata");
             }
         } else {
             StreamingPropertyValue textValue = new StreamingPropertyValue(new ByteArrayInputStream(text.getBytes()), String.class);
-            RawLumifyProperties.TEXT.addPropertyValue(m, MULTIVALUE_KEY, textValue, textMetadata, data.getVertex().getVisibility());
+            RawLumifyProperties.TEXT.addPropertyValue(m, MULTIVALUE_KEY, textValue, textMetadata, data.getVisibility());
 
-            RawLumifyProperties.CREATE_DATE.addPropertyValue(m, MULTIVALUE_KEY, extractDate(metadata), data.getVertex().getVisibility());
+            RawLumifyProperties.CREATE_DATE.addPropertyValue(m, MULTIVALUE_KEY, extractDate(metadata), data.getPropertyMetadata(), data.getVisibility());
             String title = extractTextField(metadata, subjectKeys).replaceAll(",", " ");
             if (title != null && title.length() > 0) {
-                LumifyProperties.TITLE.addPropertyValue(m, MULTIVALUE_KEY, title, data.getVertex().getVisibility());
+                LumifyProperties.TITLE.addPropertyValue(m, MULTIVALUE_KEY, title, data.getPropertyMetadata(), data.getVisibility());
             }
 
             // TODO set("retrievalTime", extractRetrievalTime(metadata));

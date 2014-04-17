@@ -52,7 +52,7 @@ public class TesseractGraphPropertyWorker extends GraphPropertyWorker {
         StreamingPropertyValue textValue = new StreamingPropertyValue(textIn, String.class);
 
         ExistingElementMutation<Vertex> m = data.getVertex().prepareMutation();
-        RawLumifyProperties.TEXT.addPropertyValue(m, textPropertyKey, textValue, data.getVertex().getVisibility());
+        RawLumifyProperties.TEXT.addPropertyValue(m, textPropertyKey, textValue, data.getPropertyMetadata(), data.getVisibility());
         m.save();
         getGraph().flush();
         getWorkQueueRepository().pushGraphPropertyQueue(data.getVertex().getId(), textPropertyKey, RawLumifyProperties.TEXT.getKey());

@@ -67,7 +67,7 @@ public class OpenNLPDictionaryExtractorGraphPropertyWorker extends GraphProperty
         LOGGER.debug("Processing artifact content stream");
         List<TermMention> termMentions = new ArrayList<TermMention>();
         while ((line = untokenizedLineStream.read()) != null) {
-            ArrayList<TermMention> newTermMentions = processLine(line, charOffset, data.getProperty().getKey(), data.getVertex().getVisibility());
+            ArrayList<TermMention> newTermMentions = processLine(line, charOffset, data.getProperty().getKey(), data.getVisibility());
             termMentions.addAll(newTermMentions);
             getGraph().flush();
             charOffset += line.length() + NEW_LINE_CHARACTER_LENGTH;

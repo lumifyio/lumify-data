@@ -58,7 +58,7 @@ public class OpenNLPMaximumEntropyExtractorGraphPropertyWorker extends GraphProp
         LOGGER.debug("Processing artifact content stream");
         List<TermMention> termMenitons = new ArrayList<TermMention>();
         while ((line = untokenizedLineStream.read()) != null) {
-            ArrayList<TermMention> newTermMentions = processLine(line, charOffset, data.getProperty().getKey(), data.getVertex().getVisibility());
+            ArrayList<TermMention> newTermMentions = processLine(line, charOffset, data.getProperty().getKey(), data.getVisibility());
             termMenitons.addAll(newTermMentions);
             getGraph().flush();
             charOffset += line.length() + NEW_LINE_CHARACTER_LENGTH;

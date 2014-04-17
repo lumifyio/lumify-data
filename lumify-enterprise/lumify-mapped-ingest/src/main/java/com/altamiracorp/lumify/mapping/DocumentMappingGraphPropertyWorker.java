@@ -40,10 +40,10 @@ public class DocumentMappingGraphPropertyWorker extends GraphPropertyWorker {
 
         ExistingElementMutation<Vertex> m = data.getVertex().prepareMutation();
         StreamingPropertyValue textValue = new StreamingPropertyValue(new ByteArrayInputStream(writer.toString().getBytes()), String.class);
-        Map<String, Object> textMetadata = new HashMap<String, Object>();
+        Map<String, Object> textMetadata = data.getPropertyMetadata();
         textMetadata.put(RawLumifyProperties.METADATA_MIME_TYPE, "text/plain");
-        RawLumifyProperties.TEXT.addPropertyValue(m, MULTIVALUE_KEY, textValue, textMetadata, data.getVertex().getVisibility());
-        LumifyProperties.TITLE.addPropertyValue(m, MULTIVALUE_KEY, mapping.getSubject(), data.getVertex().getVisibility());
+        RawLumifyProperties.TEXT.addPropertyValue(m, MULTIVALUE_KEY, textValue, textMetadata, data.getVisibility());
+        LumifyProperties.TITLE.addPropertyValue(m, MULTIVALUE_KEY, mapping.getSubject(), data.getPropertyMetadata(), data.getVisibility());
         m.save();
 
         getGraph().flush();
@@ -53,7 +53,7 @@ public class DocumentMappingGraphPropertyWorker extends GraphPropertyWorker {
     }
 
     private void executeTermExtraction(InputStream in, GraphPropertyWorkData data, DocumentMapping mapping) throws IOException {
-        TermExtractionResult termExtractionResult = mapping.mapDocument(new InputStreamReader(in), getClass().getName(), data.getProperty().getKey(), data.getVertex().getVisibility());
+        TermExtractionResult termExtractionResult = mapping.mapDocument(new InputStreamReader(in), getClass().getName(), data.getProperty().getKey(), data.getVisibility());
         saveTermExtractionResult(data.getVertex(), termExtractionResult);
     }
 

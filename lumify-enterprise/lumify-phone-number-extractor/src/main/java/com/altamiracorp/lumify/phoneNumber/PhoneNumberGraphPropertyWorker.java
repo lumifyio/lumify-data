@@ -56,7 +56,7 @@ public class PhoneNumberGraphPropertyWorker extends GraphPropertyWorker {
         final Iterable<PhoneNumberMatch> phoneNumbers = phoneNumberUtil.findNumbers(text, defaultRegionCode);
         List<TermMention> termMentions = new ArrayList<TermMention>();
         for (final PhoneNumberMatch phoneNumber : phoneNumbers) {
-            TermMention termMention = createTerm(phoneNumber, data.getProperty().getKey(), data.getVertex().getVisibility());
+            TermMention termMention = createTerm(phoneNumber, data.getProperty().getKey(), data.getVisibility());
             termMentions.add(termMention);
         }
 

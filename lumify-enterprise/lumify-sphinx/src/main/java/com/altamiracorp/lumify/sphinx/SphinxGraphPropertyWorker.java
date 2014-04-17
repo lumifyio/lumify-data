@@ -30,7 +30,7 @@ public class SphinxGraphPropertyWorker extends GraphPropertyWorker {
         }
 
         ExistingElementMutation<Vertex> m = data.getVertex().prepareMutation();
-        MediaLumifyProperties.VIDEO_TRANSCRIPT.addPropertyValue(m, MULTI_VALUE_KEY, transcript, data.getVertex().getVisibility());
+        MediaLumifyProperties.VIDEO_TRANSCRIPT.addPropertyValue(m, MULTI_VALUE_KEY, transcript, data.getPropertyMetadata(), data.getVisibility());
         m.save();
 
         getGraph().flush();

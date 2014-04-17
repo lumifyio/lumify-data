@@ -50,7 +50,7 @@ public class KnownEntityExtractorGraphPropertyWorker extends GraphPropertyWorker
         List<OutputResult> searchResults = tree.completeSearch(text, false, true);
         List<TermMention> termMentions = new ArrayList<TermMention>();
         for (OutputResult searchResult : searchResults) {
-            TermMention termMention = outputResultToTermMention(searchResult, data.getProperty().getKey(), data.getVertex().getVisibility());
+            TermMention termMention = outputResultToTermMention(searchResult, data.getProperty().getKey(), data.getVisibility());
             termMentions.add(termMention);
             getGraph().flush();
         }

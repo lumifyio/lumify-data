@@ -4,13 +4,17 @@ import com.altamiracorp.lumify.core.ingest.graphProperty.GraphPropertyWorkData;
 import com.altamiracorp.lumify.core.ingest.graphProperty.GraphPropertyWorker;
 import com.altamiracorp.lumify.core.ingest.graphProperty.GraphPropertyWorkerPrepareData;
 import com.altamiracorp.lumify.core.model.properties.RawLumifyProperties;
+import com.altamiracorp.lumify.core.security.LumifyVisibilityProperties;
 import com.altamiracorp.lumify.core.util.LumifyLogger;
 import com.altamiracorp.lumify.core.util.LumifyLoggerFactory;
 import com.altamiracorp.securegraph.Property;
 import com.altamiracorp.securegraph.Vertex;
 import com.altamiracorp.securegraph.mutation.ExistingElementMutation;
+import org.json.JSONObject;
 
 import java.io.InputStream;
+import java.util.HashMap;
+import java.util.Map;
 
 public class MimeTypeGraphPropertyWorker extends GraphPropertyWorker {
     private static final LumifyLogger LOGGER = LumifyLoggerFactory.getLogger(MimeTypeGraphPropertyWorker.class);
@@ -32,7 +36,12 @@ public class MimeTypeGraphPropertyWorker extends GraphPropertyWorker {
         }
 
         ExistingElementMutation<Vertex> m = data.getVertex().prepareMutation();
-        RawLumifyProperties.MIME_TYPE.setProperty(m, mimeType, data.getVertex().getVisibility());
+        Map<String, Object> mimeTypeMetadata = data.getPropertyMetadata();
+        JSONObject visibilityJson = LumifyVisibilityProperties.VISIBILITY_JSON_PROPERTY.getPropertyValue(data.getVertex());
+        if (visibilityJson != null) {
+            LumifyVisibilityProperties.VISIBILITY_JSON_PROPERTY.setMetadata(mimeTypeMetadata, visibilityJson);
+        }
+        RawLumifyProperties.MIME_TYPE.setProperty(m, mimeType, mimeTypeMetadata, data.getVisibility());
         m.alterPropertyMetadata(data.getProperty(), RawLumifyProperties.METADATA_MIME_TYPE, mimeType);
         m.save();
 

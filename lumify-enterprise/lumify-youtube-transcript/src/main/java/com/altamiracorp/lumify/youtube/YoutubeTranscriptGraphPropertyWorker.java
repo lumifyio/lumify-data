@@ -21,7 +21,7 @@ public class YoutubeTranscriptGraphPropertyWorker extends GraphPropertyWorker {
         VideoTranscript videoTranscript = YoutubeccReader.read(youtubeccValue.getInputStream());
 
         ExistingElementMutation<Vertex> m = data.getVertex().prepareMutation();
-        MediaLumifyProperties.VIDEO_TRANSCRIPT.addPropertyValue(m, PROPERTY_KEY, videoTranscript, data.getVertex().getVisibility());
+        MediaLumifyProperties.VIDEO_TRANSCRIPT.addPropertyValue(m, PROPERTY_KEY, videoTranscript, data.getPropertyMetadata(), data.getVisibility());
         m.save();
 
         getGraph().flush();
