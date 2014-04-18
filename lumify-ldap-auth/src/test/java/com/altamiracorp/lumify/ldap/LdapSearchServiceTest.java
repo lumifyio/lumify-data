@@ -34,7 +34,7 @@ public class LdapSearchServiceTest {
         SSLUtil clientSslUtil = new SSLUtil(new TrustAllTrustManager());
         InMemoryListenerConfig sslConfig = InMemoryListenerConfig.createLDAPSConfig(
                 "LDAPS",
-                InetAddress.getLoopbackAddress(),
+                null,
                 4636,
                 serverSslUtil.createSSLServerSocketFactory(),
                 clientSslUtil.createSSLSocketFactory()
