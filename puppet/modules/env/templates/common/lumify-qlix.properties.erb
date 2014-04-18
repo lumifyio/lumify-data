@@ -1,0 +1,31 @@
+# Map component
+map.provider=googlev3
+map.apiKey=
+map.tileServer.hostName=localhost
+map.tileServer.port=9999
+
+# Providers
+authentication.provider=com.altamiracorp.lumify.web.UsernameOnlyAuthenticationProvider
+fs.provider=com.altamiracorp.lumify.fs.hdfs.HdfsSession
+
+# Using SQL
+user-repository=com.altamiracorp.lumify.sql.model.user.SqlUserRepository
+workspace-repository=com.altamiracorp.lumify.sql.model.workspace.SqlWorkspaceRepository
+authorization-repository=com.altamiracorp.lumify.core.model.user.NoOpAuthorizationRepository
+ontology-repository=com.altamiracorp.lumify.core.model.ontology.ReadOnlyInMemOntologyRepository
+ontology-repository.owl.1.iri=http://lumify.io/dev
+ontology-repository.owl.1.dir=/opt/lumify/ontology/dev
+audit-repository=com.altamiracorp.lumify.core.model.audit.NoOpAuditRepository
+term-mention-repository=com.altamiracorp.lumify.core.model.termMention.NoOpTermMentionRepository
+detected-object-repository=com.altamiracorp.lumify.core.model.detectedObjects.NoOpDetectedObjectRepository
+artifact-thumbnail-repository=com.altamiracorp.lumify.core.model.artifactThumbnails.NoOpArtifactThumbnailRepository
+work-queue-repository=com.altamiracorp.lumify.core.model.workQueue.NoOpWorkQueueRepository
+graph=com.altamiracorp.securegraph.inmemory.InMemoryGraph
+
+iri.entityImage=http://lumify.io/dev#image
+
+graph.search=com.altamiracorp.securegraph.core.DefaultSearchProvider
+
+# Visibiliy Plugin
+security.visibilityTranslator=com.altamiracorp.lumify.core.security.DirectVisibilityTranslator
+audit.visibilityLabel=audit

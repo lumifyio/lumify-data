@@ -1,4 +1,6 @@
-class env::common::config {
+class env::common::config(
+  $main_properties_filename = 'lumify.properties'
+) {
   file { [ '/opt', '/opt/lumify', '/opt/lumify/config' ] :
     ensure => directory,
   }
@@ -62,7 +64,7 @@ class env::common::config {
 
   config_file { [
       'log4j.xml',
-      'lumify.properties',
+      $main_properties_filename,
       'lumify-enterprise.properties',
       'lumify-clavin.properties'
     ] :
