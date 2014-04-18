@@ -5,7 +5,7 @@ map.tileServer.hostName=localhost
 map.tileServer.port=9999
 
 # Providers
-authentication.provider=com.altamiracorp.lumify.web.UsernameOnlyAuthenticationProvider
+authentication.provider=com.altamiracorp.lumify.web.LdapX509AuthenticationProvider
 fs.provider=com.altamiracorp.lumify.fs.hdfs.HdfsSession
 
 # Using SQL
@@ -21,10 +21,9 @@ detected-object-repository=com.altamiracorp.lumify.core.model.detectedObjects.No
 artifact-thumbnail-repository=com.altamiracorp.lumify.core.model.artifactThumbnails.NoOpArtifactThumbnailRepository
 work-queue-repository=com.altamiracorp.lumify.core.model.workQueue.NoOpWorkQueueRepository
 graph=com.altamiracorp.securegraph.inmemory.InMemoryGraph
+graph.search=com.altamiracorp.securegraph.search.DefaultSearchProvider
 
 iri.entityImage=http://lumify.io/dev#image
-
-graph.search=com.altamiracorp.securegraph.core.DefaultSearchProvider
 
 # Visibiliy Plugin
 security.visibilityTranslator=com.altamiracorp.lumify.core.security.DirectVisibilityTranslator
