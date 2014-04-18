@@ -106,6 +106,8 @@ public class LdapSearchServiceTest {
         serverConfig.setMaxConnections(1);
         serverConfig.setBindDn(BIND_DN);
         serverConfig.setBindPassword(BIND_PASSWORD);
+        serverConfig.setTrustStore(classpathResource("/truststore.jks"));
+        serverConfig.setTrustStorePassword("password");
         return serverConfig;
     }
 

@@ -10,6 +10,9 @@ public class LdapServerConfiguration {
     private int maxConnections;
     private String bindDn;
     private String bindPassword;
+    private String trustStore;
+    private String trustStorePassword;
+    private String trustStoreType;
 
     @Configurable(name = "primary-server")
     public void setPrimaryLdapServerHostname(String primaryLdapServerHostname) {
@@ -46,6 +49,21 @@ public class LdapServerConfiguration {
         this.bindPassword = bindPassword;
     }
 
+    @Configurable(name = "trust-store")
+    public void setTrustStore(String trustStore) {
+        this.trustStore = trustStore;
+    }
+
+    @Configurable(name = "trust-store-password")
+    public void setTrustStorePassword(String trustStorePassword) {
+        this.trustStorePassword = trustStorePassword;
+    }
+
+    @Configurable(name = "trust-store-type", defaultValue = "JKS")
+    public void setTrustStoreType(String trustStoreType) {
+        this.trustStoreType = trustStoreType;
+    }
+
     public String getPrimaryLdapServerHostname() {
         return primaryLdapServerHostname;
     }
@@ -72,5 +90,17 @@ public class LdapServerConfiguration {
 
     public String getBindPassword() {
         return bindPassword;
+    }
+
+    public String getTrustStore() {
+        return trustStore;
+    }
+
+    public String getTrustStorePassword() {
+        return trustStorePassword;
+    }
+
+    public String getTrustStoreType() {
+        return trustStoreType;
     }
 }

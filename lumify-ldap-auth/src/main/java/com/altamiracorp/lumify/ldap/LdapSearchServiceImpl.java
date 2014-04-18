@@ -1,11 +1,10 @@
 package com.altamiracorp.lumify.ldap;
 
-
 import com.altamiracorp.lumify.core.exception.LumifyException;
 import com.google.inject.Singleton;
 import com.unboundid.ldap.sdk.*;
 import com.unboundid.util.ssl.SSLUtil;
-import com.unboundid.util.ssl.TrustAllTrustManager;
+import com.unboundid.util.ssl.TrustStoreTrustManager;
 
 import javax.net.ssl.SSLSocketFactory;
 import java.security.GeneralSecurityException;
@@ -21,7 +20,13 @@ public class LdapSearchServiceImpl implements LdapSearchService {
     private LdapSearchConfiguration ldapSearchConfiguration;
 
     public LdapSearchServiceImpl(LdapServerConfiguration serverConfig, LdapSearchConfiguration searchConfig) throws GeneralSecurityException, LDAPException {
-        SSLUtil sslUtil = new SSLUtil(new TrustAllTrustManager());
+        TrustStoreTrustManager tsManager = new TrustStoreTrustManager(
+                serverConfig.getTrustStore(),
+                serverConfig.getTrustStorePassword().toCharArray(),
+                serverConfig.getTrustStoreType(),
+                true
+        );
+        SSLUtil sslUtil = new SSLUtil(tsManager);
         SSLSocketFactory socketFactory = sslUtil.createSSLSocketFactory();
 
         if (serverConfig.getFailoverLdapServerHostname() != null) {
@@ -31,7 +36,13 @@ public class LdapSearchServiceImpl implements LdapSearchService {
             SimpleBindRequest bindRequest = new SimpleBindRequest(serverConfig.getBindDn(), serverConfig.getBindPassword());
             pool = new LDAPConnectionPool(failoverSet, bindRequest, serverConfig.getMaxConnections());
         } else {
-            LDAPConnection ldapConnection = new LDAPConnection(socketFactory, serverConfig.getPrimaryLdapServerHostname(), serverConfig.getPrimaryLdapServerPort(), serverConfig.getBindDn(), serverConfig.getBindPassword());
+            LDAPConnection ldapConnection = new LDAPConnection(
+                    socketFactory,
+                    serverConfig.getPrimaryLdapServerHostname(),
+                    serverConfig.getPrimaryLdapServerPort(),
+                    serverConfig.getBindDn(),
+                    serverConfig.getBindPassword()
+            );
             pool = new LDAPConnectionPool(ldapConnection, serverConfig.getMaxConnections());
         }
 
