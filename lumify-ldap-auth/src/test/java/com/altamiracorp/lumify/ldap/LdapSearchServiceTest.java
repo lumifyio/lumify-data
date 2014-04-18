@@ -1,16 +1,77 @@
 package com.altamiracorp.lumify.ldap;
 
+import com.unboundid.ldap.listener.InMemoryDirectoryServer;
+import com.unboundid.ldap.listener.InMemoryDirectoryServerConfig;
+import com.unboundid.ldap.listener.InMemoryListenerConfig;
 import com.unboundid.ldap.sdk.Attribute;
 import com.unboundid.ldap.sdk.LDAPException;
 import com.unboundid.ldap.sdk.SearchResultEntry;
+import com.unboundid.util.ssl.KeyStoreKeyManager;
+import com.unboundid.util.ssl.SSLUtil;
+import com.unboundid.util.ssl.TrustAllTrustManager;
+import com.unboundid.util.ssl.TrustStoreTrustManager;
 import org.apache.commons.codec.binary.Base64;
+import org.junit.AfterClass;
+import org.junit.BeforeClass;
 import org.junit.Test;
 
+import javax.net.ServerSocketFactory;
+import javax.net.SocketFactory;
+import javax.net.ssl.SSLSocketFactory;
+import java.net.Inet4Address;
+import java.net.InetAddress;
 import java.security.GeneralSecurityException;
 
 import static org.junit.Assert.*;
 
 public class LdapSearchServiceTest {
+    private static final String BIND_DN = "cn=root,dc=lumify,dc=io";
+    private static final String BIND_PASSWORD = "lumify";
+    private static InMemoryDirectoryServer ldapServer;
+
+    @BeforeClass
+    public static void setUp() throws Exception {
+        InMemoryDirectoryServerConfig ldapConfig = new InMemoryDirectoryServerConfig("dc=lumify,dc=io");
+        ldapConfig.addAdditionalBindCredentials(BIND_DN, BIND_PASSWORD);
+
+        KeyStoreKeyManager ksManager = new KeyStoreKeyManager("config/ssl/lumify-vm.lumify.io.jks", "password".toCharArray());
+        TrustStoreTrustManager tsManager = new TrustStoreTrustManager("config/ssl/lumify-ca.jks");
+        SSLUtil serverSslUtil = new SSLUtil(ksManager, tsManager);
+        SSLUtil clientSslUtil = new SSLUtil(new TrustAllTrustManager());
+        InMemoryListenerConfig sslConfig = InMemoryListenerConfig.createLDAPSConfig(
+                "LDAPS",
+                InetAddress.getLoopbackAddress(),
+                4636,
+                serverSslUtil.createSSLServerSocketFactory(),
+                clientSslUtil.createSSLSocketFactory()
+        );
+        ldapConfig.setListenerConfigs(sslConfig);
+
+        ldapServer = new InMemoryDirectoryServer(ldapConfig);
+
+        ldapServer.importFromLDIF(false, "config/ssl/init.ldif");
+
+        ldapServer.importFromLDIF(false, "config/ssl/users/people.ldif");
+        ldapServer.importFromLDIF(false, "config/ssl/users/alice.ldif");
+        ldapServer.importFromLDIF(false, "config/ssl/users/bob.ldif");
+        ldapServer.importFromLDIF(false, "config/ssl/users/carlos.ldif");
+        ldapServer.importFromLDIF(false, "config/ssl/users/diane.ldif");
+
+        ldapServer.importFromLDIF(false, "config/ssl/groups/groups.ldif");
+        ldapServer.importFromLDIF(false, "config/ssl/groups/admins.ldif");
+        ldapServer.importFromLDIF(false, "config/ssl/groups/a-users.ldif");
+        ldapServer.importFromLDIF(false, "config/ssl/groups/b-users.ldif");
+        ldapServer.importFromLDIF(false, "config/ssl/groups/c-users.ldif");
+        ldapServer.importFromLDIF(false, "config/ssl/groups/d-users.ldif");
+        ldapServer.importFromLDIF(false, "config/ssl/groups/all-users.ldif");
+
+        ldapServer.startListening();
+    }
+
+    @AfterClass
+    public static void tearDown() {
+        ldapServer.shutDown(true);
+    }
 
     @Test
     public void searchForAliceWithMatchingCert() throws GeneralSecurityException, LDAPException {
@@ -39,13 +100,13 @@ public class LdapSearchServiceTest {
         printResult(result);
     }
 
-    private LdapServerConfiguration getServerConfig() {
+    private LdapServerConfiguration getServerConfig() throws LDAPException {
         LdapServerConfiguration serverConfig = new LdapServerConfiguration();
-        serverConfig.setPrimaryLdapServerHostname("192.168.33.10");
-        serverConfig.setPrimaryLdapServerPort(636);
+        serverConfig.setPrimaryLdapServerHostname(ldapServer.getConnection().getConnectedAddress());
+        serverConfig.setPrimaryLdapServerPort(ldapServer.getListenPort("LDAPS"));
         serverConfig.setMaxConnections(1);
-        serverConfig.setBindDn("cn=root,dc=lumify,dc=io");
-        serverConfig.setBindPassword("lumify");
+        serverConfig.setBindDn(BIND_DN);
+        serverConfig.setBindPassword(BIND_PASSWORD);
         return serverConfig;
     }
 
