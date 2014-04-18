@@ -80,6 +80,7 @@
         <kryo.version>2.17</kryo.version>
         <lesscss.version>1.3.3</lesscss.version>
         <log4j.version>1.2.17</log4j.version>
+        <lucene.version>4.7.0</lucene.version>
         <metrics.version>3.0.1</metrics.version>
         <securegraph.version>0.3.0-SNAPSHOT</securegraph.version>
         <slf4j.version>1.7.5</slf4j.version>

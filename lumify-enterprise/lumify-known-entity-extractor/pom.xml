@@ -22,11 +22,31 @@
         <dependency>
             <groupId>org.arabidopsis.ahocorasick</groupId>
             <artifactId>ahocorasick</artifactId>
+            <exclusions>
+                <exclusion>
+                    <groupId>org.apache.lucene</groupId>
+                    <artifactId>lucene-core</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>org.apache.lucene</groupId>
+                    <artifactId>lucene-analyzers-common</artifactId>
+                </exclusion>
+            </exclusions>
         </dependency>
         <dependency>
             <groupId>net.sf.supercsv</groupId>
             <artifactId>super-csv</artifactId>
             <version>${supercsv.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.lucene</groupId>
+            <artifactId>lucene-core</artifactId>
+            <version>${lucene.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.lucene</groupId>
+            <artifactId>lucene-analyzers-common</artifactId>
+            <version>${lucene.version}</version>
         </dependency>
     </dependencies>
 
