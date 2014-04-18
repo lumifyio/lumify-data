@@ -22,6 +22,17 @@
         <dependency>
             <groupId>com.bericotech</groupId>
             <artifactId>clavin</artifactId>
+            <!-- TODO remove this when clavin upgrades lucene -->
+            <exclusions>
+                <exclusion>
+                    <groupId>org.apache.lucene</groupId>
+                    <artifactId>lucene-core</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>org.apache.lucene</groupId>
+                    <artifactId>lucene-analyzers-common</artifactId>
+                </exclusion>
+            </exclusions>
         </dependency>
     </dependencies>
 
