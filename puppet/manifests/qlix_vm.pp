@@ -4,6 +4,12 @@ require java
 include macro::git
 include env::dev::nodejs
 
+# no firewall for local vms
+service { 'iptables' :
+  enable => false,
+  ensure => 'stopped',
+}
+
 class { 'env::common::config' :
   main_properties_filename => 'lumify-qlix.properties',
 }
