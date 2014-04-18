@@ -1,4 +1,10 @@
-include env::demo
+#include env::demo
+require buildtools
+require java
+
+class { 'env::common::config' :
+  main_properties_filename => 'lumify-qlix.properties',
+}
 
 include httpd
 include httpd::mod_jk
@@ -85,7 +91,7 @@ $mysql_grants = {
 }
 
 class { 'mysql::server' :
-  remove_default_accounts => true,
+  #remove_default_accounts => true,
   restart => true,
   override_options => { 'mysqld' => { 'bind-address' => '0.0.0.0' } },
   databases => $myql_databases,
@@ -144,7 +150,7 @@ $ldap_config_password = 'lumify'
 $ldap_config_ldif_filename = '/etc/openldap/slapd.d/cn\=config/olcDatabase\=\{0\}config.ldif'
 
 exec { 'set-ldap-config-password' :
-  command => "/bin/echo -n 'olcRootPW: ' >> ${ldap_config_ldif_filename} && /usr/sbin/slappasswd -s '${ldap_password}' >> ${ldap_config_ldif_filename}",
+  command => "/bin/echo -n 'olcRootPW: ' >> ${ldap_config_ldif_filename} && /usr/sbin/slappasswd -s '${ldap_config_password}' >> ${ldap_config_ldif_filename}",
   unless  => "/bin/grep -q 'olcRootPW' ${ldap_config_ldif_filename}",
   notify  => Service['slapd'],
   require => Package['openldap-servers'],
