@@ -16,10 +16,6 @@ import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
-import javax.net.ServerSocketFactory;
-import javax.net.SocketFactory;
-import javax.net.ssl.SSLSocketFactory;
-import java.net.Inet4Address;
 import java.net.InetAddress;
 import java.security.GeneralSecurityException;
 
@@ -32,8 +28,8 @@ public class LdapSearchServiceTest {
 
     @BeforeClass
     public static void setUp() throws Exception {
-        KeyStoreKeyManager ksManager = new KeyStoreKeyManager("config/ssl/lumify-vm.lumify.io.jks", "password".toCharArray());
-        TrustStoreTrustManager tsManager = new TrustStoreTrustManager("config/ssl/lumify-ca.jks");
+        KeyStoreKeyManager ksManager = new KeyStoreKeyManager(classpathResource("/keystore.jks"), "password".toCharArray());
+        TrustStoreTrustManager tsManager = new TrustStoreTrustManager(classpathResource("/truststore.jks"));
         SSLUtil serverSslUtil = new SSLUtil(ksManager, tsManager);
         SSLUtil clientSslUtil = new SSLUtil(new TrustAllTrustManager());
         InMemoryListenerConfig sslConfig = InMemoryListenerConfig.createLDAPSConfig(
@@ -50,21 +46,13 @@ public class LdapSearchServiceTest {
 
         ldapServer = new InMemoryDirectoryServer(ldapConfig);
 
-        ldapServer.importFromLDIF(false, "config/ssl/init.ldif");
-
-        ldapServer.importFromLDIF(false, "config/ssl/users/people.ldif");
-        ldapServer.importFromLDIF(false, "config/ssl/users/alice.ldif");
-        ldapServer.importFromLDIF(false, "config/ssl/users/bob.ldif");
-        ldapServer.importFromLDIF(false, "config/ssl/users/carlos.ldif");
-        ldapServer.importFromLDIF(false, "config/ssl/users/diane.ldif");
-
-        ldapServer.importFromLDIF(false, "config/ssl/groups/groups.ldif");
-        ldapServer.importFromLDIF(false, "config/ssl/groups/admins.ldif");
-        ldapServer.importFromLDIF(false, "config/ssl/groups/a-users.ldif");
-        ldapServer.importFromLDIF(false, "config/ssl/groups/b-users.ldif");
-        ldapServer.importFromLDIF(false, "config/ssl/groups/c-users.ldif");
-        ldapServer.importFromLDIF(false, "config/ssl/groups/d-users.ldif");
-        ldapServer.importFromLDIF(false, "config/ssl/groups/all-users.ldif");
+        ldapServer.importFromLDIF(false, classpathResource("/init.ldif"));
+        ldapServer.importFromLDIF(false, classpathResource("/people.ldif"));
+        ldapServer.importFromLDIF(false, classpathResource("/people-alice.ldif"));
+        ldapServer.importFromLDIF(false, classpathResource("/people-bob.ldif"));
+        ldapServer.importFromLDIF(false, classpathResource("/people-carlos.ldif"));
+        ldapServer.importFromLDIF(false, classpathResource("/people-diane.ldif"));
+        ldapServer.importFromLDIF(false, classpathResource("/groups.ldif"));
 
         ldapServer.startListening();
     }
@@ -105,6 +93,10 @@ public class LdapSearchServiceTest {
     public void searchForNonExistentPerson() throws GeneralSecurityException, LDAPException {
         LdapSearchService service = new LdapSearchServiceImpl(getServerConfig(), getSearchConfig());
         service.search("cn=Missing");
+    }
+
+    private static String classpathResource(String name) {
+        return LdapSearchServiceTest.class.getResource(name).getPath();
     }
 
     private LdapServerConfiguration getServerConfig() throws LDAPException {
