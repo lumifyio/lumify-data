@@ -17,6 +17,7 @@ DIR="$(cd -P "$(dirname "$SOURCE")" && pwd)"
   bundle_filename="${DIR}/../../lumify-all.$(date '+%Y%m%dT%H%M').bundle"
   git bundle create ${bundle_filename} ${ref}
   git tag -f last-bundle master
+  git push origin :last-bundle
   git push origin last-bundle
   echo "created ${bundle_filename}"
 )
