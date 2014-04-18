@@ -1,5 +1,6 @@
 package com.altamiracorp.lumify.ldap;
 
+import com.altamiracorp.lumify.core.exception.LumifyException;
 import com.unboundid.ldap.listener.InMemoryDirectoryServer;
 import com.unboundid.ldap.listener.InMemoryDirectoryServerConfig;
 import com.unboundid.ldap.listener.InMemoryListenerConfig;
@@ -31,9 +32,6 @@ public class LdapSearchServiceTest {
 
     @BeforeClass
     public static void setUp() throws Exception {
-        InMemoryDirectoryServerConfig ldapConfig = new InMemoryDirectoryServerConfig("dc=lumify,dc=io");
-        ldapConfig.addAdditionalBindCredentials(BIND_DN, BIND_PASSWORD);
-
         KeyStoreKeyManager ksManager = new KeyStoreKeyManager("config/ssl/lumify-vm.lumify.io.jks", "password".toCharArray());
         TrustStoreTrustManager tsManager = new TrustStoreTrustManager("config/ssl/lumify-ca.jks");
         SSLUtil serverSslUtil = new SSLUtil(ksManager, tsManager);
@@ -45,6 +43,9 @@ public class LdapSearchServiceTest {
                 serverSslUtil.createSSLServerSocketFactory(),
                 clientSslUtil.createSSLSocketFactory()
         );
+
+        InMemoryDirectoryServerConfig ldapConfig = new InMemoryDirectoryServerConfig("dc=lumify,dc=io");
+        ldapConfig.addAdditionalBindCredentials(BIND_DN, BIND_PASSWORD);
         ldapConfig.setListenerConfigs(sslConfig);
 
         ldapServer = new InMemoryDirectoryServer(ldapConfig);
@@ -98,6 +99,12 @@ public class LdapSearchServiceTest {
         assertEquals("4", result.getAttributeValue("employeeNumber"));
 
         printResult(result);
+    }
+
+    @Test(expected = LumifyException.class)
+    public void searchForNonExistentPerson() throws GeneralSecurityException, LDAPException {
+        LdapSearchService service = new LdapSearchServiceImpl(getServerConfig(), getSearchConfig());
+        service.search("cn=Missing");
     }
 
     private LdapServerConfiguration getServerConfig() throws LDAPException {
