@@ -1,6 +1,8 @@
 #include env::demo
 require buildtools
 require java
+include macro::git
+include env::dev::nodejs
 
 class { 'env::common::config' :
   main_properties_filename => 'lumify-qlix.properties',
