@@ -54,6 +54,11 @@
             <artifactId>lumify-model-bigtable-queue</artifactId>
             <version>${project.version}</version>
         </dependency>
+        <dependency>
+            <groupId>com.altamiracorp.lumify</groupId>
+            <artifactId>lumify-model-securegraph</artifactId>
+            <version>${project.version}</version>
+        </dependency>
 
         <dependency>
             <groupId>com.altamiracorp.jmxui</groupId>

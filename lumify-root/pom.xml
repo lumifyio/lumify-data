@@ -62,7 +62,7 @@
         <commons.io.version>2.4</commons.io.version>
         <commons.lang.version>2.5</commons.lang.version>
         <curator.version>1.0.1</curator.version>
-        <elasticsearch.version>0.90.0</elasticsearch.version>
+        <elasticsearch.version>1.1.0</elasticsearch.version>
         <evo.inflector.version>1.0.1</evo.inflector.version>
         <guava.version>13.0.1</guava.version>
         <guice.version>3.0</guice.version>
