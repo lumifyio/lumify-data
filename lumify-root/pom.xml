@@ -115,7 +115,7 @@
         <plugin.maven.jxr.version>2.3</plugin.maven.jxr.version>
         <plugin.maven.project.info.reports.version>2.7</plugin.maven.project.info.reports.version>
         <plugin.maven.resources.version>2.6</plugin.maven.resources.version>
-        <plugin.maven.shade.version>2.2</plugin.maven.shade.version
+        <plugin.maven.shade.version>2.2</plugin.maven.shade.version>
         <plugin.maven.site.version>3.3</plugin.maven.site.version>
         <plugin.maven.source.version>2.2.1</plugin.maven.source.version>
         <plugin.maven.surefire.version>2.16</plugin.maven.surefire.version>
