@@ -28,6 +28,7 @@
         <clavin.version>1.1.0-Altamira</clavin.version>
         <commons.httpclient.version>3.1</commons.httpclient.version>
         <libphonenumber.version>5.7</libphonenumber.version>
+        <lucene.version>4.7.0</lucene.version>
         <lumify.public.version>0.2.0-SNAPSHOT</lumify.public.version>
         <lumify.twitter.version>0.2.0-SNAPSHOT</lumify.twitter.version>
         <opencv.version>2.4.5</opencv.version>
