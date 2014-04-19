@@ -21,6 +21,7 @@ import java.security.cert.CertificateException;
 import java.security.cert.CertificateFactory;
 import java.security.cert.X509Certificate;
 import java.util.Arrays;
+import java.util.Set;
 
 public class LdapX509AuthenticationProvider extends X509AuthenticationProvider {
     private static final LumifyLogger LOGGER = LumifyLoggerFactory.getLogger(LdapX509AuthenticationProvider.class);
@@ -60,29 +61,30 @@ public class LdapX509AuthenticationProvider extends X509AuthenticationProvider {
 
     @Override
     protected User getUser(HttpServletRequest request, X509Certificate cert) {
-        // TODO: use DN from cert because we might be using attributes and not headers
-        String dn = getHeaderClientDN(request);
+        SearchResultEntry searchResultEntry = ldapSearchService.searchPeople(cert);
+        LOGGER.debug("searchResultEntry is\n" + searchResultEntry.toLDIFString());
 
-        SearchResultEntry searchResultEntry = ldapSearchService.search(dn, cert);
-        LOGGER.info("searchResultEntry is\n" + searchResultEntry.toLDIFString());
+        Set<String> groups = ldapSearchService.searchGroups(searchResultEntry);
+        LOGGER.debug("retrieved groups %s for user dn %s", groups, searchResultEntry.getDN());
 
-        String username;
-        if (ldapX509AuthenticationConfiguration.getUsernameAttribute() != null) {
-            username = searchResultEntry.getAttributeValue(ldapX509AuthenticationConfiguration.getUsernameAttribute());
-        } else {
-            username = super.getUsername(cert);
-        }
+        String username = getAttributeValue(
+                searchResultEntry, ldapX509AuthenticationConfiguration.getUsernameAttribute(), super.getUsername(cert));
 
-        String displayName;
-        if (ldapX509AuthenticationConfiguration.getDisplayNameAttribute() != null) {
-            displayName = searchResultEntry.getAttributeValue(ldapX509AuthenticationConfiguration.getDisplayNameAttribute());
-        } else {
-            displayName = username;
-        }
+        String displayName = getAttributeValue(
+                searchResultEntry, ldapX509AuthenticationConfiguration.getDisplayNameAttribute(), username);
 
-        User user = getUserRepository().findOrAddUser(username, displayName, X509_USER_PASSWORD, new String[0]);
-        LOGGER.info("user is %s", user.toString());
+        User user = getUserRepository().findOrAddUser(
+                username,
+                displayName,
+                X509_USER_PASSWORD,
+                groups.toArray(new String[groups.size()])
+        );
+        LOGGER.debug("user is %s", user.toString());
         return user;
+    }
+
+    private String getAttributeValue(SearchResultEntry entry, String attrName, String defaultValue) {
+        return attrName != null ? entry.getAttributeValue(attrName) : defaultValue;
     }
 
     @Override

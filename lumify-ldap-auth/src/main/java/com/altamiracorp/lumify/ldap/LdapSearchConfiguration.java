@@ -15,6 +15,9 @@ public class LdapSearchConfiguration {
     private String userCertificateAttribute;
     private String groupSearchBase;
     private SearchScope groupSearchScope;
+    private String userSearchFilter;
+    private String groupRoleAttribute;
+    private String groupSearchFilter;
 
     @Configurable(name = "user-search-base")
     public void setUserSearchBase(String userSearchBase) {
@@ -31,6 +34,11 @@ public class LdapSearchConfiguration {
         this.userAttributes = Arrays.asList(userAttributes.split(","));
     }
 
+    @Configurable(name = "user-search-filter", defaultValue = "(cn=${cn})")
+    public void setUserSearchFilter(String userSearchFilter) {
+        this.userSearchFilter = userSearchFilter;
+    }
+
     @Configurable(name = "user-certificate-attribute", defaultValue = "userCertificate;binary")
     public void setUserCertificateAttribute(String userCertificateAttribute) {
         this.userCertificateAttribute = userCertificateAttribute;
@@ -44,6 +52,16 @@ public class LdapSearchConfiguration {
     @Configurable(name = "group-search-scope")
     public void setGroupSearchScope(String groupSearchScope) {
         this.groupSearchScope = toSearchScope(groupSearchScope);
+    }
+
+    @Configurable(name = "group-role-attribute", defaultValue = "cn")
+    public void setGroupRoleAttribute(String groupRoleAttribute) {
+        this.groupRoleAttribute = groupRoleAttribute;
+    }
+
+    @Configurable(name = "group-search-filter", defaultValue = "(uniqueMember=${dn})")
+    public void setGroupSearchFilter(String groupSearchFilter) {
+        this.groupSearchFilter = groupSearchFilter;
     }
 
     public String getUserSearchBase() {
@@ -68,6 +86,18 @@ public class LdapSearchConfiguration {
 
     public SearchScope getGroupSearchScope() {
         return groupSearchScope;
+    }
+
+    public String getUserSearchFilter() {
+        return userSearchFilter;
+    }
+
+    public String getGroupRoleAttribute() {
+        return groupRoleAttribute;
+    }
+
+    public String getGroupSearchFilter() {
+        return groupSearchFilter;
     }
 
     private SearchScope toSearchScope(String searchScope) {

@@ -7,6 +7,8 @@ import com.unboundid.ldap.listener.InMemoryListenerConfig;
 import com.unboundid.ldap.sdk.Attribute;
 import com.unboundid.ldap.sdk.LDAPException;
 import com.unboundid.ldap.sdk.SearchResultEntry;
+import com.unboundid.ldif.LDIFException;
+import com.unboundid.ldif.LDIFReader;
 import com.unboundid.util.ssl.KeyStoreKeyManager;
 import com.unboundid.util.ssl.SSLUtil;
 import com.unboundid.util.ssl.TrustAllTrustManager;
@@ -16,8 +18,12 @@ import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
-import java.net.InetAddress;
-import java.security.GeneralSecurityException;
+import java.io.ByteArrayInputStream;
+import java.io.IOException;
+import java.security.cert.CertificateException;
+import java.security.cert.CertificateFactory;
+import java.security.cert.X509Certificate;
+import java.util.Set;
 
 import static org.junit.Assert.*;
 
@@ -51,8 +57,9 @@ public class LdapSearchServiceTest {
         ldapServer.importFromLDIF(false, classpathResource("/people-alice.ldif"));
         ldapServer.importFromLDIF(false, classpathResource("/people-bob.ldif"));
         ldapServer.importFromLDIF(false, classpathResource("/people-carlos.ldif"));
-        ldapServer.importFromLDIF(false, classpathResource("/people-diane.ldif"));
         ldapServer.importFromLDIF(false, classpathResource("/groups.ldif"));
+        ldapServer.importFromLDIF(false, classpathResource("/groups-admins.ldif"));
+        ldapServer.importFromLDIF(false, classpathResource("/groups-managers.ldif"));
 
         ldapServer.startListening();
     }
@@ -63,36 +70,47 @@ public class LdapSearchServiceTest {
     }
 
     @Test
-    public void searchForAliceWithMatchingCert() throws GeneralSecurityException, LDAPException {
+    public void searchForAliceWithMatchingCert() throws Exception {
         LdapSearchService service = new LdapSearchServiceImpl(getServerConfig(), getSearchConfig());
-        SearchResultEntry result = service.search("cn=Alice", getAliceCert());
+        SearchResultEntry result = service.searchPeople(getPersonCertificate("alice"));
 
         assertNotNull(result);
         assertEquals("cn=Alice,ou=people,dc=lumify,dc=io", result.getDN());
         assertEquals("Alice Smith-Y-", result.getAttributeValue("displayName"));
         assertEquals("3", result.getAttributeValue("employeeNumber"));
-        assertArrayEquals(getAliceCert(), result.getAttributeValueBytes("userCertificate;binary"));
+        assertArrayEquals(getPersonCertificate("alice").getEncoded(), result.getAttributeValueBytes("userCertificate;binary"));
+
+        Set<String> groups = service.searchGroups(result);
+        assertNotNull(groups);
+        assertEquals(2, groups.size());
+        assertTrue(groups.contains("admins"));
+        assertTrue(groups.contains("managers"));
 
         printResult(result);
     }
 
     @Test
-    public void searchForBob() throws GeneralSecurityException, LDAPException {
+    public void searchForBob() throws Exception {
         LdapSearchService service = new LdapSearchServiceImpl(getServerConfig(), getSearchConfig());
-        SearchResultEntry result = service.search("cn=Bob");
+        SearchResultEntry result = service.searchPeople(getPersonCertificate("bob"));
 
         assertNotNull(result);
         assertEquals("cn=Bob,ou=people,dc=lumify,dc=io", result.getDN());
         assertEquals("Bob Maluga-Y-", result.getAttributeValue("displayName"));
         assertEquals("4", result.getAttributeValue("employeeNumber"));
 
+        Set<String> groups = service.searchGroups(result);
+        assertNotNull(groups);
+        assertEquals(1, groups.size());
+        assertTrue(groups.contains("admins"));
+
         printResult(result);
     }
 
     @Test(expected = LumifyException.class)
-    public void searchForNonExistentPerson() throws GeneralSecurityException, LDAPException {
+    public void searchForNonExistentPerson() throws Exception {
         LdapSearchService service = new LdapSearchServiceImpl(getServerConfig(), getSearchConfig());
-        service.search("cn=Missing");
+        service.searchPeople(getPersonCertificate("diane"));
     }
 
     private static String classpathResource(String name) {
@@ -119,14 +137,20 @@ public class LdapSearchServiceTest {
         searchConfig.setUserCertificateAttribute("userCertificate;binary");
         searchConfig.setGroupSearchBase("dc=lumify,dc=io");
         searchConfig.setGroupSearchScope("sub");
+        searchConfig.setUserSearchFilter("(cn=${cn})");
+        searchConfig.setGroupRoleAttribute("cn");
+        searchConfig.setGroupSearchBase("ou=groups,dc=lumify,dc=io");
+        searchConfig.setGroupSearchFilter("(uniqueMember=${dn})");
+        searchConfig.setGroupSearchScope("sub");
         return searchConfig;
     }
 
-    private byte[] getAliceCert() {
-        return Base64.decodeBase64(CERT_BASE64_ALICE);
+    private X509Certificate getPersonCertificate(String personName) throws IOException, LDIFException, CertificateException {
+        LDIFReader reader = new LDIFReader(classpathResource("/people-" + personName + ".ldif"));
+        Attribute certAttr = reader.readEntry().getAttribute(getSearchConfig().getUserCertificateAttribute());
+        CertificateFactory certificateFactory = CertificateFactory.getInstance("X.509");
+        return (X509Certificate) certificateFactory.generateCertificate(new ByteArrayInputStream(certAttr.getValueByteArray()));
     }
-
-    private static final String CERT_BASE64_ALICE = "MIIDXDCCAkSgAwIBAgIBAzANBgkqhkiG9w0BAQUFADBWMQswCQYDVQQGEwJVUzERMA8GA1UECBMIVmlyZ2luaWExDzANBgNVBAoTBkx1bWlmeTEjMCEGA1UEAxQaIzM2MSBDZXJ0aWZpY2F0ZSBBdXRob3JpdHkwHhcNMTQwNDExMTg1MDQ1WhcNMTYwNDEwMTg1MDQ1WjAQMQ4wDAYDVQQDEwVBbGljZTCCASIwDQYJKoZIhvcNAQEBBQADggEPADCCAQoCggEBAMbcBCBeXrbIKVvUNZ7JUwJrhDLYR1SXtqfcgrSASl5j6Ra37wh2PvgVaaG9/l7GvS29a3wSa9+zVsV7XSdR4557E+tfqVqRz9C6q28ZJdUcBLhe2FR9N0XzrtGGg3i/4wzc1ppr7+GS2sQymbeuRmvyory2H09aNTrXqbU2vLbkQoAbpaEiazmxFpIRn1JVi64bvw+Ds/FnIJC7daVlhn6Je6etCatnFET4OmOXlbP+/GnU2KsKbNelKuiGjqvcrF1AEd8D3qPB58vTVMfR/hYtpyuv1K+sHGC8SFQCvefEQMlwlfo6nb/wrn+44SBpEQ8fshmz0w6Zp6sz+L1Sv60CAwEAAaN7MHkwCQYDVR0TBAIwADAsBglghkgBhvhCAQ0EHxYdT3BlblNTTCBHZW5lcmF0ZWQgQ2VydGlmaWNhdGUwHQYDVR0OBBYEFGFD3vCoMiTYdz2jHEb+Fr5LPZUKMB8GA1UdIwQYMBaAFCZac+S7v8SMAXWZ8r8QEdz+COwqMA0GCSqGSIb3DQEBBQUAA4IBAQDSTj/6ZTqT1yPIj8AfGs/JnFOAnDrN0SiJEMm06JHIMF7xotg1Sq+y21+UkUDHgIDXhKqOfElzG6W6mZZV02yHh709EYZGqviVNW+H1AVOWoFLtLEQD9v4VJa5UzIXU+EfxV1eKbNiZ3CO18fuC36QiQFewnPTU+TwRsuKuFM1aJQyPxthQmkbrKqWDcV6YVSlSUsFRpb77wnTC/o+ogjR02ekrqugp7OfrM0WMMERrALl432FkXc5ZNbjhbNry1BwS0qbTBW3CCuvInMNb4AbQP3Q+3mIEqPGDUxOznLKTKpRhoxDdZWEGs0rXNOE6rqjAL62em6KyRGF0z9vVshh";
 
     private void printResult(SearchResultEntry result) {
         System.out.println();

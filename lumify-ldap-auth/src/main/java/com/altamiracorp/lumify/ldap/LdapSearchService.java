@@ -3,11 +3,9 @@ package com.altamiracorp.lumify.ldap;
 import com.unboundid.ldap.sdk.SearchResultEntry;
 
 import java.security.cert.X509Certificate;
+import java.util.Set;
 
 public interface LdapSearchService {
-    SearchResultEntry search(String dn, X509Certificate cert);
-
-    SearchResultEntry search(String dn, byte[] cert);
-
-    SearchResultEntry search(String dn);
+    SearchResultEntry searchPeople(X509Certificate certificate);
+    Set<String> searchGroups(SearchResultEntry personEntry);
 }

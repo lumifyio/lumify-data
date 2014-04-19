@@ -5,14 +5,16 @@ import com.google.inject.Singleton;
 import com.unboundid.ldap.sdk.*;
 import com.unboundid.util.ssl.SSLUtil;
 import com.unboundid.util.ssl.TrustStoreTrustManager;
+import org.apache.commons.lang.text.StrSubstitutor;
 
+import javax.naming.InvalidNameException;
+import javax.naming.ldap.LdapName;
+import javax.naming.ldap.Rdn;
 import javax.net.ssl.SSLSocketFactory;
 import java.security.GeneralSecurityException;
 import java.security.cert.CertificateEncodingException;
 import java.security.cert.X509Certificate;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
+import java.util.*;
 
 @Singleton
 public class LdapSearchServiceImpl implements LdapSearchService {
@@ -49,16 +51,9 @@ public class LdapSearchServiceImpl implements LdapSearchService {
         ldapSearchConfiguration = searchConfig;
     }
 
-    public SearchResultEntry search(String dn, byte[] certificate) {
-        // TODO: populate groups
-
-        // TODO: Filter.createEqualityFilter("dn", dn);
-        Filter filter = null;
-        try {
-            filter = Filter.create("(" + dn + ")");
-        } catch (LDAPException e) {
-            throw new LumifyException("Could not create filter", e);
-        }
+    @Override
+    public SearchResultEntry searchPeople(X509Certificate certificate) {
+        Filter filter = buildPeopleSearchFilter(certificate);
 
         List<String> attributeNames = new ArrayList<String>(ldapSearchConfiguration.getUserAttributes());
         if (certificate != null) {
@@ -67,7 +62,12 @@ public class LdapSearchServiceImpl implements LdapSearchService {
 
         SearchResult results;
         try {
-            results = pool.search(ldapSearchConfiguration.getUserSearchBase(), ldapSearchConfiguration.getUserSearchScope(), filter, attributeNames.toArray(new String[attributeNames.size()]));
+            results = pool.search(
+                    ldapSearchConfiguration.getUserSearchBase(),
+                    ldapSearchConfiguration.getUserSearchScope(),
+                    filter,
+                    attributeNames.toArray(new String[attributeNames.size()])
+            );
         } catch (LDAPSearchException lse) {
             if (lse.getResultCode() == ResultCode.NO_SUCH_OBJECT) {
                 throw new LumifyException("no results for LDAP search: " + filter, lse);
@@ -80,15 +80,7 @@ public class LdapSearchServiceImpl implements LdapSearchService {
         }
 
         if (certificate != null) {
-            for (SearchResultEntry entry : results.getSearchEntries()) {
-                byte[][] entryCertificates = entry.getAttributeValueByteArrays(ldapSearchConfiguration.getUserCertificateAttribute());
-                for (byte[] entryCertificate : entryCertificates) {
-                    if (Arrays.equals(entryCertificate, certificate)) {
-                        return entry;
-                    }
-                }
-            }
-            throw new LumifyException("no results with matching certificate for LDAP search: " + filter);
+            return getMatchingSearchResultEntry(certificate, filter, results);
         } else {
             if (results.getEntryCount() > 1) {
                 throw new LumifyException("certificate matching not requested and more than one result for LDAP search: " + filter);
@@ -97,15 +89,75 @@ public class LdapSearchServiceImpl implements LdapSearchService {
         }
     }
 
-    public SearchResultEntry search(String dn, X509Certificate certificate) {
+    @Override
+    public Set<String> searchGroups(SearchResultEntry personEntry) {
+        Map<String, String> subs = new HashMap<String, String>();
+        subs.put("dn", personEntry.getDN());
+        for (Attribute attr : personEntry.getAttributes()) {
+            subs.put(attr.getName(), attr.getValue());
+        }
+
         try {
-            return search(dn, certificate.getEncoded());
-        } catch (CertificateEncodingException cee) {
-            throw new LumifyException("unable convert X509Certificate to byte[]", cee);
+            StrSubstitutor sub = new StrSubstitutor(subs);
+            String filterStr = sub.replace(ldapSearchConfiguration.getGroupSearchFilter());
+            Filter filter = Filter.create(filterStr);
+            SearchResult results = pool.search(
+                    ldapSearchConfiguration.getGroupSearchBase(),
+                    ldapSearchConfiguration.getGroupSearchScope(),
+                    filter,
+                    ldapSearchConfiguration.getGroupRoleAttribute()
+            );
+
+            Set<String> groupNames = new HashSet<String>();
+            for (SearchResultEntry entry : results.getSearchEntries()) {
+                if (entry.hasAttribute(ldapSearchConfiguration.getGroupRoleAttribute())) {
+                    groupNames.add(entry.getAttributeValue(ldapSearchConfiguration.getGroupRoleAttribute()));
+                }
+            }
+
+            return groupNames;
+        } catch (LDAPSearchException e) {
+            throw new LumifyException("search failed", e);
+        } catch (LDAPException e) {
+            throw new LumifyException("Could not create filter", e);
         }
     }
 
-    public SearchResultEntry search(String dn) {
-        return search(dn, (byte[]) null);
+    private Filter buildPeopleSearchFilter(X509Certificate certificate) {
+        String certSubjectName = certificate.getSubjectX500Principal().getName();
+        try {
+            LdapName ldapDN = new LdapName(certSubjectName);
+            Map<String, Object> subs = new HashMap<String, Object>();
+            for (Rdn rdn : ldapDN.getRdns()) {
+                subs.put(rdn.getType().toLowerCase(), rdn.getValue());
+            }
+            StrSubstitutor sub = new StrSubstitutor(subs);
+            String filterStr = sub.replace(ldapSearchConfiguration.getUserSearchFilter());
+            return Filter.create(filterStr);
+        } catch (InvalidNameException e) {
+            throw new LumifyException("invalid certificate subject name: " + certSubjectName, e);
+        } catch (LDAPException e) {
+            throw new LumifyException("Could not create filter", e);
+        }
+    }
+
+    private SearchResultEntry getMatchingSearchResultEntry(X509Certificate certificate, Filter filter, SearchResult results) {
+        byte[] encodedCert = new byte[0];
+        try {
+            encodedCert = certificate.getEncoded();
+        } catch (CertificateEncodingException e) {
+            throw new LumifyException("unable to get encoded version of user certificate", e);
+        }
+
+        for (SearchResultEntry entry : results.getSearchEntries()) {
+            byte[][] entryCertificates = entry.getAttributeValueByteArrays(ldapSearchConfiguration.getUserCertificateAttribute());
+            for (byte[] entryCertificate : entryCertificates) {
+                if (Arrays.equals(entryCertificate, encodedCert)) {
+                    return entry;
+                }
+            }
+        }
+
+        throw new LumifyException("no results with matching certificate for LDAP search: " + filter);
     }
 }
