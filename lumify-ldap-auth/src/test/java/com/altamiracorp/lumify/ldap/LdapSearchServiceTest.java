@@ -86,7 +86,8 @@ public class LdapSearchServiceTest {
         assertTrue(groups.contains("admins"));
         assertTrue(groups.contains("managers"));
 
-        printResult(result);
+        System.out.println("groups = " + groups);
+        System.out.println(result.toLDIFString());
     }
 
     @Test
@@ -104,7 +105,8 @@ public class LdapSearchServiceTest {
         assertEquals(1, groups.size());
         assertTrue(groups.contains("admins"));
 
-        printResult(result);
+        System.out.println("groups = " + groups);
+        System.out.println(result.toLDIFString());
     }
 
     @Test(expected = LumifyException.class)
@@ -150,50 +152,5 @@ public class LdapSearchServiceTest {
         Attribute certAttr = reader.readEntry().getAttribute(getSearchConfig().getUserCertificateAttribute());
         CertificateFactory certificateFactory = CertificateFactory.getInstance("X.509");
         return (X509Certificate) certificateFactory.generateCertificate(new ByteArrayInputStream(certAttr.getValueByteArray()));
-    }
-
-    private void printResult(SearchResultEntry result) {
-        System.out.println();
-        System.out.println(result.getDN());
-        for (Attribute attribute : result.getAttributes()) {
-            System.out.println(attributeToString(attribute));
-        }
-    }
-
-    private String attributeToString(Attribute attribute) {
-        StringBuilder sb = new StringBuilder();
-        sb.append(attribute.getName());
-        sb.append(":");
-
-        if (attribute.getName().endsWith(";binary")) {
-            if (attribute.size() > 1) {
-                for (byte[] value : attribute.getValueByteArrays()) {
-                    sb.append("\n  ");
-                    sb.append(Base64.encodeBase64String(value));
-                    sb.append(" (");
-                    sb.append(value.length);
-                    sb.append(" bytes)");
-                }
-            } else {
-                byte[] value = attribute.getValueByteArray();
-                sb.append(" ");
-                sb.append(Base64.encodeBase64String(value));
-                sb.append(" (");
-                sb.append(value.length);
-                sb.append(" bytes)");
-            }
-        } else {
-            if (attribute.size() > 1) {
-                for (String value : attribute.getValues()) {
-                    sb.append("\n  ");
-                    sb.append(value);
-                }
-            } else {
-                sb.append(" ");
-                sb.append(attribute.getValue());
-            }
-        }
-
-        return sb.toString();
     }
 }
