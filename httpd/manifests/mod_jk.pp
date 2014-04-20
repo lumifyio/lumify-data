@@ -63,7 +63,7 @@ class httpd::mod_jk($tmpdir="/usr/local/src") {
             path    => '/etc/httpd/conf/extra',
             owner   => 'root',
             group   => 'root',
-            mode    => 'u=rw,go=r',
+            mode    => 'u=rwx,go=rx',
             require => File['/usr/lib64/httpd/modules/mod_jk.so'],
         }    
 
