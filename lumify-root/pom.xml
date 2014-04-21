@@ -410,6 +410,11 @@
             </dependency>
             <dependency>
                 <groupId>com.altamiracorp.securegraph</groupId>
+                <artifactId>securegraph-search</artifactId>
+                <version>${securegraph.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.altamiracorp.securegraph</groupId>
                 <artifactId>securegraph-inmemory</artifactId>
                 <version>${securegraph.version}</version>
             </dependency>
