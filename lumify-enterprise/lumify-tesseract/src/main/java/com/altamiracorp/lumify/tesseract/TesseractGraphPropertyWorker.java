@@ -26,12 +26,18 @@ public class TesseractGraphPropertyWorker extends GraphPropertyWorker {
     private static final LumifyLogger LOGGER = LumifyLoggerFactory.getLogger(TesseractGraphPropertyWorker.class);
     private static final List<String> ICON_MIME_TYPES = Arrays.asList("image/x-icon", "image/vnd.microsoft.icon");
     private static final String TEXT_PROPERTY_KEY = TesseractGraphPropertyWorker.class.getName();
+    private static final String CONFIG_DATA_PATH = "tesseract.dataPath";
     private Tesseract tesseract;
 
     @Override
     public void prepare(GraphPropertyWorkerPrepareData workerPrepareData) throws Exception {
         super.prepare(workerPrepareData);
         tesseract = Tesseract.getInstance();
+
+        String dataPath = getConfiguration().get(CONFIG_DATA_PATH);
+        if (dataPath != null) {
+            tesseract.setDatapath(dataPath);
+        }
     }
 
     @Override
