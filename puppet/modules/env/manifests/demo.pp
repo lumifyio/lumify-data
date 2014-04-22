@@ -28,9 +28,6 @@ class env::demo {
 
   install_script { [
     'format.sh',
-    'start.sh',
-    'stop.sh',
-    'status.sh',
     'shell.sh',
     'storm-run.sh',
     'storm-kill.sh'
