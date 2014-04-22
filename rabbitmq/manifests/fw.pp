@@ -7,13 +7,12 @@ class rabbitmq::fw::ui {
 }
 
 class rabbitmq::fw::amqp (
-  $srcnet = "0.0.0.0/0" ){
-    
+  $srcnet = "0.0.0.0/0"
+){
   firewall { '504 allow rabbitmq amqp' :
     port   => [5672],
     proto  => tcp,
     action => accept,
     source => "${srcnet}"
   }
-  
 }
