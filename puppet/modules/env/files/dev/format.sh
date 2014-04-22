@@ -38,6 +38,4 @@ until curl -XDELETE "http://$(facter ipaddress_eth0):9200/_all"; do
 	sleep 2
 done
 
-/opt/lumify/kafka-clear.sh
-
 /opt/lumify/start.sh

@@ -1,13 +1,6 @@
 **Complete the [Common Setup](running-lumify.md) steps before attempting ingest.**
 
 
-## Kafka Queue
-
-Unless using the `BigTableWorkQueueRepository`, create required Kafka queues with:
-
-    /opt/lumify/kafka-clear.sh
-
-
 ## Development Ontology
 
     bin/080_Ontology.sh
