@@ -38,10 +38,6 @@ setup
 
         /root/setup_config.sh
 
-1. **(OBE)** ssh from the puppet server to one of the kafka servers and run:
-
-        /opt/lumify/kafka-clear.sh --zookeeper 10.0.3.101:2181
-
 1. ssh from the puppet server to the web server and run:
 
         service jetty stop && rm -f /opt/jetty/logs/* && service jetty start && tail -100f /opt/jetty/logs/*

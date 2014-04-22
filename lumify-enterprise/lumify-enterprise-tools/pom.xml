@@ -56,6 +56,11 @@
         </dependency>
         <dependency>
             <groupId>com.altamiracorp.lumify</groupId>
+            <artifactId>lumify-model-rabbitmq</artifactId>
+            <version>${lumify.public.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>com.altamiracorp.lumify</groupId>
             <artifactId>lumify-model-securegraph</artifactId>
             <version>${project.version}</version>
         </dependency>

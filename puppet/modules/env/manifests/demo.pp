@@ -8,7 +8,7 @@ class env::demo {
   include role::hadoop::pseudo
   include role::accumulo::pseudo
   include role::elasticsearch::pseudo
-  include ::kafka
+  include ::rabbitmq
   include role::storm::master
   include role::storm::supervisor
 
@@ -35,10 +35,6 @@ class env::demo {
     'storm-run.sh',
     'storm-kill.sh'
   ] : }
-
-  install_script { 'kafka-clear.sh' :
-    type => 'common'
-  }
 
   file { '/etc/sysctl.conf' :
     source => 'puppet:///modules/env/dev/sysctl.conf',

@@ -16,8 +16,6 @@ namenode_ipaddress: %{ipaddress_eth1}
 namenode_hostname: lumify-vm.lumify.io
 elasticsearch_locations:
   - %{ipaddress_eth1}:9300
-kafka_host_ipaddresses:
-  1: %{ipaddress_eth1}
 storm_nimbus_host: %{ipaddress_eth1}
 storm_nimbus_thrift_port: 6627
 storm_supervisor_slots_ports: [6700, 6701, 6702, 6703]

@@ -159,7 +159,7 @@ public class StormRunner extends StormRunnerBase {
         TopologyBuilder builder = new TopologyBuilder();
 
         builder.setSpout(KAFKA_SPOUT_NAME,
-                new TweetKafkaSpout(getConfiguration(), TwitterConstants.TWITTER_QUEUE_NAME, getQueueStartOffsetTime()));
+                null);
         builder.setBolt(USER_BOLT_NAME, new TwitterUserParsingBolt(), parallelismHint)
                 .shuffleGrouping(KAFKA_SPOUT_NAME);
         builder.setBolt(PROFILE_PHOTO_BOLT_NAME, new TwitterProfilePhotoBolt(), parallelismHint)
