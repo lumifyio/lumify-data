@@ -8,8 +8,8 @@ map.tileServer.port=9999
 model.provider=com.altamiracorp.bigtable.model.accumulo.AccumuloSession
 authentication.provider=<%= @authentication_provider %>
 fs.provider=com.altamiracorp.lumify.fs.hdfs.HdfsSession
-work-queue-repository=com.altamiracorp.lumify.model.bigtablequeue.BigTableWorkQueueRepository
-work-queue-repository.tableprefix=atc_accumuloqueue_
+work-queue-repository=com.altamiracorp.lumify.model.rabbitmq.RabbitMQWorkQueueRepository
+rabbitmq.addr.0.host=<%= @hadoop_masters[0] %>
 user-repository=com.altamiracorp.lumify.securegraph.model.user.SecureGraphUserRepository
 workspace-repository=com.altamiracorp.lumify.securegraph.model.workspace.SecureGraphWorkspaceRepository
 authorization-repository=com.altamiracorp.lumify.core.model.user.AccumuloAuthorizationRepository
