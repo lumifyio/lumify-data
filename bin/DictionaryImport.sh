@@ -1,5 +1,4 @@
 #!/bin/bash
-# require: 100_FileImport.sh
 
 SOURCE="${BASH_SOURCE[0]}"
 while [ -h "$SOURCE" ]; do
@@ -9,7 +8,7 @@ while [ -h "$SOURCE" ]; do
 done
 DIR="$(cd -P "$(dirname "$SOURCE")" && pwd)"
 
-classpath=$(${DIR}/classpath.sh lumify-enterprise/lumify-enterprise-tools)
+classpath=$(${DIR}/../../../bin/classpath.sh lumify-enterprise/lumify-opennlp-dictionary-extractor)
 if [ $? -ne 0 ]; then
   echo "${classpath}"
   exit
@@ -18,8 +17,8 @@ fi
 java \
 -Dfile.encoding=UTF-8 \
 -classpath ${classpath} \
-com.altamiracorp.lumify.entityExtraction.DictionaryImporter \
+com.altamiracorp.lumify.opennlpDictionary.DictionaryImporter \
 --configLocation file:///opt/lumify/config/configuration.properties \
 --extension=dict \
---directory=${DIR}/../config/opennlp/dictionaries \
+--directory=${DIR}/../config/dictionaries \
 

@@ -8,7 +8,7 @@ while [ -h "$SOURCE" ]; do
 done
 DIR="$(cd -P "$(dirname "$SOURCE")" && pwd)"
 
-classpath=$(${DIR}/classpath.sh lumify-enterprise/lumify-enterprise-tools)
+classpath=$(${DIR}/classpath.sh lumify-public/lumify-core)
 if [ $? -ne 0 ]; then
   echo "${classpath}"
   exit
@@ -18,4 +18,5 @@ java \
 -Dfile.encoding=UTF-8 \
 -classpath ${classpath} \
 -Xmx1024M \
-com.altamiracorp.lumify.tools.OwlExport
+com.altamiracorp.lumify.core.cmdline.OwlExport \
+$*

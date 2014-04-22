@@ -14,10 +14,17 @@ if [ $? -ne 0 ]; then
   exit
 fi
 
+in=${DIR}/../lumify-public/lumify-ontology-dev/ontology/dev.owl
+iri=http://lumify.io/dev
+if [ $# -eq 2 ]; then
+  in=$1
+  iri=$2
+fi
+
 java \
 -Dfile.encoding=UTF-8 \
 -classpath ${classpath} \
 -Xmx1024M \
 com.altamiracorp.lumify.core.cmdline.OwlImport \
---in=${DIR}/../lumify-public/lumify-ontology-dev/ontology/dev.owl \
---iri=http://lumify.io/dev
+--in=${in} \
+--iri=${iri}

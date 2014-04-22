@@ -2,7 +2,7 @@
 
 case "$1" in
   accumulo | a)
-    open http://192.168.33.10:50095/status
+    open http://192.168.33.10:50095
     ;;
   namenode | nn)
     open http://192.168.33.10:50070
@@ -21,6 +21,9 @@ case "$1" in
     ;;
   storm | s)
     open http://192.168.33.10:8081
+    ;;
+  rabbitmq | q)
+    open http://192.168.33.10:15672
     ;;
   *)
     echo 'you must specify a supported console, one of:'
