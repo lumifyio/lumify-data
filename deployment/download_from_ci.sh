@@ -66,8 +66,6 @@ _download lumify/lumify-wikipedia-mr      "*with-dependencies.jar" lumify-wikipe
 _download lumify/lumify-version-inspector "*with-dependencies.jar" lumify-version.jar
 _download lumify/lumify-web-war           "*.war"                  lumify.war
 
-#_download lumify/lumify-twitter           "*with-dependencies.jar" lumify-twitter.jar
-#_download lumify/lumify-facebook          "*with-dependencies.jar" lumify-facebook.jar
 #_download securegraph/securegraph-tools   "*with-dependencies.jar" securegraph-tools.jar
 #_download lumify/lumify-account-web       "*.war"                  account.war
 #_download bigtable/bigtable-ui-war        "*.war"                  bigtable-ui.war

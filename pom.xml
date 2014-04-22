@@ -21,8 +21,6 @@
         <module>lumify-root</module>
         <module>lumify-public</module>
         <module>lumify-enterprise</module>
-        <module>lumify-facebook</module>
-        <module>lumify-twitter</module>
         <module>lumify-wikipedia</module>
         <module>lumify-account-web</module>
         <module>lumify-ldap-auth</module>

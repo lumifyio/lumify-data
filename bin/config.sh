@@ -38,20 +38,6 @@ function _enterprise {
   "
 }
 
-function _twitter {
-  _cp_files "
-	  lumify-twitter/docs/lumify-twitter.properties
-	  lumify-twitter/docs/lumify-twitter-PASSWORDS.properties
-  "
-}
-
-function _facebook {
-  _cp_files "
-	  lumify-facebook/docs/lumify-facebook.properties
-	  lumify-facebook/docs/lumify-facebook-PASSWORDS.properties
-  "
-}
-
 function _account {
   _cp_files "
 	  lumify-account-web/docs/account.properties
@@ -67,7 +53,5 @@ if [ "$1" ]; then
 else
   _public
   _enterprise
-  _twitter
-  _facebook
   _account
 fi
