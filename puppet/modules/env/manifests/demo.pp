@@ -8,7 +8,7 @@ class env::demo {
   include role::hadoop::pseudo
   include role::accumulo::pseudo
   include role::elasticsearch::pseudo
-  include ::rabbitmq
+  include role::rabbitmq::node
   include role::storm::master
   include role::storm::supervisor
 

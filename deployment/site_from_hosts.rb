@@ -8,6 +8,7 @@ MAP = {
   'accumulomaster'    => ['include env::cluster::accumulo_master'],
   'stormmaster'       => ['include env::cluster::storm_master'],
   /kafka\d{2}/        => ['include env::cluster::kafka_node'],
+  /rabbitmq\d{2}/     => ['include env::cluster::rabbitmq_node'],
   /node\d{2}/         => ['include env::cluster::node'],
   /zk\d{2}/           => ['include env::cluster::zookeeper_server'],
   /www(\d{2})?/       => ['include env::cluster::webserver']

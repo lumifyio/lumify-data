@@ -50,7 +50,7 @@ class env::common::config(
   $accumulo_masters = hiera_array('accumulo_masters')
   $accumulo_slaves = hiera_array('accumulo_slaves')
   $elasticsearch_locations = hiera_array('elasticsearch_locations')
-  $kafka_host_ipaddresses = hiera_hash('kafka_host_ipaddresses')
+  $rabbitmq_nodes = hiera_array('rabbitmq_nodes')
   $storm_supervisor_slots_ports = hiera_array('storm_supervisor_slots_ports')
   $authentication_provider = hiera('authentication_provider')
   $clavin_index_dir = hiera('clavin_index_dir')
