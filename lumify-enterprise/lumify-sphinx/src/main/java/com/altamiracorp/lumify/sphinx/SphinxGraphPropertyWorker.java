@@ -16,6 +16,8 @@ import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 
+import static com.google.common.base.Preconditions.checkNotNull;
+
 public class SphinxGraphPropertyWorker extends GraphPropertyWorker {
     private static final long BYTES_PER_SAMPLE = 2;
     private static final long SAMPLES_PER_SECOND = 16000;
@@ -44,6 +46,7 @@ public class SphinxGraphPropertyWorker extends GraphPropertyWorker {
     }
 
     private VideoTranscript extractTranscriptFromAudio(File localFile) throws IOException, InterruptedException {
+        checkNotNull(localFile, "localFile cannot be null");
         File wavFile = File.createTempFile("encode_wav_", ".wav");
         File wavFileNoSilence = File.createTempFile("encode_wav_no_silence_", ".wav");
         File wavFileNoHeaders = File.createTempFile("encode_wav_noheader_", ".wav");
@@ -68,6 +71,7 @@ public class SphinxGraphPropertyWorker extends GraphPropertyWorker {
     }
 
     private String runSphinx(File inFile) throws IOException, InterruptedException {
+        checkNotNull(inFile, "inFile cannot be null");
         ByteArrayOutputStream out = new ByteArrayOutputStream();
         try {
             processRunner.execute(
@@ -86,6 +90,8 @@ public class SphinxGraphPropertyWorker extends GraphPropertyWorker {
     }
 
     private void removeSilenceFromBeginning(File inFile, File outFile) throws IOException, InterruptedException {
+        checkNotNull(inFile, "inFile cannot be null");
+        checkNotNull(outFile, "outFile cannot be null");
         processRunner.execute(
                 "sox",
                 new String[]{
@@ -100,6 +106,8 @@ public class SphinxGraphPropertyWorker extends GraphPropertyWorker {
     }
 
     private void convertAudioTo16bit1Ch(File inputFile, File outputFile) throws IOException, InterruptedException {
+        checkNotNull(inputFile, "inputFile cannot be null");
+        checkNotNull(outputFile, "outputFile cannot be null");
         processRunner.execute(
                 "ffmpeg",
                 new String[]{
