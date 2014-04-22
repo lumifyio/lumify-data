@@ -2,14 +2,6 @@
 	url = git@github.com:altamiracorp/lumify.git
 	path = lumify-public
 	branch = master
-[subtree "lumify-twitter"]
-	url = git@github.com:altamiracorp/lumify-twitter.git
-	path = lumify-twitter
-	branch = master
-[subtree "lumify-facebook"]
-	url = git@github.com:altamiracorp/lumify-facebook.git
-	path = lumify-facebook
-	branch = master
 [subtree "lumify-root"]
 	url = git@github.com:altamiracorp/lumify-root.git
 	path = lumify-root

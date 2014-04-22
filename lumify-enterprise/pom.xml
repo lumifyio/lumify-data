@@ -30,7 +30,6 @@
         <libphonenumber.version>5.7</libphonenumber.version>
         <lucene.version>4.7.0</lucene.version>
         <lumify.public.version>0.2.0-SNAPSHOT</lumify.public.version>
-        <lumify.twitter.version>0.2.0-SNAPSHOT</lumify.twitter.version>
         <opencv.version>2.4.5</opencv.version>
         <opennlp.version>1.5.3</opennlp.version>
         <tika.version>1.5</tika.version>
@@ -79,11 +78,6 @@
                 <groupId>com.altamiracorp.lumify</groupId>
                 <artifactId>lumify-storm</artifactId>
                 <version>${lumify.public.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>com.altamiracorp.lumify</groupId>
-                <artifactId>lumify-twitter</artifactId>
-                <version>${lumify.twitter.version}</version>
             </dependency>
 
             <!-- Compile Dependencies -->
