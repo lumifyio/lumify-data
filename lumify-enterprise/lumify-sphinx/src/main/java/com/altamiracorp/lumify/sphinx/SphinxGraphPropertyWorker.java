@@ -36,7 +36,7 @@ public class SphinxGraphPropertyWorker extends GraphPropertyWorker {
         m.save();
 
         getGraph().flush();
-        getWorkQueueRepository().pushGraphPropertyQueue(data.getVertex().getId(), MULTI_VALUE_KEY, MediaLumifyProperties.VIDEO_TRANSCRIPT.getKey());
+        getWorkQueueRepository().pushGraphPropertyQueue(data.getVertex(), MULTI_VALUE_KEY, MediaLumifyProperties.VIDEO_TRANSCRIPT.getKey());
     }
 
     @Override

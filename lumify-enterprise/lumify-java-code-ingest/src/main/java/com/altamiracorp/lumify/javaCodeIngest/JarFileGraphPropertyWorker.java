@@ -43,7 +43,7 @@ public class JarFileGraphPropertyWorker extends GraphPropertyWorker {
 
             getGraph().flush();
 
-            getWorkQueueRepository().pushGraphPropertyQueue(jarEntryVertex.getId(), RawLumifyProperties.RAW.getProperty(jarEntryVertex));
+            getWorkQueueRepository().pushGraphPropertyQueue(jarEntryVertex, RawLumifyProperties.RAW.getProperty(jarEntryVertex));
         }
     }
 

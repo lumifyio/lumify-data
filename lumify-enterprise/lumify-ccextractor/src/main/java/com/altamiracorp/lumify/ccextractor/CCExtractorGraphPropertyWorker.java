@@ -42,7 +42,7 @@ public class CCExtractorGraphPropertyWorker extends GraphPropertyWorker {
             m.save();
 
             getGraph().flush();
-            getWorkQueueRepository().pushGraphPropertyQueue(data.getVertex().getId(), PROPERTY_KEY, MediaLumifyProperties.VIDEO_TRANSCRIPT.getKey());
+            getWorkQueueRepository().pushGraphPropertyQueue(data.getVertex(), PROPERTY_KEY, MediaLumifyProperties.VIDEO_TRANSCRIPT.getKey());
         } finally {
             ccFile.delete();
         }

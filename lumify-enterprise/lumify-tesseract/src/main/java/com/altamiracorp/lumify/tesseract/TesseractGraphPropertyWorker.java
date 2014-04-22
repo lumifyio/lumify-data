@@ -61,7 +61,7 @@ public class TesseractGraphPropertyWorker extends GraphPropertyWorker {
         RawLumifyProperties.TEXT.addPropertyValue(m, textPropertyKey, textValue, data.getPropertyMetadata(), data.getVisibility());
         m.save();
         getGraph().flush();
-        getWorkQueueRepository().pushGraphPropertyQueue(data.getVertex().getId(), textPropertyKey, RawLumifyProperties.TEXT.getKey());
+        getWorkQueueRepository().pushGraphPropertyQueue(data.getVertex(), textPropertyKey, RawLumifyProperties.TEXT.getKey());
     }
 
     private String extractTextFromImage(BufferedImage image) throws TesseractException {

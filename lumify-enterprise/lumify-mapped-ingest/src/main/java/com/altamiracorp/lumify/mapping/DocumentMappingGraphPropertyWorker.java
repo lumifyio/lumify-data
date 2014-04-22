@@ -48,8 +48,8 @@ public class DocumentMappingGraphPropertyWorker extends GraphPropertyWorker {
 
         getGraph().flush();
 
-        getWorkQueueRepository().pushGraphPropertyQueue(data.getVertex().getId(), MULTIVALUE_KEY, LumifyProperties.TITLE.getKey());
-        getWorkQueueRepository().pushGraphPropertyQueue(data.getVertex().getId(), MULTIVALUE_KEY, RawLumifyProperties.TEXT.getKey());
+        getWorkQueueRepository().pushGraphPropertyQueue(data.getVertex(), MULTIVALUE_KEY, LumifyProperties.TITLE.getKey());
+        getWorkQueueRepository().pushGraphPropertyQueue(data.getVertex(), MULTIVALUE_KEY, RawLumifyProperties.TEXT.getKey());
     }
 
     private void executeTermExtraction(InputStream in, GraphPropertyWorkData data, DocumentMapping mapping) throws IOException {

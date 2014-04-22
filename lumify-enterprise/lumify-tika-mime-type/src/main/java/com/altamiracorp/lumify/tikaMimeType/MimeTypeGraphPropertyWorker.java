@@ -46,7 +46,7 @@ public class MimeTypeGraphPropertyWorker extends GraphPropertyWorker {
         m.save();
 
         getGraph().flush();
-        getWorkQueueRepository().pushGraphPropertyQueue(data.getVertex().getId(), data.getProperty().getKey(), data.getProperty().getName());
+        getWorkQueueRepository().pushGraphPropertyQueue(data.getVertex(), data.getProperty());
     }
 
     @Override
