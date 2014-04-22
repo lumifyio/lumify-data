@@ -31,10 +31,10 @@ function elasticsearch {
     sudo initctl status elasticsearch
 }
 
-function kafka {
+function rabbitmq {
     echo ""
-    echo "Kafka"
-    sudo initctl status kafka
+    echo "rabbitmq"
+    sudo service rabbitmq-server status
 }
 
 function storm {
@@ -56,8 +56,8 @@ case "$1" in
   elasticsearch)
     elasticsearch
     ;;
-  kafka)
-    kafka
+  rabbitmq)
+    rabbitmq
     ;;
   storm-nimbus)
     storm nimbus
@@ -73,7 +73,7 @@ case "$1" in
     zk
     accumulo
     elasticsearch
-    kafka
+    rabbitmq
     storm nimbus
     storm supervisor
     storm ui

@@ -31,10 +31,10 @@ function elasticsearch {
     fi
 }
 
-function kafka {
-    echo "Stopping kafka..."
-    if sudo initctl status kafka | grep -q running; then
-        sudo initctl stop kafka
+function rabbitmq {
+    echo "Stopping rabbitmq..."
+    if sudo service rabbitmq-server status | grep -q RabbitMQ; then
+        sudo service rabbitmq-server stop
     fi
 }
 
@@ -62,8 +62,8 @@ case "$1" in
   elasticsearch)
     elasticsearch
     ;;
-  kafka)
-    kafka
+  rabbitmq)
+    rabbitmq
     ;;
   storm-nimbus)
     storm nimbus
@@ -83,7 +83,7 @@ case "$1" in
     storm ui
     storm supervisor
     storm nimbus
-    kafka
+    rabbitmq
     elasticsearch
     accumulo tserver
     accumulo gc

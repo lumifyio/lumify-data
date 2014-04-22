@@ -53,13 +53,12 @@ function elasticsearch {
     fi
 }
 
-function kafka {
-    echo "Starting kafka..."
-    if sudo initctl status kafka | grep -q stop; then
-        sudo -u zookeeper /usr/lib/zookeeper/bin/zkCli.sh create /kafka null
-        sudo initctl start kafka
+function rabbitmq {
+    echo "Starting rabbitmq..."
+    if sudo service rabbitmq-server status | grep -q RabbitMQ; then
+        sudo service rabbitmq-server start
     else
-        echo "kafka already running"
+        echo "rabbitmq already running"
     fi
 }
 
@@ -85,8 +84,8 @@ case "$1" in
   elasticsearch)
     elasticsearch
     ;;
-  kafka)
-    kafka
+  rabbitmq)
+    rabbitmq
     ;;
   storm-nimbus)
     storm nimbus
@@ -107,7 +106,7 @@ case "$1" in
     zk
     accumulo
     elasticsearch
-    kafka
+    rabbitmq
     storm nimbus
     storm supervisor
     storm ui
