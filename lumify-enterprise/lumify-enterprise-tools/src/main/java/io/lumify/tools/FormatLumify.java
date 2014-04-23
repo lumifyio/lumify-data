@@ -18,8 +18,6 @@ import org.elasticsearch.common.transport.InetSocketTransportAddress;
 public class FormatLumify extends CommandLineBase {
     private static final LumifyLogger LOGGER = LumifyLoggerFactory.getLogger(FormatLumify.class);
     private ModelSession modelSession;
-    private Graph graph;
-    private WorkQueueRepository workQueueRepository;
     private AuthorizationRepository authorizationRepository;
 
     public static void main(String[] args) throws Exception {
@@ -32,7 +30,7 @@ public class FormatLumify extends CommandLineBase {
     @Override
     protected int run(CommandLine cmd) throws Exception {
         ModelUtil.deleteTables(modelSession, getUser());
-        workQueueRepository.format();
+        getWorkQueueRepository().format();
         // TODO provide a way to delete the graph and it's search index
         // graph.delete(getUser());
 
@@ -43,7 +41,7 @@ public class FormatLumify extends CommandLineBase {
         }
         LOGGER.debug("END remove all authorizations");
 
-        graph.shutdown();
+        getGraph().shutdown();
 
         // TODO refactor to config file info. But since this is only for development this is low priority
         String ES_INDEX = "securegraph";
@@ -60,24 +58,12 @@ public class FormatLumify extends CommandLineBase {
         LOGGER.debug("END deleting elastic search index: " + ES_INDEX);
         client.close();
 
-        this.workQueueRepository.shutdown();
-
         return 0;
     }
 
     @Inject
     public void setModelSession(ModelSession modelSession) {
         this.modelSession = modelSession;
-    }
-
-    @Inject
-    public void setWorkQueueRepository(WorkQueueRepository workQueueRepository) {
-        this.workQueueRepository = workQueueRepository;
-    }
-
-    @Inject
-    public void setGraph(Graph graph) {
-        this.graph = graph;
     }
 
     @Inject
