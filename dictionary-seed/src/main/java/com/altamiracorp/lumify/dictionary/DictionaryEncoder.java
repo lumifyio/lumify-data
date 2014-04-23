@@ -1,4 +1,4 @@
-package com.altamiracorp.lumify.dictionary;
+package io.lumify.dictionary;
 
 import opennlp.tools.tokenize.Tokenizer;
 import opennlp.tools.tokenize.TokenizerME;

@@ -1,4 +1,4 @@
-package com.altamiracorp.lumify.dictionary;
+package io.lumify.dictionary;
 
 import org.apache.commons.io.FileUtils;
 import org.junit.After;

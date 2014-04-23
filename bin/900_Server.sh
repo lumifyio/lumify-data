@@ -26,7 +26,7 @@ java ${debug_option} \
 -Djava.security.krb5.kdc= \
 -classpath ${classpath} \
 -Xmx1024M \
-com.altamiracorp.lumify.web.JettyWebServer \
+io.lumify.web.JettyWebServer \
 --port=8080 \
 --keyStorePath=${DIR}/../config/ssl/lumify-vm.lumify.io.jks \
 --keyStorePassword=password

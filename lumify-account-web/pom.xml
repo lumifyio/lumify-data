@@ -5,7 +5,7 @@
     <modelVersion>4.0.0</modelVersion>
 
     <parent>
-        <groupId>com.altamiracorp.lumify</groupId>
+        <groupId>io.lumify</groupId>
         <artifactId>lumify-root</artifactId>
         <version>0.2.0-SNAPSHOT</version>
     </parent>
@@ -42,7 +42,7 @@
 
     <dependencies>
         <dependency>
-            <groupId>com.altamiracorp.lumify</groupId>
+            <groupId>io.lumify</groupId>
             <artifactId>lumify-core</artifactId>
             <version>${lumify.version}</version>
         </dependency>

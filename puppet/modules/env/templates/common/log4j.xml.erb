@@ -42,6 +42,13 @@
         <appender-ref ref="syslog" />
         <% end -%>
     </logger>
+    <logger name="io.lumify" additivity="false">
+        <level value="DEBUG" />
+        <appender-ref ref="log" />
+        <% if @syslog_server != '' -%>
+        <appender-ref ref="syslog" />
+        <% end -%>
+    </logger>
 
     <root>
         <level value="WARN" />

@@ -25,6 +25,6 @@ java \
 -Dfile.encoding=UTF-8 \
 -classpath ${classpath} \
 -Xmx1024M \
-com.altamiracorp.lumify.core.cmdline.OwlImport \
+io.lumify.core.cmdline.OwlImport \
 --in=${in} \
 --iri=${iri}

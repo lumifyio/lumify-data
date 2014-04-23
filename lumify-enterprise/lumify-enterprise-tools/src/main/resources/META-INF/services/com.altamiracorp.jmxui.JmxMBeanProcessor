@@ -1,2 +1,2 @@
-com.altamiracorp.lumify.tools.jmxclient.LumifyMetricsJmxMBeanProcessor
-com.altamiracorp.lumify.tools.jmxclient.VersionInfoJmxMBeanProcessor
+io.lumify.tools.jmxclient.LumifyMetricsJmxMBeanProcessor
+io.lumify.tools.jmxclient.VersionInfoJmxMBeanProcessor

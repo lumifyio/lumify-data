@@ -1,7 +1,7 @@
 # Structured Data Mapping in Lumify
 ---
 
-Lumify provides an interface, `com.altamiracorp.lumify.mapping.DocumentMapping`, for ingesting structured data such as CSV, JSON and XML files.  These files are processed by the enterprise Storm topology and the `DocumentMapping` is applied to generate Lumify entities and relationships.
+Lumify provides an interface, `io.lumify.mapping.DocumentMapping`, for ingesting structured data such as CSV, JSON and XML files.  These files are processed by the enterprise Storm topology and the `DocumentMapping` is applied to generate Lumify entities and relationships.
 
 The following data types are currently supported by Lumify structured data ingest:
 
@@ -27,7 +27,7 @@ Structured data mappings are provided as JSON documents and should be stored in 
 
 `type`: `csv`
 
-The reference implementation of the `DocumentMapping` interface is the `com.altamiracorp.lumify.mapping.csv.CsvDocumentMapping`.  It supports extraction of entities, properties and relationships from a columnar data file.  Each row of the data file is processed individually and the mapping is applied to extract and transform entities and their properties from the columns.  Once all entities have been created, the relationships between them are established.  Relationships are only created if both the source and target entities were successfully extracted.
+The reference implementation of the `DocumentMapping` interface is the `io.lumify.mapping.csv.CsvDocumentMapping`.  It supports extraction of entities, properties and relationships from a columnar data file.  Each row of the data file is processed individually and the mapping is applied to extract and transform entities and their properties from the columns.  Once all entities have been created, the relationships between them are established.  Relationships are only created if both the source and target entities were successfully extracted.
 
 ### `CsvDocumentMapping` Properties
 

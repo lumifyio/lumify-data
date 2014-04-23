@@ -17,4 +17,4 @@ fi
 java \
 -Dfile.encoding=UTF-8 \
 -classpath ${classpath} \
-com.altamiracorp.lumify.tools.FormatLumify
+io.lumify.tools.FormatLumify

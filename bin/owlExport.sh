@@ -18,5 +18,5 @@ java \
 -Dfile.encoding=UTF-8 \
 -classpath ${classpath} \
 -Xmx1024M \
-com.altamiracorp.lumify.core.cmdline.OwlExport \
+io.lumify.core.cmdline.OwlExport \
 $*

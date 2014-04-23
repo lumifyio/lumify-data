@@ -4,7 +4,7 @@
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <parent>
         <artifactId>lumify-enterprise</artifactId>
-        <groupId>com.altamiracorp.lumify</groupId>
+        <groupId>io.lumify</groupId>
         <version>0.2.0-SNAPSHOT</version>
     </parent>
     <modelVersion>4.0.0</modelVersion>
@@ -15,12 +15,12 @@
 
     <dependencies>
         <dependency>
-            <groupId>com.altamiracorp.lumify</groupId>
+            <groupId>io.lumify</groupId>
             <artifactId>lumify-jetty-server</artifactId>
             <version>${project.version}</version>
         </dependency>
         <dependency>
-            <groupId>com.altamiracorp.lumify</groupId>
+            <groupId>io.lumify</groupId>
             <artifactId>lumify-opennlp-dictionary-extractor-web</artifactId>
             <version>${project.version}</version>
         </dependency>

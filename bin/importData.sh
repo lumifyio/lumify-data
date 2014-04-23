@@ -28,7 +28,7 @@ java ${debug_option} \
 -Dfile.encoding=UTF-8 \
 -Djava.library.path=$LD_LIBRARY_PATH \
 -classpath ${classpath} \
-com.altamiracorp.lumify.tools.Import \
+io.lumify.tools.Import \
 --datadir=${dir} \
 --queuedups
 

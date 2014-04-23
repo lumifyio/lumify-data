@@ -12,7 +12,7 @@ columnFamilies:
         doc_extracted_text:                 byte[] - The extracted text
         security:                           string - The security markings
         atc:highlighted_text:               string - Calculated text based on terms
-        atc:video_transcript:               json - See com.altamiracorp.lumify.core.ingest.video.VideoTranscript
+        atc:video_transcript:               json - See io.lumify.core.ingest.video.VideoTranscript
     Generic_Metadata:
         author:                             string - An indication of the artifact origin
         charset:                            string - The charset used by the artifact (typically UTF-8)

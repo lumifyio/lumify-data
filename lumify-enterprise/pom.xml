@@ -4,7 +4,7 @@
     <modelVersion>4.0.0</modelVersion>
 
     <parent>
-        <groupId>com.altamiracorp.lumify</groupId>
+        <groupId>io.lumify</groupId>
         <artifactId>lumify-root</artifactId>
         <version>0.2.0-SNAPSHOT</version>
     </parent>
@@ -45,37 +45,37 @@
         <dependencies>
             <!-- Lumify Public Dependencies -->
             <dependency>
-                <groupId>com.altamiracorp.lumify</groupId>
+                <groupId>io.lumify</groupId>
                 <artifactId>lumify-core</artifactId>
                 <version>${lumify.public.version}</version>
             </dependency>
             <dependency>
-                <groupId>com.altamiracorp.lumify</groupId>
+                <groupId>io.lumify</groupId>
                 <artifactId>lumify-sql</artifactId>
                 <version>${lumify.public.version}</version>
             </dependency>
             <dependency>
-                <groupId>com.altamiracorp.lumify</groupId>
+                <groupId>io.lumify</groupId>
                 <artifactId>lumify-fs-hdfs</artifactId>
                 <version>${lumify.public.version}</version>
             </dependency>
             <dependency>
-                <groupId>com.altamiracorp.lumify</groupId>
+                <groupId>io.lumify</groupId>
                 <artifactId>lumify-model-bigtable-queue</artifactId>
                 <version>${lumify.public.version}</version>
             </dependency>
             <dependency>
-                <groupId>com.altamiracorp.lumify</groupId>
+                <groupId>io.lumify</groupId>
                 <artifactId>lumify-model-rabbitmq</artifactId>
                 <version>${lumify.public.version}</version>
             </dependency>
             <dependency>
-                <groupId>com.altamiracorp.lumify</groupId>
+                <groupId>io.lumify</groupId>
                 <artifactId>lumify-model-securegraph</artifactId>
                 <version>${project.version}</version>
             </dependency>
             <dependency>
-                <groupId>com.altamiracorp.lumify</groupId>
+                <groupId>io.lumify</groupId>
                 <artifactId>lumify-storm</artifactId>
                 <version>${lumify.public.version}</version>
             </dependency>

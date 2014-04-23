@@ -41,6 +41,6 @@ java \
 -Djava.security.krb5.kdc= \
 -classpath ${classpath} \
 -Xmx1024M \
-com.altamiracorp.lumify.tools.version.VersionInspector \
+io.lumify.tools.version.VersionInspector \
 --scanpath ${SCAN_PATH} \
 $*

@@ -17,7 +17,7 @@ fi
 java \
 -Dfile.encoding=UTF-8 \
 -classpath ${classpath} \
-com.altamiracorp.lumify.opennlpDictionary.DictionaryImporter \
+io.lumify.opennlpDictionary.DictionaryImporter \
 --configLocation file:///opt/lumify/config/configuration.properties \
 --extension=dict \
 --directory=${DIR}/../config/dictionaries \
