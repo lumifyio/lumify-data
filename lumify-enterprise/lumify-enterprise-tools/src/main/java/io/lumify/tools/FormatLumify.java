@@ -58,6 +58,9 @@ public class FormatLumify extends CommandLineBase {
             LOGGER.error("Failed to delete elastic search index named %s", ES_INDEX);
         }
         LOGGER.debug("END deleting elastic search index: " + ES_INDEX);
+        client.close();
+
+        this.workQueueRepository.shutdown();
 
         return 0;
     }
