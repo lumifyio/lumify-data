@@ -2,7 +2,7 @@ package io.lumify.mapping;
 
 import io.lumify.core.ingest.term.extraction.TermExtractionResult;
 import io.lumify.mapping.csv.CsvDocumentMapping;
-import com.altamiracorp.securegraph.Visibility;
+import org.securegraph.Visibility;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonSubTypes;
 import com.fasterxml.jackson.annotation.JsonSubTypes.Type;

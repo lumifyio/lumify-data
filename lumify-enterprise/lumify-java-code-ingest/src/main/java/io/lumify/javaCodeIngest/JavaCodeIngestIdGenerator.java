@@ -1,6 +1,6 @@
 package io.lumify.javaCodeIngest;
 
-import com.altamiracorp.securegraph.Vertex;
+import org.securegraph.Vertex;
 import org.apache.bcel.classfile.Field;
 import org.apache.bcel.classfile.JavaClass;
 import org.apache.bcel.classfile.Method;

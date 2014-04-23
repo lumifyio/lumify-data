@@ -1,7 +1,7 @@
 package io.lumify.mapping.column;
 
 import io.lumify.core.ingest.term.extraction.TermMention;
-import com.altamiracorp.securegraph.Visibility;
+import org.securegraph.Visibility;
 
 import java.util.Collections;
 import java.util.HashMap;

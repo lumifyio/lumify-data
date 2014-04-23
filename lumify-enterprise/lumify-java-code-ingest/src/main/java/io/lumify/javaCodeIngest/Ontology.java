@@ -1,7 +1,7 @@
 package io.lumify.javaCodeIngest;
 
 import io.lumify.core.model.properties.types.TextLumifyProperty;
-import com.altamiracorp.securegraph.TextIndexHint;
+import org.securegraph.TextIndexHint;
 
 public class Ontology {
     public static final String EDGE_LABEL_JAR_CONTAINS = "http://lumify.io/java-code-ingest#jarFileContains";

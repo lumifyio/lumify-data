@@ -2,9 +2,9 @@ package io.lumify.mapping;
 
 import io.lumify.core.ingest.FileImportSupportingFileHandler;
 import io.lumify.core.model.properties.types.StreamingLumifyProperty;
-import com.altamiracorp.securegraph.VertexBuilder;
-import com.altamiracorp.securegraph.Visibility;
-import com.altamiracorp.securegraph.property.StreamingPropertyValue;
+import org.securegraph.VertexBuilder;
+import org.securegraph.Visibility;
+import org.securegraph.property.StreamingPropertyValue;
 
 import java.io.File;
 import java.io.FileInputStream;

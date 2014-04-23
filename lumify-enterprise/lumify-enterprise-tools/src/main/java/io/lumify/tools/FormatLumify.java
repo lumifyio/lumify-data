@@ -7,7 +7,7 @@ import io.lumify.core.model.workQueue.WorkQueueRepository;
 import io.lumify.core.util.LumifyLogger;
 import io.lumify.core.util.LumifyLoggerFactory;
 import io.lumify.core.util.ModelUtil;
-import com.altamiracorp.securegraph.Graph;
+import org.securegraph.Graph;
 import com.google.inject.Inject;
 import org.apache.commons.cli.CommandLine;
 import org.elasticsearch.action.admin.indices.delete.DeleteIndexRequest;

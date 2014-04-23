@@ -5,7 +5,7 @@ import io.lumify.core.ingest.term.extraction.TermMention;
 import io.lumify.core.ingest.term.extraction.TermRelationship;
 import io.lumify.mapping.column.AbstractColumnDocumentMapping.Row;
 import io.lumify.mapping.csv.CsvDocumentMapping;
-import com.altamiracorp.securegraph.Visibility;
+import org.securegraph.Visibility;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;

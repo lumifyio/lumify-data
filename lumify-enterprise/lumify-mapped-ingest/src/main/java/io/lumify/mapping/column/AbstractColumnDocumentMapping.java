@@ -4,7 +4,7 @@ import io.lumify.core.ingest.term.extraction.TermExtractionResult;
 import io.lumify.core.ingest.term.extraction.TermMention;
 import io.lumify.core.ingest.term.extraction.TermRelationship;
 import io.lumify.mapping.DocumentMapping;
-import com.altamiracorp.securegraph.Visibility;
+import org.securegraph.Visibility;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 import java.io.IOException;

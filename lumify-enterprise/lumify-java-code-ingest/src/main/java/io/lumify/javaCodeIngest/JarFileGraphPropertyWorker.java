@@ -5,15 +5,15 @@ import io.lumify.core.ingest.graphProperty.GraphPropertyWorker;
 import io.lumify.core.model.ontology.OntologyLumifyProperties;
 import io.lumify.core.model.properties.LumifyProperties;
 import io.lumify.core.model.properties.RawLumifyProperties;
-import com.altamiracorp.securegraph.*;
-import com.altamiracorp.securegraph.property.StreamingPropertyValue;
+import org.securegraph.*;
+import org.securegraph.property.StreamingPropertyValue;
 
 import java.io.InputStream;
 import java.util.List;
 import java.util.jar.JarEntry;
 import java.util.jar.JarInputStream;
 
-import static com.altamiracorp.securegraph.util.IterableUtils.toList;
+import static org.securegraph.util.IterableUtils.toList;
 
 public class JarFileGraphPropertyWorker extends GraphPropertyWorker {
     @Override

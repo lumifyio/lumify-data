@@ -5,7 +5,7 @@ import io.lumify.core.ingest.graphProperty.GraphPropertyWorker;
 import io.lumify.core.model.ontology.OntologyLumifyProperties;
 import io.lumify.core.model.properties.LumifyProperties;
 import io.lumify.core.model.properties.RawLumifyProperties;
-import com.altamiracorp.securegraph.*;
+import org.securegraph.*;
 import org.apache.bcel.classfile.ClassParser;
 import org.apache.bcel.classfile.Field;
 import org.apache.bcel.classfile.JavaClass;

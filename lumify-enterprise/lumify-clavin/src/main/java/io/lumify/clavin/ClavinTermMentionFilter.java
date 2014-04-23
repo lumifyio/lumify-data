@@ -8,8 +8,8 @@ import io.lumify.core.model.ontology.Concept;
 import io.lumify.core.model.ontology.OntologyRepository;
 import io.lumify.core.util.LumifyLogger;
 import io.lumify.core.util.LumifyLoggerFactory;
-import com.altamiracorp.securegraph.Vertex;
-import com.altamiracorp.securegraph.type.GeoPoint;
+import org.securegraph.Vertex;
+import org.securegraph.type.GeoPoint;
 import com.bericotech.clavin.extractor.LocationOccurrence;
 import com.bericotech.clavin.gazetteer.GeoName;
 import com.bericotech.clavin.resolver.LuceneLocationResolver;
@@ -23,7 +23,7 @@ import java.util.*;
 
 import static io.lumify.core.model.properties.EntityLumifyProperties.GEO_LOCATION;
 import static io.lumify.core.model.properties.EntityLumifyProperties.SOURCE;
-import static com.altamiracorp.securegraph.util.IterableUtils.count;
+import static org.securegraph.util.IterableUtils.count;
 import static com.google.common.base.Preconditions.checkNotNull;
 
 /**

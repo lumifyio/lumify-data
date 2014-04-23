@@ -5,10 +5,10 @@ import io.lumify.core.ingest.graphProperty.GraphPropertyWorker;
 import io.lumify.core.ingest.video.VideoTranscript;
 import io.lumify.core.model.properties.MediaLumifyProperties;
 import io.lumify.core.model.properties.RawLumifyProperties;
-import com.altamiracorp.securegraph.Property;
-import com.altamiracorp.securegraph.Vertex;
-import com.altamiracorp.securegraph.mutation.ExistingElementMutation;
-import com.altamiracorp.securegraph.property.StreamingPropertyValue;
+import org.securegraph.Property;
+import org.securegraph.Vertex;
+import org.securegraph.mutation.ExistingElementMutation;
+import org.securegraph.property.StreamingPropertyValue;
 
 import java.io.InputStream;
 

@@ -2,7 +2,7 @@ package io.lumify.mapping.column;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 
-import com.altamiracorp.securegraph.type.GeoPoint;
+import org.securegraph.type.GeoPoint;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import com.fasterxml.jackson.annotation.JsonTypeName;

@@ -7,9 +7,9 @@ import io.lumify.core.model.properties.MediaLumifyProperties;
 import io.lumify.core.model.properties.RawLumifyProperties;
 import io.lumify.core.util.ProcessRunner;
 import io.lumify.storm.video.SubRip;
-import com.altamiracorp.securegraph.Property;
-import com.altamiracorp.securegraph.Vertex;
-import com.altamiracorp.securegraph.mutation.ExistingElementMutation;
+import org.securegraph.Property;
+import org.securegraph.Vertex;
+import org.securegraph.mutation.ExistingElementMutation;
 import com.google.inject.Inject;
 
 import java.io.File;

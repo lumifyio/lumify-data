@@ -1,7 +1,7 @@
 package io.lumify.mapping.column;
 
 import io.lumify.core.ingest.term.extraction.TermMention;
-import com.altamiracorp.securegraph.Visibility;
+import org.securegraph.Visibility;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonInclude.Include;

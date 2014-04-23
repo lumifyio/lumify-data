@@ -7,7 +7,7 @@ import io.lumify.core.user.User;
 import io.lumify.core.util.LumifyLogger;
 import io.lumify.core.util.LumifyLoggerFactory;
 import io.lumify.ldap.LdapSearchService;
-import com.altamiracorp.securegraph.Graph;
+import org.securegraph.Graph;
 import com.google.inject.Inject;
 import com.unboundid.ldap.sdk.SearchResultEntry;
 import org.apache.accumulo.core.util.StringUtil;

@@ -5,7 +5,7 @@ import io.lumify.account.model.AccountUser;
 import io.lumify.core.model.user.UserRepository;
 import com.altamiracorp.miniweb.HandlerChain;
 import com.altamiracorp.miniweb.utils.UrlUtils;
-import com.altamiracorp.securegraph.Graph;
+import org.securegraph.Graph;
 import com.google.inject.Inject;
 
 import javax.servlet.http.HttpServletRequest;

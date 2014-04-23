@@ -2,7 +2,7 @@ package io.lumify.mapping.column;
 
 import io.lumify.core.ingest.term.extraction.TermMention;
 import io.lumify.core.ingest.term.extraction.TermRelationship;
-import com.altamiracorp.securegraph.Visibility;
+import org.securegraph.Visibility;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 import java.util.List;

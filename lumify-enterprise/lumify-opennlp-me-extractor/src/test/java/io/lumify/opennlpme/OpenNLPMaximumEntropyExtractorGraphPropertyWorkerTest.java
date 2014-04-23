@@ -5,10 +5,10 @@ import io.lumify.core.ingest.graphProperty.GraphPropertyWorkerPrepareData;
 import io.lumify.core.ingest.graphProperty.TermMentionFilter;
 import io.lumify.core.ingest.term.extraction.TermMention;
 import io.lumify.core.user.User;
-import com.altamiracorp.securegraph.Vertex;
-import com.altamiracorp.securegraph.Visibility;
-import com.altamiracorp.securegraph.inmemory.InMemoryAuthorizations;
-import com.altamiracorp.securegraph.inmemory.InMemoryGraph;
+import org.securegraph.Vertex;
+import org.securegraph.Visibility;
+import org.securegraph.inmemory.InMemoryAuthorizations;
+import org.securegraph.inmemory.InMemoryGraph;
 import com.google.inject.Injector;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.FileSystem;
@@ -25,7 +25,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import static com.altamiracorp.securegraph.util.IterableUtils.toList;
+import static org.securegraph.util.IterableUtils.toList;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
