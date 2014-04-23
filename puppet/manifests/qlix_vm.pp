@@ -224,3 +224,11 @@ exec { 'ldap-add' :
                Service['slapd'],
              ],
 }
+
+file { '/opt/lumify/config/lumify-ca.jks' :
+  ensure => file,
+  source => 'file:///vagrant/config/ssl/lumify-ca.jks',
+  owner   => 'root',
+  group   => 'root',
+  mode    => 'u=rw,go=r',
+}
