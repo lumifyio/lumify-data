@@ -67,6 +67,9 @@ $mysql_databases = {
     ensure  => 'present',
     charset => 'utf8',
   },
+  'test' => {
+    ensure  => 'absent',
+  }
 }
 
 $mysql_password = '*2AD2DCE7BF4A4A7CC54AA964F76F920772B4947C'
@@ -79,6 +82,12 @@ $mysql_users = {
     ensure         => 'present',
     password_hash  => $mysql_password,
   },
+  '@localhost' => {
+    ensure         => 'absent',
+  },
+  '@localhost.localdomain' => {
+    ensure         => 'absent',
+  }
 }
 
 $mysql_grants = {
@@ -102,7 +111,7 @@ class { 'mysql::server' :
   #remove_default_accounts => true,
   restart => true,
   override_options => { 'mysqld' => { 'bind-address' => '0.0.0.0' } },
-  databases => $myql_databases,
+  databases => $mysql_databases,
   users => $mysql_users,
   grants => $mysql_grants,
 }
