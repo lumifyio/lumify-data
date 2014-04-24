@@ -8,22 +8,22 @@ public class LdapX509AuthenticationConfiguration {
     private String usernameAttribute;
     private String displayNameAttribute;
 
-    @Configurable(name = "client-dn-header", defaultValue = "SSL_CLIENT_S_DN")
+    @Configurable(name = "clientDnHeader", defaultValue = "SSL_CLIENT_S_DN")
     public void setClientDnHeader(String clientDnHeader) {
         this.clientDnHeader = clientDnHeader;
     }
 
-    @Configurable(name = "client-cert-header", defaultValue = "SSL_CLIENT_CERT")
+    @Configurable(name = "clientCertHeader", defaultValue = "SSL_CLIENT_CERT")
     public void setClientCertHeader(String clientCertHeader) {
         this.clientCertHeader = clientCertHeader;
     }
 
-    @Configurable(name = "username-attribute", required = false)
+    @Configurable(name = "usernameAttribute", required = false)
     public void setUsernameAttribute(String usernameAttribute) {
         this.usernameAttribute = usernameAttribute;
     }
 
-    @Configurable(name = "display-name-attribute", required = false)
+    @Configurable(name = "displayNameAttribute", required = false)
     public void setDisplayNameAttribute(String displayNameAttribute) {
         this.displayNameAttribute = displayNameAttribute;
     }

@@ -34,7 +34,7 @@ public class LdapX509AuthenticationProvider extends X509AuthenticationProvider {
         this.ldapSearchService = ldapSearchService;
 
         ldapX509AuthenticationConfiguration = new LdapX509AuthenticationConfiguration();
-        configuration.setConfigurables(ldapX509AuthenticationConfiguration, "ldap-x509-authentication");
+        configuration.setConfigurables(ldapX509AuthenticationConfiguration, "ldap.x509Authentication");
     }
 
     @Override
