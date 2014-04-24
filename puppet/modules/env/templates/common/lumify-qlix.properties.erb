@@ -5,26 +5,27 @@ map.tileServer.hostName=localhost
 map.tileServer.port=9999
 
 # Providers
+model.provider=io.lumify.sql.model.SqlModelSession
 authentication.provider=io.lumify.web.LdapX509AuthenticationProvider
 fs.provider=io.lumify.fs.hdfs.HdfsSession
 
-# Using SQL
-model.provider=io.lumify.sql.model.SqlModelSession
-user-repository=io.lumify.sql.model.user.SqlUserRepository
-workspace-repository=io.lumify.sql.model.workspace.SqlWorkspaceRepository
-authorization-repository=io.lumify.core.model.user.NoOpAuthorizationRepository
-ontology-repository=io.lumify.core.model.ontology.ReadOnlyInMemoryOntologyRepository
-ontology-repository.owl.1.iri=http://lumify.io/dev
-ontology-repository.owl.1.dir=/opt/lumify/ontology/dev
-audit-repository=io.lumify.core.model.audit.NoOpAuditRepository
-term-mention-repository=io.lumify.core.model.termMention.NoOpTermMentionRepository
-detected-object-repository=io.lumify.core.model.detectedObjects.NoOpDetectedObjectRepository
-artifact-thumbnail-repository=io.lumify.core.model.artifactThumbnails.NoOpArtifactThumbnailRepository
-work-queue-repository=io.lumify.core.model.workQueue.NoOpWorkQueueRepository
+# Repository
+repository.user=io.lumify.sql.model.user.SqlUserRepository
+repository.workspace=io.lumify.sql.model.workspace.SqlWorkspaceRepository
+repository.authorization=io.lumify.core.model.user.NoOpAuthorizationRepository
+repository.audit=io.lumify.core.model.audit.NoOpAuditRepository
+repository.termMention=io.lumify.core.model.termMention.NoOpTermMentionRepository
+repository.detectedObject=io.lumify.core.model.detectedObjects.NoOpDetectedObjectRepository
+repository.artifactThumbnail=io.lumify.core.model.artifactThumbnails.NoOpArtifactThumbnailRepository
+repository.workQueue=io.lumify.core.model.workQueue.NoOpWorkQueueRepository
+repository.ontology=io.lumify.core.model.ontology.ReadOnlyInMemoryOntologyRepository
+repository.ontology.owl.1.iri=http://lumify.io/dev
+repository.ontology.owl.1.dir=/opt/lumify/ontology/dev
+iri.entityImage=http://lumify.io/dev#image
+
+# Graph
 graph=org.securegraph.inmemory.InMemoryGraph
 graph.search=org.securegraph.search.DefaultSearchProvider
-
-iri.entityImage=http://lumify.io/dev#image
 
 # Visibiliy Plugin
 security.visibilityTranslator=io.lumify.core.security.DirectVisibilityTranslator
