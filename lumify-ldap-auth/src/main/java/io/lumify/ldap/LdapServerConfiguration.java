@@ -14,52 +14,52 @@ public class LdapServerConfiguration {
     private String trustStorePassword;
     private String trustStoreType;
 
-    @Configurable(name = "primary-server")
+    @Configurable(name = "primaryServer")
     public void setPrimaryLdapServerHostname(String primaryLdapServerHostname) {
         this.primaryLdapServerHostname = primaryLdapServerHostname;
     }
 
-    @Configurable(name = "primary-port", defaultValue = "636")
+    @Configurable(name = "primaryPort", defaultValue = "636")
     public void setPrimaryLdapServerPort(int primaryLdapServerPort) {
         this.primaryLdapServerPort = primaryLdapServerPort;
     }
 
-    @Configurable(name = "failover-server", required = false)
+    @Configurable(name = "failoverServer", required = false)
     public void setFailoverLdapServerHostname(String failoverLdapServerHostname) {
         this.failoverLdapServerHostname = failoverLdapServerHostname;
     }
 
-    @Configurable(name = "failover-port", defaultValue = "636")
+    @Configurable(name = "failoverPort", defaultValue = "636")
     public void setFailoverLdapServerPort(int failoverLdapServerPort) {
         this.failoverLdapServerPort = failoverLdapServerPort;
     }
 
-    @Configurable(name = "max-connections", defaultValue = "10")
+    @Configurable(name = "maxConnections", defaultValue = "10")
     public void setMaxConnections(int maxConnections) {
         this.maxConnections = maxConnections;
     }
 
-    @Configurable(name = "bind-dn")
+    @Configurable(name = "bindDn")
     public void setBindDn(String bindDn) {
         this.bindDn = bindDn;
     }
 
-    @Configurable(name = "bind-password")
+    @Configurable(name = "bindPassword")
     public void setBindPassword(String bindPassword) {
         this.bindPassword = bindPassword;
     }
 
-    @Configurable(name = "trust-store")
+    @Configurable(name = "trustStore")
     public void setTrustStore(String trustStore) {
         this.trustStore = trustStore;
     }
 
-    @Configurable(name = "trust-store-password")
+    @Configurable(name = "trustStorePassword")
     public void setTrustStorePassword(String trustStorePassword) {
         this.trustStorePassword = trustStorePassword;
     }
 
-    @Configurable(name = "trust-store-type", defaultValue = "JKS")
+    @Configurable(name = "trustStoreType", defaultValue = "JKS")
     public void setTrustStoreType(String trustStoreType) {
         this.trustStoreType = trustStoreType;
     }

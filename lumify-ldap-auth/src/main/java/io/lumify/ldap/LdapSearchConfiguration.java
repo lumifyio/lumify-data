@@ -19,47 +19,47 @@ public class LdapSearchConfiguration {
     private String groupRoleAttribute;
     private String groupSearchFilter;
 
-    @Configurable(name = "user-search-base")
+    @Configurable(name = "userSearchBase")
     public void setUserSearchBase(String userSearchBase) {
         this.userSearchBase = userSearchBase;
     }
 
-    @Configurable(name = "user-search-scope")
+    @Configurable(name = "userSearchScope")
     public void setUserSearchScope(String userSearchScope) {
         this.userSearchScope = toSearchScope(userSearchScope);
     }
 
-    @Configurable(name = "user-attributes")
+    @Configurable(name = "userAttributes")
     public void setUserAttributes(String userAttributes) {
         this.userAttributes = Arrays.asList(userAttributes.split(","));
     }
 
-    @Configurable(name = "user-search-filter", defaultValue = "(cn=${cn})")
+    @Configurable(name = "userSearchFilter", defaultValue = "(cn=${cn})")
     public void setUserSearchFilter(String userSearchFilter) {
         this.userSearchFilter = userSearchFilter;
     }
 
-    @Configurable(name = "user-certificate-attribute", defaultValue = "userCertificate;binary")
+    @Configurable(name = "userCertificateAttribute", defaultValue = "userCertificate;binary")
     public void setUserCertificateAttribute(String userCertificateAttribute) {
         this.userCertificateAttribute = userCertificateAttribute;
     }
 
-    @Configurable(name = "group-search-base")
+    @Configurable(name = "groupSearchBase")
     public void setGroupSearchBase(String groupSearchBase) {
         this.groupSearchBase = groupSearchBase;
     }
 
-    @Configurable(name = "group-search-scope")
+    @Configurable(name = "groupSearchScope")
     public void setGroupSearchScope(String groupSearchScope) {
         this.groupSearchScope = toSearchScope(groupSearchScope);
     }
 
-    @Configurable(name = "group-role-attribute", defaultValue = "cn")
+    @Configurable(name = "groupRoleAttribute", defaultValue = "cn")
     public void setGroupRoleAttribute(String groupRoleAttribute) {
         this.groupRoleAttribute = groupRoleAttribute;
     }
 
-    @Configurable(name = "group-search-filter", defaultValue = "(uniqueMember=${dn})")
+    @Configurable(name = "groupSearchFilter", defaultValue = "(uniqueMember=${dn})")
     public void setGroupSearchFilter(String groupSearchFilter) {
         this.groupSearchFilter = groupSearchFilter;
     }
