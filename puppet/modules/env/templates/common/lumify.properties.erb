@@ -1,3 +1,8 @@
+# Application-wide
+hadoop.url=hdfs://<%= @hadoop_masters[0] %>:8020
+zookeeper.serverNames=<%= @zookeeper_nodes.values.collect {|node| node.split(':')[0]}.join(',') %>
+hdfs.libcacheDirectory=hdfs://<%= @hadoop_masters[0] %>/lumify/libcache
+
 # Map component
 map.provider=googlev3
 map.apiKey=
@@ -21,17 +26,14 @@ repository.artifactThumbnail=io.lumify.core.model.artifactThumbnails.BigTableArt
 repository.workQueue=io.lumify.model.rabbitmq.RabbitMQWorkQueueRepository
 rabbitmq.addr.0.host=<%= @hadoop_masters[0] %>
 
-
 # Ontology
 iri.entityImage=http://lumify.io/dev#image
 
-# Application-wide
-hadoop.url=hdfs://<%= @hadoop_masters[0] %>:8020
-zookeeper.serverNames=<%= @zookeeper_nodes.values.collect {|node| node.split(':')[0]}.join(',') %>
-fs.defaultFS=hdfs://<%= @hadoop_masters[0] %>:8020
-hdfs-libcache-directory=hdfs://<%= @hadoop_masters[0] %>/lumify/libcache
+# Visibility Plugin
+security.visibilityTranslator=io.lumify.core.security.DirectVisibilityTranslator
+audit.visibilityLabel=audit
 
-# Accumulo specific
+# Big Table: Accumulo specific
 bigtable.accumulo.instanceName=lumify
 bigtable.accumulo.zookeeperServerNames=<%= @zookeeper_nodes.values.collect {|node| node.split(':')[0]}.join(',') %>
 bigtable.accumulo.username=root
@@ -53,6 +55,3 @@ graph.search.locations=<%= @elasticsearch_locations.join(',') %>
 graph.search.indexName=securegraph
 graph.hdfs.rootDir=hdfs://<%= @hadoop_masters[0] %>
 graph.hdfs.dataDir=/lumify/secureGraph
-
-# Visibility Plugin
-security.visibilityTranslator=io.lumify.core.security.DirectVisibilityTranslator
