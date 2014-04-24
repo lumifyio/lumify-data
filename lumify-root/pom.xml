@@ -144,6 +144,20 @@
             <id>lumify-snapshots</id>
             <url>http://bits.lumify.io/m2/snapshots/</url>
         </repository>
+
+        <repository>
+            <id>sonatype-releases</id>
+            <url>http://oss.sonatype.org/content/repositories/releases/</url>
+        </repository>
+        <repository>
+            <snapshots>
+                <enabled>true</enabled>
+                <updatePolicy>always</updatePolicy>
+            </snapshots>
+            <id>sonatype-snapshots</id>
+            <url>http://oss.sonatype.org/content/repositories/snapshots/</url>
+        </repository>
+
         <repository>
             <id>com.cloudera</id>
             <url>https://repository.cloudera.com/content/repositories/releases/</url>
@@ -152,6 +166,7 @@
             <id>clojars.org</id>
             <url>http://clojars.org/repo</url>
         </repository>
+
         <repository>
             <id>info-bliki-repository</id>
             <url>http://gwtwiki.googlecode.com/svn/maven-repository/</url>
