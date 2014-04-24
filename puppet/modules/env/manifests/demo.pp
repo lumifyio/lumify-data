@@ -43,9 +43,9 @@ class env::demo {
     purge => true,
   }
 
-  host { 'lumify-vm' :
+  host { 'lumify-vm.lumify.io' :
     ip => $ipaddress_eth1,
-    host_aliases => 'lumify-vm.lumify.io',
+    host_aliases => 'lumify-vm',
   }
 
   host { 'localhost' :
