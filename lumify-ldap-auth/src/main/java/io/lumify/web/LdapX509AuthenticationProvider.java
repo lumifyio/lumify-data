@@ -1,18 +1,19 @@
 package io.lumify.web;
 
+import com.google.inject.Inject;
+import com.unboundid.ldap.sdk.SearchResultEntry;
 import io.lumify.core.config.Configuration;
 import io.lumify.core.exception.LumifyException;
 import io.lumify.core.model.user.UserRepository;
+import io.lumify.core.user.Roles;
 import io.lumify.core.user.User;
 import io.lumify.core.util.LumifyLogger;
 import io.lumify.core.util.LumifyLoggerFactory;
 import io.lumify.ldap.LdapSearchService;
-import org.securegraph.Graph;
-import com.google.inject.Inject;
-import com.unboundid.ldap.sdk.SearchResultEntry;
 import org.apache.accumulo.core.util.StringUtil;
 import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.lang.ArrayUtils;
+import org.securegraph.Graph;
 
 import javax.servlet.http.HttpServletRequest;
 import java.io.ByteArrayInputStream;
@@ -73,10 +74,13 @@ public class LdapX509AuthenticationProvider extends X509AuthenticationProvider {
         String displayName = getAttributeValue(
                 searchResultEntry, ldapX509AuthenticationConfiguration.getDisplayNameAttribute(), username);
 
+        Set<Roles> roles = Roles.NONE; // TODO set roles from groups?
+
         User user = getUserRepository().findOrAddUser(
                 username,
                 displayName,
                 X509_USER_PASSWORD,
+                roles,
                 groups.toArray(new String[groups.size()])
         );
         LOGGER.debug("user is %s", user.toString());

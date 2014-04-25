@@ -1,16 +1,18 @@
 package io.lumify.account.routes;
 
+import com.altamiracorp.miniweb.HandlerChain;
+import com.altamiracorp.miniweb.utils.UrlUtils;
+import com.google.inject.Inject;
 import io.lumify.account.AccountUserRepository;
 import io.lumify.account.model.AccountUser;
 import io.lumify.core.model.user.UserRepository;
-import com.altamiracorp.miniweb.HandlerChain;
-import com.altamiracorp.miniweb.utils.UrlUtils;
+import io.lumify.core.user.Roles;
 import org.securegraph.Graph;
-import com.google.inject.Inject;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.util.Date;
+import java.util.EnumSet;
 
 public class CreateAccount extends BaseRequestHandler {
     private UserRepository userRepository;
@@ -28,7 +30,9 @@ public class CreateAccount extends BaseRequestHandler {
     }
 
     @Inject
-    public void setGraph (Graph graph) { this.graph = graph; }
+    public void setGraph(Graph graph) {
+        this.graph = graph;
+    }
 
     @Override
     public void handle(HttpServletRequest request, HttpServletResponse response, HandlerChain chain) throws Exception {
@@ -51,7 +55,9 @@ public class CreateAccount extends BaseRequestHandler {
             return;
         }
 
-        userRepository.addUser(graph.getIdGenerator().nextId().toString(), user.getData().getEmail(), password, new String[0]);
+        EnumSet<Roles> roles = EnumSet.of(Roles.READ); // TODO what should these roles be?
+
+        userRepository.addUser(graph.getIdGenerator().nextId().toString(), user.getData().getEmail(), password, roles, new String[0]);
 
         // expire the token
         user.getData().setTokenExpiration(new Date());
