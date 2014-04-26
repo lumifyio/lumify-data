@@ -5,6 +5,8 @@ import com.google.inject.Singleton;
 import com.unboundid.ldap.sdk.*;
 import com.unboundid.util.ssl.SSLUtil;
 import com.unboundid.util.ssl.TrustStoreTrustManager;
+import io.lumify.core.util.LumifyLogger;
+import io.lumify.core.util.LumifyLoggerFactory;
 import org.apache.commons.lang.text.StrSubstitutor;
 
 import javax.naming.InvalidNameException;
@@ -18,6 +20,7 @@ import java.util.*;
 
 @Singleton
 public class LdapSearchServiceImpl implements LdapSearchService {
+    private static final LumifyLogger LOGGER = LumifyLoggerFactory.getLogger(LdapSearchServiceImpl.class);
     private LDAPConnectionPool pool;
     private LdapSearchConfiguration ldapSearchConfiguration;
 
@@ -47,6 +50,16 @@ public class LdapSearchServiceImpl implements LdapSearchService {
             );
             pool = new LDAPConnectionPool(ldapConnection, serverConfig.getMaxConnections());
         }
+
+        Runtime.getRuntime().addShutdownHook(new Thread() {
+            @Override
+            public void run() {
+                if (!pool.isClosed()) {
+                    LOGGER.info("closing ldap connection pool");
+                    pool.close();
+                }
+            }
+        });
 
         ldapSearchConfiguration = searchConfig;
     }
