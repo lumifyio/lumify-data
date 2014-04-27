@@ -22,9 +22,20 @@ DIR="$(cd -P "$(dirname "$SOURCE")" && pwd)"
   for module in ${modules}; do
     simple_module_name=$(echo ${module} | cut -d / -f 2)
     if [ -f ${module}/target/${simple_module_name}-*-jar-with-dependencies.jar ]; then
-      ls ${module}/target/${simple_module_name}-*-jar-with-dependencies.jar
+      file=$(ls ${module}/target/${simple_module_name}-*-jar-with-dependencies.jar)
+      files="${files} ${DIR}/../${file}"
     else
-      echo "WARNING: no uber-jar for ${module}"
+      warnings="${warnings} ${module}"
     fi
   done
+
+  if [ "${warnings}" != '' ]; then
+    echo -n 'WARNING: the following module(s) did not create an uber-jar:' >&2
+    echo "${warnings}" | sed -e 's/ /\n  /g' >&2
+  fi
+
+  echo -n 'hadoop fs -put'
+  echo -n "${files}" | sed -e 's/ / \\\n  /g'
+  echo ' \'
+  echo '  /lumify/libcache'
 )
