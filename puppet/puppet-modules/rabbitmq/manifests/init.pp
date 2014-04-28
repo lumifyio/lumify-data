@@ -1,14 +1,17 @@
 class rabbitmq {
   require erlang
+  include macro
 	
   $rabbitMQVersion = "3.2.3"
   
   $plugins = ["rabbitmq_management"]
 
-  package { 'rabbitmq-server' :
+  macro::download { "http://www.rabbitmq.com/releases/rabbitmq-server/v${rabbitMQVersion}/rabbitmq-server-${rabbitMQVersion}-1.noarch.rpm" :
+    path     => "/tmp/rabbitmq-server-${rabbitMQVersion}-1.noarch.rpm",
+  } -> package { 'rabbitmq-server' :
 		ensure   => installed,
 		provider => "rpm",
-		source   => "http://www.rabbitmq.com/releases/rabbitmq-server/v${rabbitMQVersion}/rabbitmq-server-${rabbitMQVersion}-1.noarch.rpm",
+		source   => "/tmp/rabbitmq-server-${rabbitMQVersion}-1.noarch.rpm",
   }
   
   service { 'rabbitmq-server' :
