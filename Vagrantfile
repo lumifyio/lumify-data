@@ -148,17 +148,17 @@ Vagrant.configure('2') do |config|
     end
   end
 
-  # used for QLIX integration development
-  config.vm.define 'qlix' do |qlix|
-    configure_network(qlix, ENV['PRIVATE_NETWORK_IP'])
-    provision_proxy(qlix, ENV['PROXY_URL'])
-    qlix.vm.provision :shell, :inline => 'mkdir -p /data0'
-    install_puppet_modules(qlix, ['puppetlabs-mysql'])
-    qlix.vm.provision :puppet do |puppet|
-      configure_puppet(puppet, 'qlix_vm.pp', ENV['PROXY_URL'])
+  # used for QL integration development
+  config.vm.define 'ql' do |ql|
+    configure_network(ql, ENV['PRIVATE_NETWORK_IP'])
+    provision_proxy(ql, ENV['PROXY_URL'])
+    ql.vm.provision :shell, :inline => 'mkdir -p /data0'
+    install_puppet_modules(ql, ['puppetlabs-mysql'])
+    ql.vm.provision :puppet do |puppet|
+      configure_puppet(puppet, 'ql_vm.pp', ENV['PROXY_URL'])
     end
-    qlix.vm.provision :shell, :path => 'demo-vm/set-property.sh', :args => 'objectdetection.opencv.disabled=true'
-    qlix.vm.provision :shell, :path => 'demo-vm/set-property.sh', :args => 'clavin.disabled=true'
+    ql.vm.provision :shell, :path => 'demo-vm/set-property.sh', :args => 'objectdetection.opencv.disabled=true'
+    ql.vm.provision :shell, :path => 'demo-vm/set-property.sh', :args => 'clavin.disabled=true'
   end
 
   # used for automated integration testing

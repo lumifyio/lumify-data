@@ -7,14 +7,13 @@ including the following:
 Open Source components:
 
 - [lumify-public](https://github.com/altamiracorp/lumify)
-- DEPRECATED: [lumify-twitter](https://github.com/altamiracorp/lumify-twitter)
 - [lumify-root](https://github.com/altamiracorp/lumify-root)
 
 Closed Source components:
 
 - [lumify-enterprise](https://github.com/altamiracorp/lumify-enterprise)
-- DEPRECATED: [lumify-facebook](https://github.com/altamiracorp/lumify-facebook)
 - [lumify-wikipedia](https://github.com/altamiracorp/lumify-wikipedia)
+- [lumify-ldap-auth](https://github.com/altamiracorp/lumify-ldap-auth)
 
 Shared components:
 
