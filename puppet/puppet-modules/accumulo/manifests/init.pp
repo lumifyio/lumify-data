@@ -30,8 +30,6 @@ class accumulo(
     $accumulo_host_address = $ipaddress_eth0
   }
 
-  notify { "Installing Accumulo ${version}. Please run `sudo -u ${user} ${homedir}/bin/accumulo init` to initialize after installation completes.":}
-
   user { $user :
     ensure  => "present",
     gid     => $group,
