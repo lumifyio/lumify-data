@@ -11,7 +11,7 @@ DIR="$(cd -P "$(dirname "$SOURCE")" && pwd)"
 (
   cd ${DIR}/..
 
-  modules=$(find lumify-enterprise -name '*PropertyWorker.java' | cut -d / -f 1-2 | sort -u)
+  modules=$(find lumify-enterprise -name '*PropertyWorker.java' -o -name '*TermMentionFilter.java' | cut -d / -f 1-2 | sort -u)
   modules_comma_separated=$(echo ${modules} | sed -e 's/ /,/g')
 
   set -x
