@@ -36,6 +36,7 @@ hiera['hadoop_slaves'] = get(cluster, /node\d{2}/, :ip)
 hiera['accumulo_example_config'] = '3GB/native-standalone'
 hiera['accumulo_masters'] = Array(cluster['accumulomaster'][:name])
 hiera['accumulo_slaves'] = get(cluster, /node\d{2}/, :name)
+hiera['accumulo_instance_secret'] = "#{File.basename(__FILE__)}/#{Time.now.strftime('%Y%m%dT%H%M%S')}/#{SecureRandom.hex(16)}"
 zk_port = 2181
 zk_nodes = Hash.new
 cluster.select{|k,v| k.match(/zk\d/)}.each do |k,v|
