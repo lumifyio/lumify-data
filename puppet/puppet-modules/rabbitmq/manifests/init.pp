@@ -1,4 +1,5 @@
 class rabbitmq (
+  $rabbitmq_nodes = [],
   $erlang_cookie = '' # http://www.rabbitmq.com/clustering.html#setup
 ){
   require erlang
@@ -26,6 +27,13 @@ class rabbitmq (
       require => Package['rabbitmq-server'],
       before  => Service['rabbitmq-server'],
     }
+  }
+
+  file { '/etc/rabbitmq/rabbitmq.config' :
+    ensure  => file,
+    content => template('rabbitmq/rabbitmq.config.erb'),
+    require => Package['rabbitmq-server'],
+    before  => Service['rabbitmq-server'],
   }
   
   service { 'rabbitmq-server' :
