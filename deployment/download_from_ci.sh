@@ -1,7 +1,7 @@
 #!/bin/bash
 
 HOST=ci.lumify.io
-BASE_DIR=/var/www/maven/snapshots/com/altamiracorp
+BASE_DIR=/var/www/maven/snapshots
 
 FILE_LIST=
 
@@ -22,7 +22,7 @@ function _download {
 function _download_enterprise_uber_jar {
   local module_name=$1
 
-  _download lumify/${module_name} "*with-dependencies.jar" ${module_name}.jar
+  _download io/lumify/${module_name} "*with-dependencies.jar" ${module_name}.jar
 }
 
 function _md5 {
@@ -59,17 +59,17 @@ _download_enterprise_uber_jar lumify-tika-text-extractor
 _download_enterprise_uber_jar lumify-youtube-transcript
 _download_enterprise_uber_jar lumify-zipcode-extractor
 
-_download lumify/lumify-import            "*with-dependencies.jar" lumify-import.jar
-_download lumify/lumify-storm             "*with-dependencies.jar" lumify-storm.jar
+_download io/lumify/lumify-import            "*with-dependencies.jar" lumify-import.jar
+_download io/lumify/lumify-storm             "*with-dependencies.jar" lumify-storm.jar
 
-_download lumify/lumify-wikipedia-mr      "*with-dependencies.jar" lumify-wikipedia-mr.jar
-_download lumify/lumify-version-inspector "*with-dependencies.jar" lumify-version.jar
-_download lumify/lumify-web-war           "*.war"                  lumify.war
+_download io/lumify/lumify-wikipedia-mr      "*with-dependencies.jar" lumify-wikipedia-mr.jar
+_download io/lumify/lumify-version-inspector "*with-dependencies.jar" lumify-version.jar
+_download io/lumify/lumify-web-war           "*.war"                  lumify.war
 
-#_download securegraph/securegraph-tools   "*with-dependencies.jar" securegraph-tools.jar
-#_download lumify/lumify-account-web       "*.war"                  account.war
-#_download bigtable/bigtable-ui-war        "*.war"                  bigtable-ui.war
-#_download jmxui/jmx-ui-webapp             "*.war"                  jmx-ui.war
+#_download org/securegraph/securegraph-tools          "*with-dependencies.jar" securegraph-tools.jar
+#_download io/lumify/lumify-account-web              "*.war"                  account.war
+#_download com/altamiracorp/bigtable/bigtable-ui-war "*.war"                  bigtable-ui.war
+#_download com/altamiracorp/jmxui/jmx-ui-webapp      "*.war"                  jmx-ui.war
 
 for file in ${FILE_LIST}; do
   _md5 ${file}
