@@ -104,7 +104,7 @@ class accumulo(
   $hadoop_prefix = hiera('hadoop_home')
   $java_home = hiera('java_home')
   $zookeeper_home = '/usr/lib/zookeeper'
-  $accumulo_instance_secret = 'DEFAULT'
+  $accumulo_instance_secret = hiera('accumulo_instance_secret', 'DEFAULT')
   $accumulo_root_password = 'password'
 
   templated_config_file { [
