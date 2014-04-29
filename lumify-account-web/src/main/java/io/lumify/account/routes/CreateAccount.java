@@ -55,9 +55,7 @@ public class CreateAccount extends BaseRequestHandler {
             return;
         }
 
-        EnumSet<Privilege> roles = EnumSet.of(Privilege.READ); // TODO what should these roles be?
-
-        userRepository.addUser(graph.getIdGenerator().nextId().toString(), user.getData().getEmail(), password, roles, new String[0]);
+        userRepository.addUser(graph.getIdGenerator().nextId().toString(), user.getData().getEmail(), password, new String[0]);
 
         // expire the token
         user.getData().setTokenExpiration(new Date());

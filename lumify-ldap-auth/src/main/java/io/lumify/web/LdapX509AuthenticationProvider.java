@@ -74,13 +74,10 @@ public class LdapX509AuthenticationProvider extends X509AuthenticationProvider {
         String displayName = getAttributeValue(
                 searchResultEntry, ldapX509AuthenticationConfiguration.getDisplayNameAttribute(), username);
 
-        Set<Privilege> roles = Privilege.NONE; // TODO set roles from groups?
-
         User user = getUserRepository().findOrAddUser(
                 username,
                 displayName,
                 X509_USER_PASSWORD,
-                roles,
                 groups.toArray(new String[groups.size()])
         );
         LOGGER.debug("user is %s", user.toString());
