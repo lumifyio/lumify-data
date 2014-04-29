@@ -1,4 +1,6 @@
-class rabbitmq {
+class rabbitmq (
+  $erlang_cookie = '' # http://www.rabbitmq.com/clustering.html#setup
+){
   require erlang
   include macro
 	
@@ -12,6 +14,18 @@ class rabbitmq {
 		ensure   => installed,
 		provider => "rpm",
 		source   => "/tmp/rabbitmq-server-${rabbitMQVersion}-1.noarch.rpm",
+  }
+
+  if $erlang_cookie != '' {
+    file { '/var/lib/rabbitmq/.erlang.cookie' :
+      ensure  => file,
+      content => $erlang_cookie,
+      owner   => 'rabbitmq',
+      group   => 'rabbitmq',
+      mode    => 'u=r,go=',
+      require => Package['rabbitmq-server'],
+      before  => Service['rabbitmq-server'],
+    }
   }
   
   service { 'rabbitmq-server' :
