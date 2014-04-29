@@ -25,7 +25,9 @@ repository.termMention=io.lumify.core.model.termMention.BigTableTermMentionRepos
 repository.detectedObject=io.lumify.core.model.detectedObjects.BigTableDetectedObjectRepository
 repository.artifactThumbnail=io.lumify.core.model.artifactThumbnails.BigTableArtifactThumbnailRepository
 repository.workQueue=io.lumify.model.rabbitmq.RabbitMQWorkQueueRepository
-rabbitmq.addr.0.host=<%= @hadoop_masters[0] %>
+<% @rabbitmq_nodes.each_with_index do |hostname, i| -%>
+rabbitmq.addr.<%= i %>.host=<%= hostname %>
+<% end -%>
 
 # Ontology
 ontology.iri.entityImage=http://lumify.io/dev#image
