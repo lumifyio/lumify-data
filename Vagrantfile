@@ -142,29 +142,32 @@ Vagrant.configure('2') do |config|
   config.vm.define 'dev', :primary => true do |dev|
     configure_network(dev, ENV['PRIVATE_NETWORK_IP'])
     provision_proxy(dev, ENV['PROXY_URL'])
+    dev.vm.provision :shell, :inline => "hostname #{HOSTNAME}"
     dev.vm.provision :shell, :inline => 'mkdir -p /data0'
     dev.vm.provision :puppet do |puppet|
       configure_puppet(puppet, 'dev_vm.pp', ENV['PROXY_URL'])
     end
   end
 
-  # used for QLIX integration development
-  config.vm.define 'qlix' do |qlix|
-    configure_network(qlix, ENV['PRIVATE_NETWORK_IP'])
-    provision_proxy(qlix, ENV['PROXY_URL'])
-    qlix.vm.provision :shell, :inline => 'mkdir -p /data0'
-    install_puppet_modules(qlix, ['puppetlabs-mysql'])
-    qlix.vm.provision :puppet do |puppet|
-      configure_puppet(puppet, 'qlix_vm.pp', ENV['PROXY_URL'])
+  # used for QL integration development
+  config.vm.define 'ql' do |ql|
+    configure_network(ql, ENV['PRIVATE_NETWORK_IP'])
+    provision_proxy(ql, ENV['PROXY_URL'])
+    ql.vm.provision :shell, :inline => "hostname #{HOSTNAME}"
+    ql.vm.provision :shell, :inline => 'mkdir -p /data0'
+    install_puppet_modules(ql, ['puppetlabs-mysql'])
+    ql.vm.provision :puppet do |puppet|
+      configure_puppet(puppet, 'ql_vm.pp', ENV['PROXY_URL'])
     end
-    qlix.vm.provision :shell, :path => 'demo-vm/set-property.sh', :args => 'objectdetection.opencv.disabled=true'
-    qlix.vm.provision :shell, :path => 'demo-vm/set-property.sh', :args => 'clavin.disabled=true'
+    ql.vm.provision :shell, :path => 'demo-vm/set-property.sh', :args => 'objectdetection.opencv.disabled=true'
+    ql.vm.provision :shell, :path => 'demo-vm/set-property.sh', :args => 'clavin.disabled=true'
   end
 
   # used for automated integration testing
   config.vm.define 'test' do |test|
     configure_network(test, ENV['PRIVATE_NETWORK_IP'])
     provision_proxy(test, ENV['PROXY_URL'])
+    test.vm.provision :shell, :inline => "hostname #{HOSTNAME}"
     test.vm.provision :shell, :inline => 'mkdir -p /data0'
     test.vm.provision :puppet do |puppet|
       configure_puppet(puppet, 'dev_vm.pp', ENV['PROXY_URL'])
@@ -177,6 +180,7 @@ Vagrant.configure('2') do |config|
   config.vm.define 'demo-opensource' do |demo|
     configure_network(demo, ENV['PRIVATE_NETWORK_IP'])
     provision_proxy(demo, ENV['PROXY_URL'])
+    demo.vm.provision :shell, :inline => "hostname #{HOSTNAME}"
     demo.vm.provision :shell, :inline => 'mkdir -p /data0'
     demo.vm.provision :puppet do |puppet|
       configure_puppet(puppet, 'demo_opensource_vm.pp', ENV['PROXY_URL'])
@@ -192,6 +196,7 @@ Vagrant.configure('2') do |config|
   config.vm.define 'demo-enterprise' do |demo|
     configure_network(demo, ENV['PRIVATE_NETWORK_IP'])
     provision_proxy(demo, ENV['PROXY_URL'])
+    demo.vm.provision :shell, :inline => "hostname #{HOSTNAME}"
     demo.vm.provision :shell, :inline => 'mkdir -p /data0'
     demo.vm.provision :puppet do |puppet|
       configure_puppet(puppet, 'demo_enterprise_vm.pp', ENV['PROXY_URL'])

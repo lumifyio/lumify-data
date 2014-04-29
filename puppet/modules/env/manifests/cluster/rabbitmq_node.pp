@@ -6,6 +6,9 @@ class env::cluster::rabbitmq_node inherits env::cluster::base {
   class { 'rabbitmq::fw::amqp' :
     stage => 'first',
   }
+  class { 'rabbitmq::fw::clustering' :
+    stage => 'first',
+  }
 
   include role::rabbitmq::node
 }

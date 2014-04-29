@@ -16,3 +16,14 @@ class rabbitmq::fw::amqp (
     source => "${srcnet}"
   }
 }
+
+class rabbitmq::fw::clustering ( # http://www.rabbitmq.com/clustering.html#firewall
+  $srcnet = "0.0.0.0/0"
+){
+  firewall { '506 allow rabbitmq clustering' :
+    port   => [4369, 25672],
+    proto  => tcp,
+    action => accept,
+    source => "${srcnet}"
+  }
+}

@@ -11,7 +11,7 @@ service { 'iptables' :
 }
 
 class { 'env::common::config' :
-  main_properties_filename => 'lumify-qlix.properties',
+  main_properties_filename => 'lumify-ql.properties',
 }
 
 include httpd

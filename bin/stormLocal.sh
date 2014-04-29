@@ -18,7 +18,8 @@ fi
 [ "$1" = '-d' ] && debug_option="-agentlib:jdwp=transport=dt_socket,server=y,suspend=y,address=${DEBUG_PORT}"
 
 java ${debug_option} \
--Xmx512m \
+-Xmx2048m \
+-XX:MaxPermSize=512m \
 -Djava.awt.headless=true \
 -Dfile.encoding=UTF-8 \
 -Djava.library.path=$LD_LIBRARY_PATH \
