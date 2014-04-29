@@ -3,5 +3,9 @@
     <%- if @rabbitmq_nodes != nil && @rabbitmq_nodes.count > 1 %>
     {cluster_nodes, {[<%= @rabbitmq_nodes.collect {|hostname| "'rabbit@#{hostname}'"}.join(', ') %>], disc}}
     <%- end %>
+  ]},
+  {kernel, [
+    {inet_dist_listen_min, 25672},
+    {inet_dist_listen_max, 25672}
   ]}
 ].

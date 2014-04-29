@@ -35,7 +35,7 @@ class rabbitmq (
     require => Package['rabbitmq-server'],
     before  => Service['rabbitmq-server'],
   }
-  
+
   service { 'rabbitmq-server' :
     ensure  => running,
     enable  => true,
