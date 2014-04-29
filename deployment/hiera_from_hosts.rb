@@ -1,6 +1,7 @@
 #!/usr/bin/env ruby
 
 require 'yaml'
+require 'securerandom'
 
 cluster = Hash.new
 File.read(ARGV[0]).each_line do |line|
@@ -53,6 +54,7 @@ cluster.select{|k,v| k.match(/kafka\d/)}.each do |k,v|
   kafka_nodes[n] = v[:ip]
 end
 hiera['rabbitmq_nodes'] = get(cluster, /rabbitmq\d{2}/, :ip)
+hiera['rabbitmq_erlang_cookie'] = "#{File.basename(__FILE__)}/#{Time.now.strftime('%Y%m%dT%H%M%S')}/#{SecureRandom.hex(16)}"
 hiera['kafka_host_ipaddresses'] = kafka_nodes
 hiera['storm_nimbus_host'] = get(cluster, /stormmaster/, :ip)
 hiera['storm_nimbus_thrift_port'] = 6627
