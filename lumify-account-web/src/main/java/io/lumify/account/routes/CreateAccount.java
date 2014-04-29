@@ -6,7 +6,7 @@ import com.google.inject.Inject;
 import io.lumify.account.AccountUserRepository;
 import io.lumify.account.model.AccountUser;
 import io.lumify.core.model.user.UserRepository;
-import io.lumify.core.user.Roles;
+import io.lumify.core.user.Privilege;
 import org.securegraph.Graph;
 
 import javax.servlet.http.HttpServletRequest;
@@ -55,7 +55,7 @@ public class CreateAccount extends BaseRequestHandler {
             return;
         }
 
-        EnumSet<Roles> roles = EnumSet.of(Roles.READ); // TODO what should these roles be?
+        EnumSet<Privilege> roles = EnumSet.of(Privilege.READ); // TODO what should these roles be?
 
         userRepository.addUser(graph.getIdGenerator().nextId().toString(), user.getData().getEmail(), password, roles, new String[0]);
 

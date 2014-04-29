@@ -5,7 +5,7 @@ import com.unboundid.ldap.sdk.SearchResultEntry;
 import io.lumify.core.config.Configuration;
 import io.lumify.core.exception.LumifyException;
 import io.lumify.core.model.user.UserRepository;
-import io.lumify.core.user.Roles;
+import io.lumify.core.user.Privilege;
 import io.lumify.core.user.User;
 import io.lumify.core.util.LumifyLogger;
 import io.lumify.core.util.LumifyLoggerFactory;
@@ -74,7 +74,7 @@ public class LdapX509AuthenticationProvider extends X509AuthenticationProvider {
         String displayName = getAttributeValue(
                 searchResultEntry, ldapX509AuthenticationConfiguration.getDisplayNameAttribute(), username);
 
-        Set<Roles> roles = Roles.NONE; // TODO set roles from groups?
+        Set<Privilege> roles = Privilege.NONE; // TODO set roles from groups?
 
         User user = getUserRepository().findOrAddUser(
                 username,
