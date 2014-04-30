@@ -225,6 +225,10 @@ def mime_multipart(hash)
   end
 
   mixed.to_s
+rescue LoadError => e
+  puts "WARNING: #{e}"
+  puts '         sudo gem install mime --version 0.3.0' if e.to_s.match(/mime/)
+  nil
 end
 
 
