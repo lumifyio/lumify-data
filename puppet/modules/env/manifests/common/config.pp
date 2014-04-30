@@ -9,30 +9,29 @@ class env::common::config(
     ensure => present,
     name => 'lumify',
   }
-  exec { 'group-lumify-add-jetty' :
-    command => '/usr/sbin/usermod -a -G lumify jetty',
-    returns => [ 0, 6 ],
-    require => [ Group['lumify'] ],
+
+  define add_user_to_group (
+    $group
+  ) {
+    exec { "group-${group}-add-${name}" :
+      command => "/usr/sbin/usermod -a -G ${group} ${name}",
+      returns => [ 0, 6 ],
+      require => Group[$group],
+    }
   }
-  exec { 'group-lumify-add-tomcat' :
-    command => '/usr/sbin/usermod -a -G lumify tomcat',
-    returns => [ 0, 6 ],
-    require => [ Group['lumify'] ],
+
+  add_user_to_group { [
+      'jetty',
+      'tomcat',
+      'storm',
+      'hdfs',
+      'mapred'
+    ] :
+    group => 'lumify',
   }
-  exec { 'group-lumify-add-storm' :
-    command => '/usr/sbin/usermod -a -G lumify storm',
-    returns => [ 0, 6 ],
-    require => [ Group['lumify'] ],
-  }
-  exec { 'group-lumify-add-hdfs' :
-    command => '/usr/sbin/usermod -a -G lumify hdfs',
-    returns => [ 0, 6 ],
-    require => [ Group['lumify'] ],
-  }
-  exec { 'group-lumify-add-mapred' :
-    command => '/usr/sbin/usermod -a -G lumify mapred',
-    returns => [ 0, 6 ],
-    require => [ Group['lumify'] ],
+
+  if $hostname =~ /lumify-vm/ {
+    add_user_to_group { 'vagrant' : group => 'lumify' }
   }
 
   file { '/opt/lumify/logs' :
