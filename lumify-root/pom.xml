@@ -431,6 +431,11 @@
             </dependency>
             <dependency>
                 <groupId>org.securegraph</groupId>
+                <artifactId>securegraph-tools</artifactId>
+                <version>${securegraph.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.securegraph</groupId>
                 <artifactId>securegraph-accumulo</artifactId>
                 <version>${securegraph.version}</version>
                 <exclusions>

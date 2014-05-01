@@ -24,5 +24,15 @@
             <artifactId>lumify-opennlp-dictionary-extractor-web</artifactId>
             <version>${project.version}</version>
         </dependency>
+        <dependency>
+            <groupId>io.lumify</groupId>
+            <artifactId>lumify-web-dev-tools</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>io.lumify</groupId>
+            <artifactId>lumify-web-import-export-workspaces</artifactId>
+            <version>${project.version}</version>
+        </dependency>
     </dependencies>
 </project>
