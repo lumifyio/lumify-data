@@ -15,6 +15,8 @@ class env::common::config(
   ) {
     exec { "group-${group}-add-${name}" :
       command => "/usr/sbin/usermod -a -G ${group} ${name}",
+      onlyif  => "/usr/bin/id ${name}",
+      unless  => "/usr/bin/groups ${name} | /bin/grep -q ${group}",
       returns => [ 0, 6 ],
       require => Group[$group],
     }

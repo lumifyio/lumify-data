@@ -1,8 +1,8 @@
-#include env::demo
 require buildtools
 require java
 include macro::git
 include env::dev::nodejs
+include role::rabbitmq::node
 
 # no firewall for local vms
 service { 'iptables' :
@@ -219,6 +219,7 @@ exec { 'configure-ldaps' :
 exec { 'ldap-add' :
   cwd     => '/vagrant/config/ssl',
   command => "/vagrant/config/ssl/ldap_add.sh '${ldap_bdb_rootdn}' '${ldap_bdb_password}'",
+  returns => [ 0, 68 ],
   unless  => "/usr/bin/ldapsearch -x -D '${ldap_bdb_rootdn}' -w '${ldap_bdb_password}' -LLL -b '${ldap_bdb_suffix}' '(cn=Alice)' cn | grep -q Alice",
   require => [ Package['openldap-clients'],
                Service['slapd'],

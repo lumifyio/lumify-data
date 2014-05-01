@@ -11,18 +11,28 @@ def format_script(input)
   end.compact.join("\n")
 end
 
-def ensure_private_network(private_network_ip)
-  three_octets = (private_network_ip || DEFAULT_PRIVATE_NETWORK_IP).match(/(\d+\.\d+\.\d+)\.\d+/).captures[0]
+def private_network_ip
+  ENV['PRIVATE_NETWORK_IP'] || DEFAULT_PRIVATE_NETWORK_IP
+end
+
+def ensure_private_network
+  three_octets = private_network_ip.match(/(\d+\.\d+\.\d+)\.\d+/).captures[0]
   unless `VBoxManage list hostonlyifs`.lines.any? {|line| line.match(three_octets)}
     new_if = `VBoxManage hostonlyif create`.match(/Interface '(.*)' was successfully created/).captures[0]
     `VBoxManage hostonlyif ipconfig "#{new_if}" --ip #{three_octets}.1`
   end
 end
 
-def configure_network(config, private_network_ip)
+def configure_network(config)
   config.vm.network :forwarded_port, :guest => 8080, :host => 8080, :auto_correct => true
   config.vm.network :forwarded_port, :guest => 8443, :host => 8443, :auto_correct => true
-  config.vm.network :private_network, :ip => private_network_ip || DEFAULT_PRIVATE_NETWORK_IP
+  config.vm.network :private_network, :ip => private_network_ip
+  script = """
+    hostname #{HOSTNAME}
+    sed -i -e '/^#{private_network_ip}/ d' /etc/hosts
+    echo '#{private_network_ip} #{HOSTNAME.split('.').first} #{HOSTNAME}' >> /etc/hosts
+  """
+  config.vm.provision :shell, :inline => "echo 'configure hostname and /etc/hosts'\n" + format_script(script)
 end
 
 def provision_proxy(config, proxy_url)
@@ -46,8 +56,8 @@ def provision_proxy(config, proxy_url)
       echo 'registry = http://registry.npmjs.org/' >> /usr/etc/npmrc
       echo 'proxy = #{proxy_url}' >> /usr/etc/npmrc
     """
-    config.vm.provision :shell, :inline => format_script(script)
-    config.vm.provision :shell, :inline => "mkdir -p ${HOME}/.m2 && echo '#{settings_xml}' > ${HOME}/.m2/settings.xml", :privileged => false
+    config.vm.provision :shell, :inline => "echo 'enable yum and npm proxies'\n" + format_script(script)
+    config.vm.provision :shell, :inline => "echo 'enable mvn proxy'; mkdir -p ${HOME}/.m2 && echo '#{settings_xml}' > ${HOME}/.m2/settings.xml", :privileged => false
   else
     script = """
       sed -i -e '/^proxy=/d' /etc/yum.conf
@@ -55,8 +65,8 @@ def provision_proxy(config, proxy_url)
       [ -f /usr/etc/npmrc ] && sed -i -e '/^registry =/d' /usr/etc/npmrc || true
       [ -f /usr/etc/npmrc ] && sed -i -e '/^proxy =/d' /usr/etc/npmrc || true
     """
-    config.vm.provision :shell, :inline => format_script(script)
-    config.vm.provision :shell, :inline => 'rm -f ${HOME}/.m2/settings.xml', :privileged => false
+    config.vm.provision :shell, :inline => "echo 'disable yum and npm proxies'\n" + format_script(script)
+    config.vm.provision :shell, :inline => "echo 'disable mvn proxy'; rm -f ${HOME}/.m2/settings.xml", :privileged => false
   end
 end
 
@@ -64,7 +74,7 @@ def install_puppet_modules(config, module_names)
   script = module_names.collect do |module_name|
     "puppet module list | grep -q #{module_name} || puppet module install #{module_name}"
   end
-  config.vm.provision :shell, :inline => script.join("\n")
+  config.vm.provision :shell, :inline => "echo 'install puppet module(s)'\n" + script.join("\n")
 end
 
 def configure_puppet(puppet, manifest_file, proxy_url=nil)
@@ -113,7 +123,7 @@ Vagrant.configure('2') do |config|
   # Example for VirtualBox:
   #
   config.vm.provider :virtualbox do |vb|
-    ensure_private_network(ENV['PRIVATE_NETWORK_IP'])
+    ensure_private_network
     vb.customize ['modifyvm', :id, '--memory', '4096']
     vb.customize ['modifyvm', :id, '--cpus', '2']
   end
@@ -140,10 +150,9 @@ Vagrant.configure('2') do |config|
 
   # used for development including closed source enterprise features
   config.vm.define 'dev', :primary => true do |dev|
-    configure_network(dev, ENV['PRIVATE_NETWORK_IP'])
+    configure_network(dev)
     provision_proxy(dev, ENV['PROXY_URL'])
-    dev.vm.provision :shell, :inline => "hostname #{HOSTNAME}"
-    dev.vm.provision :shell, :inline => 'mkdir -p /data0'
+    dev.vm.provision :shell, :inline => 'set -x; mkdir -p /data0'
     dev.vm.provision :puppet do |puppet|
       configure_puppet(puppet, 'dev_vm.pp', ENV['PROXY_URL'])
     end
@@ -151,10 +160,8 @@ Vagrant.configure('2') do |config|
 
   # used for QL integration development
   config.vm.define 'ql' do |ql|
-    configure_network(ql, ENV['PRIVATE_NETWORK_IP'])
+    configure_network(ql)
     provision_proxy(ql, ENV['PROXY_URL'])
-    ql.vm.provision :shell, :inline => "hostname #{HOSTNAME}"
-    ql.vm.provision :shell, :inline => 'mkdir -p /data0'
     install_puppet_modules(ql, ['puppetlabs-mysql'])
     ql.vm.provision :puppet do |puppet|
       configure_puppet(puppet, 'ql_vm.pp', ENV['PROXY_URL'])
@@ -165,10 +172,9 @@ Vagrant.configure('2') do |config|
 
   # used for automated integration testing
   config.vm.define 'test' do |test|
-    configure_network(test, ENV['PRIVATE_NETWORK_IP'])
+    configure_network(test)
     provision_proxy(test, ENV['PROXY_URL'])
-    test.vm.provision :shell, :inline => "hostname #{HOSTNAME}"
-    test.vm.provision :shell, :inline => 'mkdir -p /data0'
+    test.vm.provision :shell, :inline => 'set -x; mkdir -p /data0'
     test.vm.provision :puppet do |puppet|
       configure_puppet(puppet, 'dev_vm.pp', ENV['PROXY_URL'])
     end
@@ -178,10 +184,9 @@ Vagrant.configure('2') do |config|
 
   # used to create the downloadable open source demo VM
   config.vm.define 'demo-opensource' do |demo|
-    configure_network(demo, ENV['PRIVATE_NETWORK_IP'])
+    configure_network(demo)
     provision_proxy(demo, ENV['PROXY_URL'])
-    demo.vm.provision :shell, :inline => "hostname #{HOSTNAME}"
-    demo.vm.provision :shell, :inline => 'mkdir -p /data0'
+    demo.vm.provision :shell, :inline => 'set -x; mkdir -p /data0'
     demo.vm.provision :puppet do |puppet|
       configure_puppet(puppet, 'demo_opensource_vm.pp', ENV['PROXY_URL'])
     end
@@ -194,10 +199,9 @@ Vagrant.configure('2') do |config|
 
   # used to create an enterprise demo VM
   config.vm.define 'demo-enterprise' do |demo|
-    configure_network(demo, ENV['PRIVATE_NETWORK_IP'])
+    configure_network(demo)
     provision_proxy(demo, ENV['PROXY_URL'])
-    demo.vm.provision :shell, :inline => "hostname #{HOSTNAME}"
-    demo.vm.provision :shell, :inline => 'mkdir -p /data0'
+    demo.vm.provision :shell, :inline => 'set -x; mkdir -p /data0'
     demo.vm.provision :puppet do |puppet|
       configure_puppet(puppet, 'demo_enterprise_vm.pp', ENV['PROXY_URL'])
     end
