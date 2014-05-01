@@ -1,7 +1,7 @@
 [
   {rabbit, [
-    <%- if @rabbitmq_nodes != nil && @rabbitmq_nodes.count > 1 %>
-    {cluster_nodes, {[<%= @rabbitmq_nodes.collect {|hostname| "'rabbit@#{hostname}'"}.join(', ') %>], disc}}
+    <%- if @cluster_nodes != nil && @cluster_nodes.count > 1 %>
+    {cluster_nodes, {[<%= @cluster_nodes.collect {|hostname| "'rabbit@#{hostname}'"}.join(', ') %>], disc}}
     <%- end %>
   ]},
   {kernel, [
