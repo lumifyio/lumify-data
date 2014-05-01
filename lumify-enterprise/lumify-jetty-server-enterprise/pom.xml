@@ -34,5 +34,10 @@
             <artifactId>lumify-web-import-export-workspaces</artifactId>
             <version>${project.version}</version>
         </dependency>
+        <dependency>
+            <groupId>io.lumify</groupId>
+            <artifactId>lumify-newuser-workspace-sharer</artifactId>
+            <version>${project.version}</version>
+        </dependency>
     </dependencies>
 </project>

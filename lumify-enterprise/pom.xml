@@ -239,5 +239,6 @@
         <module>lumify-clavin</module>
         <module>lumify-jetty-server-enterprise</module>
         <module>lumify-java-code-ingest</module>
+        <module>lumify-newuser-workspace-sharer</module>
     </modules>
 </project>
