@@ -1,5 +1,5 @@
 class rabbitmq (
-  $rabbitmq_nodes = [],
+  $cluster_nodes = [],
   $erlang_cookie = '' # http://www.rabbitmq.com/clustering.html#setup
 ){
   require erlang
