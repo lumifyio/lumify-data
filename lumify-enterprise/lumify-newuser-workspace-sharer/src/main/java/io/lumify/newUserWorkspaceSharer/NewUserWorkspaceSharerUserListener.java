@@ -35,7 +35,7 @@ public class NewUserWorkspaceSharerUserListener implements UserListener {
 
             this.workspaceRepository.updateUserOnWorkspace(workspace, user.getUserId(), WorkspaceAccess.READ, this.userRepository.getSystemUser());
 
-            this.userRepository.setCurrentWorkspace(user.getUserId(), workspace);
+            this.userRepository.setCurrentWorkspace(user.getUserId(), workspace.getId());
         } catch (Exception ex) {
             LOGGER.error("Could not share workspace", ex);
         }
