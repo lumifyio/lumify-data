@@ -2,6 +2,7 @@ package io.lumify.opennlpDictionary.web;
 
 import io.lumify.core.config.Configuration;
 import io.lumify.core.model.user.UserRepository;
+import io.lumify.core.model.workspace.WorkspaceRepository;
 import io.lumify.core.user.User;
 import io.lumify.opennlpDictionary.model.DictionaryEntry;
 import io.lumify.opennlpDictionary.model.DictionaryEntryRepository;
@@ -23,8 +24,9 @@ public class AdminDictionaryByConcept extends BaseRequestHandler {
     public AdminDictionaryByConcept(
             final DictionaryEntryRepository dictionaryEntryRepository,
             final UserRepository userRepository,
+            final WorkspaceRepository workspaceRepository,
             final Configuration configuration) {
-        super(userRepository, configuration);
+        super(userRepository, workspaceRepository, configuration);
         this.dictionaryEntryRepository = dictionaryEntryRepository;
     }
 
