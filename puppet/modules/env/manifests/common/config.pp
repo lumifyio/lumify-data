@@ -43,6 +43,16 @@ class env::common::config(
     require => [ File['/opt/lumify'], Group['lumify'] ],
   }
 
+  $data_dir_list = split($data_directories, ',')
+  $first_data_dir = $data_dir_list[0]
+
+  file { "${first_data_dir}/hdfslibcahe" :
+    ensure => directory,
+    group => 'lumify',
+    mode => 'u=rwx,g=rwxs,o=rx',
+    require => [ File[$first_data_dir], Group['lumify'] ],
+  }
+
   $syslog_server = hiera('syslog_server', '')
   $syslog_facility = 'local3'
   $hadoop_masters = hiera_array('hadoop_masters')

@@ -3,7 +3,7 @@ hadoop.url=hdfs://<%= @hadoop_masters[0] %>:8020
 zookeeper.serverNames=<%= @zookeeper_nodes.values.collect {|node| node.split(':')[0]}.join(',') %>
 
 hdfsLibcache.sourceDirectory=hdfs://<%= @hadoop_masters[0] %>/lumify/libcache
-#hdfsLibcache.tempDirectory=/tmp/hdfslibcache
+hdfsLibcache.tempDirectory=<%= @first_data_dir %>/hdfslibcahe
 
 newuser.privileges=READ,EDIT,PUBLISH,ADMIN
 
