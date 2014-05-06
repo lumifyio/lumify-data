@@ -4,6 +4,7 @@ import backtype.storm.Config;
 import backtype.storm.generated.StormTopology;
 import backtype.storm.topology.IRichSpout;
 import backtype.storm.topology.TopologyBuilder;
+import io.lumify.core.exception.LumifyException;
 import io.lumify.storm.StormRunnerBase;
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.OptionBuilder;
@@ -12,7 +13,11 @@ import org.apache.commons.cli.Options;
 public class StormRunner extends StormRunnerBase {
     private static final String TOPOLOGY_NAME = "lumify-twitter";
     private static final String OPT_FILE_NAME = "filename";
+    private static final String OPT_STREAM = "stream";
+    private static final String OPT_TWITTER4J = "twitter4j";
     private String fileName;
+    private boolean stream;
+    private boolean twitter4j;
 
     public static void main(String[] args) throws Exception {
         int res = new StormRunner().run(args);
@@ -34,6 +39,20 @@ public class StormRunner extends StormRunnerBase {
                         .create("f")
         );
 
+        opts.addOption(
+                OptionBuilder
+                        .withLongOpt(OPT_STREAM)
+                        .withDescription("Stream the twitter data using HoseBirdClient.")
+                        .create()
+        );
+
+        opts.addOption(
+                OptionBuilder
+                        .withLongOpt(OPT_TWITTER4J)
+                        .withDescription("Get data using Twitter4j.")
+                        .create()
+        );
+
         return opts;
     }
 
@@ -48,6 +67,12 @@ public class StormRunner extends StormRunnerBase {
 
         if (cmd.hasOption(OPT_FILE_NAME)) {
             fileName = cmd.getOptionValue(OPT_FILE_NAME);
+        } else if (cmd.hasOption(OPT_STREAM)) {
+            stream = true;
+        } else if (cmd.hasOption(OPT_TWITTER4J)) {
+            twitter4j = true;
+        } else {
+            throw new LumifyException("You must specify one input method");
         }
     }
 
@@ -62,8 +87,12 @@ public class StormRunner extends StormRunnerBase {
 
         if (fileName != null) {
             spout = new TweetFileSpout(fileName);
-        } else {
+        } else if (stream) {
             spout = new TwitterStreamSpout();
+        } else if (twitter4j) {
+            spout = new Twitter4jSpout();
+        } else {
+            throw new LumifyException("You must specify one input method");
         }
 
         String name = "lumify-twitter";
