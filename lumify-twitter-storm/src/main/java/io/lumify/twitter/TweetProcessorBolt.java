@@ -62,7 +62,7 @@ public class TweetProcessorBolt extends BaseRichBolt {
         Visibility visibility = new Visibility("");
         VertexBuilder v = this.graph.prepareVertex(vertexId, visibility, authorizations);
 
-        OntologyLumifyProperties.CONCEPT_TYPE.setProperty(v, TwitterOntology.TWEET_CONCEPT_TYPE, visibility);
+        OntologyLumifyProperties.CONCEPT_TYPE.setProperty(v, TwitterOntology.CONCEPT_TYPE_TWEET, visibility);
 
         StreamingPropertyValue rawValue = new StreamingPropertyValue(new ByteArrayInputStream(jsonString.getBytes()), byte[].class);
         rawValue.searchIndex(false);
@@ -97,7 +97,7 @@ public class TweetProcessorBolt extends BaseRichBolt {
             Visibility visibility = new Visibility("");
             VertexBuilder v = this.graph.prepareVertex(vertexId, visibility, authorizations);
 
-            OntologyLumifyProperties.CONCEPT_TYPE.setProperty(v, TwitterOntology.USER_CONCEPT_TYPE, visibility);
+            OntologyLumifyProperties.CONCEPT_TYPE.setProperty(v, TwitterOntology.CONCEPT_TYPE_USER, visibility);
 
             LumifyProperties.TITLE.setProperty(v, user.getString("name"), visibility);
             TwitterOntology.PROFILE_IMAGE_URL.setProperty(v, user.getString("profile_image_url"), visibility);
