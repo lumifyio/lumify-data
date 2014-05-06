@@ -4,7 +4,6 @@ import backtype.storm.Config;
 import backtype.storm.generated.StormTopology;
 import backtype.storm.topology.IRichSpout;
 import backtype.storm.topology.TopologyBuilder;
-import io.lumify.core.exception.LumifyException;
 import io.lumify.storm.StormRunnerBase;
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.OptionBuilder;
@@ -49,8 +48,6 @@ public class StormRunner extends StormRunnerBase {
 
         if (cmd.hasOption(OPT_FILE_NAME)) {
             fileName = cmd.getOptionValue(OPT_FILE_NAME);
-        } else {
-            throw new LumifyException("Input type required");
         }
     }
 
@@ -66,7 +63,7 @@ public class StormRunner extends StormRunnerBase {
         if (fileName != null) {
             spout = new TweetFileSpout(fileName);
         } else {
-            throw new LumifyException("Input type required");
+            spout = new TwitterStreamSpout();
         }
 
         String name = "lumify-twitter";

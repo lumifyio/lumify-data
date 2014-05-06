@@ -107,7 +107,7 @@ public class TweetProcessorBolt extends BaseRichBolt {
 
             LumifyProperties.TITLE.setProperty(v, userJson.getString("name"), visibility);
             String profileImageUrl = userJson.optString("profile_image_url");
-            if (profileImageUrl != null) {
+            if (profileImageUrl != null && profileImageUrl.length() > 0) {
                 TwitterOntology.PROFILE_IMAGE_URL.setProperty(v, profileImageUrl, visibility);
             }
             TwitterOntology.SCREEN_NAME.setProperty(v, userJson.getString("screen_name"), visibility);
@@ -117,7 +117,7 @@ public class TweetProcessorBolt extends BaseRichBolt {
             graph.flush();
 
             workQueueRepository.pushGraphPropertyQueue(userVertex, LumifyProperties.TITLE.getProperty(userVertex));
-            if (profileImageUrl != null) {
+            if (profileImageUrl != null && profileImageUrl.length() > 0) {
                 workQueueRepository.pushGraphPropertyQueue(userVertex, TwitterOntology.PROFILE_IMAGE_URL.getProperty(userVertex));
             }
             workQueueRepository.pushGraphPropertyQueue(userVertex, TwitterOntology.SCREEN_NAME.getProperty(userVertex));
