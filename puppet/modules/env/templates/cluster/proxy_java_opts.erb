@@ -1,5 +1,0 @@
-<% if @hiera_proxy_url
-  host, port = @hiera_proxy_url.match(/http:\/\/(.*):(.*)/).captures
--%>
--Dhttp.proxyHost=<%= host %> -Dhttp.proxyPort=<%= port %>
-<% end -%>

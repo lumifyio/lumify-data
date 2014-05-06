@@ -1,9 +1,0 @@
----
-default_availability_zone: 'us-east-1a'      # ec2-describe-availability-zones --region us-east-1
-default_subnet:            'subnet-12345678' # ec2-describe-subnets --filter vpc-id=vpc-12345678
-default_security_groups:                     # ec2-describe-group --filter vpc-id=vpc-12345678 | awk '/GROUP/ {print $2, $4}'
-                         - 'sg-11111111'     # e.g. inbound ssh
-                         - 'sg-22222222'     # e.g. inter-cluster traffic
-default_keypair:           'keypair-1'
-default_ami:               'ami-eb6b0182'    # CentOS 6 (x86_64) - with Updates
-                                             # https://aws.amazon.com/marketplace/ordering?productId=adc4348e-1dc3-41df-b833-e86ba57a33d6

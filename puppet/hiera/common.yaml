@@ -1,6 +1,0 @@
----
-java_home: /usr/java/default
-hadoop_home: /usr/lib/hadoop
-accumulo_home: /usr/lib/accumulo
-clavin_index_archive: http://bits.lumify.io/data/clavin-index-2014-01-14.tgz
-clavin_index_dir: /opt/lumify/clavin-index

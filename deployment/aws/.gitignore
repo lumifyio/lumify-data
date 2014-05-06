@@ -1,6 +1,0 @@
-*.pem
-setenv.sh
-*.yml
-*_instances.txt
-*_hosts
-*.log

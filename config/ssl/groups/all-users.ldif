@@ -1,8 +1,0 @@
-dn: cn=all-users,ou=groups,dc=lumify,dc=io
-objectclass: groupofuniquenames
-cn: all-users
-description: All Users
-uniqueMember: cn=Alice,ou=people,dc=lumify,dc=io
-uniqueMember: cn=Bob,ou=people,dc=lumify,dc=io
-uniqueMember: cn=Carlos,ou=people,dc=lumify,dc=io
-uniqueMember: cn=Diane,ou=people,dc=lumify,dc=io
