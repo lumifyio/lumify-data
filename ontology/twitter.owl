@@ -122,6 +122,18 @@
         <rdfs:label xml:lang="en">Hashtag</rdfs:label>
         <rdfs:subClassOf rdf:resource="http://lumify.io/twitter#twitter"/>
         <lumify:glyphIconFileName xml:lang="en">hashtag.png</lumify:glyphIconFileName>
+        <lumify:color xml:lang="en">rgb(28, 137, 28)</lumify:color>
+    </owl:Class>
+    
+
+
+    <!-- http://lumify.io/twitter#profileImage -->
+
+    <owl:Class rdf:about="http://lumify.io/twitter#profileImage">
+        <rdfs:label xml:lang="en">Profile Image</rdfs:label>
+        <rdfs:subClassOf rdf:resource="http://lumify.io/twitter#twitter"/>
+        <lumify:displayType xml:lang="en">image</lumify:displayType>
+        <lumify:color xml:lang="en">rgb(176, 87, 53)</lumify:color>
     </owl:Class>
     
 
@@ -132,6 +144,7 @@
         <rdfs:label xml:lang="en">Tweet</rdfs:label>
         <rdfs:subClassOf rdf:resource="http://lumify.io/twitter#twitter"/>
         <lumify:displayType xml:lang="en">document</lumify:displayType>
+        <lumify:color xml:lang="en">rgb(176, 87, 53)</lumify:color>
         <lumify:glyphIconFileName xml:lang="en">tweet.png</lumify:glyphIconFileName>
     </owl:Class>
     
@@ -151,6 +164,7 @@
     <owl:Class rdf:about="http://lumify.io/twitter#url">
         <rdfs:label xml:lang="en">URL</rdfs:label>
         <rdfs:subClassOf rdf:resource="http://lumify.io/twitter#twitter"/>
+        <lumify:color xml:lang="en">rgb(203, 130, 4)</lumify:color>
         <lumify:glyphIconFileName xml:lang="en">url.png</lumify:glyphIconFileName>
     </owl:Class>
     
@@ -161,6 +175,7 @@
     <owl:Class rdf:about="http://lumify.io/twitter#user">
         <rdfs:label xml:lang="en">User</rdfs:label>
         <rdfs:subClassOf rdf:resource="http://lumify.io/twitter#twitter"/>
+        <lumify:color xml:lang="en">rgb(23, 30, 239)</lumify:color>
         <lumify:glyphIconFileName xml:lang="en">user.png</lumify:glyphIconFileName>
     </owl:Class>
 </rdf:RDF>

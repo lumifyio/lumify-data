@@ -13,6 +13,9 @@ import io.lumify.core.bootstrap.LumifyBootstrap;
 import io.lumify.core.model.ontology.OntologyLumifyProperties;
 import io.lumify.core.model.properties.LumifyProperties;
 import io.lumify.core.model.properties.RawLumifyProperties;
+import io.lumify.core.model.termMention.TermMentionModel;
+import io.lumify.core.model.termMention.TermMentionRepository;
+import io.lumify.core.model.termMention.TermMentionRowKey;
 import io.lumify.core.model.user.UserRepository;
 import io.lumify.core.model.workQueue.WorkQueueRepository;
 import io.lumify.core.user.User;
@@ -30,6 +33,7 @@ public class TweetProcessorBolt extends BaseRichBolt {
     private UserRepository userRepository;
     private Authorizations authorizations;
     private WorkQueueRepository workQueueRepository;
+    private TermMentionRepository termMentionRepository;
     private Cache<String, Vertex> userVertexCache = CacheBuilder.newBuilder()
             .expireAfterWrite(15, TimeUnit.MINUTES)
             .build();
@@ -55,6 +59,8 @@ public class TweetProcessorBolt extends BaseRichBolt {
         Vertex tweetVertex = createTweetVertex(jsonString, json);
         createTweetedEdge(userVertex, tweetVertex);
         processEntities(tweetVertex, json);
+
+        termMentionRepository.flush();
     }
 
     private Vertex createTweetVertex(String jsonString, JSONObject json) {
@@ -151,7 +157,10 @@ public class TweetProcessorBolt extends BaseRichBolt {
 
     private void processUserMention(Vertex tweetVertex, JSONObject userMentionJson) {
         Vertex userVertex = getUserVertex(userMentionJson);
-        createMentionedEdge(tweetVertex, userVertex);
+        Edge edge = createMentionedEdge(tweetVertex, userVertex);
+
+        JSONArray offsets = userMentionJson.getJSONArray("indices");
+        createTermMention(tweetVertex, userVertex, edge, TwitterOntology.CONCEPT_TYPE_HASHTAG, offsets);
     }
 
     private Edge createMentionedEdge(Vertex tweetVertex, Vertex userVertex) {
@@ -170,7 +179,10 @@ public class TweetProcessorBolt extends BaseRichBolt {
 
     private void processUrl(Vertex tweetVertex, JSONObject urlJson) {
         Vertex urlVertex = getUrlVertex(urlJson);
-        createReferencesUrlEdge(tweetVertex, urlVertex);
+        Edge edge = createReferencesUrlEdge(tweetVertex, urlVertex);
+
+        JSONArray offsets = urlJson.getJSONArray("indices");
+        createTermMention(tweetVertex, urlVertex, edge, TwitterOntology.CONCEPT_TYPE_HASHTAG, offsets);
     }
 
     private Vertex getUrlVertex(JSONObject urlJson) {
@@ -222,7 +234,10 @@ public class TweetProcessorBolt extends BaseRichBolt {
 
     private void processHashtag(Vertex tweetVertex, JSONObject hashtagJson) {
         Vertex hashtagVertex = getHashtagVertex(hashtagJson);
-        createTaggedEdge(tweetVertex, hashtagVertex);
+        Edge edge = createTaggedEdge(tweetVertex, hashtagVertex);
+
+        JSONArray offsets = hashtagJson.getJSONArray("indices");
+        createTermMention(tweetVertex, hashtagVertex, edge, TwitterOntology.CONCEPT_TYPE_HASHTAG, offsets);
     }
 
     private Vertex getHashtagVertex(JSONObject hashtagJson) {
@@ -283,6 +298,22 @@ public class TweetProcessorBolt extends BaseRichBolt {
         this.authorizations = this.userRepository.getAuthorizations(user);
     }
 
+    private void createTermMention(Vertex tweetVertex, Vertex vertex, Edge edge, String conceptUri, JSONArray offsets) {
+        Visibility visibility = new Visibility("");
+        long startOffset = offsets.getInt(0);
+        long endOffset = offsets.getInt(1);
+        TermMentionRowKey termMentionRowKey = new TermMentionRowKey(tweetVertex.getId().toString(), "", startOffset, endOffset);
+        TermMentionModel termMention = new TermMentionModel(termMentionRowKey);
+        String title = LumifyProperties.TITLE.getPropertyValue(vertex);
+        termMention.getMetadata()
+                .setConceptGraphVertexId(conceptUri, visibility)
+                .setSign(title, visibility)
+                .setVertexId(vertex.getId().toString(), visibility)
+                .setEdgeId(edge.getId().toString(), visibility)
+                .setOntologyClassUri(conceptUri, visibility);
+        termMentionRepository.save(termMention);
+    }
+
     @Inject
     public void setGraph(Graph graph) {
         this.graph = graph;
@@ -296,5 +327,10 @@ public class TweetProcessorBolt extends BaseRichBolt {
     @Inject
     public void setWorkQueueRepository(WorkQueueRepository workQueueRepository) {
         this.workQueueRepository = workQueueRepository;
+    }
+
+    @Inject
+    public void setTermMentionRepository(TermMentionRepository termMentionRepository) {
+        this.termMentionRepository = termMentionRepository;
     }
 }

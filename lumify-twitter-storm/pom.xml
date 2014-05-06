@@ -56,6 +56,11 @@
 
         <dependency>
             <groupId>io.lumify</groupId>
+            <artifactId>lumify-twitter-common</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>io.lumify</groupId>
             <artifactId>lumify-storm</artifactId>
             <version>${project.version}</version>
         </dependency>
