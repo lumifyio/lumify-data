@@ -1,5 +1,8 @@
 package io.lumify.tikaTextExtractor;
 
+import de.l3s.boilerpipe.BoilerpipeProcessingException;
+import de.l3s.boilerpipe.extractors.ArticleExtractor;
+import de.l3s.boilerpipe.extractors.NumWordsRulesExtractor;
 import io.lumify.core.ingest.graphProperty.GraphPropertyWorkData;
 import io.lumify.core.ingest.graphProperty.GraphPropertyWorker;
 import io.lumify.core.ingest.graphProperty.GraphPropertyWorkerPrepareData;
@@ -7,13 +10,6 @@ import io.lumify.core.model.properties.LumifyProperties;
 import io.lumify.core.model.properties.RawLumifyProperties;
 import io.lumify.core.util.LumifyLogger;
 import io.lumify.core.util.LumifyLoggerFactory;
-import org.securegraph.Property;
-import org.securegraph.Vertex;
-import org.securegraph.mutation.ExistingElementMutation;
-import org.securegraph.property.StreamingPropertyValue;
-import de.l3s.boilerpipe.BoilerpipeProcessingException;
-import de.l3s.boilerpipe.extractors.ArticleExtractor;
-import de.l3s.boilerpipe.extractors.NumWordsRulesExtractor;
 import org.apache.commons.io.IOUtils;
 import org.apache.tika.exception.TikaException;
 import org.apache.tika.metadata.Metadata;
@@ -23,6 +19,10 @@ import org.apache.tika.parser.Parser;
 import org.apache.tika.sax.BodyContentHandler;
 import org.json.JSONException;
 import org.json.JSONObject;
+import org.securegraph.Property;
+import org.securegraph.Vertex;
+import org.securegraph.mutation.ExistingElementMutation;
+import org.securegraph.property.StreamingPropertyValue;
 import org.xml.sax.ContentHandler;
 import org.xml.sax.SAXException;
 
@@ -127,7 +127,9 @@ public class TikaTextExtractorGraphPropertyWorker extends GraphPropertyWorker {
 
                 // TODO set("retrievalTime", Long.parseLong(customImageMetadataJson.get("atc:retrieval-timestamp").toString()));
 
-                LumifyProperties.TITLE.addPropertyValue(m, MULTIVALUE_KEY, customImageMetadataJson.get("title").toString(), data.getPropertyMetadata(), data.getVisibility());
+                Map<String, Object> titleMetadata = data.getPropertyMetadata();
+                LumifyProperties.CONFIDENCE.setMetadata(titleMetadata, 0.4);
+                LumifyProperties.TITLE.addPropertyValue(m, MULTIVALUE_KEY, customImageMetadataJson.get("title").toString(), titleMetadata, data.getVisibility());
             } catch (JSONException e) {
                 LOGGER.warn("Image returned invalid custom metadata");
             }
