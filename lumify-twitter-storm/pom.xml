@@ -14,6 +14,7 @@
 
     <properties>
         <twitter.hbc.version>1.4.2</twitter.hbc.version>
+        <twitter4j.version>4.0.1</twitter4j.version>
     </properties>
 
     <dependencies>
@@ -26,6 +27,11 @@
             <groupId>org.apache.httpcomponents</groupId>
             <artifactId>httpcore</artifactId>
             <version>${httpcomponents.httpclient.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.twitter4j</groupId>
+            <artifactId>twitter4j-core</artifactId>
+            <version>${twitter4j.version}</version>
         </dependency>
 
         <!-- Storm Dependencies; These override the managed versions for compatibility. -->

@@ -18,8 +18,9 @@ import com.twitter.hbc.httpclient.auth.Authentication;
 import com.twitter.hbc.httpclient.auth.OAuth1;
 import io.lumify.core.util.LumifyLogger;
 import io.lumify.core.util.LumifyLoggerFactory;
+import org.securegraph.util.ConvertingIterable;
 
-import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingQueue;
@@ -27,6 +28,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import static com.google.common.base.Preconditions.checkNotNull;
+import static org.securegraph.util.IterableUtils.toList;
 
 public class TwitterStreamSpout extends BaseRichSpout {
     private static final LumifyLogger LOGGER = LumifyLoggerFactory.getLogger(TwitterStreamSpout.class);
@@ -35,7 +37,8 @@ public class TwitterStreamSpout extends BaseRichSpout {
 
     private static final Pattern TWEET_ID_PATTERN = Pattern.compile("\"id_str\"\\s*:\\s*\"(\\d+)\"");
 
-    private static final String QUERY = "twitter.query";
+    private static final String TERMS = "twitter.terms";
+    private static final String FOLLOWINGS = "twitter.followings";
     private static final String CONSUMER_KEY = "twitter.consumerKey";
     private static final String CONSUMER_SECRET = "twitter.consumerSecret";
     private static final String TOKEN = "twitter.token";
@@ -52,7 +55,8 @@ public class TwitterStreamSpout extends BaseRichSpout {
         String consumerSecret = (String) stormConf.get(CONSUMER_SECRET);
         String token = (String) stormConf.get(TOKEN);
         String tokenSecret = (String) stormConf.get(TOKEN_SECRET);
-        String query = (String) stormConf.get(QUERY);
+        String terms = (String) stormConf.get(TERMS);
+        String followings = (String) stormConf.get(FOLLOWINGS);
 
         checkNotNull(consumerKey, "'consumerKey' config not set");
         checkNotNull(consumerSecret, "'consumerSecret' config not set");
@@ -67,14 +71,25 @@ public class TwitterStreamSpout extends BaseRichSpout {
                 consumerSecret,
                 token,
                 tokenSecret,
-                query);
+                terms,
+                followings);
     }
 
-    private void connect(String consumerKey, String consumerSecret, String token, String tokenSecret, String query) {
+    private void connect(String consumerKey, String consumerSecret, String token, String tokenSecret, String terms, String followings) {
         Hosts hosebirdHosts = new HttpHosts(Constants.STREAM_HOST);
+
         StatusesFilterEndpoint endpoint = new StatusesFilterEndpoint();
-        ArrayList<String> terms = getTermsFromQuery(query);
-        endpoint.trackTerms(terms);
+
+        List<String> termsList = getTermsListFromString(terms);
+        if (termsList != null && termsList.size() > 0) {
+            endpoint.trackTerms(termsList);
+        }
+
+        List<Long> followingsList = getFollowingsListFromString(followings);
+        if (followingsList != null && followingsList.size() > 0) {
+            endpoint.followings(followingsList);
+        }
+
         Authentication hosebirdAuth = new OAuth1(
                 consumerKey,
                 consumerSecret,
@@ -92,8 +107,23 @@ public class TwitterStreamSpout extends BaseRichSpout {
         hbc.connect();
     }
 
-    private ArrayList<String> getTermsFromQuery(String query) {
-        return Lists.newArrayList(query.split(";"));
+    private List<String> getTermsListFromString(String terms) {
+        if (terms == null || terms.length() == 0) {
+            return null;
+        }
+        return Lists.newArrayList(terms.split(";"));
+    }
+
+    private List<Long> getFollowingsListFromString(final String followings) {
+        if (followings == null || followings.length() == 0) {
+            return null;
+        }
+        return toList(new ConvertingIterable<String, Long>(Lists.newArrayList(followings.split(";"))) {
+            @Override
+            protected Long convert(String s) {
+                return Long.parseLong(s);
+            }
+        });
     }
 
     @Override
