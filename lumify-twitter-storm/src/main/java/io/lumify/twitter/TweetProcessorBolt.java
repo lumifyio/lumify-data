@@ -72,6 +72,9 @@ public class TweetProcessorBolt extends BaseRichBolt {
         StreamingPropertyValue textValue = new StreamingPropertyValue(new ByteArrayInputStream(text.getBytes()), String.class);
         RawLumifyProperties.TEXT.setProperty(v, textValue, visibility);
 
+        String title = json.getJSONObject("user").getString("name") + ":" + text;
+        LumifyProperties.TITLE.setProperty(v, title, visibility);
+
         Vertex tweetVertex = v.save();
         graph.flush();
 
