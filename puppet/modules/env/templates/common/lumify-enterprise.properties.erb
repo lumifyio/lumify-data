@@ -3,7 +3,7 @@ object.detector=io.lumify.objectDetection.OpenCVObjectDetector
 
 # Object-detection
 objectdetection.classifierConcepts=face
-objectdetection.classifier.face.path=hdfs:///lumify/config/opencv/haarcascade_frontalface_alt.xml
+objectdetection.classifier.face.path=hdfs://<%= @hadoop_masters[0] %>:8020/lumify/config/opencv/haarcascade_frontalface_alt.xml
 
 # Term extraction
 termextraction.opennlp.pathPrefix=/lumify/config/opennlp/
