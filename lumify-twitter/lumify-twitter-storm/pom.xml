@@ -1,28 +1,16 @@
-<?xml version="1.0"?>
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
-    <modelVersion>4.0.0</modelVersion>
-
     <parent>
         <groupId>io.lumify</groupId>
-        <artifactId>lumify</artifactId>
+        <artifactId>lumify-twitter</artifactId>
         <version>0.2.0-SNAPSHOT</version>
     </parent>
-    <artifactId>lumify-storm</artifactId>
-    <name>Lumify: Storm</name>
+    <modelVersion>4.0.0</modelVersion>
 
-    <inceptionYear>2013</inceptionYear>
-    <organization>
-        <name>Altamira Corporation</name>
-        <url>www.altamiracorp.com</url>
-    </organization>
-    <licenses>
-        <license>
-            <name>The Apache Software License, Version 2.0</name>
-            <url>http://www.apache.org/licenses/LICENSE-2.0.txt</url>
-            <distribution>repo</distribution>
-        </license>
-    </licenses>
+    <artifactId>lumify-twitter-storm</artifactId>
+    <name>Lumify: Twitter: Storm</name>
 
     <dependencies>
         <!-- Storm Dependencies; These override the managed versions for compatibility. -->
@@ -30,13 +18,13 @@
             <groupId>com.google.guava</groupId>
             <artifactId>guava</artifactId>
             <version>${storm.guava.version}</version>
-            <scope>provided</scope>
+            <scope>${cluster.dependency.scope}</scope>
         </dependency>
         <dependency>
             <groupId>log4j</groupId>
             <artifactId>log4j</artifactId>
             <version>${storm.log4j.version}</version>
-            <scope>provided</scope>
+            <scope>${cluster.dependency.scope}</scope>
         </dependency>
         <dependency>
             <groupId>org.apache.httpcomponents</groupId>
@@ -51,12 +39,12 @@
             <groupId>org.slf4j</groupId>
             <artifactId>slf4j-log4j12</artifactId>
             <version>${storm.slf4j.version}</version>
-            <scope>provided</scope>
+            <scope>${cluster.dependency.scope}</scope>
         </dependency>
         <dependency>
             <groupId>storm</groupId>
             <artifactId>storm</artifactId>
-            <scope>provided</scope>
+            <scope>${cluster.dependency.scope}</scope>
             <exclusions>
                 <exclusion>
                     <groupId>commons-io</groupId>
@@ -67,12 +55,9 @@
         <!-- End Storm Dependencies -->
 
         <dependency>
-            <groupId>ant</groupId>
-            <artifactId>ant</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>com.google.code.findbugs</groupId>
-            <artifactId>jsr305</artifactId>
+            <groupId>io.lumify</groupId>
+            <artifactId>lumify-storm</artifactId>
+            <version>${project.version}</version>
         </dependency>
         <dependency>
             <groupId>io.lumify</groupId>
@@ -112,6 +97,16 @@
             <artifactId>inflector</artifactId>
         </dependency>
     </dependencies>
+
+    <profiles>
+        <!-- Use this profile to build when deploying to a clustered environment. -->
+        <profile>
+            <id>cluster</id>
+            <properties>
+                <cluster.dependency.scope>provided</cluster.dependency.scope>
+            </properties>
+        </profile>
+    </profiles>
 
     <build>
         <plugins>
