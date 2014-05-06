@@ -44,5 +44,10 @@
             <artifactId>lumify-newuser-workspace-copy</artifactId>
             <version>${project.version}</version>
         </dependency>
+        <dependency>
+            <groupId>io.lumify</groupId>
+            <artifactId>lumify-web-auth-oauth</artifactId>
+            <version>${project.version}</version>
+        </dependency>
     </dependencies>
 </project>
