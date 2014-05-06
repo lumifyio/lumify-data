@@ -12,7 +12,22 @@
     <artifactId>lumify-twitter-storm</artifactId>
     <name>Lumify: Twitter: Storm</name>
 
+    <properties>
+        <twitter.hbc.version>1.4.2</twitter.hbc.version>
+    </properties>
+
     <dependencies>
+        <dependency>
+            <groupId>com.twitter</groupId>
+            <artifactId>hbc-core</artifactId>
+            <version>${twitter.hbc.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.httpcomponents</groupId>
+            <artifactId>httpcore</artifactId>
+            <version>${httpcomponents.httpclient.version}</version>
+        </dependency>
+
         <!-- Storm Dependencies; These override the managed versions for compatibility. -->
         <dependency>
             <groupId>com.google.guava</groupId>
