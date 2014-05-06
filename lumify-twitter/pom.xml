@@ -11,6 +11,8 @@
     <packaging>pom</packaging>
     <modules>
         <module>lumify-twitter-storm</module>
+        <module>lumify-twitter-graph-property-worker</module>
+        <module>lumify-twitter-common</module>
     </modules>
 
     <artifactId>lumify-twitter</artifactId>
