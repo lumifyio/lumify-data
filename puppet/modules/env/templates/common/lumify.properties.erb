@@ -4,6 +4,7 @@ zookeeper.serverNames=<%= @zookeeper_nodes.values.collect {|node| node.split(':'
 
 hdfsLibcache.sourceDirectory=hdfs://<%= @hadoop_masters[0] %>/lumify/libcache
 hdfsLibcache.tempDirectory=<%= @first_data_dir %>/hdfslibcahe
+lib-directory=/opt/lumify/lib
 
 newuser.privileges=READ,EDIT,PUBLISH,ADMIN
 
