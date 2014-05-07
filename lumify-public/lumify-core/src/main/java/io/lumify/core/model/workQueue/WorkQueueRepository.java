@@ -55,6 +55,10 @@ public abstract class WorkQueueRepository {
         broadcastPropertyChange(graphVertex, propertyKey, propertyName);
     }
 
+    public void pushGraphPropertyQueue(Edge edge) {
+        broadcastPropertyChange(edge, null, null);
+    }
+
     public void pushGraphPropertyQueue(Edge edge, String propertyKey, String propertyName) {
         broadcastPropertyChange(edge, propertyKey, propertyName);
     }
