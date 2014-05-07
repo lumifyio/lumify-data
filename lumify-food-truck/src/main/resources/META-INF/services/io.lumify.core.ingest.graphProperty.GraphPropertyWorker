@@ -1,1 +1,2 @@
-io.lumify.foodTruck.FoodTruckGraphPropertyWorker
+io.lumify.foodTruck.FoodTruckTweetAnalyzerGraphPropertyWorker
+io.lumify.foodTruck.FoodTruckLocationUpdateGraphPropertyWorker

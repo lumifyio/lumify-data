@@ -23,9 +23,9 @@ import java.util.concurrent.TimeUnit;
 
 import static org.securegraph.util.IterableUtils.toList;
 
-public class FoodTruckGraphPropertyWorker extends GraphPropertyWorker {
-    private static final LumifyLogger LOGGER = LumifyLoggerFactory.getLogger(FoodTruckGraphPropertyWorker.class);
-    private static final String MULTI_VALUE_KEY = FoodTruckGraphPropertyWorker.class.getName();
+public class FoodTruckTweetAnalyzerGraphPropertyWorker extends GraphPropertyWorker {
+    private static final LumifyLogger LOGGER = LumifyLoggerFactory.getLogger(FoodTruckTweetAnalyzerGraphPropertyWorker.class);
+    private static final String MULTI_VALUE_KEY = FoodTruckTweetAnalyzerGraphPropertyWorker.class.getName();
     private Cache<String, List<Vertex>> keywordVerticesCache = CacheBuilder.newBuilder()
             .expireAfterWrite(5, TimeUnit.MINUTES)
             .build();
