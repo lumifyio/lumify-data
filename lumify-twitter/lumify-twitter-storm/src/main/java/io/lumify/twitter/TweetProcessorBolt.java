@@ -10,6 +10,7 @@ import com.google.common.cache.CacheBuilder;
 import com.google.inject.Inject;
 import io.lumify.core.bootstrap.InjectHelper;
 import io.lumify.core.bootstrap.LumifyBootstrap;
+import io.lumify.core.exception.LumifyException;
 import io.lumify.core.model.ontology.OntologyLumifyProperties;
 import io.lumify.core.model.properties.LumifyProperties;
 import io.lumify.core.model.properties.RawLumifyProperties;
@@ -25,10 +26,15 @@ import org.securegraph.*;
 import org.securegraph.property.StreamingPropertyValue;
 
 import java.io.ByteArrayInputStream;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
 public class TweetProcessorBolt extends BaseRichBolt {
+    private static final String MULTI_VALUE_KEY = TweetProcessorBolt.class.getName();
+    private final SimpleDateFormat DATE_FORMAT = new SimpleDateFormat("EEE MMM d HH:mm:ss z yyyy");
     private Graph graph;
     private UserRepository userRepository;
     private Authorizations authorizations;
@@ -68,18 +74,23 @@ public class TweetProcessorBolt extends BaseRichBolt {
         Visibility visibility = new Visibility("");
         VertexBuilder v = this.graph.prepareVertex(vertexId, visibility, authorizations);
 
-        OntologyLumifyProperties.CONCEPT_TYPE.setProperty(v, TwitterOntology.CONCEPT_TYPE_TWEET, visibility);
+        OntologyLumifyProperties.CONCEPT_TYPE.addPropertyValue(v, MULTI_VALUE_KEY, TwitterOntology.CONCEPT_TYPE_TWEET, visibility);
 
         StreamingPropertyValue rawValue = new StreamingPropertyValue(new ByteArrayInputStream(jsonString.getBytes()), byte[].class);
         rawValue.searchIndex(false);
-        RawLumifyProperties.RAW.setProperty(v, rawValue, visibility);
+        RawLumifyProperties.RAW.addPropertyValue(v, MULTI_VALUE_KEY, rawValue, visibility);
 
         String text = json.getString("text");
         StreamingPropertyValue textValue = new StreamingPropertyValue(new ByteArrayInputStream(text.getBytes()), String.class);
-        RawLumifyProperties.TEXT.setProperty(v, textValue, visibility);
+        RawLumifyProperties.TEXT.addPropertyValue(v, MULTI_VALUE_KEY, textValue, visibility);
 
         String title = json.getJSONObject("user").getString("name") + ":" + text;
-        LumifyProperties.TITLE.setProperty(v, title, visibility);
+        LumifyProperties.TITLE.addPropertyValue(v, MULTI_VALUE_KEY, title, visibility);
+
+        Date publishedDate = parseDate(json.getString("created_at"));
+        if (publishedDate != null) {
+            RawLumifyProperties.PUBLISHED_DATE.addPropertyValue(v, MULTI_VALUE_KEY, publishedDate, visibility);
+        }
 
         Vertex tweetVertex = v.save();
         graph.flush();
@@ -88,6 +99,17 @@ public class TweetProcessorBolt extends BaseRichBolt {
         workQueueRepository.pushGraphPropertyQueue(tweetVertex, RawLumifyProperties.TEXT.getProperty(tweetVertex));
 
         return tweetVertex;
+    }
+
+    private Date parseDate(String dateString) {
+        try {
+            if (dateString == null || dateString.length() == 0) {
+                return null;
+            }
+            return DATE_FORMAT.parse(dateString);
+        } catch (ParseException e) {
+            throw new LumifyException("Could not parse date: " + dateString, e);
+        }
     }
 
     private Vertex getUserVertex(JSONObject userJson) {
@@ -103,14 +125,14 @@ public class TweetProcessorBolt extends BaseRichBolt {
             Visibility visibility = new Visibility("");
             VertexBuilder v = this.graph.prepareVertex(vertexId, visibility, authorizations);
 
-            OntologyLumifyProperties.CONCEPT_TYPE.setProperty(v, TwitterOntology.CONCEPT_TYPE_USER, visibility);
+            OntologyLumifyProperties.CONCEPT_TYPE.addPropertyValue(v, MULTI_VALUE_KEY, TwitterOntology.CONCEPT_TYPE_USER, visibility);
 
-            LumifyProperties.TITLE.setProperty(v, userJson.getString("name"), visibility);
+            LumifyProperties.TITLE.addPropertyValue(v, MULTI_VALUE_KEY, userJson.getString("name"), visibility);
             String profileImageUrl = userJson.optString("profile_image_url");
             if (profileImageUrl != null && profileImageUrl.length() > 0) {
-                TwitterOntology.PROFILE_IMAGE_URL.setProperty(v, profileImageUrl, visibility);
+                TwitterOntology.PROFILE_IMAGE_URL.addPropertyValue(v, MULTI_VALUE_KEY, profileImageUrl, visibility);
             }
-            TwitterOntology.SCREEN_NAME.setProperty(v, userJson.getString("screen_name"), visibility);
+            TwitterOntology.SCREEN_NAME.addPropertyValue(v, MULTI_VALUE_KEY, userJson.getString("screen_name"), visibility);
 
             userVertex = v.save();
 
@@ -203,9 +225,9 @@ public class TweetProcessorBolt extends BaseRichBolt {
             Visibility visibility = new Visibility("");
             VertexBuilder v = this.graph.prepareVertex(vertexId, visibility, authorizations);
 
-            OntologyLumifyProperties.CONCEPT_TYPE.setProperty(v, TwitterOntology.CONCEPT_TYPE_URL, visibility);
+            OntologyLumifyProperties.CONCEPT_TYPE.addPropertyValue(v, MULTI_VALUE_KEY, TwitterOntology.CONCEPT_TYPE_URL, visibility);
 
-            LumifyProperties.TITLE.setProperty(v, url, visibility);
+            LumifyProperties.TITLE.addPropertyValue(v, MULTI_VALUE_KEY, url, visibility);
 
             urlVertex = v.save();
 
@@ -255,9 +277,9 @@ public class TweetProcessorBolt extends BaseRichBolt {
             Visibility visibility = new Visibility("");
             VertexBuilder v = this.graph.prepareVertex(vertexId, visibility, authorizations);
 
-            OntologyLumifyProperties.CONCEPT_TYPE.setProperty(v, TwitterOntology.CONCEPT_TYPE_HASHTAG, visibility);
+            OntologyLumifyProperties.CONCEPT_TYPE.addPropertyValue(v, MULTI_VALUE_KEY, TwitterOntology.CONCEPT_TYPE_HASHTAG, visibility);
 
-            LumifyProperties.TITLE.setProperty(v, text, visibility);
+            LumifyProperties.TITLE.addPropertyValue(v, MULTI_VALUE_KEY, text, visibility);
 
             hashtagVertex = v.save();
 
