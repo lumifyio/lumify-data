@@ -2,12 +2,14 @@ package io.lumify.foodTruck;
 
 import io.lumify.core.ingest.graphProperty.GraphPropertyWorkData;
 import io.lumify.core.ingest.graphProperty.GraphPropertyWorker;
+import io.lumify.core.model.properties.RawLumifyProperties;
 import io.lumify.core.util.CollectionUtil;
 import io.lumify.twitter.TwitterOntology;
 import org.securegraph.*;
 import org.securegraph.type.GeoPoint;
 
 import java.io.InputStream;
+import java.util.Date;
 
 public class FoodTruckLocationUpdateGraphPropertyWorker extends GraphPropertyWorker {
     private static final String MULTI_VALUE_KEY = FoodTruckLocationUpdateGraphPropertyWorker.class.getName();
@@ -26,8 +28,14 @@ public class FoodTruckLocationUpdateGraphPropertyWorker extends GraphPropertyWor
 
         GeoPoint geoLocation = FoodTruckOntology.GEO_LOCATION.getPropertyValue(keywordVertex);
         if (geoLocation != null) {
-            FoodTruckOntology.GEO_LOCATION.addPropertyValue(foodTruck, MULTI_VALUE_KEY, geoLocation, data.getVisibility());
-            getWorkQueueRepository().pushGraphPropertyQueue(foodTruck, FoodTruckOntology.GEO_LOCATION.getProperty(foodTruck));
+            Date geoLocationDate = RawLumifyProperties.PUBLISHED_DATE.getPropertyValue(tweetVertex);
+            Date currentGetLocationDate = FoodTruckOntology.GEO_LOCATION_DATE.getPropertyValue(foodTruck);
+            if (currentGetLocationDate == null || geoLocationDate.compareTo(currentGetLocationDate) > 0) {
+                FoodTruckOntology.GEO_LOCATION.addPropertyValue(foodTruck, MULTI_VALUE_KEY, geoLocation, data.getVisibility());
+                FoodTruckOntology.GEO_LOCATION_DATE.addPropertyValue(foodTruck, MULTI_VALUE_KEY, geoLocationDate, data.getVisibility());
+                getGraph().flush();
+                getWorkQueueRepository().pushGraphPropertyQueue(foodTruck, FoodTruckOntology.GEO_LOCATION.getProperty(foodTruck));
+            }
         }
     }
 

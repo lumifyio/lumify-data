@@ -16,6 +16,8 @@ import io.lumify.core.util.LumifyLoggerFactory;
 import io.lumify.twitter.TwitterOntology;
 import org.apache.commons.io.IOUtils;
 import org.securegraph.*;
+import org.securegraph.query.Compare;
+import org.securegraph.query.Predicate;
 
 import java.io.InputStream;
 import java.util.List;
@@ -85,9 +87,12 @@ public class FoodTruckTweetAnalyzerGraphPropertyWorker extends GraphPropertyWork
     private List<Vertex> getKeywordVertices() {
         List<Vertex> keywordVertices = keywordVerticesCache.getIfPresent(KEYWORD_VERTICES_CACHE_KEY);
         if (keywordVertices == null) {
-            keywordVertices = toList(getGraph().query(getAuthorizations())
-                    .has(OntologyLumifyProperties.CONCEPT_TYPE.getKey(), FoodTruckOntology.CONCEPT_TYPE_LOCATION_KEYWORD)
-                    .vertices());
+            keywordVertices = toList(
+                    getGraph()
+                            .query(getAuthorizations())
+                            .has(OntologyLumifyProperties.CONCEPT_TYPE.getKey(), FoodTruckOntology.CONCEPT_TYPE_LOCATION_KEYWORD)
+                            .vertices()
+            );
             keywordVerticesCache.put(KEYWORD_VERTICES_CACHE_KEY, keywordVertices);
         }
         return keywordVertices;

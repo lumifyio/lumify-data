@@ -1,5 +1,6 @@
 package io.lumify.foodTruck;
 
+import io.lumify.core.model.properties.types.DateLumifyProperty;
 import io.lumify.core.model.properties.types.GeoPointLumifyProperty;
 
 public class FoodTruckOntology {
@@ -10,4 +11,5 @@ public class FoodTruckOntology {
     public static final String CONCEPT_TYPE_LOCATION_KEYWORD = "http://lumify.io/foodtruck#locationKeyword";
 
     public static final GeoPointLumifyProperty GEO_LOCATION = new GeoPointLumifyProperty("http://lumify.io/foodtruck#geoLocation");
+    public static final DateLumifyProperty GEO_LOCATION_DATE = new DateLumifyProperty("http://lumify.io/foodtruck#geoLocationDate");
 }
