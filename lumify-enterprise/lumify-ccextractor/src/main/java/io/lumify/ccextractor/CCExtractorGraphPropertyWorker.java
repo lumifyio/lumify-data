@@ -7,6 +7,7 @@ import io.lumify.core.model.properties.MediaLumifyProperties;
 import io.lumify.core.model.properties.RawLumifyProperties;
 import io.lumify.core.util.ProcessRunner;
 import io.lumify.storm.video.SubRip;
+import org.securegraph.Element;
 import org.securegraph.Property;
 import org.securegraph.Vertex;
 import org.securegraph.mutation.ExistingElementMutation;
@@ -37,19 +38,23 @@ public class CCExtractorGraphPropertyWorker extends GraphPropertyWorker {
 
             VideoTranscript videoTranscript = SubRip.read(ccFile);
 
-            ExistingElementMutation<Vertex> m = data.getVertex().prepareMutation();
+            ExistingElementMutation<Vertex> m = data.getElement().prepareMutation();
             MediaLumifyProperties.VIDEO_TRANSCRIPT.addPropertyValue(m, PROPERTY_KEY, videoTranscript, data.getPropertyMetadata(), data.getVisibility());
             m.save();
 
             getGraph().flush();
-            getWorkQueueRepository().pushGraphPropertyQueue(data.getVertex(), PROPERTY_KEY, MediaLumifyProperties.VIDEO_TRANSCRIPT.getKey());
+            getWorkQueueRepository().pushGraphPropertyQueue(data.getElement(), PROPERTY_KEY, MediaLumifyProperties.VIDEO_TRANSCRIPT.getKey());
         } finally {
             ccFile.delete();
         }
     }
 
     @Override
-    public boolean isHandled(Vertex vertex, Property property) {
+    public boolean isHandled(Element element, Property property) {
+        if (property == null) {
+            return false;
+        }
+
         if (!property.getName().equals(RawLumifyProperties.RAW.getKey())) {
             return false;
         }

@@ -15,10 +15,7 @@ import io.lumify.core.util.LumifyLogger;
 import io.lumify.core.util.LumifyLoggerFactory;
 import io.lumify.twitter.TwitterOntology;
 import org.apache.commons.io.IOUtils;
-import org.securegraph.Edge;
-import org.securegraph.Property;
-import org.securegraph.Vertex;
-import org.securegraph.Visibility;
+import org.securegraph.*;
 
 import java.io.InputStream;
 import java.util.List;
@@ -38,7 +35,7 @@ public class FoodTruckGraphPropertyWorker extends GraphPropertyWorker {
     @Override
     public void execute(InputStream in, GraphPropertyWorkData data) throws Exception {
         String text = IOUtils.toString(in);
-        Vertex tweetVertex = data.getVertex();
+        Vertex tweetVertex = (Vertex) data.getElement();
 
         LOGGER.debug("processing tweet: %s", text);
         findAndLinkKeywords(tweetVertex, text, data.getVisibility());
@@ -80,7 +77,7 @@ public class FoodTruckGraphPropertyWorker extends GraphPropertyWorker {
         termMentionRepository.save(termMention);
         termMentionRepository.flush();
 
-        getWorkQueueRepository().pushGraphPropertyQueue(edge);
+        getWorkQueueRepository().pushEdgeCreation(edge);
 
         return edge;
     }
@@ -97,11 +94,15 @@ public class FoodTruckGraphPropertyWorker extends GraphPropertyWorker {
     }
 
     @Override
-    public boolean isHandled(Vertex vertex, Property property) {
+    public boolean isHandled(Element element, Property property) {
+        if (property == null) {
+            return false;
+        }
+
         if (!property.getName().equals(RawLumifyProperties.TEXT.getKey())) {
             return false;
         }
-        if (!OntologyLumifyProperties.CONCEPT_TYPE.getPropertyValue(vertex).equals(TwitterOntology.CONCEPT_TYPE_TWEET)) {
+        if (!OntologyLumifyProperties.CONCEPT_TYPE.getPropertyValue(element).equals(TwitterOntology.CONCEPT_TYPE_TWEET)) {
             return false;
         }
         return true;

@@ -9,10 +9,7 @@ import io.lumify.core.model.properties.LumifyProperties;
 import io.lumify.core.model.properties.RawLumifyProperties;
 import io.lumify.core.util.LumifyLogger;
 import io.lumify.core.util.LumifyLoggerFactory;
-import org.securegraph.Property;
-import org.securegraph.Text;
-import org.securegraph.Vertex;
-import org.securegraph.VertexBuilder;
+import org.securegraph.*;
 import org.securegraph.property.StreamingPropertyValue;
 
 import java.io.InputStream;
@@ -41,7 +38,7 @@ public class TwitterProfileImageDownloadGraphPropertyWorker extends GraphPropert
         URL profileImageUrl = new URL(profileImageUrlString);
         InputStream imageData = profileImageUrl.openStream();
         try {
-            String userTitle = LumifyProperties.TITLE.getPropertyValue(data.getVertex());
+            String userTitle = LumifyProperties.TITLE.getPropertyValue(data.getElement());
 
             StreamingPropertyValue imageValue = new StreamingPropertyValue(imageData, byte[].class);
             imageValue.searchIndex(false);
@@ -53,8 +50,8 @@ public class TwitterProfileImageDownloadGraphPropertyWorker extends GraphPropert
             profileImageVertex = v.save();
             LOGGER.debug("created vertex: %s", profileImageVertex.getId());
 
-            getGraph().addEdge(data.getVertex(), profileImageVertex, LabelName.ENTITY_HAS_IMAGE_RAW.toString(), data.getVisibility(), getAuthorizations());
-            EntityLumifyProperties.IMAGE_VERTEX_ID.setProperty(data.getVertex(), profileImageVertex.getId().toString(), data.getVisibility());
+            getGraph().addEdge((Vertex) data.getElement(), profileImageVertex, LabelName.ENTITY_HAS_IMAGE_RAW.toString(), data.getVisibility(), getAuthorizations());
+            EntityLumifyProperties.IMAGE_VERTEX_ID.setProperty(data.getElement(), profileImageVertex.getId().toString(), data.getVisibility());
 
             getGraph().flush();
         } finally {
@@ -75,7 +72,11 @@ public class TwitterProfileImageDownloadGraphPropertyWorker extends GraphPropert
     }
 
     @Override
-    public boolean isHandled(Vertex vertex, Property property) {
+    public boolean isHandled(Element element, Property property) {
+        if (property == null) {
+            return false;
+        }
+
         return property.getName().equals(TwitterOntology.PROFILE_IMAGE_URL.getKey());
     }
 }
