@@ -84,8 +84,11 @@ def ago(t)
   end
 end
 
+artifacts = artifacts.lines
+artifacts = artifacts.select {|line| line.match(ARGV[0])} if ARGV[0]
+
 results = []
-artifacts.each_line do |line|
+artifacts.each do |line|
    next if line.strip.length == 0
    next if line.match(/^\s*#/)
    module_name, artifact_name, local_filename = line.split
