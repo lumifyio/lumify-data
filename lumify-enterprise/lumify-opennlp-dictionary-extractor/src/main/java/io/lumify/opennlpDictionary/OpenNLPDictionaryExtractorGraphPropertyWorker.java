@@ -1,5 +1,6 @@
 package io.lumify.opennlpDictionary;
 
+import com.google.inject.Inject;
 import io.lumify.core.ingest.graphProperty.GraphPropertyWorkData;
 import io.lumify.core.ingest.graphProperty.GraphPropertyWorker;
 import io.lumify.core.ingest.graphProperty.GraphPropertyWorkerPrepareData;
@@ -9,10 +10,6 @@ import io.lumify.core.util.LumifyLogger;
 import io.lumify.core.util.LumifyLoggerFactory;
 import io.lumify.opennlpDictionary.model.DictionaryEntry;
 import io.lumify.opennlpDictionary.model.DictionaryEntryRepository;
-import org.securegraph.Property;
-import org.securegraph.Vertex;
-import org.securegraph.Visibility;
-import com.google.inject.Inject;
 import opennlp.tools.dictionary.Dictionary;
 import opennlp.tools.namefind.DictionaryNameFinder;
 import opennlp.tools.namefind.TokenNameFinder;
@@ -25,6 +22,10 @@ import opennlp.tools.util.Span;
 import opennlp.tools.util.StringList;
 import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.Path;
+import org.securegraph.Element;
+import org.securegraph.Property;
+import org.securegraph.Vertex;
+import org.securegraph.Visibility;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -72,7 +73,7 @@ public class OpenNLPDictionaryExtractorGraphPropertyWorker extends GraphProperty
             getGraph().flush();
             charOffset += line.length() + NEW_LINE_CHARACTER_LENGTH;
         }
-        saveTermMentions(data.getVertex(), termMentions);
+        saveTermMentions((Vertex) data.getElement(), termMentions);
 
         untokenizedLineStream.close();
         LOGGER.debug("Stream processing completed");
@@ -106,7 +107,11 @@ public class OpenNLPDictionaryExtractorGraphPropertyWorker extends GraphProperty
     }
 
     @Override
-    public boolean isHandled(Vertex vertex, Property property) {
+    public boolean isHandled(Element element, Property property) {
+        if (property == null) {
+            return false;
+        }
+
         if (property.getName().equals(RawLumifyProperties.RAW.getKey())) {
             return false;
         }

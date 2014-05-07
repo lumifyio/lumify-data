@@ -1,17 +1,18 @@
 package io.lumify.mapping;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.google.inject.Inject;
 import io.lumify.core.ingest.graphProperty.GraphPropertyWorkData;
 import io.lumify.core.ingest.graphProperty.GraphPropertyWorker;
 import io.lumify.core.ingest.term.extraction.TermExtractionResult;
 import io.lumify.core.model.properties.LumifyProperties;
 import io.lumify.core.model.properties.RawLumifyProperties;
+import org.apache.commons.io.IOUtils;
+import org.securegraph.Element;
 import org.securegraph.Property;
 import org.securegraph.Vertex;
 import org.securegraph.mutation.ExistingElementMutation;
 import org.securegraph.property.StreamingPropertyValue;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.google.inject.Inject;
-import org.apache.commons.io.IOUtils;
 
 import java.io.*;
 import java.util.Map;
@@ -22,7 +23,7 @@ public class DocumentMappingGraphPropertyWorker extends GraphPropertyWorker {
 
     @Override
     public void execute(InputStream in, GraphPropertyWorkData data) throws Exception {
-        StreamingPropertyValue mappingJson = MappingFileImportSupportingFileHandler.MAPPING_JSON.getPropertyValue(data.getVertex());
+        StreamingPropertyValue mappingJson = MappingFileImportSupportingFileHandler.MAPPING_JSON.getPropertyValue(data.getElement());
         String mappingJsonString = IOUtils.toString(mappingJson.getInputStream());
         DocumentMapping mapping = jsonMapper.readValue(mappingJsonString, DocumentMapping.class);
 
@@ -37,7 +38,7 @@ public class DocumentMappingGraphPropertyWorker extends GraphPropertyWorker {
         StringWriter writer = new StringWriter();
         mapping.ingestDocument(in, writer);
 
-        ExistingElementMutation<Vertex> m = data.getVertex().prepareMutation();
+        ExistingElementMutation<Vertex> m = data.getElement().prepareMutation();
         StreamingPropertyValue textValue = new StreamingPropertyValue(new ByteArrayInputStream(writer.toString().getBytes()), String.class);
         Map<String, Object> textMetadata = data.getPropertyMetadata();
         textMetadata.put(RawLumifyProperties.METADATA_MIME_TYPE, "text/plain");
@@ -47,18 +48,22 @@ public class DocumentMappingGraphPropertyWorker extends GraphPropertyWorker {
 
         getGraph().flush();
 
-        getWorkQueueRepository().pushGraphPropertyQueue(data.getVertex(), MULTIVALUE_KEY, LumifyProperties.TITLE.getKey());
-        getWorkQueueRepository().pushGraphPropertyQueue(data.getVertex(), MULTIVALUE_KEY, RawLumifyProperties.TEXT.getKey());
+        getWorkQueueRepository().pushGraphPropertyQueue(data.getElement(), MULTIVALUE_KEY, LumifyProperties.TITLE.getKey());
+        getWorkQueueRepository().pushGraphPropertyQueue(data.getElement(), MULTIVALUE_KEY, RawLumifyProperties.TEXT.getKey());
     }
 
     private void executeTermExtraction(InputStream in, GraphPropertyWorkData data, DocumentMapping mapping) throws IOException {
         TermExtractionResult termExtractionResult = mapping.mapDocument(new InputStreamReader(in), getClass().getName(), data.getProperty().getKey(), data.getVisibility());
-        saveTermExtractionResult(data.getVertex(), termExtractionResult);
+        saveTermExtractionResult((Vertex) data.getElement(), termExtractionResult);
     }
 
     @Override
-    public boolean isHandled(Vertex vertex, Property property) {
-        StreamingPropertyValue mappingJson = MappingFileImportSupportingFileHandler.MAPPING_JSON.getPropertyValue(vertex);
+    public boolean isHandled(Element element, Property property) {
+        if (property == null) {
+            return false;
+        }
+
+        StreamingPropertyValue mappingJson = MappingFileImportSupportingFileHandler.MAPPING_JSON.getPropertyValue(element);
         if (mappingJson == null) {
             return false;
         }

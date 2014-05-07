@@ -5,12 +5,12 @@ import io.lumify.core.ingest.graphProperty.GraphPropertyWorker;
 import io.lumify.core.model.ontology.OntologyLumifyProperties;
 import io.lumify.core.model.properties.LumifyProperties;
 import io.lumify.core.model.properties.RawLumifyProperties;
-import org.securegraph.*;
 import org.apache.bcel.classfile.ClassParser;
 import org.apache.bcel.classfile.Field;
 import org.apache.bcel.classfile.JavaClass;
 import org.apache.bcel.classfile.Method;
 import org.apache.bcel.generic.*;
+import org.securegraph.*;
 
 import java.io.InputStream;
 
@@ -19,11 +19,11 @@ import static io.lumify.core.util.CollectionUtil.singleOrDefault;
 public class ClassFileGraphPropertyWorker extends GraphPropertyWorker {
     @Override
     public void execute(InputStream in, GraphPropertyWorkData data) throws Exception {
-        RawLumifyProperties.MIME_TYPE.setProperty(data.getVertex(), "application/x-java-class", data.getPropertyMetadata(), data.getVisibility());
+        RawLumifyProperties.MIME_TYPE.setProperty(data.getElement(), "application/x-java-class", data.getPropertyMetadata(), data.getVisibility());
 
-        Vertex jarVertex = singleOrDefault(data.getVertex().getVertices(Direction.BOTH, Ontology.EDGE_LABEL_JAR_CONTAINS, getAuthorizations()), null);
+        Vertex jarVertex = singleOrDefault(((Vertex) data.getElement()).getVertices(Direction.BOTH, Ontology.EDGE_LABEL_JAR_CONTAINS, getAuthorizations()), null);
 
-        String fileName = RawLumifyProperties.FILE_NAME.getPropertyValue(data.getVertex());
+        String fileName = RawLumifyProperties.FILE_NAME.getPropertyValue(data.getElement());
 
         JavaClass javaClass = new ClassParser(in, fileName).parse();
         ConstantPoolGen constants = new ConstantPoolGen(javaClass.getConstantPool());
@@ -53,8 +53,8 @@ public class ClassFileGraphPropertyWorker extends GraphPropertyWorker {
         }
         Vertex classVertex = classVertexBuilder.save();
 
-        String containsClassEdgeId = JavaCodeIngestIdGenerator.createFileContainsClassEdgeId(data.getVertex(), classVertex);
-        getGraph().addEdge(containsClassEdgeId, data.getVertex(), classVertex, Ontology.EDGE_LABEL_CLASS_FILE_CONTAINS_CLASS, data.getProperty().getVisibility(), getAuthorizations());
+        String containsClassEdgeId = JavaCodeIngestIdGenerator.createFileContainsClassEdgeId((Vertex) data.getElement(), classVertex);
+        getGraph().addEdge(containsClassEdgeId, (Vertex) data.getElement(), classVertex, Ontology.EDGE_LABEL_CLASS_FILE_CONTAINS_CLASS, data.getProperty().getVisibility(), getAuthorizations());
 
         return classVertex;
     }
@@ -174,12 +174,16 @@ public class ClassFileGraphPropertyWorker extends GraphPropertyWorker {
     }
 
     @Override
-    public boolean isHandled(Vertex vertex, Property property) {
+    public boolean isHandled(Element element, Property property) {
+        if (property == null) {
+            return false;
+        }
+
         if (!property.getName().equals(RawLumifyProperties.RAW.getKey())) {
             return false;
         }
 
-        String fileName = RawLumifyProperties.FILE_NAME.getPropertyValue(vertex);
+        String fileName = RawLumifyProperties.FILE_NAME.getPropertyValue(element);
         if (fileName == null || !fileName.endsWith(".class")) {
             return false;
         }

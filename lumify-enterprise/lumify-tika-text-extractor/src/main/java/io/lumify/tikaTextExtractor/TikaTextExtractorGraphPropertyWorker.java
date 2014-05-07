@@ -19,6 +19,7 @@ import org.apache.tika.parser.Parser;
 import org.apache.tika.sax.BodyContentHandler;
 import org.json.JSONException;
 import org.json.JSONObject;
+import org.securegraph.Element;
 import org.securegraph.Property;
 import org.securegraph.Vertex;
 import org.securegraph.mutation.ExistingElementMutation;
@@ -96,7 +97,7 @@ public class TikaTextExtractorGraphPropertyWorker extends GraphPropertyWorker {
         Metadata metadata = new Metadata();
         String text = extractText(in, mimeType, metadata);
 
-        ExistingElementMutation<Vertex> m = data.getVertex().prepareMutation();
+        ExistingElementMutation<Vertex> m = data.getElement().prepareMutation();
 
         // TODO set("url", extractUrl(metadata));
         // TODO set("type", extractTextField(metadata, typeKeys));
@@ -148,7 +149,7 @@ public class TikaTextExtractorGraphPropertyWorker extends GraphPropertyWorker {
 
         m.save();
         getGraph().flush();
-        getWorkQueueRepository().pushGraphPropertyQueue(data.getVertex(), MULTIVALUE_KEY, RawLumifyProperties.TEXT.getKey());
+        getWorkQueueRepository().pushGraphPropertyQueue(data.getElement(), MULTIVALUE_KEY, RawLumifyProperties.TEXT.getKey());
     }
 
     private String extractText(InputStream in, String mimeType, Metadata metadata) throws IOException, SAXException, TikaException, BoilerpipeProcessingException {
@@ -272,7 +273,11 @@ public class TikaTextExtractorGraphPropertyWorker extends GraphPropertyWorker {
     }
 
     @Override
-    public boolean isHandled(Vertex vertex, Property property) {
+    public boolean isHandled(Element element, Property property) {
+        if (property == null) {
+            return false;
+        }
+
         if (!property.getName().equals(RawLumifyProperties.RAW.getKey())) {
             return false;
         }

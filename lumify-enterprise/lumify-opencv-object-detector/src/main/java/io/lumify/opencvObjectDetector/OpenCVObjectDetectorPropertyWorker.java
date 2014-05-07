@@ -1,5 +1,6 @@
 package io.lumify.opencvObjectDetector;
 
+import com.google.inject.Inject;
 import io.lumify.core.exception.LumifyException;
 import io.lumify.core.ingest.ArtifactDetectedObject;
 import io.lumify.core.ingest.graphProperty.GraphPropertyWorkData;
@@ -9,9 +10,6 @@ import io.lumify.core.model.detectedObjects.DetectedObjectRepository;
 import io.lumify.core.model.properties.RawLumifyProperties;
 import io.lumify.core.security.LumifyVisibility;
 import io.lumify.core.user.User;
-import org.securegraph.Property;
-import org.securegraph.Vertex;
-import com.google.inject.Inject;
 import org.apache.commons.io.IOUtils;
 import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.Path;
@@ -20,6 +18,9 @@ import org.opencv.core.Mat;
 import org.opencv.core.MatOfRect;
 import org.opencv.core.Rect;
 import org.opencv.objdetect.CascadeClassifier;
+import org.securegraph.Element;
+import org.securegraph.Property;
+import org.securegraph.Vertex;
 
 import javax.imageio.ImageIO;
 import java.awt.image.BufferedImage;
@@ -100,7 +101,7 @@ public class OpenCVObjectDetectorPropertyWorker extends GraphPropertyWorker {
         BufferedImage bImage = ImageIO.read(in);
 
         List<ArtifactDetectedObject> detectedObjects = detectObjects(bImage);
-        saveDetectedObjects(data.getVertex(), detectedObjects);
+        saveDetectedObjects((Vertex) data.getElement(), detectedObjects);
     }
 
     private void saveDetectedObjects(Vertex artifactVertex, List<ArtifactDetectedObject> detectedObjects) {
@@ -146,7 +147,11 @@ public class OpenCVObjectDetectorPropertyWorker extends GraphPropertyWorker {
     }
 
     @Override
-    public boolean isHandled(Vertex vertex, Property property) {
+    public boolean isHandled(Element element, Property property) {
+        if (property == null) {
+            return false;
+        }
+
         String mimeType = (String) property.getMetadata().get(RawLumifyProperties.METADATA_MIME_TYPE);
         return !(mimeType == null || !mimeType.startsWith("image"));
     }

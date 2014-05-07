@@ -18,10 +18,10 @@ import static org.securegraph.util.IterableUtils.toList;
 public class JarFileGraphPropertyWorker extends GraphPropertyWorker {
     @Override
     public void execute(InputStream in, GraphPropertyWorkData data) throws Exception {
-        OntologyLumifyProperties.CONCEPT_TYPE.setProperty(data.getVertex(), Ontology.CONCEPT_TYPE_JAR_FILE, data.getProperty().getVisibility());
-        RawLumifyProperties.MIME_TYPE.setProperty(data.getVertex(), "application/java-archive", data.getProperty().getVisibility());
+        OntologyLumifyProperties.CONCEPT_TYPE.setProperty(data.getElement(), Ontology.CONCEPT_TYPE_JAR_FILE, data.getProperty().getVisibility());
+        RawLumifyProperties.MIME_TYPE.setProperty(data.getElement(), "application/java-archive", data.getProperty().getVisibility());
 
-        List<Vertex> existingFileVerticies = toList(data.getVertex().getVertices(Direction.BOTH, Ontology.EDGE_LABEL_JAR_CONTAINS, getAuthorizations()));
+        List<Vertex> existingFileVerticies = toList(((Vertex) data.getElement()).getVertices(Direction.BOTH, Ontology.EDGE_LABEL_JAR_CONTAINS, getAuthorizations()));
 
         JarInputStream jarInputStream = new JarInputStream(in);
         JarEntry jarEntry;
@@ -61,7 +61,7 @@ public class JarFileGraphPropertyWorker extends GraphPropertyWorker {
     }
 
     private void createJarContainsFileEdge(Vertex jarEntryVertex, GraphPropertyWorkData data) {
-        EdgeBuilder jarContainsEdgeBuilder = getGraph().prepareEdge(data.getVertex(), jarEntryVertex, Ontology.EDGE_LABEL_JAR_CONTAINS, data.getProperty().getVisibility(), getAuthorizations());
+        EdgeBuilder jarContainsEdgeBuilder = getGraph().prepareEdge((Vertex) data.getElement(), jarEntryVertex, Ontology.EDGE_LABEL_JAR_CONTAINS, data.getProperty().getVisibility(), getAuthorizations());
         jarContainsEdgeBuilder.save();
     }
 
@@ -76,12 +76,16 @@ public class JarFileGraphPropertyWorker extends GraphPropertyWorker {
     }
 
     @Override
-    public boolean isHandled(Vertex vertex, Property property) {
+    public boolean isHandled(Element element, Property property) {
+        if (property == null) {
+            return false;
+        }
+
         if (!property.getName().equals(RawLumifyProperties.RAW.getKey())) {
             return false;
         }
 
-        String fileName = RawLumifyProperties.FILE_NAME.getPropertyValue(vertex);
+        String fileName = RawLumifyProperties.FILE_NAME.getPropertyValue(element);
         if (fileName == null || !fileName.endsWith(".jar")) {
             return false;
         }
