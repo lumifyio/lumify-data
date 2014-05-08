@@ -48,7 +48,7 @@
 
     <owl:ObjectProperty rdf:about="http://lumify.io/foodtruck#tweetHasKeyword">
         <rdfs:label xml:lang="en">Has Keyword</rdfs:label>
-        <rdfs:range rdf:resource="http://lumify.io/foodtruck#locationKeyword"/>
+        <rdfs:range rdf:resource="http://lumify.io/foodtruck#location"/>
         <rdfs:domain rdf:resource="http://lumify.io/twitter#tweet"/>
     </owl:ObjectProperty>
     
@@ -62,7 +62,7 @@
     ///////////////////////////////////////////////////////////////////////////////////////
      -->
 
-
+    
 
 
     <!-- http://lumify.io/foodtruck#geoLocation -->
@@ -71,9 +71,9 @@
         <rdfs:label xml:lang="en">Location</rdfs:label>
         <rdfs:range rdf:resource="&lumify;geolocation"/>
         <rdfs:domain rdf:resource="http://lumify.io/foodtruck#foodTruck"/>
-        <rdfs:domain rdf:resource="http://lumify.io/foodtruck#locationKeyword"/>
+        <rdfs:domain rdf:resource="http://lumify.io/foodtruck#location"/>
     </owl:DatatypeProperty>
-
+    
 
 
     <!-- http://lumify.io/foodtruck#geoLocationDate -->
@@ -81,8 +81,18 @@
     <owl:DatatypeProperty rdf:about="http://lumify.io/foodtruck#geoLocationDate">
         <rdfs:label xml:lang="en">Location Date</rdfs:label>
         <rdfs:domain rdf:resource="http://lumify.io/foodtruck#foodTruck"/>
-        <rdfs:domain rdf:resource="http://lumify.io/foodtruck#locationKeyword"/>
+        <rdfs:domain rdf:resource="http://lumify.io/foodtruck#location"/>
         <rdfs:range rdf:resource="&xsd;dateTime"/>
+    </owl:DatatypeProperty>
+    
+
+
+    <!-- http://lumify.io/foodtruck#keyword -->
+
+    <owl:DatatypeProperty rdf:about="http://lumify.io/foodtruck#keyword">
+        <rdfs:label xml:lang="en">Keyword</rdfs:label>
+        <rdfs:domain rdf:resource="http://lumify.io/foodtruck#location"/>
+        <rdfs:range rdf:resource="&xsd;string"/>
     </owl:DatatypeProperty>
     
 
@@ -117,10 +127,10 @@
     
 
 
-    <!-- http://lumify.io/foodtruck#locationKeyword -->
+    <!-- http://lumify.io/foodtruck#location -->
 
-    <owl:Class rdf:about="http://lumify.io/foodtruck#locationKeyword">
-        <rdfs:label xml:lang="en">Food Truck Location Keyword</rdfs:label>
+    <owl:Class rdf:about="http://lumify.io/foodtruck#location">
+        <rdfs:label xml:lang="en">Food Truck Location</rdfs:label>
         <rdfs:subClassOf rdf:resource="http://lumify.io/foodtruck#foodTruckRoot"/>
         <lumify:glyphIconFileName>location.png</lumify:glyphIconFileName>
     </owl:Class>

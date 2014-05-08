@@ -6,7 +6,6 @@ import com.google.inject.Inject;
 import io.lumify.core.ingest.graphProperty.GraphPropertyWorkData;
 import io.lumify.core.ingest.graphProperty.GraphPropertyWorker;
 import io.lumify.core.model.ontology.OntologyLumifyProperties;
-import io.lumify.core.model.properties.LumifyProperties;
 import io.lumify.core.model.properties.RawLumifyProperties;
 import io.lumify.core.model.termMention.TermMentionModel;
 import io.lumify.core.model.termMention.TermMentionRepository;
@@ -16,8 +15,6 @@ import io.lumify.core.util.LumifyLoggerFactory;
 import io.lumify.twitter.TwitterOntology;
 import org.apache.commons.io.IOUtils;
 import org.securegraph.*;
-import org.securegraph.query.Compare;
-import org.securegraph.query.Predicate;
 
 import java.io.InputStream;
 import java.util.List;
@@ -46,23 +43,21 @@ public class FoodTruckTweetAnalyzerGraphPropertyWorker extends GraphPropertyWork
     private void findAndLinkKeywords(Vertex tweetVertex, String text, Visibility visibility) {
         List<Vertex> keywordVertices = getKeywordVertices();
         for (Vertex keywordVertex : keywordVertices) {
-            String keyword = LumifyProperties.TITLE.getPropertyValue(keywordVertex);
-            if (keyword == null) {
-                continue;
-            }
+            Iterable<String> keywords = FoodTruckOntology.KEYWORD.getPropertyValues(keywordVertex);
+            for (String keyword : keywords) {
+                int startOffset = text.toLowerCase().indexOf(keyword.toLowerCase());
+                if (startOffset < 0) {
+                    continue;
+                }
+                int endOffset = startOffset + keyword.length();
 
-            int startOffset = text.toLowerCase().indexOf(keyword.toLowerCase());
-            if (startOffset < 0) {
-                continue;
+                createTermMentionAndEdge(tweetVertex, keywordVertex, keyword, startOffset, endOffset, visibility);
             }
-            int endOffset = startOffset + keyword.length();
-
-            createTermMentionAndEdge(tweetVertex, keywordVertex, keyword, startOffset, endOffset, visibility);
         }
     }
 
     private Edge createTermMentionAndEdge(Vertex tweetVertex, Vertex keywordVertex, String keyword, long startOffset, long endOffset, Visibility visibility) {
-        String conceptUri = FoodTruckOntology.CONCEPT_TYPE_LOCATION_KEYWORD;
+        String conceptUri = FoodTruckOntology.CONCEPT_TYPE_LOCATION;
 
         String edgeId = tweetVertex.getId() + "_HAS_" + keywordVertex.getId();
         Edge edge = getGraph().addEdge(edgeId, tweetVertex, keywordVertex, FoodTruckOntology.EDGE_LABEL_HAS_KEYWORD, visibility, getAuthorizations());
@@ -90,7 +85,7 @@ public class FoodTruckTweetAnalyzerGraphPropertyWorker extends GraphPropertyWork
             keywordVertices = toList(
                     getGraph()
                             .query(getAuthorizations())
-                            .has(OntologyLumifyProperties.CONCEPT_TYPE.getKey(), FoodTruckOntology.CONCEPT_TYPE_LOCATION_KEYWORD)
+                            .has(OntologyLumifyProperties.CONCEPT_TYPE.getKey(), FoodTruckOntology.CONCEPT_TYPE_LOCATION)
                             .vertices()
             );
             keywordVerticesCache.put(KEYWORD_VERTICES_CACHE_KEY, keywordVertices);

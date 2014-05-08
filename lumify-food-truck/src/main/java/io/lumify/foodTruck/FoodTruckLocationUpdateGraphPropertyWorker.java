@@ -11,6 +11,8 @@ import org.securegraph.type.GeoPoint;
 import java.io.InputStream;
 import java.util.Date;
 
+import static org.securegraph.util.IterableUtils.count;
+
 public class FoodTruckLocationUpdateGraphPropertyWorker extends GraphPropertyWorker {
     private static final String MULTI_VALUE_KEY = FoodTruckLocationUpdateGraphPropertyWorker.class.getName();
 
@@ -19,6 +21,10 @@ public class FoodTruckLocationUpdateGraphPropertyWorker extends GraphPropertyWor
         Edge hasKeywordEdge = (Edge) data.getElement();
 
         Vertex tweetVertex = hasKeywordEdge.getVertex(Direction.OUT, getAuthorizations());
+        if (isRetweet(tweetVertex)) {
+            return;
+        }
+
         Vertex keywordVertex = hasKeywordEdge.getVertex(Direction.IN, getAuthorizations());
         Vertex tweeter = CollectionUtil.single(tweetVertex.getVertices(Direction.BOTH, TwitterOntology.EDGE_LABEL_TWEETED, getAuthorizations()));
         Vertex foodTruck = CollectionUtil.singleOrDefault(tweeter.getVertices(Direction.BOTH, FoodTruckOntology.EDGE_LABEL_HAS_TWITTER_USER, getAuthorizations()), null);
@@ -37,6 +43,10 @@ public class FoodTruckLocationUpdateGraphPropertyWorker extends GraphPropertyWor
                 getWorkQueueRepository().pushGraphPropertyQueue(foodTruck, FoodTruckOntology.GEO_LOCATION.getProperty(foodTruck));
             }
         }
+    }
+
+    private boolean isRetweet(Vertex tweetVertex) {
+        return count(tweetVertex.getEdges(Direction.IN, TwitterOntology.EDGE_LABEL_RETWEET, getAuthorizations())) > 0;
     }
 
     @Override
