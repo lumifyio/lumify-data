@@ -61,15 +61,14 @@ public class TweetProcessorBolt extends BaseRichBolt {
         String jsonString = tuple.getStringByField(TweetFileSpout.JSON_OUTPUT_FIELD);
         JSONObject json = new JSONObject(jsonString);
 
-        Vertex userVertex = getUserVertex(json.getJSONObject("user"));
-        Vertex tweetVertex = createTweetVertex(jsonString, json);
-        createTweetedEdge(userVertex, tweetVertex);
-        processEntities(tweetVertex, json);
+        createTweetVertex(jsonString, json);
 
         termMentionRepository.flush();
     }
 
     private Vertex createTweetVertex(String jsonString, JSONObject json) {
+        Vertex userVertex = getUserVertex(json.getJSONObject("user"));
+
         String vertexId = "TWEET_" + json.getLong("id");
         Visibility visibility = new Visibility("");
         VertexBuilder v = this.graph.prepareVertex(vertexId, visibility, authorizations);
@@ -98,6 +97,10 @@ public class TweetProcessorBolt extends BaseRichBolt {
         workQueueRepository.pushGraphPropertyQueue(tweetVertex, RawLumifyProperties.RAW.getProperty(tweetVertex));
         workQueueRepository.pushGraphPropertyQueue(tweetVertex, RawLumifyProperties.TEXT.getProperty(tweetVertex));
 
+        createTweetedEdge(userVertex, tweetVertex);
+        processEntities(tweetVertex, json);
+        processRetweetStatus(tweetVertex, json);
+
         return tweetVertex;
     }
 
@@ -110,6 +113,19 @@ public class TweetProcessorBolt extends BaseRichBolt {
         } catch (ParseException e) {
             throw new LumifyException("Could not parse date: " + dateString, e);
         }
+    }
+
+    private void processRetweetStatus(Vertex tweetVertex, JSONObject json) {
+        JSONObject retweetedStatus = json.optJSONObject("retweeted_status");
+        if (retweetedStatus == null) {
+            return;
+        }
+        Vertex retweetedTweet = createTweetVertex(retweetedStatus.toString(), retweetedStatus);
+
+        Visibility visibility = new Visibility("");
+        String retweetEdgeId = tweetVertex.getId() + "_RETWEET_" + retweetedTweet.getId();
+        graph.addEdge(retweetEdgeId, retweetedTweet, tweetVertex, TwitterOntology.EDGE_LABEL_RETWEET, visibility, authorizations);
+        graph.flush();
     }
 
     private Vertex getUserVertex(JSONObject userJson) {
