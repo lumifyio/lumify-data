@@ -30,3 +30,7 @@
 	url = git@github.com:altamiracorp/lumify-ldap-auth.git
 	path = lumify-ldap-auth
 	branch = master
+[subtree "lumify-twitter"]
+	url = git@github.com:altamiracorp/lumify-twitter.git
+	path = lumify-twitter
+	branch = master
