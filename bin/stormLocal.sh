@@ -19,6 +19,6 @@ java \
 -Dfile.encoding=UTF-8 \
 -Djava.library.path=$LD_LIBRARY_PATH \
 -classpath ${classpath} \
-com.altamiracorp.lumify.twitter.storm.StormRunner \
+lumify.io.twitter.storm.StormRunner \
 --local \
 $*

@@ -18,6 +18,6 @@ java \
 -Dfile.encoding=UTF-8 \
 -classpath ${classpath} \
 -Xmx1024M \
-com.altamiracorp.lumify.core.cmdline.OwlImport \
---in=${DIR}/../data/ontology/twitter.owl \
+lumify.io.core.cmdline.OwlImport \
+--in=${DIR}/../ontology/twitter.owl \
 --iri=http://lumify.io/twitter
