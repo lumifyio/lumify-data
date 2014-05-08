@@ -1,34 +1,36 @@
 #!/usr/bin/env ruby
 
 artifacts = """
-io/lumify/lumify-ccextractor                  with-dependencies.jar
-io/lumify/lumify-clavin                       with-dependencies.jar
-io/lumify/lumify-email-extractor              with-dependencies.jar
-io/lumify/lumify-enterprise-tools             with-dependencies.jar
-io/lumify/lumify-java-code-ingest             with-dependencies.jar
-io/lumify/lumify-known-entity-extractor       with-dependencies.jar
-io/lumify/lumify-mapped-ingest                with-dependencies.jar
-io/lumify/lumify-opencv-object-detector       with-dependencies.jar
-io/lumify/lumify-opennlp-dictionary-extractor with-dependencies.jar
-io/lumify/lumify-opennlp-me-extractor         with-dependencies.jar
-io/lumify/lumify-phone-number-extractor       with-dependencies.jar
-io/lumify/lumify-sphinx                       with-dependencies.jar
-io/lumify/lumify-subrip-parser                with-dependencies.jar
-io/lumify/lumify-subrip-transcript            with-dependencies.jar
-io/lumify/lumify-tesseract                    with-dependencies.jar
-io/lumify/lumify-tika-mime-type               with-dependencies.jar
-io/lumify/lumify-tika-text-extractor          with-dependencies.jar
-io/lumify/lumify-youtube-transcript           with-dependencies.jar
-io/lumify/lumify-zipcode-extractor            with-dependencies.jar
-io/lumify/lumify-wikipedia-mr                 with-dependencies.jar
-io/lumify/lumify-import                       with-dependencies.jar
-io/lumify/lumify-storm                        with-dependencies.jar
-io/lumify/lumify-ldap-auth                    with-dependencies.jar
-io/lumify/lumify-web-dev-tools                .jar
-io/lumify/lumify-web-war                      .war lumify.war
-#org/securegraph/securegraph-tools             with-dependencies.jar
-#com/altamiracorp/bigtable/bigtable-ui-war     .war bigtable.war
-#com/altamiracorp/jmxui/jmx-ui-webapp          .war jmx.war
+io/lumify/lumify-ontology-dev                     with-dependencies.jar
+io/lumify/lumify-ccextractor                      with-dependencies.jar
+io/lumify/lumify-clavin                           with-dependencies.jar
+io/lumify/lumify-email-extractor                  with-dependencies.jar
+io/lumify/lumify-enterprise-tools                 with-dependencies.jar
+io/lumify/lumify-java-code-ingest                 with-dependencies.jar
+io/lumify/lumify-known-entity-extractor           with-dependencies.jar
+io/lumify/lumify-mapped-ingest                    with-dependencies.jar
+io/lumify/lumify-opencv-object-detector           with-dependencies.jar
+io/lumify/lumify-opennlp-dictionary-extractor     with-dependencies.jar
+io/lumify/lumify-opennlp-me-extractor             with-dependencies.jar
+io/lumify/lumify-phone-number-extractor           with-dependencies.jar
+io/lumify/lumify-sphinx                           with-dependencies.jar
+io/lumify/lumify-subrip-parser                    with-dependencies.jar
+io/lumify/lumify-subrip-transcript                with-dependencies.jar
+io/lumify/lumify-tesseract                        with-dependencies.jar
+io/lumify/lumify-tika-mime-type                   with-dependencies.jar
+io/lumify/lumify-tika-text-extractor              with-dependencies.jar
+io/lumify/lumify-youtube-transcript               with-dependencies.jar
+io/lumify/lumify-zipcode-extractor                with-dependencies.jar
+io/lumify/lumify-wikipedia-mr                     with-dependencies.jar
+io/lumify/lumify-import                           with-dependencies.jar
+io/lumify/lumify-storm                            with-dependencies.jar
+io/lumify/lumify-ldap-auth                        with-dependencies.jar
+io/lumify/lumify-web-dev-tools                    .jar
+io/lumify/lumify-opennlp-dictionary-extractor-web with-dependencies.jar
+io/lumify/lumify-web-war                          .war lumify.war
+#org/securegraph/securegraph-tools                 with-dependencies.jar
+#com/altamiracorp/bigtable/bigtable-ui-war         .war bigtable.war
+#com/altamiracorp/jmxui/jmx-ui-webapp              .war jmx.war
 """
 
 def download(module_name, artifact_name, local_filename)
