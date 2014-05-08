@@ -62,18 +62,6 @@
     ///////////////////////////////////////////////////////////////////////////////////////
      -->
 
-    
-
-
-    <!-- http://lumify.io/foodtruck#geoLocation -->
-
-    <owl:DatatypeProperty rdf:about="http://lumify.io/foodtruck#geoLocation">
-        <rdfs:label xml:lang="en">Location</rdfs:label>
-        <rdfs:range rdf:resource="&lumify;geolocation"/>
-        <rdfs:domain rdf:resource="http://lumify.io/foodtruck#foodTruck"/>
-        <rdfs:domain rdf:resource="http://lumify.io/foodtruck#locationKeyword"/>
-    </owl:DatatypeProperty>
-    
 
 
     <!-- http://lumify.io/foodtruck#geoLocationDate -->
