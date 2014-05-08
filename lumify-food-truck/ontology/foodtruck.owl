@@ -112,6 +112,7 @@
 
     <owl:Class rdf:about="http://lumify.io/foodtruck#foodTruckRoot">
         <rdfs:label xml:lang="en">Food Truck Root</rdfs:label>
+        <lumify:color xml:lang="en">rgb(219, 63, 219)</lumify:color>
     </owl:Class>
     
 
