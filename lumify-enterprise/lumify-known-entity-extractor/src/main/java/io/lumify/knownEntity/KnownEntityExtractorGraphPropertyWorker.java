@@ -7,9 +7,6 @@ import io.lumify.core.ingest.term.extraction.TermMention;
 import io.lumify.core.model.properties.RawLumifyProperties;
 import io.lumify.core.util.LumifyLogger;
 import io.lumify.core.util.LumifyLoggerFactory;
-import org.securegraph.Property;
-import org.securegraph.Vertex;
-import org.securegraph.Visibility;
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.io.IOUtils;
 import org.apache.hadoop.fs.FileStatus;
@@ -17,6 +14,10 @@ import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.Path;
 import org.arabidopsis.ahocorasick.AhoCorasick;
 import org.arabidopsis.ahocorasick.OutputResult;
+import org.securegraph.Element;
+import org.securegraph.Property;
+import org.securegraph.Vertex;
+import org.securegraph.Visibility;
 import org.supercsv.io.CsvListReader;
 import org.supercsv.prefs.CsvPreference;
 
@@ -54,7 +55,7 @@ public class KnownEntityExtractorGraphPropertyWorker extends GraphPropertyWorker
             termMentions.add(termMention);
             getGraph().flush();
         }
-        saveTermMentions(data.getVertex(), termMentions);
+        saveTermMentions((Vertex) data.getElement(), termMentions);
     }
 
     private TermMention outputResultToTermMention(OutputResult searchResult, String propertyKey, Visibility visibility) {
@@ -71,7 +72,11 @@ public class KnownEntityExtractorGraphPropertyWorker extends GraphPropertyWorker
     }
 
     @Override
-    public boolean isHandled(Vertex vertex, Property property) {
+    public boolean isHandled(Element element, Property property) {
+        if (property == null) {
+            return false;
+        }
+
         if (property.getName().equals(RawLumifyProperties.RAW.getKey())) {
             return false;
         }

@@ -7,6 +7,7 @@ import io.lumify.core.model.properties.RawLumifyProperties;
 import io.lumify.core.util.LumifyLogger;
 import io.lumify.core.util.LumifyLoggerFactory;
 import io.lumify.core.util.RowKeyHelper;
+import org.securegraph.Element;
 import org.securegraph.Property;
 import org.securegraph.Vertex;
 import org.securegraph.mutation.ExistingElementMutation;
@@ -44,7 +45,7 @@ public class TesseractGraphPropertyWorker extends GraphPropertyWorker {
     public void execute(InputStream in, GraphPropertyWorkData data) throws Exception {
         BufferedImage image = ImageIO.read(in);
         if (image == null) {
-            LOGGER.error("Could not load image from property %s on vertex %s", data.getProperty().toString(), data.getVertex().getId());
+            LOGGER.error("Could not load image from property %s on vertex %s", data.getProperty().toString(), data.getElement().getId());
             return;
         }
         String ocrResults = extractTextFromImage(image);
@@ -57,11 +58,11 @@ public class TesseractGraphPropertyWorker extends GraphPropertyWorker {
         InputStream textIn = new ByteArrayInputStream(ocrResults.getBytes());
         StreamingPropertyValue textValue = new StreamingPropertyValue(textIn, String.class);
 
-        ExistingElementMutation<Vertex> m = data.getVertex().prepareMutation();
+        ExistingElementMutation<Vertex> m = data.getElement().prepareMutation();
         RawLumifyProperties.TEXT.addPropertyValue(m, textPropertyKey, textValue, data.getPropertyMetadata(), data.getVisibility());
         m.save();
         getGraph().flush();
-        getWorkQueueRepository().pushGraphPropertyQueue(data.getVertex(), textPropertyKey, RawLumifyProperties.TEXT.getKey());
+        getWorkQueueRepository().pushGraphPropertyQueue(data.getElement(), textPropertyKey, RawLumifyProperties.TEXT.getKey());
     }
 
     private String extractTextFromImage(BufferedImage image) throws TesseractException {
@@ -76,7 +77,11 @@ public class TesseractGraphPropertyWorker extends GraphPropertyWorker {
     }
 
     @Override
-    public boolean isHandled(Vertex vertex, Property property) {
+    public boolean isHandled(Element element, Property property) {
+        if (property == null) {
+            return false;
+        }
+
         String mimeType = (String) property.getMetadata().get(RawLumifyProperties.METADATA_MIME_TYPE);
         if (mimeType == null) {
             return false;

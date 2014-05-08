@@ -1,5 +1,8 @@
 package io.lumify.tikaTextExtractor;
 
+import de.l3s.boilerpipe.BoilerpipeProcessingException;
+import de.l3s.boilerpipe.extractors.ArticleExtractor;
+import de.l3s.boilerpipe.extractors.NumWordsRulesExtractor;
 import io.lumify.core.ingest.graphProperty.GraphPropertyWorkData;
 import io.lumify.core.ingest.graphProperty.GraphPropertyWorker;
 import io.lumify.core.ingest.graphProperty.GraphPropertyWorkerPrepareData;
@@ -7,13 +10,6 @@ import io.lumify.core.model.properties.LumifyProperties;
 import io.lumify.core.model.properties.RawLumifyProperties;
 import io.lumify.core.util.LumifyLogger;
 import io.lumify.core.util.LumifyLoggerFactory;
-import org.securegraph.Property;
-import org.securegraph.Vertex;
-import org.securegraph.mutation.ExistingElementMutation;
-import org.securegraph.property.StreamingPropertyValue;
-import de.l3s.boilerpipe.BoilerpipeProcessingException;
-import de.l3s.boilerpipe.extractors.ArticleExtractor;
-import de.l3s.boilerpipe.extractors.NumWordsRulesExtractor;
 import org.apache.commons.io.IOUtils;
 import org.apache.tika.exception.TikaException;
 import org.apache.tika.metadata.Metadata;
@@ -23,6 +19,11 @@ import org.apache.tika.parser.Parser;
 import org.apache.tika.sax.BodyContentHandler;
 import org.json.JSONException;
 import org.json.JSONObject;
+import org.securegraph.Element;
+import org.securegraph.Property;
+import org.securegraph.Vertex;
+import org.securegraph.mutation.ExistingElementMutation;
+import org.securegraph.property.StreamingPropertyValue;
 import org.xml.sax.ContentHandler;
 import org.xml.sax.SAXException;
 
@@ -96,7 +97,7 @@ public class TikaTextExtractorGraphPropertyWorker extends GraphPropertyWorker {
         Metadata metadata = new Metadata();
         String text = extractText(in, mimeType, metadata);
 
-        ExistingElementMutation<Vertex> m = data.getVertex().prepareMutation();
+        ExistingElementMutation<Vertex> m = data.getElement().prepareMutation();
 
         // TODO set("url", extractUrl(metadata));
         // TODO set("type", extractTextField(metadata, typeKeys));
@@ -127,7 +128,9 @@ public class TikaTextExtractorGraphPropertyWorker extends GraphPropertyWorker {
 
                 // TODO set("retrievalTime", Long.parseLong(customImageMetadataJson.get("atc:retrieval-timestamp").toString()));
 
-                LumifyProperties.TITLE.addPropertyValue(m, MULTIVALUE_KEY, customImageMetadataJson.get("title").toString(), data.getPropertyMetadata(), data.getVisibility());
+                Map<String, Object> titleMetadata = data.getPropertyMetadata();
+                LumifyProperties.CONFIDENCE.setMetadata(titleMetadata, 0.4);
+                LumifyProperties.TITLE.addPropertyValue(m, MULTIVALUE_KEY, customImageMetadataJson.get("title").toString(), titleMetadata, data.getVisibility());
             } catch (JSONException e) {
                 LOGGER.warn("Image returned invalid custom metadata");
             }
@@ -146,7 +149,7 @@ public class TikaTextExtractorGraphPropertyWorker extends GraphPropertyWorker {
 
         m.save();
         getGraph().flush();
-        getWorkQueueRepository().pushGraphPropertyQueue(data.getVertex(), MULTIVALUE_KEY, RawLumifyProperties.TEXT.getKey());
+        getWorkQueueRepository().pushGraphPropertyQueue(data.getElement(), MULTIVALUE_KEY, RawLumifyProperties.TEXT.getKey());
     }
 
     private String extractText(InputStream in, String mimeType, Metadata metadata) throws IOException, SAXException, TikaException, BoilerpipeProcessingException {
@@ -270,7 +273,11 @@ public class TikaTextExtractorGraphPropertyWorker extends GraphPropertyWorker {
     }
 
     @Override
-    public boolean isHandled(Vertex vertex, Property property) {
+    public boolean isHandled(Element element, Property property) {
+        if (property == null) {
+            return false;
+        }
+
         if (!property.getName().equals(RawLumifyProperties.RAW.getKey())) {
             return false;
         }

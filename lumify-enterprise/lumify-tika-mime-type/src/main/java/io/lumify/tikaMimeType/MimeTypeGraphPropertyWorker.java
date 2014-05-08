@@ -7,6 +7,7 @@ import io.lumify.core.model.properties.RawLumifyProperties;
 import io.lumify.core.security.LumifyVisibilityProperties;
 import io.lumify.core.util.LumifyLogger;
 import io.lumify.core.util.LumifyLoggerFactory;
+import org.securegraph.Element;
 import org.securegraph.Property;
 import org.securegraph.Vertex;
 import org.securegraph.mutation.ExistingElementMutation;
@@ -28,15 +29,15 @@ public class MimeTypeGraphPropertyWorker extends GraphPropertyWorker {
 
     @Override
     public void execute(InputStream in, GraphPropertyWorkData data) throws Exception {
-        String fileName = RawLumifyProperties.FILE_NAME.getPropertyValue(data.getVertex());
+        String fileName = RawLumifyProperties.FILE_NAME.getPropertyValue(data.getElement());
         String mimeType = mimeTypeMapper.guessMimeType(in, fileName);
         if (mimeType == null) {
             return;
         }
 
-        ExistingElementMutation<Vertex> m = data.getVertex().prepareMutation();
+        ExistingElementMutation<Vertex> m = data.getElement().prepareMutation();
         Map<String, Object> mimeTypeMetadata = data.getPropertyMetadata();
-        JSONObject visibilityJson = LumifyVisibilityProperties.VISIBILITY_JSON_PROPERTY.getPropertyValue(data.getVertex());
+        JSONObject visibilityJson = LumifyVisibilityProperties.VISIBILITY_JSON_PROPERTY.getPropertyValue(data.getElement());
         if (visibilityJson != null) {
             LumifyVisibilityProperties.VISIBILITY_JSON_PROPERTY.setMetadata(mimeTypeMetadata, visibilityJson);
         }
@@ -45,19 +46,23 @@ public class MimeTypeGraphPropertyWorker extends GraphPropertyWorker {
         m.save();
 
         getGraph().flush();
-        getWorkQueueRepository().pushGraphPropertyQueue(data.getVertex(), data.getProperty());
+        getWorkQueueRepository().pushGraphPropertyQueue(data.getElement(), data.getProperty());
     }
 
     @Override
-    public boolean isHandled(Vertex vertex, Property property) {
-        if (!property.getName().equals(RawLumifyProperties.RAW.getKey())) {
-            return false;
-        }
-        if (RawLumifyProperties.MIME_TYPE.getPropertyValue(vertex) != null) {
+    public boolean isHandled(Element element, Property property) {
+        if (property == null) {
             return false;
         }
 
-        String fileName = RawLumifyProperties.FILE_NAME.getPropertyValue(vertex);
+        if (!property.getName().equals(RawLumifyProperties.RAW.getKey())) {
+            return false;
+        }
+        if (RawLumifyProperties.MIME_TYPE.getPropertyValue(element) != null) {
+            return false;
+        }
+
+        String fileName = RawLumifyProperties.FILE_NAME.getPropertyValue(element);
         if (fileName == null) {
             return false;
         }

@@ -312,7 +312,7 @@ function _rabbitmq_status {
 function _rabbitmq_rmlogs {
   cmd='rm -f /var/log/rabbitmq/*'
 
-  for zk in $(_rabbitmq_servers); do
+  for rabbitmq in $(_rabbitmq_servers); do
     echo "${rabbitmq}: ${cmd}"
     _run_at ${rabbitmq} ${cmd}
   done

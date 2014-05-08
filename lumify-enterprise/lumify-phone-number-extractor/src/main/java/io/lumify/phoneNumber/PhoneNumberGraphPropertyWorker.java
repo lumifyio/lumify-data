@@ -1,5 +1,10 @@
 package io.lumify.phoneNumber;
 
+import com.google.common.base.Charsets;
+import com.google.common.collect.Iterables;
+import com.google.common.io.CharStreams;
+import com.google.i18n.phonenumbers.PhoneNumberMatch;
+import com.google.i18n.phonenumbers.PhoneNumberUtil;
 import io.lumify.core.ingest.graphProperty.GraphPropertyWorkData;
 import io.lumify.core.ingest.graphProperty.GraphPropertyWorker;
 import io.lumify.core.ingest.graphProperty.GraphPropertyWorkerPrepareData;
@@ -7,14 +12,10 @@ import io.lumify.core.ingest.term.extraction.TermMention;
 import io.lumify.core.model.properties.RawLumifyProperties;
 import io.lumify.core.util.LumifyLogger;
 import io.lumify.core.util.LumifyLoggerFactory;
+import org.securegraph.Element;
 import org.securegraph.Property;
 import org.securegraph.Vertex;
 import org.securegraph.Visibility;
-import com.google.common.base.Charsets;
-import com.google.common.collect.Iterables;
-import com.google.common.io.CharStreams;
-import com.google.i18n.phonenumbers.PhoneNumberMatch;
-import com.google.i18n.phonenumbers.PhoneNumberUtil;
 
 import java.io.InputStream;
 import java.io.InputStreamReader;
@@ -60,7 +61,7 @@ public class PhoneNumberGraphPropertyWorker extends GraphPropertyWorker {
             termMentions.add(termMention);
         }
 
-        saveTermMentions(data.getVertex(), termMentions);
+        saveTermMentions((Vertex) data.getElement(), termMentions);
         getGraph().flush();
 
         LOGGER.debug("Number of phone numbers extracted: %d", Iterables.size(phoneNumbers));
@@ -79,7 +80,11 @@ public class PhoneNumberGraphPropertyWorker extends GraphPropertyWorker {
     }
 
     @Override
-    public boolean isHandled(Vertex vertex, Property property) {
+    public boolean isHandled(Element element, Property property) {
+        if (property == null) {
+            return false;
+        }
+
         if (property.getName().equals(RawLumifyProperties.RAW.getKey())) {
             return false;
         }
