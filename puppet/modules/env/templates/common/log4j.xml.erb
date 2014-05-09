@@ -26,6 +26,7 @@
 
     <% if @syslog_server != '' -%>
     <appender name="syslog" class="org.apache.log4j.net.SyslogAppender">
+        <param name="Threshold" value="<%= @syslog_threshold %>" />
         <param name="SyslogHost" value="<%= @syslog_server %>" />
         <param name="Facility" value="<%= @syslog_facility %>" />
         <param name="Header" value="true" />
