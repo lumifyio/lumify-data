@@ -74,7 +74,7 @@ public class FoodTruckTweetAnalyzerGraphPropertyWorker extends GraphPropertyWork
         termMentionRepository.save(termMention);
         termMentionRepository.flush();
 
-        getWorkQueueRepository().pushEdgeCreation(edge);
+        getWorkQueueRepository().pushElement(edge);
 
         return edge;
     }
