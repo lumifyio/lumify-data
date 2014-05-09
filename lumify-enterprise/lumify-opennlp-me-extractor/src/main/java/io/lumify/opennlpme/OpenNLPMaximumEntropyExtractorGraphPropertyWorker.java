@@ -7,9 +7,6 @@ import io.lumify.core.ingest.term.extraction.TermMention;
 import io.lumify.core.model.properties.RawLumifyProperties;
 import io.lumify.core.util.LumifyLogger;
 import io.lumify.core.util.LumifyLoggerFactory;
-import org.securegraph.Property;
-import org.securegraph.Vertex;
-import org.securegraph.Visibility;
 import opennlp.tools.namefind.NameFinderME;
 import opennlp.tools.namefind.TokenNameFinder;
 import opennlp.tools.namefind.TokenNameFinderModel;
@@ -21,6 +18,10 @@ import opennlp.tools.util.PlainTextByLineStream;
 import opennlp.tools.util.Span;
 import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.Path;
+import org.securegraph.Element;
+import org.securegraph.Property;
+import org.securegraph.Vertex;
+import org.securegraph.Visibility;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -63,7 +64,7 @@ public class OpenNLPMaximumEntropyExtractorGraphPropertyWorker extends GraphProp
             getGraph().flush();
             charOffset += line.length() + NEW_LINE_CHARACTER_LENGTH;
         }
-        saveTermMentions(data.getVertex(), termMenitons);
+        saveTermMentions((Vertex) data.getElement(), termMenitons);
 
         untokenizedLineStream.close();
         LOGGER.debug("Stream processing completed");
@@ -109,7 +110,11 @@ public class OpenNLPMaximumEntropyExtractorGraphPropertyWorker extends GraphProp
     }
 
     @Override
-    public boolean isHandled(Vertex vertex, Property property) {
+    public boolean isHandled(Element element, Property property) {
+        if (property == null) {
+            return false;
+        }
+
         if (property.getName().equals(RawLumifyProperties.RAW.getKey())) {
             return false;
         }

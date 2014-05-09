@@ -54,4 +54,26 @@ class rabbitmq (
   }
   
   enablePlugin { "${plugins}" : }
+
+  define policy (
+    $vhost = '%2f', # /
+    $pattern,
+    $apply_to = 'all',
+    $definition,
+    $priority = 0
+  ) {
+    $url = "http://localhost:15672/api/policies/${vhost}/${name}"
+    $json = "{\"pattern\":\"${pattern}\", \"apply-to\":\"${apply_to}\", \"definition\":${definition}, \"priority\":${priority}}"
+
+    exec { "add-policy-${name}" :
+      command => "/usr/bin/curl -u guest:guest -H 'content-type:application/json' -X PUT ${url} -d '${json}'",
+      unless  => "/usr/bin/curl -s -u guest:guest ${url} -w '%{http_code}\n' -o /dev/null | /bin/grep -q 200",
+      require => Service['rabbitmq-server'],
+    }
+  }
+
+  policy { "ha" :
+    pattern => '.*',
+    definition => '{"ha-mode":"all", "ha-sync-mode":"automatic"}',
+  }
 }

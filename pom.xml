@@ -24,6 +24,8 @@
         <module>lumify-wikipedia</module>
         <module>lumify-account-web</module>
         <module>lumify-ldap-auth</module>
+        <module>lumify-twitter</module>
+        <module>lumify-food-truck</module>
     </modules>
 </project>
 

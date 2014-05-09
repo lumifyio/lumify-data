@@ -1,12 +1,14 @@
 package io.lumify.wikipedia.mapreduce;
 
 import com.altamiracorp.bigtable.model.accumulo.AccumuloSession;
+import io.lumify.core.model.properties.LumifyProperties;
 import io.lumify.core.model.termMention.TermMentionModel;
 import io.lumify.core.model.termMention.TermMentionRowKey;
 import io.lumify.core.util.LumifyLogger;
 import io.lumify.core.util.LumifyLoggerFactory;
 import io.lumify.wikipedia.*;
 import org.apache.accumulo.core.data.Mutation;
+import org.apache.commons.codec.binary.Base64;
 import org.apache.hadoop.io.LongWritable;
 import org.apache.hadoop.io.Text;
 import org.jdom2.Document;
@@ -35,6 +37,7 @@ import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.Map;
 
 import static io.lumify.core.model.ontology.OntologyLumifyProperties.CONCEPT_TYPE;
@@ -144,7 +147,11 @@ class ImportMRMapper extends ElementMapper<LongWritable, Text, Text, MutationOrE
         VertexBuilder pageVertexBuilder = prepareVertex(wikipediaPageVertexId, visibility, authorizations);
         CONCEPT_TYPE.setProperty(pageVertexBuilder, WikipediaConstants.WIKIPEDIA_PAGE_CONCEPT_URI, visibility);
         RAW.setProperty(pageVertexBuilder, rawPropertyValue, visibility);
-        TITLE.addPropertyValue(pageVertexBuilder, ImportMR.MULTI_VALUE_KEY, pageTitle, visibility);
+
+        Map<String, Object> titleMetadata = new HashMap<String, Object>();
+        LumifyProperties.CONFIDENCE.setMetadata(titleMetadata, 0.4);
+        TITLE.addPropertyValue(pageVertexBuilder, ImportMR.MULTI_VALUE_KEY, pageTitle, titleMetadata, visibility);
+
         MIME_TYPE.setProperty(pageVertexBuilder, ImportMR.WIKIPEDIA_MIME_TYPE, visibility);
         SOURCE.addPropertyValue(pageVertexBuilder, ImportMR.WIKIPEDIA_MIME_TYPE, ImportMR.WIKIPEDIA_SOURCE, visibility);
         if (revisionTimestamp != null) {
@@ -170,6 +177,12 @@ class ImportMRMapper extends ElementMapper<LongWritable, Text, Text, MutationOrE
             CONCEPT_TYPE.setProperty(linkedPageVertexBuilder, WikipediaConstants.WIKIPEDIA_PAGE_CONCEPT_URI, visibility);
             MIME_TYPE.setProperty(linkedPageVertexBuilder, ImportMR.WIKIPEDIA_MIME_TYPE, visibility);
             SOURCE.addPropertyValue(linkedPageVertexBuilder, ImportMR.WIKIPEDIA_MIME_TYPE, ImportMR.WIKIPEDIA_SOURCE, visibility);
+
+            titleMetadata = new HashMap<String, Object>();
+            LumifyProperties.CONFIDENCE.setMetadata(titleMetadata, 0.1);
+            String linkTargetHash = Base64.encodeBase64String(linkTarget.trim().toLowerCase().getBytes());
+            TITLE.addPropertyValue(linkedPageVertexBuilder, ImportMR.MULTI_VALUE_KEY + "#" + linkTargetHash, linkTarget, titleMetadata, visibility);
+
             Vertex linkedPageVertex = linkedPageVertexBuilder.save();
             Edge edge = addEdge(ImportMR.getWikipediaPageToPageEdgeId(pageVertex, linkedPageVertex),
                     pageVertex,

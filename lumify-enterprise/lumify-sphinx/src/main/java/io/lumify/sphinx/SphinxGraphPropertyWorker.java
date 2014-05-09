@@ -6,6 +6,7 @@ import io.lumify.core.ingest.video.VideoTranscript;
 import io.lumify.core.model.properties.MediaLumifyProperties;
 import io.lumify.core.model.properties.RawLumifyProperties;
 import io.lumify.core.util.ProcessRunner;
+import org.securegraph.Element;
 import org.securegraph.Property;
 import org.securegraph.Vertex;
 import org.securegraph.mutation.ExistingElementMutation;
@@ -31,16 +32,20 @@ public class SphinxGraphPropertyWorker extends GraphPropertyWorker {
             return;
         }
 
-        ExistingElementMutation<Vertex> m = data.getVertex().prepareMutation();
+        ExistingElementMutation<Vertex> m = data.getElement().prepareMutation();
         MediaLumifyProperties.VIDEO_TRANSCRIPT.addPropertyValue(m, MULTI_VALUE_KEY, transcript, data.getPropertyMetadata(), data.getVisibility());
         m.save();
 
         getGraph().flush();
-        getWorkQueueRepository().pushGraphPropertyQueue(data.getVertex(), MULTI_VALUE_KEY, MediaLumifyProperties.VIDEO_TRANSCRIPT.getKey());
+        getWorkQueueRepository().pushGraphPropertyQueue(data.getElement(), MULTI_VALUE_KEY, MediaLumifyProperties.VIDEO_TRANSCRIPT.getKey());
     }
 
     @Override
-    public boolean isHandled(Vertex vertex, Property property) {
+    public boolean isHandled(Element element, Property property) {
+        if (property == null) {
+            return false;
+        }
+
         String mimeType = (String) property.getMetadata().get(RawLumifyProperties.METADATA_MIME_TYPE);
         return !(mimeType == null || !mimeType.startsWith("audio"));
     }
@@ -126,5 +131,10 @@ public class SphinxGraphPropertyWorker extends GraphPropertyWorker {
     @Inject
     public void setProcessRunner(ProcessRunner processRunner) {
         this.processRunner = processRunner;
+    }
+
+    @Override
+    public boolean isLocalFileRequired() {
+        return true;
     }
 }
