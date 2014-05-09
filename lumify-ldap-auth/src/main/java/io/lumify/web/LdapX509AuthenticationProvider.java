@@ -5,7 +5,6 @@ import com.unboundid.ldap.sdk.SearchResultEntry;
 import io.lumify.core.config.Configuration;
 import io.lumify.core.exception.LumifyException;
 import io.lumify.core.model.user.UserRepository;
-import io.lumify.core.user.Privilege;
 import io.lumify.core.user.User;
 import io.lumify.core.util.LumifyLogger;
 import io.lumify.core.util.LumifyLoggerFactory;

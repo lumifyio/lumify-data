@@ -132,4 +132,9 @@ public class SphinxGraphPropertyWorker extends GraphPropertyWorker {
     public void setProcessRunner(ProcessRunner processRunner) {
         this.processRunner = processRunner;
     }
+
+    @Override
+    public boolean isLocalFileRequired() {
+        return true;
+    }
 }

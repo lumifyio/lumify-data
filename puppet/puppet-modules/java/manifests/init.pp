@@ -22,10 +22,9 @@ class java($tmpdir = '/tmp', $version = '6u45') {
     require  => Macro::Download["jdk-download"],
   }
 
-  file { "/etc/profile.d/java_home.sh":
+  file { "/etc/profile.d/java.sh":
     ensure  => file,
-    content => "export JAVA_HOME=${java_home}
-                export PATH=\$PATH:\$JAVA_HOME/bin",
+    content => template('java/java.sh.erb'),
     require => Package['jdk'],
   }
 }
