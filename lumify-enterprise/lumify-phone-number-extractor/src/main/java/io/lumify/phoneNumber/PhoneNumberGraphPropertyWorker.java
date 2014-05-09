@@ -5,6 +5,7 @@ import com.google.common.collect.Iterables;
 import com.google.common.io.CharStreams;
 import com.google.i18n.phonenumbers.PhoneNumberMatch;
 import com.google.i18n.phonenumbers.PhoneNumberUtil;
+import io.lumify.core.exception.LumifyException;
 import io.lumify.core.ingest.graphProperty.GraphPropertyWorkData;
 import io.lumify.core.ingest.graphProperty.GraphPropertyWorker;
 import io.lumify.core.ingest.graphProperty.GraphPropertyWorkerPrepareData;
@@ -24,8 +25,7 @@ import java.util.List;
 
 public class PhoneNumberGraphPropertyWorker extends GraphPropertyWorker {
     private static final LumifyLogger LOGGER = LumifyLoggerFactory.getLogger(PhoneNumberGraphPropertyWorker.class);
-    public static final String ENTITY_TYPE = "phoneNumber.entityType";
-    public static final String DEFAULT_ENTITY_TYPE = "http://lumify.io/dev#phoneNumber";
+    public static final String CONFIG_PHONE_NUMBER_IRI = "ontology.iri.phoneNumber";
     public static final String DEFAULT_REGION_CODE = "phoneNumber.defaultRegionCode";
     public static final String DEFAULT_DEFAULT_REGION_CODE = "US";
 
@@ -42,9 +42,9 @@ public class PhoneNumberGraphPropertyWorker extends GraphPropertyWorker {
             defaultRegionCode = DEFAULT_DEFAULT_REGION_CODE;
         }
 
-        entityType = (String) workerPrepareData.getStormConf().get(ENTITY_TYPE);
-        if (entityType == null) {
-            entityType = DEFAULT_ENTITY_TYPE;
+        entityType = (String) workerPrepareData.getStormConf().get(CONFIG_PHONE_NUMBER_IRI);
+        if (entityType == null || entityType.length() == 0) {
+            throw new LumifyException("Could not find config: " + CONFIG_PHONE_NUMBER_IRI);
         }
     }
 

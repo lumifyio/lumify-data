@@ -1,6 +1,7 @@
 package io.lumify.web.routes.graph;
 
 import io.lumify.core.config.Configuration;
+import io.lumify.core.model.properties.EntityLumifyProperties;
 import io.lumify.core.model.user.UserRepository;
 import io.lumify.core.model.workspace.WorkspaceRepository;
 import io.lumify.core.user.User;
@@ -19,8 +20,6 @@ import org.json.JSONObject;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.util.Iterator;
-
-import static io.lumify.core.model.properties.EntityLumifyProperties.GEO_LOCATION;
 
 public class GraphGeoLocationSearch extends BaseRequestHandler {
     private final Graph graph;
@@ -46,7 +45,7 @@ public class GraphGeoLocationSearch extends BaseRequestHandler {
         String workspaceId = getActiveWorkspaceId(request);
 
         Iterator<Vertex> vertexIterator = graph.query(authorizations).
-                has(GEO_LOCATION.getKey(), GeoCompare.WITHIN, new GeoCircle(latitude, longitude, radius)).
+                has(EntityLumifyProperties.GEO_LOCATION.getKey(), GeoCompare.WITHIN, new GeoCircle(latitude, longitude, radius)).
                 vertices().
                 iterator();
 
