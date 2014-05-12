@@ -14,7 +14,10 @@ if [ $? -ne 0 ]; then
   exit
 fi
 
-java \
+[ "${DEBUG_PORT}" ] || DEBUG_PORT=12345
+[ "$1" = '-d' ] && debug_option="-agentlib:jdwp=transport=dt_socket,server=y,suspend=y,address=${DEBUG_PORT}"
+
+java ${debug_option} \
 -Dfile.encoding=UTF-8 \
 -classpath ${classpath} \
 -Xmx1024M \
