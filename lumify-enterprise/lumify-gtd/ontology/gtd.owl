@@ -21,274 +21,274 @@
     </owl:Ontology>
 
 
-    <!-- Concept: Event::Terrorist Attack -->
-    <owl:Class rdf:about="terroristAttack">
+    <!-- Concept: Event: http://lumify.io/gtd#Terrorist Attack -->
+    <owl:Class rdf:about="http://lumify.io/gtd#terroristAttack">
         <rdfs:label xml:lang="en">Terrorist Attack</rdfs:label>
-        <rdfs:subClassOf rdf:resource="http://lumify.io/dev/event"/>
+        <rdfs:subClassOf rdf:resource="http://lumify.io/dev#event"/>
         <lumify:glyphIconFileName xml:lang="en">glyphicons_290_skull@2x.png</lumify:glyphIconFileName>
     </owl:Class>
-    <owl:DatatypeProperty rdf:about="eventId">
+    <owl:DatatypeProperty rdf:about="http://lumify.io/gtd#eventId">
         <rdfs:label xml:lang="en">Event ID</rdfs:label>
-        <rdfs:domain rdf:resource="#terroristAttack"/>
+        <rdfs:domain rdf:resource="http://lumify.io/gtd#terroristAttack"/>
         <rdfs:range rdf:resource="&xsd;string"/>
     </owl:DatatypeProperty>
-    <owl:DatatypeProperty rdf:about="summary">
+    <owl:DatatypeProperty rdf:about="http://lumify.io/gtd#summary">
         <rdfs:label xml:lang="en">Summary</rdfs:label>
-        <rdfs:domain rdf:resource="#terroristAttack"/>
+        <rdfs:domain rdf:resource="http://lumify.io/gtd#terroristAttack"/>
         <rdfs:range rdf:resource="&xsd;string"/>
     </owl:DatatypeProperty>
-    <owl:DatatypeProperty rdf:about="successful">
+    <owl:DatatypeProperty rdf:about="http://lumify.io/gtd#successful">
         <rdfs:label xml:lang="en">Successful?</rdfs:label>
-        <rdfs:domain rdf:resource="#terroristAttack"/>
+        <rdfs:domain rdf:resource="http://lumify.io/gtd#terroristAttack"/>
         <rdfs:range rdf:resource="&xsd;boolean"/>
     </owl:DatatypeProperty>
-    <owl:DatatypeProperty rdf:about="suicide">
+    <owl:DatatypeProperty rdf:about="http://lumify.io/gtd#suicide">
         <rdfs:label xml:lang="en">Suicide?</rdfs:label>
-        <rdfs:domain rdf:resource="#terroristAttack"/>
+        <rdfs:domain rdf:resource="http://lumify.io/gtd#terroristAttack"/>
         <rdfs:range rdf:resource="&xsd;boolean"/>
     </owl:DatatypeProperty>
-    <owl:DatatypeProperty rdf:about="numPerps">
+    <owl:DatatypeProperty rdf:about="http://lumify.io/gtd#numPerps">
         <rdfs:label xml:lang="en"># of Perpetrators</rdfs:label>
-        <rdfs:domain rdf:resource="#terroristAttack"/>
+        <rdfs:domain rdf:resource="http://lumify.io/gtd#terroristAttack"/>
         <rdfs:range rdf:resource="&xsd;double"/>
     </owl:DatatypeProperty>
-    <owl:DatatypeProperty rdf:about="numPerpsCaptured">
+    <owl:DatatypeProperty rdf:about="http://lumify.io/gtd#numPerpsCaptured">
         <rdfs:label xml:lang="en"># of Perpetrators Captured</rdfs:label>
-        <rdfs:domain rdf:resource="#terroristAttack"/>
+        <rdfs:domain rdf:resource="http://lumify.io/gtd#terroristAttack"/>
         <rdfs:range rdf:resource="&xsd;double"/>
     </owl:DatatypeProperty>
-    <owl:DatatypeProperty rdf:about="numKilled">
+    <owl:DatatypeProperty rdf:about="http://lumify.io/gtd#numKilled">
         <rdfs:label xml:lang="en">Total Fatalities</rdfs:label>
-        <rdfs:domain rdf:resource="#terroristAttack"/>
+        <rdfs:domain rdf:resource="http://lumify.io/gtd#terroristAttack"/>
         <rdfs:range rdf:resource="&xsd;double"/>
     </owl:DatatypeProperty>
-    <owl:DatatypeProperty rdf:about="numUsKilled">
+    <owl:DatatypeProperty rdf:about="http://lumify.io/gtd#numUsKilled">
         <rdfs:label xml:lang="en">US Fatalities</rdfs:label>
-        <rdfs:domain rdf:resource="#terroristAttack"/>
+        <rdfs:domain rdf:resource="http://lumify.io/gtd#terroristAttack"/>
         <rdfs:range rdf:resource="&xsd;double"/>
     </owl:DatatypeProperty>
-    <owl:DatatypeProperty rdf:about="numPerpsKilled">
+    <owl:DatatypeProperty rdf:about="http://lumify.io/gtd#numPerpsKilled">
         <rdfs:label xml:lang="en">Perpetrator Fatalities</rdfs:label>
-        <rdfs:domain rdf:resource="#terroristAttack"/>
+        <rdfs:domain rdf:resource="http://lumify.io/gtd#terroristAttack"/>
         <rdfs:range rdf:resource="&xsd;double"/>
     </owl:DatatypeProperty>
-    <owl:DatatypeProperty rdf:about="numWounded">
+    <owl:DatatypeProperty rdf:about="http://lumify.io/gtd#numWounded">
         <rdfs:label xml:lang="en">Total Wounded</rdfs:label>
-        <rdfs:domain rdf:resource="#terroristAttack"/>
+        <rdfs:domain rdf:resource="http://lumify.io/gtd#terroristAttack"/>
         <rdfs:range rdf:resource="&xsd;double"/>
     </owl:DatatypeProperty>
-    <owl:DatatypeProperty rdf:about="numUsWounded">
+    <owl:DatatypeProperty rdf:about="http://lumify.io/gtd#numUsWounded">
         <rdfs:label xml:lang="en">US Wounded</rdfs:label>
-        <rdfs:domain rdf:resource="#terroristAttack"/>
+        <rdfs:domain rdf:resource="http://lumify.io/gtd#terroristAttack"/>
         <rdfs:range rdf:resource="&xsd;double"/>
     </owl:DatatypeProperty>
-    <owl:DatatypeProperty rdf:about="numPerpsWounded">
+    <owl:DatatypeProperty rdf:about="http://lumify.io/gtd#numPerpsWounded">
         <rdfs:label xml:lang="en">Perpetrators Wounded</rdfs:label>
-        <rdfs:domain rdf:resource="#terroristAttack"/>
+        <rdfs:domain rdf:resource="http://lumify.io/gtd#terroristAttack"/>
         <rdfs:range rdf:resource="&xsd;double"/>
     </owl:DatatypeProperty>
-    <owl:DatatypeProperty rdf:about="numKilled">
+    <owl:DatatypeProperty rdf:about="http://lumify.io/gtd#numKilled">
         <rdfs:label xml:lang="en">Total Fatalities</rdfs:label>
-        <rdfs:domain rdf:resource="#terroristAttack"/>
+        <rdfs:domain rdf:resource="http://lumify.io/gtd#terroristAttack"/>
         <rdfs:range rdf:resource="&xsd;double"/>
     </owl:DatatypeProperty>
-    <owl:DatatypeProperty rdf:about="numUsKilled">
+    <owl:DatatypeProperty rdf:about="http://lumify.io/gtd#numUsKilled">
         <rdfs:label xml:lang="en">US Fatalities</rdfs:label>
-        <rdfs:domain rdf:resource="#terroristAttack"/>
+        <rdfs:domain rdf:resource="http://lumify.io/gtd#terroristAttack"/>
         <rdfs:range rdf:resource="&xsd;double"/>
     </owl:DatatypeProperty>
-    <owl:DatatypeProperty rdf:about="responsibilityClaimed">
+    <owl:DatatypeProperty rdf:about="http://lumify.io/gtd#responsibilityClaimed">
         <rdfs:label xml:lang="en">Responsibility Claimed?</rdfs:label>
-        <rdfs:domain rdf:resource="#terroristAttack"/>
+        <rdfs:domain rdf:resource="http://lumify.io/gtd#terroristAttack"/>
         <rdfs:range rdf:resource="&xsd;boolean"/>
     </owl:DatatypeProperty>
-    <owl:DatatypeProperty rdf:about="responsibilityClaimMethod">
+    <owl:DatatypeProperty rdf:about="http://lumify.io/gtd#responsibilityClaimMethod">
         <rdfs:label xml:lang="en">Responsibility Claim Method</rdfs:label>
-        <rdfs:domain rdf:resource="#terroristAttack"/>
+        <rdfs:domain rdf:resource="http://lumify.io/gtd#terroristAttack"/>
         <rdfs:range rdf:resource="&xsd;string"/>
     </owl:DatatypeProperty>
-    <owl:DatatypeProperty rdf:about="competingClaims">
+    <owl:DatatypeProperty rdf:about="http://lumify.io/gtd#competingClaims">
         <rdfs:label xml:lang="en">Competing Responsiblity Claims?</rdfs:label>
-        <rdfs:domain rdf:resource="#terroristAttack"/>
+        <rdfs:domain rdf:resource="http://lumify.io/gtd#terroristAttack"/>
         <rdfs:range rdf:resource="&xsd;boolean"/>
     </owl:DatatypeProperty>
-    <owl:DatatypeProperty rdf:about="weaponType">
+    <owl:DatatypeProperty rdf:about="http://lumify.io/gtd#weaponType">
         <rdfs:label xml:lang="en">Weapon Type</rdfs:label>
-        <rdfs:domain rdf:resource="#terroristAttack"/>
+        <rdfs:domain rdf:resource="http://lumify.io/gtd#terroristAttack"/>
         <rdfs:range rdf:resource="&xsd;string"/>
     </owl:DatatypeProperty>
-    <owl:DatatypeProperty rdf:about="weaponSubtype">
+    <owl:DatatypeProperty rdf:about="http://lumify.io/gtd#weaponSubtype">
         <rdfs:label xml:lang="en">Weapon Sub-type</rdfs:label>
-        <rdfs:domain rdf:resource="#terroristAttack"/>
+        <rdfs:domain rdf:resource="http://lumify.io/gtd#terroristAttack"/>
         <rdfs:range rdf:resource="&xsd;string"/>
     </owl:DatatypeProperty>
-    <owl:DatatypeProperty rdf:about="propertyDamage">
+    <owl:DatatypeProperty rdf:about="http://lumify.io/gtd#propertyDamage">
         <rdfs:label xml:lang="en">Property Damage?</rdfs:label>
-        <rdfs:domain rdf:resource="#terroristAttack"/>
+        <rdfs:domain rdf:resource="http://lumify.io/gtd#terroristAttack"/>
         <rdfs:range rdf:resource="&xsd;boolean"/>
     </owl:DatatypeProperty>
-    <owl:DatatypeProperty rdf:about="propertyDamageValue">
+    <owl:DatatypeProperty rdf:about="http://lumify.io/gtd#propertyDamageValue">
         <rdfs:label xml:lang="en">Property Value</rdfs:label>
-        <rdfs:domain rdf:resource="#terroristAttack"/>
+        <rdfs:domain rdf:resource="http://lumify.io/gtd#terroristAttack"/>
         <rdfs:range rdf:resource="&lumify;currency"/>
     </owl:DatatypeProperty>
-    <owl:DatatypeProperty rdf:about="reportSource">
+    <owl:DatatypeProperty rdf:about="http://lumify.io/gtd#reportSource">
         <rdfs:label xml:lang="en">Report Source</rdfs:label>
-        <rdfs:domain rdf:resource="#terroristAttack"/>
+        <rdfs:domain rdf:resource="http://lumify.io/gtd#terroristAttack"/>
         <rdfs:range rdf:resource="&xsd;string"/>
     </owl:DatatypeProperty>
-    <owl:DatatypeProperty rdf:about="targetType">
+    <owl:DatatypeProperty rdf:about="http://lumify.io/gtd#targetType">
         <rdfs:label xml:lang="en">Target Type</rdfs:label>
-        <rdfs:domain rdf:resource="#terroristAttack"/>
+        <rdfs:domain rdf:resource="http://lumify.io/gtd#terroristAttack"/>
         <rdfs:range rdf:resource="&xsd;string"/>
     </owl:DatatypeProperty>
-    <owl:DatatypeProperty rdf:about="targetSubtype">
+    <owl:DatatypeProperty rdf:about="http://lumify.io/gtd#targetSubtype">
         <rdfs:label xml:lang="en">Target Subtype</rdfs:label>
-        <rdfs:domain rdf:resource="#terroristAttack"/>
+        <rdfs:domain rdf:resource="http://lumify.io/gtd#terroristAttack"/>
         <rdfs:range rdf:resource="&xsd;string"/>
     </owl:DatatypeProperty>
-    <owl:DatatypeProperty rdf:about="targetType">
+    <owl:DatatypeProperty rdf:about="http://lumify.io/gtd#targetType">
         <rdfs:label xml:lang="en">Target Type</rdfs:label>
-        <rdfs:domain rdf:resource="#terroristAttack"/>
+        <rdfs:domain rdf:resource="http://lumify.io/gtd#terroristAttack"/>
         <rdfs:range rdf:resource="&xsd;string"/>
     </owl:DatatypeProperty>
-    <owl:DatatypeProperty rdf:about="targetEntity">
+    <owl:DatatypeProperty rdf:about="http://lumify.io/gtd#targetEntity">
         <rdfs:label xml:lang="en">Target Entity</rdfs:label>
-        <rdfs:domain rdf:resource="#terroristAttack"/>
+        <rdfs:domain rdf:resource="http://lumify.io/gtd#terroristAttack"/>
         <rdfs:range rdf:resource="&xsd;string"/>
     </owl:DatatypeProperty>
-    <owl:DatatypeProperty rdf:about="specificTarget">
+    <owl:DatatypeProperty rdf:about="http://lumify.io/gtd#specificTarget">
         <rdfs:label xml:lang="en">Target - Specific</rdfs:label>
-        <rdfs:domain rdf:resource="#terroristAttack"/>
+        <rdfs:domain rdf:resource="http://lumify.io/gtd#terroristAttack"/>
         <rdfs:range rdf:resource="&xsd;string"/>
     </owl:DatatypeProperty>
 
     <!-- Additional Properties for location entity type -->
-    <owl:DatatypeProperty rdf:about="city">
+    <owl:DatatypeProperty rdf:about="http://lumify.io/gtd#city">
         <rdfs:label xml:lang="en">City</rdfs:label>
-        <rdfs:domain rdf:resource="http://lumify.io/dev/location"/>
+        <rdfs:domain rdf:resource="http://lumify.io/dev#location"/>
         <rdfs:range rdf:resource="&xsd;string"/>
     </owl:DatatypeProperty>
-    <owl:DatatypeProperty rdf:about="adminDistrict">
+    <owl:DatatypeProperty rdf:about="http://lumify.io/gtd#adminDistrict">
         <rdfs:label xml:lang="en">Administrative District</rdfs:label>
-        <rdfs:domain rdf:resource="http://lumify.io/dev/location"/>
+        <rdfs:domain rdf:resource="http://lumify.io/dev#location"/>
         <rdfs:range rdf:resource="&xsd;string"/>
     </owl:DatatypeProperty>
-    <owl:DatatypeProperty rdf:about="country">
+    <owl:DatatypeProperty rdf:about="http://lumify.io/gtd#country">
         <rdfs:label xml:lang="en">Country</rdfs:label>
-        <rdfs:domain rdf:resource="http://lumify.io/dev/location"/>
+        <rdfs:domain rdf:resource="http://lumify.io/dev#location"/>
         <rdfs:range rdf:resource="&xsd;string"/>
     </owl:DatatypeProperty>
 
-    <!-- Concept: Terrorist Attack::Assassination -->
-    <owl:Class rdf:about="assassination">
+    <!-- Concept: Terrorist Attack: http://lumify.io/gtd#Assassination -->
+    <owl:Class rdf:about="http://lumify.io/gtd#assassination">
         <rdfs:label xml:lang="en">Assassination</rdfs:label>
         <lumify:glyphIconFileName xml:lang="en">crimescene@2x.png</lumify:glyphIconFileName>
-        <rdfs:subClassOf rdf:resource="#terroristAttack"/>
+        <rdfs:subClassOf rdf:resource="http://lumify.io/gtd#terroristAttack"/>
     </owl:Class>
 
-    <!-- Concept: Terrorist Attack::Hijacking -->
-    <owl:Class rdf:about="hijacking">
+    <!-- Concept: Terrorist Attack: http://lumify.io/gtd#Hijacking -->
+    <owl:Class rdf:about="http://lumify.io/gtd#hijacking">
         <rdfs:label xml:lang="en">Hijacking</rdfs:label>
         <lumify:glyphIconFileName xml:lang="en">glyphicons_038_airplane@2x.png</lumify:glyphIconFileName>
-        <rdfs:subClassOf rdf:resource="#terroristAttack"/>
+        <rdfs:subClassOf rdf:resource="http://lumify.io/gtd#terroristAttack"/>
     </owl:Class>
 
-    <!-- Concept: Terrorist Attack::Hostage Taking -->
-    <owl:Class rdf:about="hostageTaking">
+    <!-- Concept: Terrorist Attack: http://lumify.io/gtd#Hostage Taking -->
+    <owl:Class rdf:about="http://lumify.io/gtd#hostageTaking">
         <rdfs:label xml:lang="en">Hostage Taking</rdfs:label>
         <lumify:glyphIconFileName xml:lang="en">abduction@2x.png</lumify:glyphIconFileName>
-        <rdfs:subClassOf rdf:resource="#terroristAttack"/>
+        <rdfs:subClassOf rdf:resource="http://lumify.io/gtd#terroristAttack"/>
     </owl:Class>
 
-    <!-- Concept: Terrorist Attack::Bombing -->
-    <owl:Class rdf:about="bombing">
+    <!-- Concept: Terrorist Attack: http://lumify.io/gtd#Bombing -->
+    <owl:Class rdf:about="http://lumify.io/gtd#bombing">
         <rdfs:label xml:lang="en">Bombing</rdfs:label>
         <lumify:glyphIconFileName xml:lang="en">glyphicons_289_bomb@2x.png</lumify:glyphIconFileName>
-        <rdfs:subClassOf rdf:resource="#terroristAttack"/>
+        <rdfs:subClassOf rdf:resource="http://lumify.io/gtd#terroristAttack"/>
     </owl:Class>
 
-    <!-- Concept: Terrorist Attack::Armed Assault -->
-    <owl:Class rdf:about="armedAssault">
+    <!-- Concept: Terrorist Attack: http://lumify.io/gtd#Armed Assault -->
+    <owl:Class rdf:about="http://lumify.io/gtd#armedAssault">
         <rdfs:label xml:lang="en">Armed Assault</rdfs:label>
         <lumify:glyphIconFileName xml:lang="en">glyphicons_281_bullets@2x.png</lumify:glyphIconFileName>
-        <rdfs:subClassOf rdf:resource="#terroristAttack"/>
+        <rdfs:subClassOf rdf:resource="http://lumify.io/gtd#terroristAttack"/>
     </owl:Class>
 
-    <!-- Concept: Terrorist Attack::Unarmed Assault -->
-    <owl:Class rdf:about="unarmedAssault">
+    <!-- Concept: Terrorist Attack: http://lumify.io/gtd#Unarmed Assault -->
+    <owl:Class rdf:about="http://lumify.io/gtd#unarmedAssault">
         <rdfs:label xml:lang="en">Unarmed Assault</rdfs:label>
         <lumify:glyphIconFileName xml:lang="en">robbery@2x.png</lumify:glyphIconFileName>
-        <rdfs:subClassOf rdf:resource="#terroristAttack"/>
+        <rdfs:subClassOf rdf:resource="http://lumify.io/gtd#terroristAttack"/>
     </owl:Class>
 
-    <!-- Concept: Terrorist Attack::Facility/Infrastructure Attack -->
-    <owl:Class rdf:about="facilityInfrastructureAttack">
+    <!-- Concept: Terrorist Attack: http://lumify.io/gtd#Facility/Infrastructure Attack -->
+    <owl:Class rdf:about="http://lumify.io/gtd#facilityInfrastructureAttack">
         <rdfs:label xml:lang="en">Facility/Infrastructure Attack</rdfs:label>
         <lumify:glyphIconFileName xml:lang="en">glyphicons_089_building@2x.png</lumify:glyphIconFileName>
-        <rdfs:subClassOf rdf:resource="#terroristAttack"/>
+        <rdfs:subClassOf rdf:resource="http://lumify.io/gtd#terroristAttack"/>
     </owl:Class>
 
-    <!-- Concept: Organization::Terrorist Group -->
-    <owl:Class rdf:about="terroristGroup">
+    <!-- Concept: Organization: http://lumify.io/gtd#Terrorist Group -->
+    <owl:Class rdf:about="http://lumify.io/gtd#terroristGroup">
         <rdfs:label xml:lang="en">Terrorist Group</rdfs:label>
         <lumify:glyphIconFileName xml:lang="en">glyphicons_043_group@2x.png</lumify:glyphIconFileName>
-        <rdfs:subClassOf rdf:resource="http://lumify.io/dev/organization"/>
+        <rdfs:subClassOf rdf:resource="http://lumify.io/dev#organization"/>
     </owl:Class>
 
-    <!-- Relationship: TERRORIST_GROUP perpetrated TERRORIST_ATTACK -->
-    <owl:ObjectProperty rdf:about="terroristGroupPerpetratedAttack">
+    <!-- Relationship: http://lumify.io/gtd#terroristGroup perpetrated http://lumify.io/gtd#terroristAttack -->
+    <owl:ObjectProperty rdf:about="http://lumify.io/gtd#terroristGroupPerpetratedAttack">
         <rdfs:label xml:lang="en">perpetrated</rdfs:label>
-        <rdfs:domain rdf:resource="#terroristGroup"/>
-        <rdfs:range rdf:resource="#terroristAttack"/>
+        <rdfs:domain rdf:resource="http://lumify.io/gtd#terroristGroup"/>
+        <rdfs:range rdf:resource="http://lumify.io/gtd#terroristAttack"/>
     </owl:ObjectProperty>
 
-    <!-- Relationship: TERRORIST_GROUP is associated with TERRORIST_GROUP -->
-    <owl:ObjectProperty rdf:about="terroristGroupIsAssociatedWithTerroristGroup">
+    <!-- Relationship: http://lumify.io/gtd#terroristGroup is associated with http://lumify.io/gtd#terroristGroup -->
+    <owl:ObjectProperty rdf:about="http://lumify.io/gtd#terroristGroupIsAssociatedWithTerroristGroup">
         <rdfs:label xml:lang="en">is associated with</rdfs:label>
-        <rdfs:domain rdf:resource="#terroristGroup"/>
-        <rdfs:range rdf:resource="#terroristGroup"/>
+        <rdfs:domain rdf:resource="http://lumify.io/gtd#terroristGroup"/>
+        <rdfs:range rdf:resource="http://lumify.io/gtd#terroristGroup"/>
     </owl:ObjectProperty>
 
-    <!-- Relationship: TERRORIST_GROUP is subgroup of TERRORIST_GROUP -->
-    <owl:ObjectProperty rdf:about="terroristGroupIsSubgroupOfTerroristGroup">
+    <!-- Relationship: http://lumify.io/gtd#terroristGroup is subgroup of http://lumify.io/gtd#terroristGroup -->
+    <owl:ObjectProperty rdf:about="http://lumify.io/gtd#terroristGroupIsSubgroupOfTerroristGroup">
         <rdfs:label xml:lang="en">is subgroup of</rdfs:label>
-        <rdfs:domain rdf:resource="#terroristGroup"/>
-        <rdfs:range rdf:resource="#terroristGroup"/>
+        <rdfs:domain rdf:resource="http://lumify.io/gtd#terroristGroup"/>
+        <rdfs:range rdf:resource="http://lumify.io/gtd#terroristGroup"/>
     </owl:ObjectProperty>
 
-    <!-- Relationship: TERRORIST_ATTACK occurred at LOCATION -->
-    <owl:ObjectProperty rdf:about="terroristAttackOccurredAtLocation">
+    <!-- Relationship: http://lumify.io/gtd#terroristAttack occurred at http://lumify.io/dev#location -->
+    <owl:ObjectProperty rdf:about="http://lumify.io/gtd#terroristAttackOccurredAtLocation">
         <rdfs:label xml:lang="en">occurred at</rdfs:label>
-        <rdfs:domain rdf:resource="#terroristAttack"/>
-        <rdfs:range rdf:resource="http://lumify.io/dev/location"/>
+        <rdfs:domain rdf:resource="http://lumify.io/gtd#terroristAttack"/>
+        <rdfs:range rdf:resource="http://lumify.io/dev#location"/>
     </owl:ObjectProperty>
 
-    <!-- Relationship: TERRORIST_GROUP targeted LOCATION -->
-    <owl:ObjectProperty rdf:about="terroristGroupTargetedLocation">
+    <!-- Relationship: http://lumify.io/gtd#terroristGroup targeted http://lumify.io/dev#location -->
+    <owl:ObjectProperty rdf:about="http://lumify.io/gtd#terroristGroupTargetedLocation">
         <rdfs:label xml:lang="en">targeted</rdfs:label>
-        <rdfs:domain rdf:resource="#terroristGroup"/>
-        <rdfs:range rdf:resource="http://lumify.io/dev/location"/>
+        <rdfs:domain rdf:resource="http://lumify.io/gtd#terroristGroup"/>
+        <rdfs:range rdf:resource="http://lumify.io/dev#location"/>
     </owl:ObjectProperty>
 
-    <!-- Relationship: TERRORIST_GROUP targeted ENTITY -->
-    <owl:ObjectProperty rdf:about="terroristGroupTargetedEntity">
+    <!-- Relationship: http://lumify.io/gtd#terroristGroup targeted http://lumify.io/dev#entity -->
+    <owl:ObjectProperty rdf:about="http://lumify.io/gtd#terroristGroupTargetedEntity">
         <rdfs:label xml:lang="en">targeted</rdfs:label>
-        <rdfs:domain rdf:resource="#terroristGroup"/>
-        <rdfs:range rdf:resource="http://lumify.io/dev/entity"/>
+        <rdfs:domain rdf:resource="http://lumify.io/gtd#terroristGroup"/>
+        <rdfs:range rdf:resource="&owl;Thing"/>
     </owl:ObjectProperty>
 
-    <!-- Relationship: TERRORIST_ATTACK targeted COUNTRY -->
-    <owl:ObjectProperty rdf:about="terroristAttackTargetedNationality">
+    <!-- Relationship: http://lumify.io/gtd#terroristAttack targeted http://lumify.io/dev#country -->
+    <owl:ObjectProperty rdf:about="http://lumify.io/gtd#terroristAttackTargetedNationality">
         <rdfs:label xml:lang="en">targeted nationality</rdfs:label>
-        <rdfs:domain rdf:resource="#terroristAttack"/>
-        <rdfs:range rdf:resource="http://lumify.io/dev/country"/>
+        <rdfs:domain rdf:resource="http://lumify.io/gtd#terroristAttack"/>
+        <rdfs:range rdf:resource="http://lumify.io/dev#country"/>
     </owl:ObjectProperty>
 
-    <!-- Relationship: TERRORIST_GROUP targeted COUNTRY -->
-    <owl:ObjectProperty rdf:about="terroristGroupTargetedNationality">
+    <!-- Relationship: http://lumify.io/gtd#terroristGroup targeted http://lumify.io/dev#country -->
+    <owl:ObjectProperty rdf:about="http://lumify.io/gtd#terroristGroupTargetedNationality">
         <rdfs:label xml:lang="en">targeted nationality</rdfs:label>
-        <rdfs:domain rdf:resource="#terroristGroup"/>
-        <rdfs:range rdf:resource="http://lumify.io/dev/country"/>
+        <rdfs:domain rdf:resource="http://lumify.io/gtd#terroristGroup"/>
+        <rdfs:range rdf:resource="http://lumify.io/dev#country"/>
     </owl:ObjectProperty>
 </rdf:RDF>
