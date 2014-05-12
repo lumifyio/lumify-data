@@ -1,0 +1,379 @@
+{
+	"type": "csv",
+	"subject": "Global Terrorism Database (GTD) - Dec 2013",
+	"skipRows": 1,
+	"entities": {
+		"attack": {
+			"idColumn": {
+				"type": "formattedMultiColumn",
+				"columns": [
+					{ "index": 0 }
+				],
+				"format": "GTD-%s"
+			},
+			"signColumn": {
+				"type": "formattedMultiColumn",
+				"columns": [
+					{
+						"index": 1,
+						"xform": { "dataType": "integer" }
+					},
+					{
+						"index": 2,
+						"xform": { "dataType": "integer" }
+					},
+					{
+						"index": 3,
+						"xform": { "dataType": "integer" }
+					}
+				],
+				"format": "%04d-%02d-%02d"
+			},
+			"conceptUriType": "columnLookup",
+			"conceptColumn": {
+				"index": 28,
+				"xform": {
+					"dataType": "mappedString",
+					"defaultValue": "http://lumify.io/gtd/terroristAttack",
+					"valueMap": {
+						"1": "http://lumify.io/gtd/assassination",
+						"2": "http://lumify.io/gtd/armedAssault",
+						"3": "http://lumify.io/gtd/bombing",
+						"4": "http://lumify.io/gtd/hijacking",
+						"5": "http://lumify.io/gtd/hostageTaking",
+						"6": "http://lumify.io/gtd/hostageTaking",
+						"7": "http://lumify.io/gtd/facilityInfrastructureAttack",
+						"8": "http://lumify.io/gtd/unarmedAssault"
+					}
+				}
+			},
+			"required": true,
+			"useExisting": true,
+			"properties": {
+				"eventId": {
+					"type": "formattedMultiColumn",
+					"columns": [
+						{ "index": 0 }
+					],
+					"format": "GTD-%s"
+				},
+				"date": {
+					"type": "formattedMultiColumn",
+					"columns": [
+						{
+							"index": 1,
+							"xform": { "dataType": "integer" }
+						},
+						{
+							"index": 2,
+							"xform": { "dataType": "integer" }
+						},
+						{
+							"index": 3,
+							"xform": { "dataType": "integer" }
+						}
+					],
+					"format": "%04d-%02d-%02d",
+					"xform": {
+						"dataType": "date",
+						"format": "yyyy-MM-dd"
+					}
+				},
+				"geoLocation": {
+					"type": "geopoint",
+					"latitudeColumn": {
+						"index": 13,
+						"xform": { "dataType": "double" }
+					},
+					"longitudeColumn": {
+						"index": 14,
+						"xform": { "dataType": "double" }
+					}
+				},
+				"summary": { "index": 18 },
+				"successful": {
+					"index": 26,
+					"xform": { "dataType": "boolean" }
+				},
+				"suicide": {
+					"index": 27,
+					"xform": { "dataType": "boolean" }
+				},
+				"targetType": { "index": 35 },
+				"targetSubtype": { "index": 37 },
+				"targetEntity": { "index": 38 },
+				"specificTarget": { "index": 39 },
+				"numPerps": {
+					"index": 68,
+					"xform": { "dataType": "integer" }
+				},
+				"numPerpsCaptured": {
+					"index": 69,
+					"xform": { "dataType": "integer" }
+				},
+				"responsibilityClaimed": {
+					"index": 70,
+					"xform": { "dataType": "boolean" }
+				},
+				"responsibilityClaimMethod": { "index": 72 },
+				"competingClaims": {
+					"index": 79,
+					"xform": { "dataType": "boolean" }
+				},
+				"weaponType": { "index": 81 },
+				"weaponSubtype": { "index": 83 },
+				"numKilled": {
+					"index": 97,
+					"xform": { "dataType": "integer" }
+				},
+				"numUsKilled": {
+					"index": 98,
+					"xform": { "dataType": "integer" }
+				},
+				"numPerpsKilled": {
+					"index": 99,
+					"xform": { "dataType": "integer" }
+				},
+				"numWounded": {
+					"index": 100,
+					"xform": { "dataType": "integer" }
+				},
+				"numUsWounded": {
+					"index": 101,
+					"xform": { "dataType": "integer" }
+				},
+				"numPerpetratorsWounded": {
+					"index": 102,
+					"xform": { "dataType": "integer" }
+				},
+				"propertyDamage": {
+					"index": 103,
+					"xform": { "dataType": "boolean" }
+				},
+				"propertyDamageValue": {
+					"index": 106,
+					"xform": { "dataType": "double" }
+				},
+				"reportSource": { "index": 125 },
+				"reportSource": { "index": 126 },
+				"reportSource": { "index": 127 },
+				"source": {
+					"type": "formattedMultiColumn",
+					"columns": [
+						{ "index": 128 }
+					],
+					"format": "GTD-%s"
+				},
+				"_source": {
+					"type": "formattedMultiColumn",
+					"columns": [
+						{ "index": 128 }
+					],
+					"format": "GTD-%s"
+				}
+			}
+		},
+		"targetLocation": {
+			"signColumn": {
+				"type": "formattedMultiColumn",
+				"columns": [
+					{
+						"index": 12,
+						"xform": {
+							"dataType": "replace",
+							"xform": { "dataType": "string" },
+							"targetCriteria": {
+								"op": "or",
+								"predicates": [
+									{ "op": "isNull" },
+									{
+										"op": "stringEq",
+										"value": "unknown"
+									}
+								]
+							},
+							"replacementValue": ""
+						}
+					},
+					{
+						"index": 8,
+						"xform": {
+							"dataType": "replace",
+							"xform": { "dataType": "string" },
+							"targetCriteria": {
+								"op": "or",
+								"predicates": [
+									{ "op": "isNull" },
+									{
+										"op": "stringEq",
+										"value": "unknown"
+									}
+								]
+							},
+							"replacementValue": ""
+						}
+					},
+					{
+						"index": 11,
+						"xform": {
+							"dataType": "replace",
+							"xform": { "dataType": "string" },
+							"targetCriteria": {
+								"op": "or",
+								"predicates": [
+									{ "op": "isNull" },
+									{
+										"op": "stringEq",
+										"value": "unknown"
+									}
+								]
+							},
+							"replacementValue": ""
+						}
+					}
+				],
+				"format": "%s, %s"
+			},
+			"conceptURI": "http://lumify.io/dev/location",
+			"useExisting": true,
+			"properties": {
+				"city": { "index": 12 },
+				"adminDistrict": { "index": 11 },
+				"country": { "index": 8 },
+				"geoLocation": {
+					"type": "geopoint",
+					"latitudeColumn": {
+						"index": 13,
+						"xform": { "dataType": "double" }
+					},
+					"longitudeColumn": {
+						"index": 14,
+						"xform": { "dataType": "double" }
+					}
+				},
+				"source": {
+					"type": "formattedMultiColumn",
+					"columns": [
+						{ "index": 128 }
+					],
+					"format": "GTD-%s"
+				},
+				"_source": {
+					"type": "formattedMultiColumn",
+					"columns": [
+						{ "index": 128 }
+					],
+					"format": "GTD-%s"
+				}
+
+			}
+		},
+		"nationality": {
+			"signColumn": { "index": 41 },
+			"conceptURI": "http://lumify.io/dev/country",
+			"useExisting": true
+		},
+		"perpGroup": {
+			"signColumn": { "index": 58 },
+			"conceptURI": "http://lumify.io/gtd/terroristGroup",
+			"useExisting": true,
+			"properties": {
+				"source": {
+					"type": "formattedMultiColumn",
+					"columns": [
+						{ "index": 128 }
+					],
+					"format": "GTD-%s"
+				},
+				"_source": {
+					"type": "formattedMultiColumn",
+					"columns": [
+						{ "index": 128 }
+					],
+					"format": "GTD-%s"
+				}
+
+			}
+		},
+		"perpSubGroup": {
+			"signColumn": {
+				"index": 59,
+				"xform": {
+					"dataType": "replace",
+					"xform": { "dataType": "string" },
+					"targetCriteria": {
+						"op": "stringEq",
+						"value": "unknown"
+					},
+					"replacementValue": null
+				}
+			},
+			"conceptURI": "http://lumify.io/gtd/terroristGroup",
+			"useExisting": true,
+			"properties": {
+				"_source": {
+					"type": "formattedMultiColumn",
+					"columns": [
+						{ "index": 128 }
+					],
+					"format": "GTD-%s"
+				},
+				"_source": {
+					"type": "formattedMultiColumn",
+					"columns": [
+						{ "index": 128 }
+					],
+					"format": "GTD-%s"
+				}
+
+			}
+		}
+	},
+	"relationships": [
+		{
+			"label": "terroristGroupPerpetratedAttack",
+			"source": "perpGroup",
+			"target": "attack"
+		},
+		{
+			"label": "terroristGroupPerpetratedAttack",
+			"source": "perpSubGroup",
+			"target": "attack"
+		},
+		{
+			"label": "terroristGroupIsSubgroupOfTerroristGroup",
+			"source": "perpSubGroup",
+			"target": "perpGroup"
+		},
+		{
+			"label": "terroristAttackOccurredAtLocation",
+			"source": "attack",
+			"target": "targetLocation"
+		},
+		{
+			"label": "terroristGroupTargetedLocation",
+			"source": "perpGroup",
+			"target": "targetLocation"
+		},
+		{
+			"label": "terroristGroupTargetedLocation",
+			"source": "perpSubGroup",
+			"target": "targetLocation"
+		},
+		{
+			"label": "terroristAttackTargetedNationality",
+			"source": "attack",
+			"target": "nationality"
+		},
+		{
+			"label": "terroristGroupTargetedNationality",
+			"source": "perpGroup",
+			"target": "nationality"
+		},
+		{
+			"label": "terroristGroupTargetedNationality",
+			"source": "perpSubGroup",
+			"target": "nationality"
+		}
+	]
+}
