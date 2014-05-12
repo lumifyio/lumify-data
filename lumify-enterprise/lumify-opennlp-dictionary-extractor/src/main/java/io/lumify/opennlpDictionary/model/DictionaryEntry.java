@@ -7,7 +7,7 @@ import org.json.JSONObject;
 
 public class DictionaryEntry extends Row<DictionaryEntryRowKey> {
 
-    public static final String TABLE_NAME = "atc_dictionaryEntry";
+    public static final String TABLE_NAME = "lumify_dictionaryEntry";
 
     public DictionaryEntry(DictionaryEntryRowKey rowKey) {
         super(TABLE_NAME, rowKey);
