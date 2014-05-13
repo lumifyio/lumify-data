@@ -53,6 +53,10 @@ public class OpenNLPMaximumEntropyExtractorGraphPropertyWorkerTest {
     public void setUp() throws Exception {
         graph = new InMemoryGraph();
 
+        Map config = new HashMap();
+        config.put(io.lumify.core.config.Configuration.ONTOLOGY_IRI_ARTIFACT_HAS_ENTITY, "http://lumify.io/test#artifactHasEntity");
+        io.lumify.core.config.Configuration configuration = new io.lumify.core.config.Configuration(config);
+
         extractor = new OpenNLPMaximumEntropyExtractorGraphPropertyWorker() {
             @Override
             protected List<TermMentionWithGraphVertex> saveTermMentions(Vertex artifactGraphVertex, Iterable<TermMention> termMentions) {
@@ -60,6 +64,7 @@ public class OpenNLPMaximumEntropyExtractorGraphPropertyWorkerTest {
                 return null;
             }
         };
+        extractor.setConfiguration(configuration);
         extractor.setGraph(graph);
 
         Map<String, String> stormConf = new HashMap<String, String>();

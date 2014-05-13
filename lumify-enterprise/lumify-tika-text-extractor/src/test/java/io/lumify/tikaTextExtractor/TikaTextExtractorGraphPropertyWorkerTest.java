@@ -5,16 +5,16 @@ import io.lumify.core.ingest.graphProperty.GraphPropertyWorkerPrepareData;
 import io.lumify.core.model.properties.LumifyProperties;
 import io.lumify.core.model.properties.RawLumifyProperties;
 import io.lumify.core.model.workQueue.WorkQueueRepository;
-import org.securegraph.*;
-import org.securegraph.inmemory.InMemoryAuthorizations;
-import org.securegraph.inmemory.InMemoryGraph;
-import org.securegraph.property.StreamingPropertyValue;
 import org.apache.commons.io.IOUtils;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
+import org.securegraph.*;
+import org.securegraph.inmemory.InMemoryAuthorizations;
+import org.securegraph.inmemory.InMemoryGraph;
+import org.securegraph.property.StreamingPropertyValue;
 
 import java.io.ByteArrayInputStream;
 import java.io.InputStream;
@@ -41,10 +41,15 @@ public class TikaTextExtractorGraphPropertyWorkerTest {
         authorizations = new InMemoryAuthorizations();
         textExtractor = new TikaTextExtractorGraphPropertyWorker();
 
+        Map config = new HashMap();
+        config.put(io.lumify.core.config.Configuration.ONTOLOGY_IRI_ARTIFACT_HAS_ENTITY, "http://lumify.io/test#artifactHasEntity");
+        io.lumify.core.config.Configuration configuration = new io.lumify.core.config.Configuration(config);
+
         GraphPropertyWorkerPrepareData prepareData = new GraphPropertyWorkerPrepareData(null, null, null, null, null, null);
         textExtractor.prepare(prepareData);
         textExtractor.setGraph(graph);
         textExtractor.setWorkQueueRepository(workQueueRepository);
+        textExtractor.setConfiguration(configuration);
     }
 
     @Test
