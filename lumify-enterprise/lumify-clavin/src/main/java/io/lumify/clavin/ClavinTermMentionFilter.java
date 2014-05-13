@@ -1,30 +1,33 @@
 package io.lumify.clavin;
 
-import io.lumify.core.config.Configuration;
-import io.lumify.core.ingest.graphProperty.TermMentionFilter;
-import io.lumify.core.ingest.graphProperty.TermMentionFilterPrepareData;
-import io.lumify.core.ingest.term.extraction.TermMention;
-import io.lumify.core.model.ontology.Concept;
-import io.lumify.core.model.ontology.OntologyRepository;
-import io.lumify.core.util.LumifyLogger;
-import io.lumify.core.util.LumifyLoggerFactory;
-import org.securegraph.Vertex;
-import org.securegraph.type.GeoPoint;
 import com.bericotech.clavin.extractor.LocationOccurrence;
+import com.bericotech.clavin.gazetteer.FeatureClass;
+import com.bericotech.clavin.gazetteer.FeatureCode;
 import com.bericotech.clavin.gazetteer.GeoName;
 import com.bericotech.clavin.resolver.LuceneLocationResolver;
 import com.bericotech.clavin.resolver.ResolvedLocation;
 import com.google.inject.Inject;
+import io.lumify.core.config.Configuration;
+import io.lumify.core.exception.LumifyException;
+import io.lumify.core.ingest.graphProperty.TermMentionFilter;
+import io.lumify.core.ingest.graphProperty.TermMentionFilterPrepareData;
+import io.lumify.core.ingest.term.extraction.TermMention;
+import io.lumify.core.model.ontology.Concept;
+import io.lumify.core.model.ontology.OntologyProperty;
+import io.lumify.core.model.ontology.OntologyRepository;
+import io.lumify.core.model.ontology.PropertyType;
+import io.lumify.core.model.properties.EntityLumifyProperties;
+import io.lumify.core.util.LumifyLogger;
+import io.lumify.core.util.LumifyLoggerFactory;
 import org.apache.lucene.queryparser.classic.ParseException;
+import org.securegraph.Vertex;
+import org.securegraph.type.GeoPoint;
 
 import java.io.File;
 import java.io.IOException;
 import java.util.*;
 
-import static io.lumify.core.model.properties.EntityLumifyProperties.GEO_LOCATION;
-import static io.lumify.core.model.properties.EntityLumifyProperties.SOURCE;
 import static org.securegraph.util.IterableUtils.count;
-import static com.google.common.base.Preconditions.checkNotNull;
 
 /**
  * This TermResolutionWorker uses the CLAVIN processor to refine
@@ -32,11 +35,6 @@ import static com.google.common.base.Preconditions.checkNotNull;
  */
 public class ClavinTermMentionFilter extends TermMentionFilter {
     private static final LumifyLogger LOGGER = LumifyLoggerFactory.getLogger(ClavinTermMentionFilter.class);
-
-    /**
-     * TODO: Don't hard-code this
-     */
-    private static final String TARGET_ONTOLOGY_URI = "http://lumify.io/dev#location";
 
     /**
      * The CLAVIN index directory configuration key.
@@ -73,15 +71,43 @@ public class ClavinTermMentionFilter extends TermMentionFilter {
      */
     public static final boolean DEFAULT_FUZZY_MATCHING = false;
 
+    private static final String CONFIG_STATE_IRI = "ontology.iri.state";
+    private static final String CONFIG_COUNTRY_IRI = "ontology.iri.country";
+    private static final String CONFIG_CITY_IRI = "ontology.iri.city";
+    private static final String CONFIG_GEO_LOCATION_IRI = "ontology.iri.geoLocation";
+
     private LuceneLocationResolver resolver;
     private boolean fuzzy;
-    private ClavinOntologyMapper ontologyMapper;
     private Set<String> targetConcepts;
     private OntologyRepository ontologyRepository;
+    private String stateIri;
+    private String countryIri;
+    private String cityIri;
+    private String geoLocationIri;
 
     @Override
     public void prepare(TermMentionFilterPrepareData termMentionFilterPrepareData) throws Exception {
         super.prepare(termMentionFilterPrepareData);
+
+        stateIri = (String) termMentionFilterPrepareData.getStormConf().get(CONFIG_STATE_IRI);
+        if (stateIri == null || stateIri.length() == 0) {
+            throw new LumifyException("Could not find config: " + CONFIG_STATE_IRI);
+        }
+
+        countryIri = (String) termMentionFilterPrepareData.getStormConf().get(CONFIG_COUNTRY_IRI);
+        if (countryIri == null || countryIri.length() == 0) {
+            throw new LumifyException("Could not find config: " + CONFIG_COUNTRY_IRI);
+        }
+
+        cityIri = (String) termMentionFilterPrepareData.getStormConf().get(CONFIG_CITY_IRI);
+        if (cityIri == null || cityIri.length() == 0) {
+            throw new LumifyException("Could not find config: " + CONFIG_CITY_IRI);
+        }
+
+        geoLocationIri = (String) termMentionFilterPrepareData.getStormConf().get(CONFIG_GEO_LOCATION_IRI);
+        if (geoLocationIri == null || geoLocationIri.length() == 0) {
+            throw new LumifyException("Could not find config: " + CONFIG_GEO_LOCATION_IRI);
+        }
 
         Configuration config = new Configuration(termMentionFilterPrepareData.getStormConf());
 
@@ -122,14 +148,16 @@ public class ClavinTermMentionFilter extends TermMentionFilter {
         }
         resolver = new LuceneLocationResolver(indexDirectory, maxHitDepth, maxContextWindow);
 
-        Set<String> tCon = new HashSet<String>();
-        Concept rootConcept = ontologyRepository.getConceptByIRI(TARGET_ONTOLOGY_URI);
-        checkNotNull(rootConcept, "Could not find concept " + TARGET_ONTOLOGY_URI);
-        List<Concept> concepts = ontologyRepository.getAllLeafNodesByConcept(rootConcept);
-        for (Concept con : concepts) {
-            tCon.add(con.getTitle());
+        Set<String> conceptsWithGeoLocationProperty = new HashSet<String>();
+        for (Concept concept : ontologyRepository.getConceptsWithProperties()) {
+            for (OntologyProperty property : concept.getProperties()) {
+                if (property.getDataType() == PropertyType.GEO_LOCATION) {
+                    conceptsWithGeoLocationProperty.add(concept.getTitle());
+                    break;
+                }
+            }
         }
-        targetConcepts = Collections.unmodifiableSet(tCon);
+        targetConcepts = Collections.unmodifiableSet(conceptsWithGeoLocationProperty);
     }
 
     @Override
@@ -163,9 +191,9 @@ public class ClavinTermMentionFilter extends TermMentionFilter {
                         .resolved(true)
                         .useExisting(true)
                         .sign(toSign(loc))
-                        .ontologyClassUri(ontologyMapper.getOntologyClassUri(loc, termMention.getOntologyClassUri()))
-                        .setProperty(GEO_LOCATION.getKey(), GEO_LOCATION.wrap(geoPoint))
-                        .setProperty(SOURCE.getKey(), "CLAVIN")
+                        .ontologyClassUri(getOntologyClassUri(loc, termMention.getOntologyClassUri()))
+                        .setProperty(geoLocationIri, geoPoint)
+                        .setProperty(EntityLumifyProperties.SOURCE.getKey(), "CLAVIN")
                         .process(processId)
                         .build();
                 LOGGER.debug("Replacing original location [%s] with resolved location [%s]", termMention, resolvedMention);
@@ -182,11 +210,6 @@ public class ClavinTermMentionFilter extends TermMentionFilter {
         return String.format("%s (%s, %s)", geoname.getName(), geoname.getPrimaryCountryCode(), geoname.getAdmin1Code());
     }
 
-    @Inject
-    public void setOntologyMapper(final ClavinOntologyMapper mapper) {
-        this.ontologyMapper = mapper;
-    }
-
     private boolean isLocation(final TermMention mention) {
         return targetConcepts.contains(mention.getOntologyClassUri());
     }
@@ -200,6 +223,34 @@ public class ClavinTermMentionFilter extends TermMentionFilter {
             }
         }
         return locationOccurrences;
+    }
+
+    public String getOntologyClassUri(final ResolvedLocation location, final String defaultValue) {
+        String uri = defaultValue;
+        FeatureClass featureClass = location.getGeoname().getFeatureClass();
+        FeatureCode featureCode = location.getGeoname().getFeatureCode();
+        if (featureClass == null) {
+            featureClass = FeatureClass.NULL;
+        }
+        if (featureCode == null) {
+            featureCode = FeatureCode.NULL;
+        }
+        switch (featureClass) {
+            case A:
+                switch (featureCode) {
+                    case ADM1:
+                        uri = stateIri;
+                        break;
+                    case PCLI:
+                        uri = countryIri;
+                        break;
+                }
+                break;
+            case P:
+                uri = cityIri;
+                break;
+        }
+        return uri;
     }
 
     @Inject
