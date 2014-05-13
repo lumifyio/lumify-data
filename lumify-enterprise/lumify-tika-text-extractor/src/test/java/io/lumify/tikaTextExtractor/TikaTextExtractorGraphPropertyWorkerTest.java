@@ -46,10 +46,10 @@ public class TikaTextExtractorGraphPropertyWorkerTest {
         io.lumify.core.config.Configuration configuration = new io.lumify.core.config.Configuration(config);
 
         GraphPropertyWorkerPrepareData prepareData = new GraphPropertyWorkerPrepareData(null, null, null, null, null, null);
-        textExtractor.prepare(prepareData);
+        textExtractor.setConfiguration(configuration);
         textExtractor.setGraph(graph);
         textExtractor.setWorkQueueRepository(workQueueRepository);
-        textExtractor.setConfiguration(configuration);
+        textExtractor.prepare(prepareData);
     }
 
     @Test
