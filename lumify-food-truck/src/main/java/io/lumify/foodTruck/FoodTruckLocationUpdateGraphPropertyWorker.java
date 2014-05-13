@@ -2,6 +2,7 @@ package io.lumify.foodTruck;
 
 import io.lumify.core.ingest.graphProperty.GraphPropertyWorkData;
 import io.lumify.core.ingest.graphProperty.GraphPropertyWorker;
+import io.lumify.core.model.properties.LumifyProperties;
 import io.lumify.core.model.properties.RawLumifyProperties;
 import io.lumify.core.util.CollectionUtil;
 import io.lumify.twitter.TwitterOntology;
@@ -9,6 +10,7 @@ import org.securegraph.*;
 import org.securegraph.type.GeoPoint;
 
 import java.io.InputStream;
+import java.util.Calendar;
 import java.util.Date;
 
 import static org.securegraph.util.IterableUtils.count;
@@ -32,11 +34,23 @@ public class FoodTruckLocationUpdateGraphPropertyWorker extends GraphPropertyWor
             return;
         }
 
+        String keywordTitle = LumifyProperties.TITLE.getPropertyValue(keywordVertex);
         GeoPoint geoLocation = FoodTruckOntology.GEO_LOCATION.getPropertyValue(keywordVertex);
         if (geoLocation != null) {
             Date geoLocationDate = RawLumifyProperties.PUBLISHED_DATE.getPropertyValue(tweetVertex);
             Date currentGetLocationDate = FoodTruckOntology.GEO_LOCATION_DATE.getPropertyValue(foodTruck);
             if (currentGetLocationDate == null || geoLocationDate.compareTo(currentGetLocationDate) > 0) {
+                Calendar geoLocationCalendar = Calendar.getInstance();
+                geoLocationCalendar.setTime(geoLocationDate);
+
+                Calendar nowCalendar = Calendar.getInstance();
+                nowCalendar.setTime(new Date());
+
+                if (geoLocationCalendar.get(Calendar.DAY_OF_YEAR) != nowCalendar.get(Calendar.DAY_OF_YEAR)) {
+                    return;
+                }
+
+                geoLocation = new GeoPoint(geoLocation.getLatitude(), geoLocation.getLongitude(), geoLocation.getAltitude(), keywordTitle);
                 FoodTruckOntology.GEO_LOCATION.addPropertyValue(foodTruck, MULTI_VALUE_KEY, geoLocation, data.getVisibility());
                 FoodTruckOntology.GEO_LOCATION_DATE.addPropertyValue(foodTruck, MULTI_VALUE_KEY, geoLocationDate, data.getVisibility());
                 getGraph().flush();

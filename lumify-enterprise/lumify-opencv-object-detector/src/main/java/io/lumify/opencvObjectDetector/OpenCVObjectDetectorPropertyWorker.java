@@ -132,11 +132,13 @@ public class OpenCVObjectDetectorPropertyWorker extends GraphPropertyWorker {
                 objectClassifier.cascadeClassifier.detectMultiScale(image, faceDetections);
 
                 for (Rect rect : faceDetections.toArray()) {
+                    double width = image.width();
+                    double height = image.height();
                     ArtifactDetectedObject detectedObject = new ArtifactDetectedObject(
-                            rect.x,
-                            rect.y,
-                            rect.x + rect.width,
-                            rect.y + rect.height,
+                            rect.x / width,
+                            rect.y / height,
+                            (rect.x + rect.width) / width,
+                            (rect.y + rect.height) / height,
                             objectClassifier.concept,
                             this.getClass().getName());
                     detectedObjectList.add(detectedObject);

@@ -39,6 +39,11 @@ class env::cluster::syslog {
     notify  => Exec['restart_rsyslogd'],
   }
 
+  file { "/etc/logrotate.d/${facility}" :
+    ensure => file,
+    content => template('env/cluster/logrotate.d-facility.erb'),
+  }
+
   exec { 'restart_rsyslogd' :
     command => '/sbin/service rsyslog restart',
     refreshonly => true,
