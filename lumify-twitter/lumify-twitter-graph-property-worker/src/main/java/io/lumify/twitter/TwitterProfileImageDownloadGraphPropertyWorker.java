@@ -1,7 +1,10 @@
 package io.lumify.twitter;
 
+import io.lumify.core.config.Configuration;
+import io.lumify.core.exception.LumifyException;
 import io.lumify.core.ingest.graphProperty.GraphPropertyWorkData;
 import io.lumify.core.ingest.graphProperty.GraphPropertyWorker;
+import io.lumify.core.ingest.graphProperty.GraphPropertyWorkerPrepareData;
 import io.lumify.core.model.ontology.LabelName;
 import io.lumify.core.model.ontology.OntologyLumifyProperties;
 import io.lumify.core.model.properties.EntityLumifyProperties;
@@ -19,6 +22,17 @@ import static com.google.common.base.Preconditions.checkNotNull;
 
 public class TwitterProfileImageDownloadGraphPropertyWorker extends GraphPropertyWorker {
     private static final LumifyLogger LOGGER = LumifyLoggerFactory.getLogger(TwitterProfileImageDownloadGraphPropertyWorker.class);
+    private String entityHasImageIri;
+
+    @Override
+    public void prepare(GraphPropertyWorkerPrepareData workerPrepareData) throws Exception {
+        super.prepare(workerPrepareData);
+
+        this.entityHasImageIri = this.getConfiguration().get(Configuration.ONTOLOGY_IRI_ENTITY_HAS_IMAGE);
+        if (this.entityHasImageIri == null) {
+            throw new LumifyException("Could not find configuration for " + Configuration.ONTOLOGY_IRI_ENTITY_HAS_IMAGE);
+        }
+    }
 
     @Override
     public void execute(InputStream in, GraphPropertyWorkData data) throws Exception {
@@ -50,7 +64,7 @@ public class TwitterProfileImageDownloadGraphPropertyWorker extends GraphPropert
             profileImageVertex = v.save();
             LOGGER.debug("created vertex: %s", profileImageVertex.getId());
 
-            getGraph().addEdge((Vertex) data.getElement(), profileImageVertex, LabelName.ENTITY_HAS_IMAGE_RAW.toString(), data.getVisibility(), getAuthorizations());
+            getGraph().addEdge((Vertex) data.getElement(), profileImageVertex, entityHasImageIri, data.getVisibility(), getAuthorizations());
             EntityLumifyProperties.IMAGE_VERTEX_ID.setProperty(data.getElement(), profileImageVertex.getId().toString(), data.getVisibility());
 
             getGraph().flush();
