@@ -18,9 +18,9 @@ umask 0007
 respawn
 respawn limit 5 10
 
-env JAVA_HOME=<%= @tomcat_java_home %>
-env CATALINA_HOME=<%= @home %> 
-env JAVA_OPTS=<%= @tomcat_java_opts %>
+env JAVA_HOME="<%= @tomcat_java_home %>"
+env CATALINA_HOME="<%= @home %>"
+env JAVA_OPTS="<%= @tomcat_java_opts %>"
 
 exec su -s /bin/sh -c 'exec "$0" "$@"' <%= @user %> -- $CATALINA_HOME/bin/catalina.sh run
 
