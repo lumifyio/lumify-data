@@ -13,7 +13,6 @@ import org.securegraph.Visibility;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
@@ -85,7 +84,11 @@ public class Replay extends CommandLineBase {
                 LOGGER.debug("Sleeping for " + (((double) sleepTime) / 1000.0) + "s");
                 Thread.sleep(sleepTime);
             }
-            replayFile(f);
+            try {
+                replayFile(f);
+            } catch (Exception ex) {
+                LOGGER.error("Could not replay file %s", f.getAbsolutePath(), ex);
+            }
             lastFileTime = parseDateFromFileName(f);
         }
 

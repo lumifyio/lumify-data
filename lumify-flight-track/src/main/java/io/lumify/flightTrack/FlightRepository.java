@@ -98,13 +98,17 @@ public class FlightRepository {
         Vertex originVertex = saveAirport(origin, visibility, authorizations);
         Vertex destinationVertex = saveAirport(destination, visibility, authorizations);
 
-        updateOrigin(airplaneVertex, originVertex, visibility, authorizations);
-        updateDestination(airplaneVertex, destinationVertex, visibility, authorizations);
+        if (updateOrigin(airplaneVertex, originVertex, visibility, authorizations)
+                || updateDestination(airplaneVertex, destinationVertex, visibility, authorizations)) {
+            identToVertex.remove(ident); // edges are now invalid in the cache and we need to refresh
+        }
 
         updateLocation(airplaneVertex, latitude, longitude, altitude, heading, visibility);
     }
 
     public void updateLocation(Vertex airplaneVertex, double latitude, double longitude, double altitude, double heading, Visibility visibility) {
+        LOGGER.debug("updating location of airplane %s (lat: %f, lon: %f, alt: %f, head: %f)", airplaneVertex.getId(), latitude, longitude, altitude, heading);
+
         ExistingElementMutation<Vertex> m = airplaneVertex.prepareMutation();
         FlightTrackOntology.LOCATION.addPropertyValue(m, MULTI_VALUE_PROPERTY_KEY, new GeoPoint(latitude, longitude, altitude), visibility);
         FlightTrackOntology.ALTITUDE.addPropertyValue(m, MULTI_VALUE_PROPERTY_KEY, altitude, visibility);
@@ -118,28 +122,34 @@ public class FlightRepository {
         workQueueRepository.pushGraphPropertyQueue(airplaneVertex, MULTI_VALUE_PROPERTY_KEY, FlightTrackOntology.HEADING.getKey());
     }
 
-    public void updateDestination(Vertex airplaneVertex, Vertex destinationVertex, Visibility visibility, Authorizations authorizations) {
+    public boolean updateDestination(Vertex airplaneVertex, Vertex destinationVertex, Visibility visibility, Authorizations authorizations) {
         List<Object> currentDestinations = toList(airplaneVertex.getVertexIds(Direction.BOTH, FlightTrackOntology.EDGE_LABEL_HAS_DESTINATION, authorizations));
         if (currentDestinations.size() == 0 || !currentDestinations.get(0).equals(destinationVertex.getId())) {
+            LOGGER.debug("airplane %s changed destinations to %s", airplaneVertex.getId(), destinationVertex.getId());
             for (Object currentDestinationEdgeId : airplaneVertex.getEdgeIds(Direction.BOTH, FlightTrackOntology.EDGE_LABEL_HAS_DESTINATION, authorizations)) {
                 graph.removeEdge((String) currentDestinationEdgeId, authorizations);
             }
             Edge e = graph.addEdge(toDestinationEdgeId(airplaneVertex, destinationVertex), airplaneVertex, destinationVertex, FlightTrackOntology.EDGE_LABEL_HAS_DESTINATION, visibility, authorizations);
             graph.flush();
             workQueueRepository.pushElement(e);
+            return true;
         }
+        return false;
     }
 
-    public void updateOrigin(Vertex airplaneVertex, Vertex originVertex, Visibility visibility, Authorizations authorizations) {
+    public boolean updateOrigin(Vertex airplaneVertex, Vertex originVertex, Visibility visibility, Authorizations authorizations) {
         List<Object> currentOrigins = toList(airplaneVertex.getVertexIds(Direction.BOTH, FlightTrackOntology.EDGE_LABEL_HAS_ORIGIN, authorizations));
         if (currentOrigins.size() == 0 || !currentOrigins.get(0).equals(originVertex.getId())) {
+            LOGGER.debug("airplane %s changed origin to %s", airplaneVertex.getId(), originVertex.getId());
             for (Object currentOriginEdgeId : airplaneVertex.getEdgeIds(Direction.BOTH, FlightTrackOntology.EDGE_LABEL_HAS_ORIGIN, authorizations)) {
                 graph.removeEdge((String) currentOriginEdgeId, authorizations);
             }
             Edge e = graph.addEdge(toOriginEdgeId(airplaneVertex, originVertex), airplaneVertex, originVertex, FlightTrackOntology.EDGE_LABEL_HAS_ORIGIN, visibility, authorizations);
             graph.flush();
             workQueueRepository.pushElement(e);
+            return true;
         }
+        return false;
     }
 
     private Vertex saveAirport(String airportCode, Visibility visibility, Authorizations authorizations) {
@@ -154,6 +164,8 @@ public class FlightRepository {
             airportCodeToVertex.put(airportCode, v);
             return v;
         }
+
+        LOGGER.info("new airport %s", airportCode);
 
         Airport airport = airportCodeMap.get(airportCode.toLowerCase());
 
@@ -187,6 +199,8 @@ public class FlightRepository {
             identToVertex.put(ident, airplaneVertex);
             return airplaneVertex;
         }
+
+        LOGGER.info("new airplane %s", ident);
 
         VertexBuilder vb = graph.prepareVertex(airplaneId, visibility, authorizations);
         OntologyLumifyProperties.CONCEPT_TYPE.setProperty(vb, FlightTrackOntology.CONCEPT_TYPE_AIRPLANE, visibility);
@@ -231,6 +245,8 @@ public class FlightRepository {
             airlinePrefixToVertex.put(airline.getIdentPrefix(), v);
             return v;
         }
+
+        LOGGER.info("new airline %s", airline.getTitle());
 
         VertexBuilder vb = graph.prepareVertex(airlineId, visibility, authorizations);
         OntologyLumifyProperties.CONCEPT_TYPE.setProperty(vb, FlightTrackOntology.CONCEPT_TYPE_AIRLINE, visibility);
