@@ -99,11 +99,8 @@ public abstract class OntologyRepositoryBase implements OntologyRepository {
 
         Reader inFileReader = new InputStreamReader(new ByteArrayInputStream(inFileData));
 
-        OWLOntologyManager m = OWLManager.createOWLOntologyManager();
         OWLOntologyLoaderConfiguration config = new OWLOntologyLoaderConfiguration();
-        config.setMissingImportHandlingStrategy(MissingImportHandlingStrategy.SILENT);
-
-        loadOntologyFiles(m, config, documentIRI);
+        OWLOntologyManager m = createOwlOntologyManager(config, documentIRI);
 
         OWLOntologyDocumentSource documentSource = new ReaderDocumentSource(inFileReader, documentIRI);
         OWLOntology o = m.loadOntologyFromOntologyDocument(documentSource, config);
@@ -130,6 +127,13 @@ public abstract class OntologyRepositoryBase implements OntologyRepository {
         }
 
         storeOntologyFile(new ByteArrayInputStream(inFileData), documentIRI);
+    }
+
+    public OWLOntologyManager createOwlOntologyManager(OWLOntologyLoaderConfiguration config, IRI excludeDocumentIRI) throws Exception {
+        OWLOntologyManager m = OWLManager.createOWLOntologyManager();
+        config.setMissingImportHandlingStrategy(MissingImportHandlingStrategy.SILENT);
+        loadOntologyFiles(m, config, excludeDocumentIRI);
+        return m;
     }
 
     protected abstract void storeOntologyFile(InputStream inputStream, IRI documentIRI);
@@ -345,10 +349,13 @@ public abstract class OntologyRepositoryBase implements OntologyRepository {
         if ("http://www.w3.org/2001/XMLSchema#hexBinary".equals(iri)) {
             return PropertyType.BINARY;
         }
+        if ("http://www.w3.org/2001/XMLSchema#boolean".equals(iri)) {
+            return PropertyType.BOOLEAN;
+        }
         throw new LumifyException("Unhandled property type " + iri);
     }
 
-    protected String getLabel(OWLOntology o, OWLEntity owlEntity) {
+    public static String getLabel(OWLOntology o, OWLEntity owlEntity) {
         for (OWLAnnotation annotation : owlEntity.getAnnotations(o)) {
             if (annotation.getProperty().isLabel()) {
                 OWLLiteral value = (OWLLiteral) annotation.getValue();
