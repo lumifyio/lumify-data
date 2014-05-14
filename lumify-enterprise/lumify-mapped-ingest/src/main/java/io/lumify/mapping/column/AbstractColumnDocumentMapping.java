@@ -1,18 +1,24 @@
 package io.lumify.mapping.column;
 
+import static com.google.common.base.Preconditions.checkArgument;
+import static com.google.common.base.Preconditions.checkNotNull;
+
+import com.fasterxml.jackson.annotation.JsonProperty;
 import io.lumify.core.ingest.term.extraction.TermExtractionResult;
 import io.lumify.core.ingest.term.extraction.TermMention;
 import io.lumify.core.ingest.term.extraction.TermRelationship;
 import io.lumify.mapping.DocumentMapping;
-import org.securegraph.Visibility;
-import com.fasterxml.jackson.annotation.JsonProperty;
-
 import java.io.IOException;
 import java.io.Reader;
-import java.util.*;
-
-import static com.google.common.base.Preconditions.checkArgument;
-import static com.google.common.base.Preconditions.checkNotNull;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+import java.util.SortedSet;
+import java.util.TreeSet;
+import org.securegraph.Visibility;
 
 /**
  * Base class for Columnar document mappings.
@@ -84,14 +90,51 @@ public abstract class AbstractColumnDocumentMapping implements DocumentMapping {
      *
      * @param reader a Reader over the input document
      * @return an Iterable over the rows of the input document
+     * @throws IOException if an error occurs while retrieving the rows
      */
     protected abstract Iterable<Row> getRows(final Reader reader) throws IOException;
 
     @Override
-    public final TermExtractionResult mapDocument(final Reader reader, final String processId, String propertyKey, Visibility visibility) throws IOException {
-        TermExtractionResult results = new TermExtractionResult();
-        Iterable<Row> rows = getRows(reader);
-        for (Row row : rows) {
+    public final TermExtractionResult mapDocument(final Reader inputDoc, final String processId, String propertyKey, Visibility visibility) throws IOException {
+        TermExtractionResult result = new TermExtractionResult();
+        Iterator<TermExtractionResult> rowResults = mapDocumentElements(inputDoc, processId, propertyKey, visibility);
+        while (rowResults.hasNext()) {
+            TermExtractionResult rowResult = rowResults.next();
+            result.addAllTermMentions(rowResult.getTermMentions());
+            result.addAllRelationships(rowResult.getRelationships());
+        }
+        return result;
+    }
+
+    @Override
+    public final Iterator<TermExtractionResult> mapDocumentElements(final Reader inputDoc, final String processId, final String propertyKey,
+            final Visibility visibility) throws IOException {
+        Iterable<Row> rows = getRows(inputDoc);
+        return new RowResultIterator(rows.iterator(), processId, propertyKey, visibility);
+    }
+
+    private class RowResultIterator implements Iterator<TermExtractionResult> {
+        private final Iterator<Row> rows;
+        private final String processId;
+        private final String propertyKey;
+        private final Visibility visibility;
+
+        public RowResultIterator(final Iterator<Row> rows, final String processId, final String propertyKey, final Visibility visibility) {
+            this.rows = rows;
+            this.processId = processId;
+            this.propertyKey = propertyKey;
+            this.visibility = visibility;
+        }
+
+        @Override
+        public boolean hasNext() {
+            return rows.hasNext();
+        }
+
+        @Override
+        public TermExtractionResult next() {
+            Row row = rows.next();
+            TermExtractionResult results = new TermExtractionResult();
             int offset = row.getOffset();
             List<String> columns = row.getColumns();
             Map<String, TermMention> termMap;
@@ -101,55 +144,59 @@ public abstract class AbstractColumnDocumentMapping implements DocumentMapping {
             int currentCol;
             boolean skipLine;
             // if columns are null, stop processing
-            if (columns == null) {
-                break;
-            }
-            // extract all identified Terms, adding them to the results and
-            // mapping them by the configured map ID for relationship discovery
-            List<TermMention> mentions = new ArrayList<TermMention>();
-            termMap = new HashMap<String, TermMention>();
-            lastCol = 0;
-            skipLine = false;
-            for (EntityMapping termMapping : entityMappings) {
-                ColumnEntityMapping colMapping = termMapping.getMapping();
-                // term mappings are ordered by column number; update offset
-                // so it is set to the start of the column for the current term
-                currentCol = colMapping.getSortColumn();
-                for (/* no precondition */; lastCol < currentCol; lastCol++) {
-                    offset += (columns.get(lastCol) != null ? columns.get(lastCol).length() : 0) + 1;
-                }
-                try {
-                    mention = colMapping.mapTerm(columns, offset, processId, propertyKey, visibility);
-                    if (mention != null) {
-                        // no need to update offset here, it will get updated by the block
-                        // above when the next term is processed or, if this is the last term,
-                        // it will be set to the proper offset for the next line
-                        termMap.put(termMapping.getKey(), mention);
-                        mentions.add(mention);
+            if (columns != null) {
+                // extract all identified Terms, adding them to the results and
+                // mapping them by the configured map ID for relationship discovery
+                List<TermMention> mentions = new ArrayList<TermMention>();
+                termMap = new HashMap<String, TermMention>();
+                lastCol = 0;
+                skipLine = false;
+                for (EntityMapping termMapping : entityMappings) {
+                    ColumnEntityMapping colMapping = termMapping.getMapping();
+                    // term mappings are ordered by column number; update offset
+                    // so it is set to the start of the column for the current term
+                    currentCol = colMapping.getSortColumn();
+                    for (/* no precondition */; lastCol < currentCol; lastCol++) {
+                        offset += (columns.get(lastCol) != null ? columns.get(lastCol).length() : 0) + 1;
                     }
-                } catch (Exception e) {
-                    if (colMapping.isRequired()) {
-                        // skip line
-                        skipLine = true;
-                        break;
-                    }
-                }
-            }
-            if (!skipLine) {
-                // parse all configured relationships, generating the relationship only
-                // if both Terms were successfully extracted
-                List<TermRelationship> relationships = new ArrayList<TermRelationship>();
-                for (ColumnRelationshipMapping relMapping : relationshipMappings) {
-                    TermRelationship rel = relMapping.createRelationship(termMap, columns, visibility);
-                    if (rel != null) {
-                        relationships.add(rel);
+                    try {
+                        mention = colMapping.mapTerm(columns, offset, processId, propertyKey, visibility);
+                        if (mention != null) {
+                            // no need to update offset here, it will get updated by the block
+                            // above when the next term is processed or, if this is the last term,
+                            // it will be set to the proper offset for the next line
+                            termMap.put(termMapping.getKey(), mention);
+                            mentions.add(mention);
+                        }
+                    } catch (Exception e) {
+                        if (colMapping.isRequired()) {
+                            // skip line
+                            skipLine = true;
+                            break;
+                        }
                     }
                 }
-                results.addAllTermMentions(mentions);
-                results.addAllRelationships(relationships);
+                if (!skipLine) {
+                    // parse all configured relationships, generating the relationship only
+                    // if both Terms were successfully extracted
+                    List<TermRelationship> relationships = new ArrayList<TermRelationship>();
+                    for (ColumnRelationshipMapping relMapping : relationshipMappings) {
+                        TermRelationship rel = relMapping.createRelationship(termMap, columns, visibility);
+                        if (rel != null) {
+                            relationships.add(rel);
+                        }
+                    }
+                    results.addAllTermMentions(mentions);
+                    results.addAllRelationships(relationships);
+                }
             }
+            return results;
         }
-        return results;
+
+        @Override
+        public void remove() {
+            throw new UnsupportedOperationException("Remove is not supported.");
+        }
     }
 
     private static class EntityMapping implements Comparable<EntityMapping> {
