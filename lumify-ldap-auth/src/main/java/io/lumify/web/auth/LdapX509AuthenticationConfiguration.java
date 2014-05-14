@@ -1,4 +1,4 @@
-package io.lumify.web;
+package io.lumify.web.auth;
 
 import io.lumify.core.config.Configurable;
 

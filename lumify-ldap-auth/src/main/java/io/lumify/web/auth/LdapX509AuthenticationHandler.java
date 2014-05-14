@@ -1,4 +1,4 @@
-package io.lumify.web;
+package io.lumify.web.auth;
 
 import com.google.inject.Inject;
 import com.unboundid.ldap.sdk.SearchResultEntry;
@@ -9,6 +9,7 @@ import io.lumify.core.user.User;
 import io.lumify.core.util.LumifyLogger;
 import io.lumify.core.util.LumifyLoggerFactory;
 import io.lumify.ldap.LdapSearchService;
+import io.lumify.web.X509AuthenticationHandler;
 import org.apache.accumulo.core.util.StringUtil;
 import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.lang.ArrayUtils;
@@ -23,13 +24,13 @@ import java.security.cert.X509Certificate;
 import java.util.Arrays;
 import java.util.Set;
 
-public class LdapX509AuthenticationProvider extends X509AuthenticationProvider {
-    private static final LumifyLogger LOGGER = LumifyLoggerFactory.getLogger(LdapX509AuthenticationProvider.class);
+public class LdapX509AuthenticationHandler extends X509AuthenticationHandler {
+    private static final LumifyLogger LOGGER = LumifyLoggerFactory.getLogger(LdapX509AuthenticationHandler.class);
     private LdapSearchService ldapSearchService;
     private LdapX509AuthenticationConfiguration ldapX509AuthenticationConfiguration;
 
     @Inject
-    public LdapX509AuthenticationProvider(final UserRepository userRepository, final Graph graph, final LdapSearchService ldapSearchService, final Configuration configuration) {
+    public LdapX509AuthenticationHandler(final UserRepository userRepository, final Graph graph, final LdapSearchService ldapSearchService, final Configuration configuration) {
         super(userRepository, graph);
         this.ldapSearchService = ldapSearchService;
 
@@ -85,11 +86,6 @@ public class LdapX509AuthenticationProvider extends X509AuthenticationProvider {
 
     private String getAttributeValue(SearchResultEntry entry, String attrName, String defaultValue) {
         return attrName != null ? entry.getAttributeValue(attrName) : defaultValue;
-    }
-
-    @Override
-    public boolean login(HttpServletRequest request) {
-        return false;
     }
 
     private String getHeaderClientDN(HttpServletRequest request) {

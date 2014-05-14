@@ -1,1 +1,1 @@
-io.lumify.web.LdapX509AuthenticationProviderBootstrapBindingProvider
+io.lumify.web.auth.LdapX509AuthenticationProviderBootstrapBindingProvider
