@@ -10,7 +10,7 @@
     </parent>
 
     <artifactId>lumify-web-auth-x509ldap</artifactId>
-    <name>Lumify LDAP Authentication and Authorization</name>
+    <name>Lumify: Web Auth: LDAP</name>
     <packaging>jar</packaging>
 
     <scm>
