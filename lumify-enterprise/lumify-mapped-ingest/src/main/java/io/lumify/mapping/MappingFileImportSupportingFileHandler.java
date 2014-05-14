@@ -1,6 +1,7 @@
 package io.lumify.mapping;
 
 import io.lumify.core.ingest.FileImportSupportingFileHandler;
+import io.lumify.core.model.properties.RawLumifyProperties;
 import io.lumify.core.model.properties.types.StreamingLumifyProperty;
 import org.securegraph.VertexBuilder;
 import org.securegraph.Visibility;
@@ -13,7 +14,6 @@ import java.io.IOException;
 
 public class MappingFileImportSupportingFileHandler extends FileImportSupportingFileHandler {
     private static final String MAPPING_JSON_FILE_NAME_SUFFIX = ".mapping.json";
-    public static final StreamingLumifyProperty MAPPING_JSON = new StreamingLumifyProperty("http://lumify.io#mappingJson");
 
     @Override
     public boolean isSupportingFile(File f) {
@@ -27,7 +27,7 @@ public class MappingFileImportSupportingFileHandler extends FileImportSupporting
             final FileInputStream mappingJsonInputStream = new FileInputStream(mappingJsonFile);
             StreamingPropertyValue mappingJsonValue = new StreamingPropertyValue(mappingJsonInputStream, byte[].class);
             mappingJsonValue.searchIndex(false);
-            MAPPING_JSON.setProperty(vertexBuilder, mappingJsonValue, visibility);
+            RawLumifyProperties.MAPPING_JSON.setProperty(vertexBuilder, mappingJsonValue, visibility);
             return new AddSupportingFilesResult() {
                 @Override
                 public void close() throws IOException {

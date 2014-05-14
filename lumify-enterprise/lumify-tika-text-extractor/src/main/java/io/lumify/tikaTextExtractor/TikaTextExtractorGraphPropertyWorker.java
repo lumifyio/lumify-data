@@ -291,6 +291,11 @@ public class TikaTextExtractorGraphPropertyWorker extends GraphPropertyWorker {
             return false;
         }
 
+        StreamingPropertyValue mappingJson = RawLumifyProperties.MAPPING_JSON.getPropertyValue(element);
+        if (mappingJson != null) {
+            return false;
+        }
+
         return true;
     }
 }

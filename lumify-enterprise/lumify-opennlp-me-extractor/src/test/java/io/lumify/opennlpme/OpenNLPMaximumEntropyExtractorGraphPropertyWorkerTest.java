@@ -1,15 +1,11 @@
 package io.lumify.opennlpme;
 
+import com.google.inject.Injector;
 import io.lumify.core.ingest.graphProperty.GraphPropertyWorkData;
 import io.lumify.core.ingest.graphProperty.GraphPropertyWorkerPrepareData;
 import io.lumify.core.ingest.graphProperty.TermMentionFilter;
 import io.lumify.core.ingest.term.extraction.TermMention;
 import io.lumify.core.user.User;
-import org.securegraph.Vertex;
-import org.securegraph.Visibility;
-import org.securegraph.inmemory.InMemoryAuthorizations;
-import org.securegraph.inmemory.InMemoryGraph;
-import com.google.inject.Injector;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.mapreduce.Mapper;
@@ -18,6 +14,10 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
+import org.securegraph.Vertex;
+import org.securegraph.Visibility;
+import org.securegraph.inmemory.InMemoryAuthorizations;
+import org.securegraph.inmemory.InMemoryGraph;
 
 import java.io.ByteArrayInputStream;
 import java.util.ArrayList;
@@ -25,9 +25,9 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import static org.securegraph.util.IterableUtils.toList;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
+import static org.securegraph.util.IterableUtils.toList;
 
 @RunWith(MockitoJUnitRunner.class)
 public class OpenNLPMaximumEntropyExtractorGraphPropertyWorkerTest {
@@ -53,6 +53,10 @@ public class OpenNLPMaximumEntropyExtractorGraphPropertyWorkerTest {
     public void setUp() throws Exception {
         graph = new InMemoryGraph();
 
+        Map config = new HashMap();
+        config.put(io.lumify.core.config.Configuration.ONTOLOGY_IRI_ARTIFACT_HAS_ENTITY, "http://lumify.io/test#artifactHasEntity");
+        io.lumify.core.config.Configuration configuration = new io.lumify.core.config.Configuration(config);
+
         extractor = new OpenNLPMaximumEntropyExtractorGraphPropertyWorker() {
             @Override
             protected List<TermMentionWithGraphVertex> saveTermMentions(Vertex artifactGraphVertex, Iterable<TermMention> termMentions) {
@@ -60,9 +64,13 @@ public class OpenNLPMaximumEntropyExtractorGraphPropertyWorkerTest {
                 return null;
             }
         };
+        extractor.setConfiguration(configuration);
         extractor.setGraph(graph);
 
         Map<String, String> stormConf = new HashMap<String, String>();
+        stormConf.put(OpenNLPMaximumEntropyExtractorGraphPropertyWorker.CONFIG_LOCATION_IRI, "http://lumify.io/test#location");
+        stormConf.put(OpenNLPMaximumEntropyExtractorGraphPropertyWorker.CONFIG_ORGANIZATION_IRI, "http://lumify.io/test#organization");
+        stormConf.put(OpenNLPMaximumEntropyExtractorGraphPropertyWorker.CONFIG_PERSON_IRI, "http://lumify.io/test#person");
         stormConf.put(OpenNLPMaximumEntropyExtractorGraphPropertyWorker.PATH_PREFIX_CONFIG, "file:///" + getClass().getResource(RESOURCE_CONFIG_DIR).getFile());
 
         FileSystem hdfsFileSystem = FileSystem.get(new Configuration());
@@ -85,19 +93,19 @@ public class OpenNLPMaximumEntropyExtractorGraphPropertyWorkerTest {
         for (TermMention term : termMentions) {
             extractedTerms.put(term.getSign() + "-" + term.getOntologyClassUri(), term);
         }
-        assertTrue("A person wasn't found", extractedTerms.containsKey("Bob Robertson-http://lumify.io/dev#person"));
-        TermMention bobRobertsonMentions = extractedTerms.get("Bob Robertson-http://lumify.io/dev#person");
+        assertTrue("A person wasn't found", extractedTerms.containsKey("Bob Robertson-http://lumify.io/test#person"));
+        TermMention bobRobertsonMentions = extractedTerms.get("Bob Robertson-http://lumify.io/test#person");
         assertEquals(31, bobRobertsonMentions.getStart());
         assertEquals(44, bobRobertsonMentions.getEnd());
 
 
-        assertTrue("A location wasn't found", extractedTerms.containsKey("Benghazi-http://lumify.io/dev#location"));
-        TermMention benghaziMentions = extractedTerms.get("Benghazi-http://lumify.io/dev#location");
+        assertTrue("A location wasn't found", extractedTerms.containsKey("Benghazi-http://lumify.io/test#location"));
+        TermMention benghaziMentions = extractedTerms.get("Benghazi-http://lumify.io/test#location");
         assertEquals(189, benghaziMentions.getStart());
         assertEquals(197, benghaziMentions.getEnd());
 
-        assertTrue("An organization wasn't found", extractedTerms.containsKey("CNN-http://lumify.io/dev#organization"));
-        TermMention cnnMentions = extractedTerms.get("CNN-http://lumify.io/dev#organization");
+        assertTrue("An organization wasn't found", extractedTerms.containsKey("CNN-http://lumify.io/test#organization"));
+        TermMention cnnMentions = extractedTerms.get("CNN-http://lumify.io/test#organization");
         assertEquals(151, cnnMentions.getStart());
         assertEquals(154, cnnMentions.getEnd());
     }
