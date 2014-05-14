@@ -3,6 +3,7 @@ package io.lumify.web.auth;
 import com.altamiracorp.miniweb.Handler;
 import com.altamiracorp.miniweb.StaticResourceHandler;
 import com.google.inject.Inject;
+import io.lumify.core.bootstrap.InjectHelper;
 import io.lumify.core.config.Configuration;
 import io.lumify.core.model.user.UserRepository;
 import io.lumify.ldap.LdapSearchService;
@@ -14,19 +15,6 @@ import org.securegraph.Graph;
 import javax.servlet.ServletConfig;
 
 public class LdapX509WebAppPlugin implements WebAppPlugin {
-    private UserRepository userRepository;
-    private Configuration configuration;
-    private LdapSearchService ldapSearchService;
-    private Graph graph;
-
-    @Inject
-    public void configure(UserRepository userRepository, Graph graph, LdapSearchService ldapSearchService, Configuration configuration) {
-        this.userRepository = userRepository;
-        this.graph = graph;
-        this.ldapSearchService = ldapSearchService;
-        this.configuration = configuration;
-    }
-
     @Override
     public void init(WebApp app, ServletConfig config, Handler authenticationHandler) {
         StaticResourceHandler jsHandler = new StaticResourceHandler(this.getClass(), "/ldap-x509/authentication.js", "application/javascript");
@@ -37,6 +25,6 @@ public class LdapX509WebAppPlugin implements WebAppPlugin {
         app.get("/jsc/configuration/plugins/authentication/templates/login.hbs", loginTemplateHandler);
         app.get("/jsc/configuration/plugins/authentication/less/login.less", lessHandler);
 
-        app.post(AuthenticationHandler.LOGIN_PATH, new LdapX509AuthenticationHandler(userRepository, graph, ldapSearchService, configuration));
+        app.post(AuthenticationHandler.LOGIN_PATH, InjectHelper.getInstance(LdapX509AuthenticationHandler.class));
     }
 }
