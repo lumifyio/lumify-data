@@ -45,6 +45,13 @@ This script executes the GtdIngest application.  It accepts the following parame
 	The default visibility constraints for the ingested data. The default is no
 	visibility restrictions (`""`).
 
+*   `--clavinIndex <path>`
+
+    Use the specified CLAVIN index for location resolution and normalization. If
+    not specified, the value of the `clavin.indexDirectory` configuration option
+    will be used. Location resolution will be skipped if the index at the
+    configured location cannot be read.
+
 **This script must be executed with the same version of Java as that running Lumify's ElasticSearch index.
 This is Java 6 in the Lumify development and demo VMs. If there is a JVM mismatch, you will see ElasticSearch throw `TransportSerializationException` on ingest.**
 
