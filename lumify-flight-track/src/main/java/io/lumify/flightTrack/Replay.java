@@ -8,6 +8,7 @@ import org.apache.commons.cli.Options;
 import org.apache.commons.io.IOUtils;
 import org.json.JSONException;
 import org.json.JSONObject;
+import org.securegraph.Visibility;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -95,7 +96,8 @@ public class Replay extends CommandLineBase {
     private void replayFile(File file) throws Exception {
         LOGGER.debug("Replaying file: " + file.getName());
         JSONObject json = readFile(file);
-        this.flightRepository.save(json);
+        Visibility visibility = new Visibility("");
+        this.flightRepository.save(json, visibility, getAuthorizations());
     }
 
     private static JSONObject readFile(File file) throws IOException, JSONException {

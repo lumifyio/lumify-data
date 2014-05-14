@@ -75,6 +75,26 @@
     
 
 
+    <!-- http://lumify.io/flightTrack#airlinePrefix -->
+
+    <owl:DatatypeProperty rdf:about="http://lumify.io/flightTrack#airlinePrefix">
+        <rdfs:label xml:lang="en">Airline Prefix</rdfs:label>
+        <rdfs:domain rdf:resource="http://lumify.io/flightTrack#airline"/>
+        <rdfs:range rdf:resource="&xsd;string"/>
+    </owl:DatatypeProperty>
+    
+
+
+    <!-- http://lumify.io/flightTrack#airportCode -->
+
+    <owl:DatatypeProperty rdf:about="http://lumify.io/flightTrack#airportCode">
+        <rdfs:label xml:lang="en">Airport Code</rdfs:label>
+        <rdfs:domain rdf:resource="http://lumify.io/flightTrack#airport"/>
+        <rdfs:range rdf:resource="&xsd;string"/>
+    </owl:DatatypeProperty>
+    
+
+
     <!-- http://lumify.io/flightTrack#altitude -->
 
     <owl:DatatypeProperty rdf:about="http://lumify.io/flightTrack#altitude">
@@ -106,6 +126,16 @@
     
 
 
+    <!-- http://lumify.io/flightTrack#ident -->
+
+    <owl:DatatypeProperty rdf:about="http://lumify.io/flightTrack#ident">
+        <rdfs:label xml:lang="en">Ident</rdfs:label>
+        <rdfs:domain rdf:resource="http://lumify.io/flightTrack#airplane"/>
+        <rdfs:range rdf:resource="&xsd;string"/>
+    </owl:DatatypeProperty>
+    
+
+
     <!-- 
     ///////////////////////////////////////////////////////////////////////////////////////
     //
@@ -133,7 +163,9 @@
     <owl:Class rdf:about="http://lumify.io/flightTrack#airplane">
         <rdfs:label xml:lang="en">Airplane</rdfs:label>
         <rdfs:subClassOf rdf:resource="http://lumify.io/flightTrack#flightTrack"/>
+        <lumify:mapGlyphIconFileName xml:lang="en">airplane.png</lumify:mapGlyphIconFileName>
         <lumify:glyphIconFileName xml:lang="en">airplane.png</lumify:glyphIconFileName>
+        <lumify:titleFormula xml:lang="en">prop(&apos;http://lumify.io/flightTrack#ident&apos;)</lumify:titleFormula>
         <lumify:color xml:lang="en">rgb(163, 163, 40)</lumify:color>
     </owl:Class>
     
