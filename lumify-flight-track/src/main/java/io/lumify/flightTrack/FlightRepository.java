@@ -17,6 +17,7 @@ import org.supercsv.prefs.CsvPreference;
 
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.text.SimpleDateFormat;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -25,6 +26,7 @@ import static org.securegraph.util.IterableUtils.toList;
 
 public class FlightRepository {
     private static final LumifyLogger LOGGER = LumifyLoggerFactory.getLogger(FlightRepository.class);
+    public static final SimpleDateFormat ISO8601DATEFORMAT = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss");
     private static final String MULTI_VALUE_PROPERTY_KEY = FlightRepository.class.getName();
     private Graph graph;
     private WorkQueueRepository workQueueRepository;
@@ -119,7 +121,7 @@ public class FlightRepository {
     public void updateDestination(Vertex airplaneVertex, Vertex destinationVertex, Visibility visibility, Authorizations authorizations) {
         List<Object> currentDestinations = toList(airplaneVertex.getVertexIds(Direction.BOTH, FlightTrackOntology.EDGE_LABEL_HAS_DESTINATION, authorizations));
         if (currentDestinations.size() == 0 || !currentDestinations.get(0).equals(destinationVertex.getId())) {
-            for (Object currentDestinationEdgeId : currentDestinations) {
+            for (Object currentDestinationEdgeId : airplaneVertex.getEdgeIds(Direction.BOTH, FlightTrackOntology.EDGE_LABEL_HAS_DESTINATION, authorizations)) {
                 graph.removeEdge((String) currentDestinationEdgeId, authorizations);
             }
             Edge e = graph.addEdge(toDestinationEdgeId(airplaneVertex, destinationVertex), airplaneVertex, destinationVertex, FlightTrackOntology.EDGE_LABEL_HAS_DESTINATION, visibility, authorizations);
@@ -131,7 +133,7 @@ public class FlightRepository {
     public void updateOrigin(Vertex airplaneVertex, Vertex originVertex, Visibility visibility, Authorizations authorizations) {
         List<Object> currentOrigins = toList(airplaneVertex.getVertexIds(Direction.BOTH, FlightTrackOntology.EDGE_LABEL_HAS_ORIGIN, authorizations));
         if (currentOrigins.size() == 0 || !currentOrigins.get(0).equals(originVertex.getId())) {
-            for (Object currentOriginEdgeId : currentOrigins) {
+            for (Object currentOriginEdgeId : airplaneVertex.getEdgeIds(Direction.BOTH, FlightTrackOntology.EDGE_LABEL_HAS_ORIGIN, authorizations)) {
                 graph.removeEdge((String) currentOriginEdgeId, authorizations);
             }
             Edge e = graph.addEdge(toOriginEdgeId(airplaneVertex, originVertex), airplaneVertex, originVertex, FlightTrackOntology.EDGE_LABEL_HAS_ORIGIN, visibility, authorizations);

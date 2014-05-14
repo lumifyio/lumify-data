@@ -23,7 +23,6 @@ public class Replay extends CommandLineBase {
     public static final String CMD_OPT_INDIR = "in";
     public static final String CMD_OPT_SPEED = "speed";
     public static final double DEFAULT_REPLAY_SPEED = 1.0;
-    public static final SimpleDateFormat ISO8601DATEFORMAT = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss");
 
     private FlightRepository flightRepository;
 
@@ -121,7 +120,7 @@ public class Replay extends CommandLineBase {
         String dateStr = file.getName();
         int extIndex = dateStr.lastIndexOf('.');
         dateStr = dateStr.substring(0, extIndex);
-        return ISO8601DATEFORMAT.parse(dateStr);
+        return FlightRepository.ISO8601DATEFORMAT.parse(dateStr);
     }
 
     private static ArrayList<File> toOrdered(File[] files) {
