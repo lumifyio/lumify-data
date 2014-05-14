@@ -219,15 +219,22 @@ public class GtdIngest extends CommandLineBase {
             } finally {
                 row++;
                 if ((row % 1000) == 0) {
-                    LOG.info("Ingested %d rows (%d errors)", row, errorCount);
+                    logProgress(row, errorCount, System.currentTimeMillis() - start);
                 }
             }
         }
         long end = System.currentTimeMillis();
         LOG.info("GTD Ingest Complete.");
-        LOG.info("Ingested %d Records in %.3f seconds with %d errors", row, (double)(end - start)/1000.0d, errorCount);
+        logProgress(row, errorCount, end - start);
 
         return 0;
+    }
+
+    private void logProgress(final int rowCount, final int errorCount, final long elapsedMs) {
+        double elapsedSec = elapsedMs/1000.0d;
+        double rps = rowCount/elapsedSec;
+        String errorStr = errorCount > 0 ? String.format(" (%d errors)", errorCount) : "";
+        LOG.info("[%.3fs] Ingested %d Records%s(%.3f rec/s)", elapsedSec, rowCount, errorStr, rps);
     }
 
     protected Vertex toVertex(final TermMention term) {
@@ -308,8 +315,10 @@ public class GtdIngest extends CommandLineBase {
         while (admin1 != null && !admin1.getFeatureCode().name().startsWith("ADM1")) {
             admin1 = admin1.getParent();
         }
-        String admin1Arg = admin1 != null && !admin1.getName().trim().isEmpty() ? String.format("%s, ", admin1.getName().trim()) : "";
-        return String.format("%s (%s%s)", geoname.getName(), admin1Arg, geoname.getPrimaryCountryCode());
+        boolean isAdmin1 = geoname.getFeatureCode().name().startsWith("ADM1");
+        String admin1Arg = !isAdmin1 && admin1 != null && !admin1.getName().trim().isEmpty() ?
+                String.format(", %s", admin1.getName().trim()) : "";
+        return String.format("%s (%s%s)", geoname.getName(), geoname.getPrimaryCountryCode(), admin1Arg);
     }
 
     protected String toOntologyClassURI(final GeoName geoname, final String defaultValue) {

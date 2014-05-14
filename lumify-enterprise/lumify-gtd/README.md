@@ -10,6 +10,7 @@ a standalone application.
 
 1.  Download the [GTD](http://www.start.umd.edu/gtd/)
 1.  Convert the desired Excel files to UTF-8 CSV files.  ([see below](#excelToUtf8))
+1.	Run the `bin/importOntology.sh` script (depends on Lumify dev ontology already being loaded)
 1.  Run the [`bin/importGtd.sh`](#importGtd) script
 
 
@@ -23,23 +24,23 @@ This script executes the GtdIngest application.  It accepts the following parame
 	Enables DEBUG mode.  The application will wait for a Java debugger to connect on
 	port **12345** before executing.  You can configure the debug port by setting the
 	environment variable `DEBUG_PORT` before executing the script.
-	
+
 	**This option must be the first parameter provided to the script.**
-	
+
 *	`--help`
 
 	Displays a help message detailing the available options.
-	
-*	**`-i <file>`, `--inputFile <file>` (required)**
+
+*	**`-i,--inputFile <file>` (required)**
 
 	Specifies the UTF-8 CSV file to process.
-	
-*	`-m <file>`, `--mapping <file>`
+
+*	`-m,--mapping <file>`
 
 	An alternate JSON mapping definition for the GTD data. The default mapping is
 	found in `src/main/resources/gtd.mapping.json`
-	
-*	`-v <visibility>`, `--visibility <visibility>`
+
+*	`-v,--visibility <visibility>`
 
 	The default visibility constraints for the ingested data. The default is no
 	visibility restrictions (`""`).
@@ -47,7 +48,7 @@ This script executes the GtdIngest application.  It accepts the following parame
 **This script must be executed with the same version of Java as that running Lumify's ElasticSearch index.
 This is Java 6 in the Lumify development and demo VMs. If there is a JVM mismatch, you will see ElasticSearch throw `TransportSerializationException` on ingest.**
 
-	
+
 ## [Excel to UTF-8 CSV](id:excelToUtf8)
 ---
 
