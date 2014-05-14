@@ -1,7 +1,6 @@
 package io.lumify.gtd;
 
 
-import static io.lumify.core.model.properties.EntityLumifyProperties.GEO_LOCATION;
 import static io.lumify.core.model.properties.EntityLumifyProperties.SOURCE;
 
 import com.bericotech.clavin.ClavinException;
@@ -298,7 +297,7 @@ public class GtdIngest extends CommandLineBase {
                         .useExisting(true)
                         .sign(toSign(geoname))
                         .ontologyClassUri(toOntologyClassURI(geoname, location.getOntologyClassUri()))
-                        .setProperty(GEO_LOCATION.getKey(), GEO_LOCATION.wrap(geoPoint))
+                        .setProperty("http://lumify.io/dev#geolocation", geoPoint)
                         .setProperty(SOURCE.getKey(), "CLAVIN")
                         .process(processId)
                         .build();
