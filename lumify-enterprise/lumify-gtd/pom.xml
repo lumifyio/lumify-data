@@ -1,26 +1,46 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<project xmlns="http://maven.apache.org/POM/4.0.0"
-         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+<?xml version="1.0"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
-    <parent>
-        <artifactId>lumify-enterprise</artifactId>
-        <groupId>io.lumify</groupId>
-        <version>0.2.0-SNAPSHOT</version>
-    </parent>
     <modelVersion>4.0.0</modelVersion>
 
-    <artifactId>lumify-opencv-object-detector</artifactId>
-    <name>Lumify: OpenCV Object Detector</name>
+    <parent>
+        <groupId>io.lumify</groupId>
+        <artifactId>lumify-enterprise</artifactId>
+        <version>0.2.0-SNAPSHOT</version>
+    </parent>
+    <artifactId>lumify-gtd</artifactId>
+
+    <name>Lumify: Global Terrorism Database (GTD)</name>
+    <description>
+        Ontology definitions and local import capability for the Global Terrorism Database (GTD).
+    </description>
 
     <dependencies>
         <dependency>
             <groupId>io.lumify</groupId>
             <artifactId>lumify-core</artifactId>
-            <scope>provided</scope>
         </dependency>
         <dependency>
-            <groupId>org.opencv</groupId>
-            <artifactId>opencv</artifactId>
+            <groupId>io.lumify</groupId>
+            <artifactId>lumify-fs-hdfs</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>io.lumify</groupId>
+            <artifactId>lumify-model-securegraph</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>io.lumify</groupId>
+            <artifactId>lumify-model-rabbitmq</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>io.lumify</groupId>
+            <artifactId>lumify-mapped-ingest</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>com.bericotech</groupId>
+            <artifactId>clavin</artifactId>
+            <version>2.0.0-SNAPSHOT</version>
         </dependency>
     </dependencies>
 
@@ -44,23 +64,11 @@
             </plugin>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-surefire-plugin</artifactId>
+                <artifactId>maven-resources-plugin</artifactId>
             </plugin>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-assembly-plugin</artifactId>
-                <configuration>
-                    <descriptor>src/main/assembly/descriptor.xml</descriptor>
-                </configuration>
-                <executions>
-                    <execution>
-                        <id>make-assembly</id>
-                        <phase>package</phase>
-                        <goals>
-                            <goal>single</goal>
-                        </goals>
-                    </execution>
-                </executions>
+                <artifactId>maven-surefire-plugin</artifactId>
             </plugin>
         </plugins>
     </build>
