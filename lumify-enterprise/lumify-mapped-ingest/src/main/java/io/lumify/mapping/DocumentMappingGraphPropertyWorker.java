@@ -23,7 +23,7 @@ public class DocumentMappingGraphPropertyWorker extends GraphPropertyWorker {
 
     @Override
     public void execute(InputStream in, GraphPropertyWorkData data) throws Exception {
-        StreamingPropertyValue mappingJson = MappingFileImportSupportingFileHandler.MAPPING_JSON.getPropertyValue(data.getElement());
+        StreamingPropertyValue mappingJson = RawLumifyProperties.MAPPING_JSON.getPropertyValue(data.getElement());
         String mappingJsonString = IOUtils.toString(mappingJson.getInputStream());
         DocumentMapping mapping = jsonMapper.readValue(mappingJsonString, DocumentMapping.class);
 
@@ -63,7 +63,7 @@ public class DocumentMappingGraphPropertyWorker extends GraphPropertyWorker {
             return false;
         }
 
-        StreamingPropertyValue mappingJson = MappingFileImportSupportingFileHandler.MAPPING_JSON.getPropertyValue(element);
+        StreamingPropertyValue mappingJson = RawLumifyProperties.MAPPING_JSON.getPropertyValue(element);
         if (mappingJson == null) {
             return false;
         }
