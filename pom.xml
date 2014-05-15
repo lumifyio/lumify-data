@@ -26,6 +26,7 @@
         <module>lumify-web-auth-x509ldap</module>
         <module>lumify-twitter</module>
         <module>lumify-food-truck</module>
+        <module>lumify-flight-track</module>
     </modules>
 </project>
 
