@@ -8,14 +8,13 @@ while [ -h "$SOURCE" ]; do
 done
 DIR="$(cd -P "$(dirname "$SOURCE")" && pwd)"
 
-MODULES="
-  lumify-public/lumify-web-auth-oauth
-  lumify-public/lumify-web-auth-username-only
+AUTH_PLUGINS=$(find ${DIR}/.. -type d -name 'lumify-web-auth-*' | sed -e "s|${DIR}/../||")
+OTHER_PLUGINS="
   lumify-public/lumify-web-dev-tools
   lumify-public/lumify-web-import-export-workspaces
-  lumify-enterprise/lumify-opennlp-dictionary-extractor
+  lumify-enterprise/lumify-opennlp-dictionary-extractor-web
 "
-MODULES=$(echo ${MODULES} | sed -e 's/ /,/g')
+MODULES=$(echo ${AUTH_PLUGINS} ${OTHER_PLUGINS} | sed -e 's/ /,/g')
 
 (
   cd ${DIR}/..
