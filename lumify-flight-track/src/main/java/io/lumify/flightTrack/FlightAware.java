@@ -16,8 +16,9 @@ import java.util.Date;
 
 public class FlightAware extends CommandLineBase {
     private static final LumifyLogger LOGGER = LumifyLoggerFactory.getLogger(FlightAware.class);
-    private static final String CMD_OPT_API_KEY = "apikey";
-    private static final String CMD_OPT_USERNAME = "username";
+    private static final String CONFIG_API_KEY = "flightaware.apikey";
+    private static final String CONFIG_USERNAME = "flightaware.username";
+    private static final String CMD_OPT_QUERY = "query";
     private static final String CMD_OPT_OUTDIR = "out";
 
     private FlightRepository flightRepository;
@@ -36,17 +37,8 @@ public class FlightAware extends CommandLineBase {
 
         opts.addOption(
                 OptionBuilder
-                        .withLongOpt(CMD_OPT_API_KEY)
-                        .withDescription("Flight Aware API Key")
-                        .hasArg()
-                        .isRequired()
-                        .create()
-        );
-
-        opts.addOption(
-                OptionBuilder
-                        .withLongOpt(CMD_OPT_USERNAME)
-                        .withDescription("Flight Aware Username")
+                        .withLongOpt(CMD_OPT_QUERY)
+                        .withDescription("Flight Aware query (eg \"-idents VRD*\")")
                         .hasArg()
                         .isRequired()
                         .create()
@@ -73,15 +65,24 @@ public class FlightAware extends CommandLineBase {
                 return 1;
             }
         }
-        String apiKey = cmd.getOptionValue(CMD_OPT_API_KEY);
-        String userName = cmd.getOptionValue(CMD_OPT_USERNAME);
+        String query = cmd.getOptionValue(CMD_OPT_QUERY);
+        String apiKey = getConfiguration().get(CONFIG_API_KEY);
+        if (apiKey == null) {
+            System.err.println("Could not find configuration " + CONFIG_API_KEY);
+            return 1;
+        }
+        String userName = getConfiguration().get(CONFIG_USERNAME);
+        if (userName == null) {
+            System.err.println("Could not find configuration " + CONFIG_USERNAME);
+            return 1;
+        }
         FlightAwareClient client = new FlightAwareClient(apiKey, userName);
 
         Visibility visibility = new Visibility("");
         while (true) {
             LOGGER.info("Performing search");
             try {
-                JSONObject json = client.search("-idents VRD*");
+                JSONObject json = client.search(query);
 
                 if (cmd.hasOption("out")) {
                     String fileName = FlightRepository.ISO8601DATEFORMAT.format(new Date()) + ".json";
