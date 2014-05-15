@@ -83,6 +83,11 @@ public class GtdIngest extends CommandLineBase {
     private static final String VISIBILITY_OPTION = "visibility";
 
     /**
+     * The CLAVIN index directory option.
+     */
+    private static final String CLAVIN_DIRECTORY_OPTION = "clavinIndex";
+
+    /**
      * The GTD document mapping.
      */
     private static final String DEFAULT_GTD_MAPPING_FILE = "gtd.mapping.json";
@@ -131,6 +136,11 @@ public class GtdIngest extends CommandLineBase {
      * The configured DocumentMapping.
      */
     private DocumentMapping mapping;
+
+    /**
+     * The path to the CLAVIN index.
+     */
+    private String clavinPath;
 
     /**
      * The CLAVIN gazetteer.
@@ -335,7 +345,6 @@ public class GtdIngest extends CommandLineBase {
 
     protected void init() throws Exception {
         // initialize the CLAVIN index
-        String clavinPath = getConfiguration().get(CLAVIN_INDEX_DIRECTORY_CFG);
         if (clavinPath != null) {
             try {
                 gazetteer = new LuceneGazetteer(new File(clavinPath));
@@ -385,6 +394,12 @@ public class GtdIngest extends CommandLineBase {
                 .hasArg()
                 .create('v'));
 
+        opts.addOption(OptionBuilder
+                .withLongOpt(CLAVIN_DIRECTORY_OPTION)
+                .withDescription("The path to the CLAVIN index.")
+                .hasArg()
+                .create());
+
         return opts;
     }
 
@@ -412,6 +427,8 @@ public class GtdIngest extends CommandLineBase {
 
         String vis = cmd.getOptionValue(VISIBILITY_OPTION, DEFAULT_VISIBILITY);
         visibility = new Visibility(vis);
+
+        clavinPath = cmd.getOptionValue(CLAVIN_DIRECTORY_OPTION, getConfiguration().get(CLAVIN_INDEX_DIRECTORY_CFG));
     }
 
     @Inject
