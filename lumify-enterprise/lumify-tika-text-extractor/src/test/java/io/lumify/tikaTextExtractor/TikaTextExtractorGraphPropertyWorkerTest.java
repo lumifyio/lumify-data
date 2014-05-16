@@ -90,7 +90,7 @@ public class TikaTextExtractorGraphPropertyWorkerTest {
         StreamingPropertyValue textValue = new StreamingPropertyValue(new ByteArrayInputStream(data.getBytes()), byte[].class);
         textValue.searchIndex(false);
         Map<String, Object> metadata = new HashMap<String, Object>();
-        metadata.put(RawLumifyProperties.METADATA_MIME_TYPE, "text/html");
+        metadata.put(RawLumifyProperties.MIME_TYPE.getKey(), "text/html");
         RawLumifyProperties.RAW.setProperty(v, textValue, metadata, visibility);
         v.save();
     }

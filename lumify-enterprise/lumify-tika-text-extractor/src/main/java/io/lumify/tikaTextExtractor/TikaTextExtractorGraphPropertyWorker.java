@@ -91,8 +91,8 @@ public class TikaTextExtractorGraphPropertyWorker extends GraphPropertyWorker {
 
     @Override
     public void execute(InputStream in, GraphPropertyWorkData data) throws Exception {
-        String mimeType = (String) data.getProperty().getMetadata().get(RawLumifyProperties.METADATA_MIME_TYPE);
-        checkNotNull(mimeType, RawLumifyProperties.METADATA_MIME_TYPE + " is a required metadata field");
+        String mimeType = (String) data.getProperty().getMetadata().get(RawLumifyProperties.MIME_TYPE.getKey());
+        checkNotNull(mimeType, RawLumifyProperties.MIME_TYPE.getKey() + " is a required metadata field");
 
         Metadata metadata = new Metadata();
         String text = extractText(in, mimeType, metadata);
@@ -111,7 +111,7 @@ public class TikaTextExtractorGraphPropertyWorker extends GraphPropertyWorker {
 
         String customImageMetadata = extractTextField(metadata, customFlickrMetadataKeys);
         Map<String, Object> textMetadata = data.getPropertyMetadata();
-        textMetadata.put(RawLumifyProperties.METADATA_MIME_TYPE, "text/plain");
+        textMetadata.put(RawLumifyProperties.MIME_TYPE.getKey(), "text/plain");
 
         if (customImageMetadata != null && !customImageMetadata.equals("")) {
             try {
@@ -282,7 +282,7 @@ public class TikaTextExtractorGraphPropertyWorker extends GraphPropertyWorker {
             return false;
         }
 
-        String mimeType = (String) property.getMetadata().get(RawLumifyProperties.METADATA_MIME_TYPE);
+        String mimeType = (String) property.getMetadata().get(RawLumifyProperties.MIME_TYPE.getKey());
         if (mimeType == null) {
             return false;
         }

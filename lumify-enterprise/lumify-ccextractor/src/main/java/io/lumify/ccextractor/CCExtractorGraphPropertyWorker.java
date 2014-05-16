@@ -1,5 +1,6 @@
 package io.lumify.ccextractor;
 
+import com.google.inject.Inject;
 import io.lumify.core.ingest.graphProperty.GraphPropertyWorkData;
 import io.lumify.core.ingest.graphProperty.GraphPropertyWorker;
 import io.lumify.core.ingest.video.VideoTranscript;
@@ -11,7 +12,6 @@ import org.securegraph.Element;
 import org.securegraph.Property;
 import org.securegraph.Vertex;
 import org.securegraph.mutation.ExistingElementMutation;
-import com.google.inject.Inject;
 
 import java.io.File;
 import java.io.InputStream;
@@ -58,7 +58,7 @@ public class CCExtractorGraphPropertyWorker extends GraphPropertyWorker {
         if (!property.getName().equals(RawLumifyProperties.RAW.getKey())) {
             return false;
         }
-        String mimeType = (String) property.getMetadata().get(RawLumifyProperties.METADATA_MIME_TYPE);
+        String mimeType = (String) property.getMetadata().get(RawLumifyProperties.MIME_TYPE.getKey());
         if (mimeType == null || !mimeType.startsWith("video")) {
             return false;
         }

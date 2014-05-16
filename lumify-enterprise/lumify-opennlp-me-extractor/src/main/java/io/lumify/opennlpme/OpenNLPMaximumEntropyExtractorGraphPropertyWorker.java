@@ -141,7 +141,7 @@ public class OpenNLPMaximumEntropyExtractorGraphPropertyWorker extends GraphProp
             return false;
         }
 
-        String mimeType = (String) property.getMetadata().get(RawLumifyProperties.METADATA_MIME_TYPE);
+        String mimeType = (String) property.getMetadata().get(RawLumifyProperties.MIME_TYPE.getKey());
         return !(mimeType == null || !mimeType.startsWith("text"));
     }
 

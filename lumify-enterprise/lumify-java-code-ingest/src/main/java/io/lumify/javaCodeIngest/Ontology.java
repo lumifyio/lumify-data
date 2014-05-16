@@ -1,7 +1,6 @@
 package io.lumify.javaCodeIngest;
 
-import io.lumify.core.model.properties.types.TextLumifyProperty;
-import org.securegraph.TextIndexHint;
+import io.lumify.core.model.properties.types.StringLumifyProperty;
 
 public class Ontology {
     public static final String EDGE_LABEL_JAR_CONTAINS = "http://lumify.io/java-code-ingest#jarFileContains";
@@ -19,6 +18,6 @@ public class Ontology {
     public static final String CONCEPT_TYPE_METHOD = "http://lumify.io/java-code-ingest#method";
     public static final String CONCEPT_TYPE_FIELD = "http://lumify.io/java-code-ingest#field";
 
-    public static final TextLumifyProperty CLASS_NAME = new TextLumifyProperty("http://lumify.io/java-code-ingest#className", TextIndexHint.EXACT_MATCH);
-    public static final TextLumifyProperty ARGUMENT_NAME = new TextLumifyProperty("http://lumify.io/java-code-ingest#argumentName", TextIndexHint.EXACT_MATCH);
+    public static final StringLumifyProperty CLASS_NAME = new StringLumifyProperty("http://lumify.io/java-code-ingest#className");
+    public static final StringLumifyProperty ARGUMENT_NAME = new StringLumifyProperty("http://lumify.io/java-code-ingest#argumentName");
 }
