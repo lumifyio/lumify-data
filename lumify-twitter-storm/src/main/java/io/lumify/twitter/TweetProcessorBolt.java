@@ -12,6 +12,7 @@ import io.lumify.core.bootstrap.InjectHelper;
 import io.lumify.core.bootstrap.LumifyBootstrap;
 import io.lumify.core.exception.LumifyException;
 import io.lumify.core.model.ontology.OntologyLumifyProperties;
+import io.lumify.core.model.properties.EntityLumifyProperties;
 import io.lumify.core.model.properties.LumifyProperties;
 import io.lumify.core.model.properties.RawLumifyProperties;
 import io.lumify.core.model.termMention.TermMentionModel;
@@ -34,6 +35,7 @@ import java.util.concurrent.TimeUnit;
 
 public class TweetProcessorBolt extends BaseRichBolt {
     private static final String MULTI_VALUE_KEY = TweetProcessorBolt.class.getName();
+    private static final String SOURCE_NAME = "twitter.com";
     private final SimpleDateFormat DATE_FORMAT = new SimpleDateFormat("EEE MMM d HH:mm:ss z yyyy");
     private Graph graph;
     private UserRepository userRepository;
@@ -74,6 +76,7 @@ public class TweetProcessorBolt extends BaseRichBolt {
         VertexBuilder v = this.graph.prepareVertex(vertexId, visibility, authorizations);
 
         OntologyLumifyProperties.CONCEPT_TYPE.addPropertyValue(v, MULTI_VALUE_KEY, TwitterOntology.CONCEPT_TYPE_TWEET, visibility);
+        EntityLumifyProperties.SOURCE.addPropertyValue(v, MULTI_VALUE_KEY, SOURCE_NAME, visibility);
 
         StreamingPropertyValue rawValue = new StreamingPropertyValue(new ByteArrayInputStream(jsonString.getBytes()), byte[].class);
         rawValue.searchIndex(false);
@@ -143,6 +146,7 @@ public class TweetProcessorBolt extends BaseRichBolt {
             VertexBuilder v = this.graph.prepareVertex(vertexId, visibility, authorizations);
 
             OntologyLumifyProperties.CONCEPT_TYPE.addPropertyValue(v, MULTI_VALUE_KEY, TwitterOntology.CONCEPT_TYPE_USER, visibility);
+            EntityLumifyProperties.SOURCE.addPropertyValue(v, MULTI_VALUE_KEY, SOURCE_NAME, visibility);
 
             LumifyProperties.TITLE.addPropertyValue(v, MULTI_VALUE_KEY, userJson.getString("name"), visibility);
             String profileImageUrl = userJson.optString("profile_image_url");
@@ -243,6 +247,7 @@ public class TweetProcessorBolt extends BaseRichBolt {
             VertexBuilder v = this.graph.prepareVertex(vertexId, visibility, authorizations);
 
             OntologyLumifyProperties.CONCEPT_TYPE.addPropertyValue(v, MULTI_VALUE_KEY, TwitterOntology.CONCEPT_TYPE_URL, visibility);
+            EntityLumifyProperties.SOURCE.addPropertyValue(v, MULTI_VALUE_KEY, SOURCE_NAME, visibility);
 
             LumifyProperties.TITLE.addPropertyValue(v, MULTI_VALUE_KEY, url, visibility);
 
@@ -295,6 +300,7 @@ public class TweetProcessorBolt extends BaseRichBolt {
             VertexBuilder v = this.graph.prepareVertex(vertexId, visibility, authorizations);
 
             OntologyLumifyProperties.CONCEPT_TYPE.addPropertyValue(v, MULTI_VALUE_KEY, TwitterOntology.CONCEPT_TYPE_HASHTAG, visibility);
+            EntityLumifyProperties.SOURCE.addPropertyValue(v, MULTI_VALUE_KEY, SOURCE_NAME, visibility);
 
             LumifyProperties.TITLE.addPropertyValue(v, MULTI_VALUE_KEY, text, visibility);
 
