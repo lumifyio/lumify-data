@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <parent>
+        <groupId>io.lumify</groupId>
+        <artifactId>lumify-root</artifactId>
+        <version>0.2.0-SNAPSHOT</version>
+    </parent>
+    <modelVersion>4.0.0</modelVersion>
+
+    <artifactId>lumify-tomcat-server-with-auth</artifactId>
+    <name>Lumify: Tomcat Server with an authentication plugin</name>
+    <description>This project creates a classpath for running Tomcat with an authentication plugin via your IDE</description>
+
+    <dependencies>
+        <dependency>
+            <groupId>io.lumify</groupId>
+            <artifactId>lumify-tomcat-server</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>io.lumify</groupId>
+            <artifactId>lumify-web-dev-tools</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>io.lumify</groupId>
+            <artifactId>lumify-web-auth-x509ldap</artifactId> <!-- change authentication here -->
+            <version>${project.version}</version>
+        </dependency>
+    </dependencies>
+
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-dependency-plugin</artifactId>
+            </plugin>
+        </plugins>
+    </build>
+</project>
