@@ -3,6 +3,7 @@ package io.lumify.flightTrack;
 import com.google.inject.Inject;
 import io.lumify.core.exception.LumifyException;
 import io.lumify.core.model.ontology.OntologyLumifyProperties;
+import io.lumify.core.model.properties.EntityLumifyProperties;
 import io.lumify.core.model.properties.LumifyProperties;
 import io.lumify.core.model.workQueue.WorkQueueRepository;
 import io.lumify.core.util.LumifyLogger;
@@ -28,6 +29,7 @@ public class FlightRepository {
     private static final LumifyLogger LOGGER = LumifyLoggerFactory.getLogger(FlightRepository.class);
     public static final SimpleDateFormat ISO8601DATEFORMAT = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss");
     private static final String MULTI_VALUE_PROPERTY_KEY = FlightRepository.class.getName();
+    private static final String SOURCE_NAME = "FlightAware.com";
     private Graph graph;
     private WorkQueueRepository workQueueRepository;
     private Map<String, Airport> airportCodeMap = new HashMap<String, Airport>();
@@ -172,6 +174,7 @@ public class FlightRepository {
         VertexBuilder vb = graph.prepareVertex(airportId, visibility, authorizations);
         OntologyLumifyProperties.CONCEPT_TYPE.setProperty(vb, FlightTrackOntology.CONCEPT_TYPE_AIRPORT, visibility);
         FlightTrackOntology.AIRPORT_CODE.setProperty(vb, airportCode, visibility);
+        EntityLumifyProperties.SOURCE.addPropertyValue(vb, MULTI_VALUE_PROPERTY_KEY, SOURCE_NAME, visibility);
         if (airport != null) {
             FlightTrackOntology.LOCATION.addPropertyValue(vb, MULTI_VALUE_PROPERTY_KEY, airport.getGeoPoint(), visibility);
             LumifyProperties.TITLE.addPropertyValue(vb, MULTI_VALUE_PROPERTY_KEY, airport.getTitle(), visibility);
@@ -205,6 +208,7 @@ public class FlightRepository {
         VertexBuilder vb = graph.prepareVertex(airplaneId, visibility, authorizations);
         OntologyLumifyProperties.CONCEPT_TYPE.setProperty(vb, FlightTrackOntology.CONCEPT_TYPE_AIRPLANE, visibility);
         FlightTrackOntology.IDENT.setProperty(vb, ident, visibility);
+        EntityLumifyProperties.SOURCE.addPropertyValue(vb, MULTI_VALUE_PROPERTY_KEY, SOURCE_NAME, visibility);
         airplaneVertex = vb.save();
         identToVertex.put(ident, airplaneVertex);
         graph.flush();
@@ -252,6 +256,7 @@ public class FlightRepository {
         OntologyLumifyProperties.CONCEPT_TYPE.setProperty(vb, FlightTrackOntology.CONCEPT_TYPE_AIRLINE, visibility);
         LumifyProperties.TITLE.addPropertyValue(vb, MULTI_VALUE_PROPERTY_KEY, airline.getTitle(), visibility);
         FlightTrackOntology.AIRLINE_PREFIX.addPropertyValue(vb, MULTI_VALUE_PROPERTY_KEY, airline.getIdentPrefix(), visibility);
+        EntityLumifyProperties.SOURCE.addPropertyValue(vb, MULTI_VALUE_PROPERTY_KEY, SOURCE_NAME, visibility);
         v = vb.save();
         airlinePrefixToVertex.put(airline.getIdentPrefix(), v);
 
