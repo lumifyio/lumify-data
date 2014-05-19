@@ -8,6 +8,7 @@ import io.lumify.core.exception.LumifyResourceNotFoundException;
 import io.lumify.core.util.LumifyLogger;
 import io.lumify.core.util.LumifyLoggerFactory;
 import org.apache.commons.io.IOUtils;
+import org.securegraph.TextIndexHint;
 import org.securegraph.util.ConvertingIterable;
 import org.semanticweb.owlapi.apibinding.OWLManager;
 import org.semanticweb.owlapi.io.OWLOntologyDocumentSource;
@@ -34,6 +35,7 @@ public class ReadOnlyInMemoryOntologyRepository extends OntologyRepositoryBase {
 
     public void init(Configuration config) throws Exception {
         Map<String, String> ontologies = config.getSubset(Configuration.ONTOLOGY_REPOSITORY_OWL);
+        clearCache();
         owlConfig.setMissingImportHandlingStrategy(MissingImportHandlingStrategy.SILENT);
         if (!isOntologyDefined()) {
             LOGGER.info("Base ontology not defined. Creating a new ontology.");
@@ -78,6 +80,11 @@ public class ReadOnlyInMemoryOntologyRepository extends OntologyRepositoryBase {
             result.setDisplayType(displayType);
         }
 
+        String titleFormula = getTitleFormula(o, ontologyClass);
+        if (titleFormula != null) {
+            result.setTitleFormula(titleFormula);
+        }
+
         String glyphIconFileName = getGlyphIconFileName(o, ontologyClass);
         if (glyphIconFileName != null) {
             File iconFile = new File(inDir, glyphIconFileName);
@@ -85,11 +92,8 @@ public class ReadOnlyInMemoryOntologyRepository extends OntologyRepositoryBase {
                 throw new RuntimeException("Could not find icon file: " + iconFile.toString());
             }
             InputStream iconFileIn = new FileInputStream(iconFile);
-            try {
-                result.setGlyphIconInputStream(iconFileIn);
-            } finally {
-                iconFileIn.close();
-            }
+            result.setGlyphIconInputStream(iconFileIn);
+            result.setHasGlyphIcon(true);
         }
         conceptsCache.put(uri, result);
         return result;
@@ -135,24 +139,41 @@ public class ReadOnlyInMemoryOntologyRepository extends OntologyRepositoryBase {
     }
 
     @Override
-    protected OntologyProperty addPropertyTo(Concept concept, String propertyIRI, String displayName, PropertyType dataType, ArrayList<PossibleValueType> possibleValues, boolean userVisible) {
+    protected OntologyProperty addPropertyTo(
+            Concept concept,
+            String propertyIRI,
+            String displayName,
+            PropertyType dataType,
+            ArrayList<PossibleValueType> possibleValues,
+            Collection<TextIndexHint> textIndexHints,
+            boolean userVisible,
+            boolean searchable) {
         checkNotNull(concept, "concept was null");
-        InMemoryOntologyProperty property = getOrCreatePropertyType(propertyIRI, dataType, displayName, possibleValues, userVisible);
+        InMemoryOntologyProperty property = getOrCreatePropertyType(propertyIRI, dataType, displayName, possibleValues, textIndexHints, userVisible, searchable);
         checkNotNull(property, "Could not find property: " + propertyIRI);
         return property;
     }
 
-    private InMemoryOntologyProperty getOrCreatePropertyType(final String propertyName, final PropertyType dataType, final String displayName, ArrayList<PossibleValueType> possibleValues, boolean userVisible) {
+    private InMemoryOntologyProperty getOrCreatePropertyType(
+            final String propertyName,
+            final PropertyType dataType,
+            final String displayName,
+            ArrayList<PossibleValueType> possibleValues,
+            Collection<TextIndexHint> textIndexHints,
+            boolean userVisible,
+            boolean searchable) {
         InMemoryOntologyProperty property = (InMemoryOntologyProperty) getProperty(propertyName);
         if (property == null) {
             property = new InMemoryOntologyProperty();
             property.setDataType(dataType);
             property.setUserVisible(userVisible);
+            property.setSearchable(searchable);
+            property.setTitle(propertyName);
             if (displayName != null && !displayName.trim().isEmpty()) {
                 property.setDisplayName(displayName);
             }
             if (possibleValues.size() > 0) {
-                property.setPossibleValues (possibleValues);
+                property.setPossibleValues(possibleValues);
             }
             propertiesCache.put(propertyName, property);
         }
@@ -161,6 +182,11 @@ public class ReadOnlyInMemoryOntologyRepository extends OntologyRepositoryBase {
 
     @Override
     public void clearCache() {
+        LOGGER.info("clearing ReadOnlyInMemoryOntologyRepository cache");
+        fileCache.invalidateAll();
+        propertiesCache.invalidateAll();
+        relationshipsCache.invalidateAll();
+        conceptsCache.invalidateAll();
     }
 
     @Override

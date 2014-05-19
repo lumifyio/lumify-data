@@ -112,13 +112,8 @@ define([
                 } else {
                     this.select('conceptSelector').attr('disabled', false);
                 }
-                var conceptType = (info && (
-                    (info['http://lumify.io#conceptType'] && info['http://lumify.io#conceptType'].value) ||
-                        info['http://lumify.io#conceptType'] ||
-                        (info.properties &&
-                         info.properties['http://lumify.io#conceptType'] &&
-                         info.properties['http://lumify.io#conceptType'].value)
-                    )) || '';
+                var conceptType = _.findWhere(info, { name: 'http://lumify.io#conceptType' });
+                conceptType = conceptType ? conceptType.value : '';
 
                 this.updateConceptSelect(conceptType).show();
 
@@ -557,7 +552,7 @@ define([
                 .then(function(response) {
                     badge.removeClass('loading');
                     return _.filter(response.vertices, function(v) {
-                        return ~F.vertex.prop(v, 'title').toLowerCase().indexOf(query.toLowerCase());
+                        return ~F.vertex.title(v).toLowerCase().indexOf(query.toLowerCase());
                     });
                 }).done(this.updateQueryCountBadge.bind(this));
 
@@ -582,13 +577,13 @@ define([
                             var all = _.map(entities, function(e) {
                                 return $.extend({
                                     toLowerCase: function() {
-                                        return F.vertex.prop(e, 'title').toLowerCase();
+                                        return F.vertex.title(e).toLowerCase();
                                     },
                                     toString: function() {
                                         return e.id;
                                     },
                                     indexOf: function(s) {
-                                        return F.vertex.prop(e, 'title').indexOf(s);
+                                        return F.vertex.title(e).indexOf(s);
                                     }
                                 }, e);
                             });
@@ -666,7 +661,7 @@ define([
                             if (matchingItem && matchingItem.length) {
                                 graphVertexId = item;
                                 label = matchingItem[0].properties ?
-                                    F.vertex.prop(matchingItem[0], 'title') :
+                                    F.vertex.title(matchingItem[0]) :
                                     matchingItem;
 
                                 if (graphVertexId == createNewText) {
@@ -689,7 +684,7 @@ define([
                                     item :
                                     Object.getPrototypeOf(this).highlighter.apply(
                                         this,
-                                        [F.vertex.prop(item, 'title')]
+                                        [F.vertex.title(item)]
                                     ),
                                 concept = _.find(self.allConcepts, function(c) {
                                     return item.properties && c.id === F.vertex.prop(item, 'conceptType');

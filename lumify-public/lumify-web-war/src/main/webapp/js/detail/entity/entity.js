@@ -72,7 +72,7 @@ define([
 
             data.vertices.forEach(function(vertex) {
                 if (vertex.id === self.attr.data.id) {
-                    self.select('titleSelector').html(F.vertex.prop(vertex, 'title'));
+                    self.select('titleSelector').html(F.vertex.title(vertex));
                 }
             });
         };
@@ -173,15 +173,15 @@ define([
 
                 sortedKeys.forEach(function(section) {
                     if (section !== 'references') {
-                        groupedByType[section].sort(function(a,b) {
+                        groupedByType[section].sort(function(a, b) {
                             var direction = defaultSort(
-                                a.vertex.id === a.vertices.src.id ? 0 : 1,
-                                b.vertex.id === b.vertices.src.id ? 0 : 1
+                                    a.vertex.id === a.vertices.src.id ? 0 : 1,
+                                    b.vertex.id === b.vertices.src.id ? 0 : 1
                             )
                             if (direction === 0) {
                                 return defaultSort(
-                                    F.vertex.prop(a.vertex, 'title').toLowerCase(),
-                                    F.vertex.prop(b.vertex, 'title').toLowerCase()
+                                    F.vertex.title(a.vertex).toLowerCase(),
+                                    F.vertex.title(b.vertex).toLowerCase()
                                 );
                             } else {
                                 return direction;
@@ -190,13 +190,12 @@ define([
                     }
                 });
 
-                sortedKeys.sort(function(a,b) {
-
+                sortedKeys.sort(function(a, b) {
                     // If in references group sort by the title
                     if (a === b && a === 'references') {
                         return defaultSort(
-                            F.vertex.prop(a.vertex, 'title'),
-                            F.vertex.prop(b.vertex, 'title')
+                            F.vertex.title(a.vertex),
+                            F.vertex.title(b.vertex)
                         );
                     }
 

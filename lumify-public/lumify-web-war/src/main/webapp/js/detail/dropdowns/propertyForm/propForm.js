@@ -1,4 +1,5 @@
 define([
+    'require',
     'flight/lib/component',
     '../withDropdown',
     'tpl!./propForm',
@@ -9,6 +10,7 @@ define([
     'util/withTeardown',
     'util/vertex/formatters'
 ], function(
+    require,
     defineComponent,
     withDropdown,
     template,
@@ -36,6 +38,8 @@ define([
             deleteButtonSelector: '.btn-danger',
             configurationSelector: '.configuration',
             configurationFieldSelector: '.configuration input',
+            previousValuesSelector: '.previous-values',
+            previousValuesDropdownSelector: '.previous-values-container .dropdown-menu',
             visibilitySelector: '.visibility',
             justificationSelector: '.justification',
             propertyInputSelector: '.input-row input',
@@ -54,7 +58,8 @@ define([
 
             this.on('click', {
                 saveButtonSelector: this.onSave,
-                deleteButtonSelector: this.onDelete
+                deleteButtonSelector: this.onDelete,
+                previousValuesSelector: this.onPreviousValuesButtons
             });
             this.on('keyup', {
                 propertyInputSelector: this.onKeyup,
@@ -72,15 +77,20 @@ define([
             this.on('paste', {
                 configurationFieldSelector: _.debounce(this.onPaste.bind(this), 10)
             });
+            this.on('click', {
+                previousValuesDropdownSelector: this.onPreviousValuesDropdown
+            });
             this.$node.html(template({
                 property: this.attr.property
             }));
 
             self.select('saveButtonSelector').attr('disabled', true);
             self.select('deleteButtonSelector').hide();
+            self.select('saveButtonSelector').hide();
 
             if (this.attr.property) {
                 this.trigger('propertyselected', {
+                    disablePreviousValuePrompt: true,
                     property: _.chain(this.attr.property)
                         .pick('displayName key name value visibility'.split(' '))
                         .extend({
@@ -136,9 +146,71 @@ define([
             });
         };
 
+        this.onPreviousValuesButtons = function(event) {
+            var dropdown = this.select('previousValuesDropdownSelector'),
+                buttons = this.select('previousValuesSelector').find('.active').removeClass('active'),
+                action = $(event.target).closest('button').addClass('active').data('action');
+
+            if (action === 'add') {
+                dropdown.hide();
+                this.trigger('propertyselected', {
+                    fromPreviousValuePrompt: true,
+                    property: _.omit(this.currentProperty, 'value', 'key')
+                });
+            } else if (this.previousValues.length > 1) {
+                this.trigger('propertyselected', {
+                    property: _.omit(this.currentProperty, 'value', 'key')
+                });
+
+                dropdown.html(
+                        this.previousValues.map(function(p, i) {
+                            var visibility = p['http://lumify.io#visibilityJson'];
+                            return _.template(
+                                '<li data-index="{i}">' +
+                                    '<a href="#">{value}' +
+                                        '<div data-visibility="{visibilityJson}" class="visibility"/>' +
+                                    '</a>' +
+                                '</li>')({
+                                value: F.vertex.displayProp(p),
+                                visibilityJson: JSON.stringify(visibility || {}),
+                                i: i
+                            });
+                        }).join('')
+                    ).show();
+
+                require(['configuration/plugins/visibility/visibilityDisplay'], function(Visibility) {
+                    dropdown.find('.visibility').each(function() {
+                        var value = $(this).data('visibility');
+                        Visibility.attachTo(this, {
+                            value: value && value.source
+                        });
+                    });
+                });
+
+            } else {
+                dropdown.hide();
+                this.trigger('propertyselected', {
+                    fromPreviousValuePrompt: true,
+                    property: $.extend({}, this.currentProperty, this.previousValues[0])
+                });
+            }
+        };
+
+        this.onPreviousValuesDropdown = function(event) {
+            var li = $(event.target).closest('li');
+                index = li.data('index');
+
+            this.$node.find('.previous-values .edit-previous').addClass('active');
+            this.trigger('propertyselected', {
+                fromPreviousValuePrompt: true,
+                property: $.extend({}, this.currentProperty, this.previousValues[index])
+            });
+        };
+
         this.onPropertySelected = function(event, data) {
             var self = this,
                 property = data.property,
+                disablePreviousValuePrompt = data.disablePreviousValuePrompt,
                 propertyName = property.title,
                 config = self.select('configurationSelector'),
                 visibility = self.select('visibilitySelector'),
@@ -151,12 +223,13 @@ define([
             visibility.teardownAllComponents();
             justification.teardownAllComponents();
 
-            var vertexProperty = property.key ?
+            var vertexProperty = property.key || property.key === '' ?
                     F.vertex.propForNameAndKey(this.attr.data, property.name, property.key) : undefined,
                 previousValue = vertexProperty && (vertexProperty.latitude ? vertexProperty : vertexProperty.value),
                 visibilityValue = vertexProperty && vertexProperty['http://lumify.io#visibilityJson'],
                 sandboxStatus = vertexProperty && vertexProperty.sandboxStatus,
-                isExistingProperty = typeof vertexProperty !== 'undefined';
+                isExistingProperty = typeof vertexProperty !== 'undefined',
+                previousValues = disablePreviousValuePrompt !== true && F.vertex.props(this.attr.data, propertyName);
 
             this.currentValue = previousValue;
             if (this.currentValue && this.currentValue.latitude) {
@@ -167,6 +240,33 @@ define([
                 visibilityValue = visibilityValue.source;
                 this.visibilitySource = { value: visibilityValue, valid: true };
             }
+
+            if (data.fromPreviousValuePrompt !== true) {
+                if (previousValues && previousValues.length) {
+                    this.previousValues = previousValues;
+                    this.select('previousValuesSelector')
+                        .show()
+                        .find('.active').removeClass('active')
+                        .addBack()
+                        .find('.edit-previous span').text(previousValues.length)
+                        .addBack()
+                        .find('.edit-previous small').toggle(previousValues.length > 1);
+
+                    this.select('justificationSelector').hide();
+                    this.select('visibilitySelector').hide();
+                    this.select('saveButtonSelector').hide();
+                    this.select('previousValuesDropdownSelector').hide();
+
+                    return;
+                } else {
+                    this.select('previousValuesSelector').hide();
+                }
+            }
+
+            this.select('previousValuesDropdownSelector').hide();
+            this.select('justificationSelector').show();
+            this.select('visibilitySelector').show();
+            this.select('saveButtonSelector').show();
 
             this.select('deleteButtonSelector')
                 .text(
@@ -314,9 +414,15 @@ define([
 
             if (data.values.length === 1) {
                 this.currentValue = data.values[0];
-            } else if (data.values.length > 1) {
+            } else if (data.values.length === 2) {
                 // Must be geoLocation
                 this.currentValue = 'point(' + data.values.join(',') + ')';
+            } else if (data.values.length === 3) {
+                this.currentValue = JSON.stringify({
+                    description: data.values[0],
+                    latitude: data.values[1],
+                    longitude: data.values[2]
+                });
             }
         };
 

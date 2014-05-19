@@ -23,8 +23,11 @@ define(['util/withTeardown'], function(withTeardown) {
             var inputs = this.select('visibleInputsSelector'),
                 inputsNoSelects = inputs.not('select');
 
-            this.$node.find('input').each(function() {
-                $(this).attr('required', true)
+            this.$node.find('input:not([type=checkbox])').each(function() {
+                var $this = $(this);
+                if ($this.data('optional') !== true) {
+                    $this.attr('required', true)
+                }
             });
 
             if (inputsNoSelects.length && this.attr.tooltip &&
@@ -76,6 +79,10 @@ define(['util/withTeardown'], function(withTeardown) {
 
         this.getValues = function() {
             return this.select('visibleInputsSelector').map(function() {
+                var $this = $(this);
+                if ($this.is('input[type=checkbox]')) {
+                    return $this.prop('checked');
+                }
                 return $(this).val();
             }).toArray();
         };

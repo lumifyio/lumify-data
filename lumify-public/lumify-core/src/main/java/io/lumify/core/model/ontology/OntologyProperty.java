@@ -27,6 +27,8 @@ public abstract class OntologyProperty {
 
     public abstract boolean getUserVisible();
 
+    public abstract boolean getSearchable ();
+
     public abstract PropertyType getDataType();
 
     public abstract List<PossibleValueType> getPossibleValues();
@@ -45,6 +47,7 @@ public abstract class OntologyProperty {
             json.put("title", getTitle());
             json.put("displayName", getDisplayName());
             json.put("userVisible", getUserVisible());
+            json.put("searchable", getSearchable());
             json.put("dataType", getDataType().toString());
             if (getPossibleValues() != null && getPossibleValues().size() > 0) {
                 JSONArray possibleValues = new JSONArray();
@@ -86,18 +89,28 @@ public abstract class OntologyProperty {
     }
 
     protected Object parseGeoLocation(String valueStr) {
-        Matcher match = GEO_LOCATION_FORMAT.matcher(valueStr);
-        if (match.find()) {
-            double latitude = Double.parseDouble(match.group(1).trim());
-            double longitude = Double.parseDouble(match.group(2).trim());
-            return new GeoPoint(latitude, longitude);
+        try {
+            JSONObject json = new JSONObject(valueStr);
+            double latitude = json.getDouble("latitude");
+            double longitude = json.getDouble("longitude");
+            String altitudeString = json.optString("altitude");
+            Double altitude = (altitudeString == null || altitudeString.length() == 0) ? null : Double.parseDouble(altitudeString);
+            String description = json.optString("description");
+            return new GeoPoint(latitude, longitude, altitude, description);
+        } catch (Exception ex) {
+            Matcher match = GEO_LOCATION_FORMAT.matcher(valueStr);
+            if (match.find()) {
+                double latitude = Double.parseDouble(match.group(1).trim());
+                double longitude = Double.parseDouble(match.group(2).trim());
+                return new GeoPoint(latitude, longitude);
+            }
+            match = GEO_LOCATION_ALTERNATE_FORMAT.matcher(valueStr);
+            if (match.find()) {
+                double latitude = Double.parseDouble(match.group(1).trim());
+                double longitude = Double.parseDouble(match.group(2).trim());
+                return new GeoPoint(latitude, longitude);
+            }
+            throw new RuntimeException("Could not parse location: " + valueStr);
         }
-        match = GEO_LOCATION_ALTERNATE_FORMAT.matcher(valueStr);
-        if (match.find()) {
-            double latitude = Double.parseDouble(match.group(1).trim());
-            double longitude = Double.parseDouble(match.group(2).trim());
-            return new GeoPoint(latitude, longitude);
-        }
-        throw new RuntimeException("Could not parse location: " + valueStr);
     }
 }

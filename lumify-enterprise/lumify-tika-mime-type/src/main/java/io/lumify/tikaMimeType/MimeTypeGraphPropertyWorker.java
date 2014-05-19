@@ -42,7 +42,7 @@ public class MimeTypeGraphPropertyWorker extends GraphPropertyWorker {
             LumifyVisibilityProperties.VISIBILITY_JSON_PROPERTY.setMetadata(mimeTypeMetadata, visibilityJson);
         }
         RawLumifyProperties.MIME_TYPE.setProperty(m, mimeType, mimeTypeMetadata, data.getVisibility());
-        m.alterPropertyMetadata(data.getProperty(), RawLumifyProperties.METADATA_MIME_TYPE, mimeType);
+        m.alterPropertyMetadata(data.getProperty(), RawLumifyProperties.MIME_TYPE.getKey(), mimeType);
         m.save();
 
         getGraph().flush();

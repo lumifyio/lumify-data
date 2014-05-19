@@ -12,6 +12,8 @@ import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
 import java.util.Collection;
 
+import static io.lumify.core.model.ontology.OntologyLumifyProperties.TITLE_FORMULA;
+
 public abstract class Concept {
     private final String parentConceptIRI;
     private final Collection<OntologyProperty> properties;
@@ -31,6 +33,8 @@ public abstract class Concept {
 
     public abstract String getDisplayType();
 
+    public abstract String getTitleFormula();
+
     public Collection<OntologyProperty> getProperties() {
         return properties;
     }
@@ -47,6 +51,9 @@ public abstract class Concept {
             result.put("displayName", getDisplayName());
             if (getDisplayType() != null) {
                 result.put("displayType", getDisplayType());
+            }
+            if (getTitleFormula() != null) {
+                result.put("titleFormula", getTitleFormula());
             }
             if (getParentConceptIRI() != null) {
                 result.put("parentConcept", getParentConceptIRI());

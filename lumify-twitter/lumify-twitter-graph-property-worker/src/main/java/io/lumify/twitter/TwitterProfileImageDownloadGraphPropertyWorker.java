@@ -78,10 +78,6 @@ public class TwitterProfileImageDownloadGraphPropertyWorker extends GraphPropert
         if (value instanceof String) {
             return (String) value;
         }
-        if (value instanceof Text) {
-            Text t = (Text) value;
-            return t.getText();
-        }
         throw new ClassCastException("Could not convert " + value.getClass().getName() + " to string");
     }
 

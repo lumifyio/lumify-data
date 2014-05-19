@@ -1,0 +1,372 @@
+{
+	"type": "csv",
+	"subject": "Global Terrorism Database (GTD) - Dec 2013",
+	"skipRows": 1,
+	"entities": {
+		"attack": {
+			"idColumn": {
+				"type": "formattedMultiColumn",
+				"columns": [
+					{ "index": 0 }
+				],
+				"format": "GTD-%s"
+			},
+			"signColumn": {
+				"type": "formattedMultiColumn",
+				"columns": [
+					{
+						"index": 1,
+						"xform": { "dataType": "integer" }
+					},
+					{
+						"index": 2,
+						"xform": { "dataType": "integer" }
+					},
+					{
+						"index": 3,
+						"xform": { "dataType": "integer" }
+					}
+				],
+				"format": "%04d-%02d-%02d"
+			},
+			"conceptUriType": "columnLookup",
+			"conceptColumn": {
+				"index": 28,
+				"xform": {
+					"dataType": "mappedString",
+					"defaultValue": "http://lumify.io/gtd#terroristAttack",
+					"valueMap": {
+						"1": "http://lumify.io/gtd#assassination",
+						"2": "http://lumify.io/gtd#armedAssault",
+						"3": "http://lumify.io/gtd#bombing",
+						"4": "http://lumify.io/gtd#hijacking",
+						"5": "http://lumify.io/gtd#hostageTaking",
+						"6": "http://lumify.io/gtd#hostageTaking",
+						"7": "http://lumify.io/gtd#facilityInfrastructureAttack",
+						"8": "http://lumify.io/gtd#unarmedAssault"
+					}
+				}
+			},
+			"required": true,
+			"useExisting": true,
+			"properties": {
+				"http://lumify.io/gtd#eventId": {
+					"type": "formattedMultiColumn",
+					"columns": [
+						{ "index": 0 }
+					],
+					"format": "GTD-%s"
+				},
+				"http://lumify.io/dev#date": {
+					"type": "formattedMultiColumn",
+					"columns": [
+						{
+							"index": 1,
+							"xform": { "dataType": "integer" }
+						},
+						{
+							"index": 2,
+							"xform": { "dataType": "integer" }
+						},
+						{
+							"index": 3,
+							"xform": { "dataType": "integer" }
+						}
+					],
+					"format": "%04d-%02d-%02d",
+					"xform": {
+						"dataType": "date",
+						"format": "yyyy-MM-dd"
+					}
+				},
+				"http://lumify.io/dev#geolocation": {
+					"type": "geopoint",
+					"latitudeColumn": {
+						"index": 13,
+						"xform": { "dataType": "double" }
+					},
+					"longitudeColumn": {
+						"index": 14,
+						"xform": { "dataType": "double" }
+					}
+				},
+				"http://lumify.io/gtd#summary": { "index": 18 },
+				"http://lumify.io/gtd#successful": {
+					"index": 26,
+					"xform": { "dataType": "boolean" }
+				},
+				"http://lumify.io/gtd#suicide": {
+					"index": 27,
+					"xform": { "dataType": "boolean" }
+				},
+				"http://lumify.io/gtd#targetType": { "index": 35 },
+				"http://lumify.io/gtd#targetSubtype": { "index": 37 },
+				"http://lumify.io/gtd#targetEntity": { "index": 38 },
+				"http://lumify.io/gtd#specificTarget": { "index": 39 },
+				"http://lumify.io/gtd#numPerps": {
+					"index": 68,
+					"xform": { "dataType": "integer" }
+				},
+				"http://lumify.io/gtd#numPerpsCaptured": {
+					"index": 69,
+					"xform": { "dataType": "integer" }
+				},
+				"http://lumify.io/gtd#responsibilityClaimed": {
+					"index": 70,
+					"xform": { "dataType": "boolean" }
+				},
+				"http://lumify.io/gtd#responsibilityClaimMethod": { "index": 72 },
+				"http://lumify.io/gtd#competingClaims": {
+					"index": 79,
+					"xform": { "dataType": "boolean" }
+				},
+				"http://lumify.io/gtd#weaponType": { "index": 81 },
+				"http://lumify.io/gtd#weaponSubtype": { "index": 83 },
+				"http://lumify.io/gtd#numKilled": {
+					"index": 97,
+					"xform": { "dataType": "integer" }
+				},
+				"http://lumify.io/gtd#numUsKilled": {
+					"index": 98,
+					"xform": { "dataType": "integer" }
+				},
+				"http://lumify.io/gtd#numPerpsKilled": {
+					"index": 99,
+					"xform": { "dataType": "integer" }
+				},
+				"http://lumify.io/gtd#numWounded": {
+					"index": 100,
+					"xform": { "dataType": "integer" }
+				},
+				"http://lumify.io/gtd#numUsWounded": {
+					"index": 101,
+					"xform": { "dataType": "integer" }
+				},
+				"http://lumify.io/gtd#numPerpetratorsWounded": {
+					"index": 102,
+					"xform": { "dataType": "integer" }
+				},
+				"http://lumify.io/gtd#propertyDamage": {
+					"index": 103,
+					"xform": { "dataType": "boolean" }
+				},
+				"http://lumify.io/gtd#propertyDamageValue": {
+					"index": 106,
+					"xform": { "dataType": "double" }
+				},
+				"http://lumify.io/gtd#reportSource": { "index": 125 },
+				"http://lumify.io/gtd#reportSource": { "index": 126 },
+				"http://lumify.io/gtd#reportSource": { "index": 127 },
+				"http://lumify.io/dev#source": {
+					"type": "formattedMultiColumn",
+					"columns": [
+						{ "index": 128 }
+					],
+					"format": "GTD-%s"
+				}
+			}
+		},
+		"targetLocation": {
+			"signColumn": {
+				"type": "formattedMultiColumn",
+				"columns": [
+					{
+						"index": 12,
+						"xform": {
+							"dataType": "replace",
+							"xform": { "dataType": "string" },
+							"targetCriteria": {
+								"op": "or",
+								"predicates": [
+									{ "op": "isNull" },
+									{
+										"op": "stringEq",
+										"value": "unknown"
+									}
+								]
+							},
+							"replacementValue": ""
+						}
+					},
+					{
+						"index": 8,
+						"xform": {
+							"dataType": "replace",
+							"xform": { "dataType": "string" },
+							"targetCriteria": {
+								"op": "or",
+								"predicates": [
+									{ "op": "isNull" },
+									{
+										"op": "stringEq",
+										"value": "unknown"
+									}
+								]
+							},
+							"replacementValue": ""
+						}
+					},
+					{
+						"index": 11,
+						"xform": {
+							"dataType": "replace",
+							"xform": { "dataType": "string" },
+							"targetCriteria": {
+								"op": "or",
+								"predicates": [
+									{ "op": "isNull" },
+									{
+										"op": "stringEq",
+										"value": "unknown"
+									}
+								]
+							},
+							"replacementValue": ""
+						}
+					}
+				],
+				"format": "%s, %s"
+			},
+			"conceptURI": "http://lumify.io/dev#location",
+			"useExisting": true,
+			"properties": {
+				"http://lumify.io/gtd#city": { "index": 12 },
+				"http://lumify.io/gtd#adminDistrict": { "index": 11 },
+				"http://lumify.io/gtd#country": { "index": 8 },
+				"http://lumify.io/dev#geolocation": {
+					"type": "geopoint",
+					"latitudeColumn": {
+						"index": 13,
+						"xform": { "dataType": "double" }
+					},
+					"longitudeColumn": {
+						"index": 14,
+						"xform": { "dataType": "double" }
+					}
+				},
+				"http://lumify.io/dev#source": {
+					"type": "formattedMultiColumn",
+					"columns": [
+						{ "index": 128 }
+					],
+					"format": "GTD-%s"
+				}
+			}
+		},
+		"nationality": {
+			"signColumn": { "index": 41 },
+			"conceptURI": "http://lumify.io/dev#country",
+			"useExisting": true,
+			"properties": {
+				"http://lumify.io/gtd#country": { "index": 41 },
+				"http://lumify.io/dev#source": {
+					"type": "formattedMultiColumn",
+					"columns": [
+						{ "index": 128 }
+					],
+					"format": "GTD-%s"
+				}
+            }
+		},
+		"perpGroup": {
+			"idColumn": {
+				"type": "formattedMultiColumn",
+				"columns": [
+					{ "index": 58 }
+				],
+				"format": "GTD-TERR-GROUP-%s"
+			},
+			"signColumn": { "index": 58 },
+			"conceptURI": "http://lumify.io/gtd#terroristGroup",
+			"useExisting": true,
+			"properties": {
+				"http://lumify.io/dev#source": {
+					"type": "formattedMultiColumn",
+					"columns": [
+						{ "index": 128 }
+					],
+					"format": "GTD-%s"
+				}
+			}
+		},
+		"perpSubGroup": {
+			"idColumn": {
+				"type": "formattedMultiColumn",
+				"columns": [
+					{ "index": 59 }
+				],
+				"format": "GTD-TERR-GROUP-%s"
+			},
+			"signColumn": {
+				"index": 59,
+				"xform": {
+					"dataType": "replace",
+					"xform": { "dataType": "string" },
+					"targetCriteria": {
+						"op": "stringEq",
+						"value": "unknown"
+					},
+					"replacementValue": null
+				}
+			},
+			"conceptURI": "http://lumify.io/gtd#terroristGroup",
+			"useExisting": true,
+			"properties": {
+				"http://lumify.io/dev#source": {
+					"type": "formattedMultiColumn",
+					"columns": [
+						{ "index": 128 }
+					],
+					"format": "GTD-%s"
+				}
+			}
+		}
+	},
+	"relationships": [
+		{
+			"label": "http://lumify.io/gtd#perpetrated",
+			"source": "perpGroup",
+			"target": "attack"
+		},
+		{
+			"label": "http://lumify.io/gtd#perpetrated",
+			"source": "perpSubGroup",
+			"target": "attack"
+		},
+		{
+			"label": "http://lumify.io/gtd#isSubgroupOf",
+			"source": "perpSubGroup",
+			"target": "perpGroup"
+		},
+		{
+			"label": "http://lumify.io/gtd#occurredAt",
+			"source": "attack",
+			"target": "targetLocation"
+		},
+		{
+			"label": "http://lumify.io/gtd#targetedLocation",
+			"source": "perpGroup",
+			"target": "targetLocation"
+		},
+		{
+			"label": "http://lumify.io/gtd#targetedLocation",
+			"source": "perpSubGroup",
+			"target": "targetLocation"
+		},
+		{
+			"label": "http://lumify.io/gtd#attackTargetedNationality",
+			"source": "attack",
+			"target": "nationality"
+		},
+		{
+			"label": "http://lumify.io/gtd#targetedLocation",
+			"source": "perpGroup",
+			"target": "nationality"
+		},
+		{
+			"label": "http://lumify.io/gtd#targetedLocation",
+			"source": "perpSubGroup",
+			"target": "nationality"
+		}
+	]
+}

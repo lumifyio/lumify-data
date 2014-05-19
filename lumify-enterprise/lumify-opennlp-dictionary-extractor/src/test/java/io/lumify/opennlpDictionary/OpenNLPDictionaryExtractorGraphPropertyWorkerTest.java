@@ -58,6 +58,10 @@ public class OpenNLPDictionaryExtractorGraphPropertyWorkerTest {
     public void setUp() throws Exception {
         final List<TokenNameFinder> finders = loadFinders();
 
+        Map config = new HashMap();
+        config.put(io.lumify.core.config.Configuration.ONTOLOGY_IRI_ARTIFACT_HAS_ENTITY, "http://lumify.io/test#artifactHasEntity");
+        io.lumify.core.config.Configuration configuration = new io.lumify.core.config.Configuration(config);
+
         graph = new InMemoryGraph();
 
         extractor = new OpenNLPDictionaryExtractorGraphPropertyWorker() {
@@ -72,6 +76,7 @@ public class OpenNLPDictionaryExtractorGraphPropertyWorkerTest {
                 return null;
             }
         };
+        extractor.setConfiguration(configuration);
         extractor.setDictionaryEntryRepository(dictionaryEntryRepository);
         extractor.setGraph(graph);
 

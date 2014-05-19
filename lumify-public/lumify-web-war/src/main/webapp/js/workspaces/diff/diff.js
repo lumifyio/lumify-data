@@ -66,6 +66,7 @@ define([
                     F: F,
                     Privileges: Privileges
                 }));
+                self.updateVisibility();
                 self.updateHeader();
                 self.updateDraggables();
             });
@@ -118,6 +119,7 @@ define([
                                 .find('.undo').addClass('btn-danger')
                         }
                     });
+                    self.updateVisibility();
                     self.updateHeader(self.$node.closest('.popover:visible').length > 0);
                     self.updateDraggables();
                     self.$node.find('.diffs-list').scrollTop(previousScroll);
@@ -176,7 +178,7 @@ define([
                             case 'VertexDiffItem':
                                 diff.id = outputItem.id = vertexId;
                                 if (outputItem.vertex) {
-                                    outputItem.title = F.vertex.prop(outputItem.vertex, 'title');
+                                    outputItem.title = F.vertex.title(outputItem.vertex);
                                 }
                                 outputItem.action = actionTypes.CREATE;
                                 self.diffsForVertexId[vertexId] = diff;
@@ -218,7 +220,7 @@ define([
 
                     if (!outputItem.title && outputItem.vertex) {
                         outputItem.action = actionTypes.UPDATE;
-                        outputItem.title = F.vertex.prop(outputItem.vertex, 'title')
+                        outputItem.title = F.vertex.title(outputItem.vertex)
                         outputItem.id = outputItem.vertex.id;
                     }
 
@@ -420,6 +422,21 @@ define([
                 });
 
             this.$node.droppable({ tolerance: 'pointer', accept: '*' });
+        };
+
+        this.updateVisibility = function() {
+            var self = this;
+
+            require(['configuration/plugins/visibility/visibilityDisplay'], function(Visibility) {
+                self.$node.find('.visibility').each(function() {
+                    var node = $(this),
+                        visibility = node.data('visibility');
+
+                    Visibility.attachTo(node, {
+                        value: visibility && visibility.source
+                    });
+                });
+            });
         };
 
         this.updateHeader = function(showSuccess) {

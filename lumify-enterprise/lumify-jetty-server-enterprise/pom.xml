@@ -44,5 +44,19 @@
             <artifactId>lumify-newuser-workspace-copy</artifactId>
             <version>${project.version}</version>
         </dependency>
+        <dependency>
+            <groupId>io.lumify</groupId>
+            <artifactId>lumify-web-auth-username-only</artifactId>
+            <version>${project.version}</version>
+        </dependency>
     </dependencies>
+
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-dependency-plugin</artifactId>
+            </plugin>
+        </plugins>
+    </build>
 </project>

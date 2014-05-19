@@ -44,7 +44,7 @@ public class YoutubeTranscriptGraphPropertyWorker extends GraphPropertyWorker {
         if (!property.getName().equals(RawLumifyProperties.RAW.getKey())) {
             return false;
         }
-        String mimeType = (String) property.getMetadata().get(RawLumifyProperties.METADATA_MIME_TYPE);
+        String mimeType = (String) property.getMetadata().get(RawLumifyProperties.MIME_TYPE.getKey());
         if (mimeType == null || !mimeType.startsWith("video")) {
             return false;
         }

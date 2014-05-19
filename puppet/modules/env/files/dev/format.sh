@@ -31,6 +31,7 @@ sudo -u hdfs hadoop fs -mkdir /lumify/config/knownEntities
 sudo -u hdfs hadoop fs -put /vagrant/config/knownEntities/* /lumify/config/knownEntities
 sudo -u hdfs hadoop fs -mkdir /lumify/config/opencv
 sudo -u hdfs hadoop fs -put /vagrant/config/opencv/* /lumify/config/opencv
+sudo -u hdfs hadoop fs -mkdir /lumify/libcache
 
 /vagrant/deployment/control.sh localhost start elasticsearch
 until curl -XDELETE "http://$(facter ipaddress_eth0):9200/_all"; do

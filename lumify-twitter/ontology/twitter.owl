@@ -54,6 +54,16 @@
     
 
 
+    <!-- http://lumify.io/twitter#retweet -->
+
+    <owl:ObjectProperty rdf:about="http://lumify.io/twitter#retweet">
+        <rdfs:label xml:lang="en">Retweeted</rdfs:label>
+        <rdfs:domain rdf:resource="http://lumify.io/twitter#tweet"/>
+        <rdfs:range rdf:resource="http://lumify.io/twitter#tweet"/>
+    </owl:ObjectProperty>
+    
+
+
     <!-- http://lumify.io/twitter#tagged -->
 
     <owl:ObjectProperty rdf:about="http://lumify.io/twitter#tagged">
@@ -61,14 +71,7 @@
         <rdfs:range rdf:resource="http://lumify.io/twitter#hashtag"/>
         <rdfs:domain rdf:resource="http://lumify.io/twitter#tweet"/>
     </owl:ObjectProperty>
-
-    <!-- http://lumify.io/twitter#retweet -->
-
-    <owl:ObjectProperty rdf:about="http://lumify.io/twitter#retweet">
-        <rdfs:label xml:lang="en">Retweeted</rdfs:label>
-        <rdfs:range rdf:resource="http://lumify.io/twitter#tweet"/>
-        <rdfs:domain rdf:resource="http://lumify.io/twitter#tweet"/>
-    </owl:ObjectProperty>
+    
 
 
     <!-- http://lumify.io/twitter#tweeted -->
@@ -96,6 +99,7 @@
 
     <owl:DatatypeProperty rdf:about="http://lumify.io/twitter#profileImageUrl">
         <rdfs:label xml:lang="en">Profile Image URL</rdfs:label>
+        <lumify:textIndexHints>NONE</lumify:textIndexHints>
         <rdfs:domain rdf:resource="http://lumify.io/twitter#user"/>
         <rdfs:range rdf:resource="&xsd;string"/>
     </owl:DatatypeProperty>
@@ -106,6 +110,7 @@
 
     <owl:DatatypeProperty rdf:about="http://lumify.io/twitter#screenName">
         <rdfs:label xml:lang="en">Screen Name</rdfs:label>
+        <lumify:textIndexHints>FULL_TEXT,EXACT_MATCH</lumify:textIndexHints>
         <rdfs:domain rdf:resource="http://lumify.io/twitter#user"/>
         <rdfs:range rdf:resource="&xsd;string"/>
     </owl:DatatypeProperty>
@@ -161,8 +166,8 @@
 
     <owl:Class rdf:about="http://lumify.io/twitter#twitter">
         <rdfs:label xml:lang="en">Twitter</rdfs:label>
-        <lumify:glyphIconFileName xml:lang="en">tweet.png</lumify:glyphIconFileName>
         <lumify:color xml:lang="en">rgb(219, 63, 219)</lumify:color>
+        <lumify:glyphIconFileName xml:lang="en">tweet.png</lumify:glyphIconFileName>
     </owl:Class>
     
 

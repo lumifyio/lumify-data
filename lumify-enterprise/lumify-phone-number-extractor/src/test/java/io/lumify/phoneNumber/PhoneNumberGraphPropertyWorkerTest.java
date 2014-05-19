@@ -1,11 +1,19 @@
 package io.lumify.phoneNumber;
 
+import com.google.common.base.Charsets;
+import com.google.inject.Injector;
 import io.lumify.core.ingest.graphProperty.GraphPropertyWorkData;
 import io.lumify.core.ingest.graphProperty.GraphPropertyWorkerPrepareData;
 import io.lumify.core.ingest.graphProperty.TermMentionFilter;
 import io.lumify.core.ingest.term.extraction.TermMention;
 import io.lumify.core.model.properties.RawLumifyProperties;
 import io.lumify.core.user.User;
+import org.apache.hadoop.fs.FileSystem;
+import org.junit.Before;
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.mockito.Mock;
+import org.mockito.runners.MockitoJUnitRunner;
 import org.securegraph.Property;
 import org.securegraph.Vertex;
 import org.securegraph.VertexBuilder;
@@ -13,14 +21,6 @@ import org.securegraph.Visibility;
 import org.securegraph.inmemory.InMemoryAuthorizations;
 import org.securegraph.inmemory.InMemoryGraph;
 import org.securegraph.property.StreamingPropertyValue;
-import com.google.common.base.Charsets;
-import com.google.inject.Injector;
-import org.apache.hadoop.fs.FileSystem;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.mockito.Mock;
-import org.mockito.runners.MockitoJUnitRunner;
 
 import java.io.ByteArrayInputStream;
 import java.io.InputStream;
@@ -29,9 +29,9 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import static org.securegraph.util.IterableUtils.toList;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
+import static org.securegraph.util.IterableUtils.toList;
 
 @RunWith(MockitoJUnitRunner.class)
 public class PhoneNumberGraphPropertyWorkerTest {
@@ -51,6 +51,12 @@ public class PhoneNumberGraphPropertyWorkerTest {
 
     @Before
     public void setUp() throws Exception {
+
+        Map config = new HashMap();
+        config.put(io.lumify.core.config.Configuration.ONTOLOGY_IRI_ARTIFACT_HAS_ENTITY, "http://lumify.io/test#artifactHasEntity");
+        config.put(PhoneNumberGraphPropertyWorker.CONFIG_PHONE_NUMBER_IRI, "http://lumify.io/test#phoneNumber");
+        io.lumify.core.config.Configuration configuration = new io.lumify.core.config.Configuration(config);
+
         extractor = new PhoneNumberGraphPropertyWorker() {
             @Override
             protected List<TermMentionWithGraphVertex> saveTermMentions(Vertex artifactGraphVertex, Iterable<TermMention> termMentions) {
@@ -58,17 +64,18 @@ public class PhoneNumberGraphPropertyWorkerTest {
                 return null;
             }
         };
+        extractor.setConfiguration(configuration);
 
-        Map stormConf = new HashMap();
         FileSystem hdfsFileSystem = null;
         authorizations = new InMemoryAuthorizations();
         Injector injector = null;
         List<TermMentionFilter> termMentionFilters = new ArrayList<TermMentionFilter>();
-        GraphPropertyWorkerPrepareData workerPrepareData = new GraphPropertyWorkerPrepareData(stormConf, termMentionFilters, hdfsFileSystem, user, authorizations, injector);
+        GraphPropertyWorkerPrepareData workerPrepareData = new GraphPropertyWorkerPrepareData(config, termMentionFilters, hdfsFileSystem, user, authorizations, injector);
         graph = new InMemoryGraph();
         visibility = new Visibility("");
-        extractor.prepare(workerPrepareData);
         extractor.setGraph(graph);
+
+        extractor.prepare(workerPrepareData);
     }
 
     @Test

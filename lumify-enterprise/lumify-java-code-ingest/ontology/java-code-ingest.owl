@@ -17,7 +17,9 @@
      xmlns:owl="http://www.w3.org/2002/07/owl#"
      xmlns:xsd="http://www.w3.org/2001/XMLSchema#"
      xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#">
-    <owl:Ontology rdf:about="http://lumify.io/java-code-ingest"/>
+    <owl:Ontology rdf:about="http://lumify.io/java-code-ingest">
+        <owl:imports rdf:resource="http://lumify.io"/>
+    </owl:Ontology>
     
 
 
@@ -145,6 +147,7 @@
 
     <owl:DatatypeProperty rdf:about="http://lumify.io/java-code-ingest#argumentName">
         <rdfs:label xml:lang="en">Argument Name</rdfs:label>
+        <lumify:textIndexHints>EXACT_MATCH</lumify:textIndexHints>
         <rdfs:domain rdf:resource="http://lumify.io/java-code-ingest#code"/>
         <rdfs:range rdf:resource="&xsd;string"/>
     </owl:DatatypeProperty>
@@ -155,6 +158,7 @@
 
     <owl:DatatypeProperty rdf:about="http://lumify.io/java-code-ingest#className">
         <rdfs:label xml:lang="en">Class Name</rdfs:label>
+        <lumify:textIndexHints>EXACT_MATCH</lumify:textIndexHints>
         <rdfs:domain rdf:resource="http://lumify.io/java-code-ingest#code"/>
         <rdfs:range rdf:resource="&xsd;string"/>
     </owl:DatatypeProperty>

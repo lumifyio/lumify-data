@@ -1,15 +1,15 @@
 
 <li class="<%= classNamesForVertex[vertex.id] || '' %> vertex-item" 
     data-vertex-id="<%= vertex.id %>"
-    ><a><%= F.vertex.prop(vertex, 'title') %>
+    ><a><%= F.vertex.title(vertex) %>
       <ul>
         <li class="graph"><button title="Displayed in Graph" href="#">Graph</button></li>
         <li class="map"><button title="Displayed in Map" href="#">Map</button></li>
       </ul>
       <div>
         <span class="preview"/>
-        <span class="date"><%= vertex.properties['http://lumify.io#publishedDate'] ? new Date(vertex.properties['http://lumify.io#publishedDate'].value).toDateString() : '' %></span>
-        <span class="source"><%= vertex.properties['http://lumify.io#source'] ? vertex.properties['http://lumify.io#source'].value : '' %></span>
+        <span class="date"><%= F.vertex.prop(vertex, 'http://lumify.io#publishedDate') ? new Date(F.vertex.prop(vertex, 'http://lumify.io#publishedDate')).toDateString() : '' %></span>
+        <span class="source"><%= F.vertex.prop(vertex, 'http://lumify.io#source') ? F.vertex.prop(vertex, 'http://lumify.io#source') : '' %></span>
       </div>
     </a>
 </li>

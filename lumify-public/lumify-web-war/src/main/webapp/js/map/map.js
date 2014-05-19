@@ -164,8 +164,23 @@ define([
             var self = this;
             this.isWorkspaceEditable = workspaceData.isEditable;
             this.mapReady(function(map) {
+
                 map.featuresLayer.removeAllFeatures();
-                this.updateOrAddVertices(workspaceData.data.vertices, { adding: true, preventShake: true });
+
+                if (this.clusterStrategy.features) {
+                    this.clusterStrategy.features.length = 0;
+                }
+
+                if (this.clusterStrategy.clusters) {
+                    this.clusterStrategy.clusters.length = 0;
+                }
+
+                map.featuresLayer.redraw();
+
+                this.updateOrAddVertices(workspaceData.data.vertices, {
+                    adding: true,
+                    preventShake: true
+                });
             });
         };
 
@@ -263,7 +278,8 @@ define([
                 iconUrl =  '/map/marker/image?' + $.param({
                     type: conceptType,
                     scale: retina.devicePixelRatio > 1 ? '2' : '1'
-                });
+                }),
+                heading = F.vertex.heading(vertex);
 
             if (!geoLocation || !geoLocation.latitude || !geoLocation.longitude) return;
 
@@ -288,6 +304,7 @@ define([
                         graphicHeight: 40,
                         graphicXOffset: -11,
                         graphicYOffset: -40,
+                        rotation: heading,
                         cursor: 'pointer'
                     }
                 );
@@ -312,17 +329,15 @@ define([
             this.mapReady(function(map) {
                 vertices.forEach(function(vertex) {
                     var inWorkspace = appData.inWorkspace(vertex),
-                        feature = map.featuresLayer.getFeatureById(vertex.id);
+                        marker = self.findOrCreateMarker(map, vertex);
 
-                    if (inWorkspace || feature) {
-                        var marker = self.findOrCreateMarker(map, vertex);
-                        if (marker) {
-                            validAddition = true;
-                            marker.data.inWorkspace = inWorkspace;
-                        }
+                    if (marker) {
+                        validAddition = true;
+                        marker.data.inWorkspace = inWorkspace;
                     }
                 });
 
+                this.clusterStrategy.cluster();
                 map.featuresLayer.redraw();
 
                 if (adding && vertices.length && validAddition) {

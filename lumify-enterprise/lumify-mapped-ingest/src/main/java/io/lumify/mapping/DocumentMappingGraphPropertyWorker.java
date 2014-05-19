@@ -23,7 +23,7 @@ public class DocumentMappingGraphPropertyWorker extends GraphPropertyWorker {
 
     @Override
     public void execute(InputStream in, GraphPropertyWorkData data) throws Exception {
-        StreamingPropertyValue mappingJson = MappingFileImportSupportingFileHandler.MAPPING_JSON.getPropertyValue(data.getElement());
+        StreamingPropertyValue mappingJson = RawLumifyProperties.MAPPING_JSON.getPropertyValue(data.getElement());
         String mappingJsonString = IOUtils.toString(mappingJson.getInputStream());
         DocumentMapping mapping = jsonMapper.readValue(mappingJsonString, DocumentMapping.class);
 
@@ -41,7 +41,7 @@ public class DocumentMappingGraphPropertyWorker extends GraphPropertyWorker {
         ExistingElementMutation<Vertex> m = data.getElement().prepareMutation();
         StreamingPropertyValue textValue = new StreamingPropertyValue(new ByteArrayInputStream(writer.toString().getBytes()), String.class);
         Map<String, Object> textMetadata = data.getPropertyMetadata();
-        textMetadata.put(RawLumifyProperties.METADATA_MIME_TYPE, "text/plain");
+        textMetadata.put(RawLumifyProperties.MIME_TYPE.getKey(), "text/plain");
         RawLumifyProperties.TEXT.addPropertyValue(m, MULTIVALUE_KEY, textValue, textMetadata, data.getVisibility());
         LumifyProperties.TITLE.addPropertyValue(m, MULTIVALUE_KEY, mapping.getSubject(), data.getPropertyMetadata(), data.getVisibility());
         m.save();
@@ -63,12 +63,12 @@ public class DocumentMappingGraphPropertyWorker extends GraphPropertyWorker {
             return false;
         }
 
-        StreamingPropertyValue mappingJson = MappingFileImportSupportingFileHandler.MAPPING_JSON.getPropertyValue(element);
+        StreamingPropertyValue mappingJson = RawLumifyProperties.MAPPING_JSON.getPropertyValue(element);
         if (mappingJson == null) {
             return false;
         }
 
-        String mimeType = (String) property.getMetadata().get(RawLumifyProperties.METADATA_MIME_TYPE);
+        String mimeType = (String) property.getMetadata().get(RawLumifyProperties.MIME_TYPE.getKey());
         return !(mimeType == null || !mimeType.startsWith("text"));
     }
 
