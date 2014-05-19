@@ -75,6 +75,7 @@ public class ClavinTermMentionFilter extends TermMentionFilter {
     private static final String CONFIG_COUNTRY_IRI = "ontology.iri.country";
     private static final String CONFIG_CITY_IRI = "ontology.iri.city";
     private static final String CONFIG_GEO_LOCATION_IRI = "ontology.iri.geoLocation";
+    private static final String CONFIG_EXCLUDED_IRI_PREFIX = "clavin.excludeIri";
 
     private LuceneLocationResolver resolver;
     private boolean fuzzy;
@@ -89,30 +90,53 @@ public class ClavinTermMentionFilter extends TermMentionFilter {
     public void prepare(TermMentionFilterPrepareData termMentionFilterPrepareData) throws Exception {
         super.prepare(termMentionFilterPrepareData);
 
-        stateIri = (String) termMentionFilterPrepareData.getStormConf().get(CONFIG_STATE_IRI);
-        if (stateIri == null || stateIri.length() == 0) {
-            throw new LumifyException("Could not find config: " + CONFIG_STATE_IRI);
-        }
-
-        countryIri = (String) termMentionFilterPrepareData.getStormConf().get(CONFIG_COUNTRY_IRI);
-        if (countryIri == null || countryIri.length() == 0) {
-            throw new LumifyException("Could not find config: " + CONFIG_COUNTRY_IRI);
-        }
-
-        cityIri = (String) termMentionFilterPrepareData.getStormConf().get(CONFIG_CITY_IRI);
-        if (cityIri == null || cityIri.length() == 0) {
-            throw new LumifyException("Could not find config: " + CONFIG_CITY_IRI);
-        }
-
-        geoLocationIri = (String) termMentionFilterPrepareData.getStormConf().get(CONFIG_GEO_LOCATION_IRI);
-        if (geoLocationIri == null || geoLocationIri.length() == 0) {
-            throw new LumifyException("Could not find config: " + CONFIG_GEO_LOCATION_IRI);
-        }
-
         Configuration config = new Configuration(termMentionFilterPrepareData.getStormConf());
 
         LOGGER.info("Configuring CLAVIN Location Resolution.");
+        prepareIris(termMentionFilterPrepareData);
+        prepareClavinLuceneIndex(config);
+        prepareFuzzy(config);
+        prepareTargetConcepts(config);
+    }
 
+    public void prepareTargetConcepts(Configuration config) {
+        Set<String> excludedIris = getExcludedIris(config);
+
+        Set<String> conceptsWithGeoLocationProperty = new HashSet<String>();
+        for (Concept concept : ontologyRepository.getConceptsWithProperties()) {
+            for (OntologyProperty property : concept.getProperties()) {
+                String iri = concept.getTitle();
+                if (property.getDataType() == PropertyType.GEO_LOCATION && !excludedIris.contains(iri)) {
+                    conceptsWithGeoLocationProperty.add(iri);
+                    break;
+                }
+            }
+        }
+        targetConcepts = Collections.unmodifiableSet(conceptsWithGeoLocationProperty);
+    }
+
+    private Set<String> getExcludedIris(Configuration config) {
+        Set<String> excludedIris = new HashSet<String>();
+        excludedIris.addAll(config.getSubset(CONFIG_EXCLUDED_IRI_PREFIX).values());
+        return excludedIris;
+    }
+
+    public void prepareFuzzy(Configuration config) {
+        String fuzzyStr = config.get(CLAVIN_USE_FUZZY_MATCHING, null);
+        if (fuzzyStr != null) {
+            fuzzyStr = fuzzyStr.trim();
+        }
+        if (fuzzyStr != null && Boolean.TRUE.toString().equalsIgnoreCase(fuzzyStr) ||
+                Boolean.FALSE.toString().equalsIgnoreCase(fuzzyStr)) {
+            fuzzy = Boolean.parseBoolean(fuzzyStr);
+            LOGGER.debug("Found %s: %s. fuzzy=%s", CLAVIN_USE_FUZZY_MATCHING, fuzzyStr, fuzzy);
+        } else {
+            LOGGER.debug("%s not configured. Using default: %s", CLAVIN_USE_FUZZY_MATCHING, DEFAULT_FUZZY_MATCHING);
+            fuzzy = DEFAULT_FUZZY_MATCHING;
+        }
+    }
+
+    public void prepareClavinLuceneIndex(Configuration config) throws IOException, ParseException {
         String idxDirPath = config.get(CLAVIN_INDEX_DIRECTORY, null);
         if (idxDirPath == null || idxDirPath.trim().isEmpty()) {
             throw new IllegalArgumentException(String.format("%s must be configured.", CLAVIN_INDEX_DIRECTORY));
@@ -134,30 +158,30 @@ public class ClavinTermMentionFilter extends TermMentionFilter {
             LOGGER.debug("Found %s of %d. Using default: %d", CLAVIN_MAX_CONTEXT_WINDOW, maxContextWindow, DEFAULT_MAX_CONTENT_WINDOW);
             maxContextWindow = DEFAULT_MAX_CONTENT_WINDOW;
         }
-        String fuzzyStr = config.get(CLAVIN_USE_FUZZY_MATCHING, null);
-        if (fuzzyStr != null) {
-            fuzzyStr = fuzzyStr.trim();
-        }
-        if (fuzzyStr != null && Boolean.TRUE.toString().equalsIgnoreCase(fuzzyStr) ||
-                Boolean.FALSE.toString().equalsIgnoreCase(fuzzyStr)) {
-            fuzzy = Boolean.parseBoolean(fuzzyStr);
-            LOGGER.debug("Found %s: %s. fuzzy=%s", CLAVIN_USE_FUZZY_MATCHING, fuzzyStr, fuzzy);
-        } else {
-            LOGGER.debug("%s not configured. Using default: %s", CLAVIN_USE_FUZZY_MATCHING, DEFAULT_FUZZY_MATCHING);
-            fuzzy = DEFAULT_FUZZY_MATCHING;
-        }
-        resolver = new LuceneLocationResolver(indexDirectory, maxHitDepth, maxContextWindow);
 
-        Set<String> conceptsWithGeoLocationProperty = new HashSet<String>();
-        for (Concept concept : ontologyRepository.getConceptsWithProperties()) {
-            for (OntologyProperty property : concept.getProperties()) {
-                if (property.getDataType() == PropertyType.GEO_LOCATION) {
-                    conceptsWithGeoLocationProperty.add(concept.getTitle());
-                    break;
-                }
-            }
+        resolver = new LuceneLocationResolver(indexDirectory, maxHitDepth, maxContextWindow);
+    }
+
+    public void prepareIris(TermMentionFilterPrepareData termMentionFilterPrepareData) {
+        stateIri = (String) termMentionFilterPrepareData.getStormConf().get(CONFIG_STATE_IRI);
+        if (stateIri == null || stateIri.length() == 0) {
+            throw new LumifyException("Could not find config: " + CONFIG_STATE_IRI);
         }
-        targetConcepts = Collections.unmodifiableSet(conceptsWithGeoLocationProperty);
+
+        countryIri = (String) termMentionFilterPrepareData.getStormConf().get(CONFIG_COUNTRY_IRI);
+        if (countryIri == null || countryIri.length() == 0) {
+            throw new LumifyException("Could not find config: " + CONFIG_COUNTRY_IRI);
+        }
+
+        cityIri = (String) termMentionFilterPrepareData.getStormConf().get(CONFIG_CITY_IRI);
+        if (cityIri == null || cityIri.length() == 0) {
+            throw new LumifyException("Could not find config: " + CONFIG_CITY_IRI);
+        }
+
+        geoLocationIri = (String) termMentionFilterPrepareData.getStormConf().get(CONFIG_GEO_LOCATION_IRI);
+        if (geoLocationIri == null || geoLocationIri.length() == 0) {
+            throw new LumifyException("Could not find config: " + CONFIG_GEO_LOCATION_IRI);
+        }
     }
 
     @Override
