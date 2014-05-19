@@ -287,7 +287,7 @@ public class TweetProcessorBolt extends BaseRichBolt {
     private Vertex getHashtagVertex(JSONObject hashtagJson) {
         String text = hashtagJson.optString("text");
 
-        String vertexId = "TWITTER_HASHTAG_" + text;
+        String vertexId = "TWITTER_HASHTAG_" + text.toLowerCase();
 
         Vertex hashtagVertex = hashtagVertexCache.getIfPresent(vertexId);
         if (hashtagVertex != null) {
