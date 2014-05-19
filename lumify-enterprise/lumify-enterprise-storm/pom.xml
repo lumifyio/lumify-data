@@ -177,6 +177,11 @@
             <artifactId>lumify-twitter-graph-property-worker</artifactId>
             <version>${project.version}</version>
         </dependency>
+        <dependency>
+            <groupId>io.lumify</groupId>
+            <artifactId>lumify-zipcode-resolver</artifactId>
+            <version>${project.version}</version>
+        </dependency>
         <!--<dependency>-->
             <!--<groupId>lumify-all</groupId>-->
             <!--<artifactId>lumify-food-truck</artifactId>-->
