@@ -10,7 +10,7 @@
     <modelVersion>4.0.0</modelVersion>
 
     <artifactId>lumify-tomcat-server-with-auth</artifactId>
-    <name>Lumify: Tomcat Server with an authentication plugin</name>
+    <name>Lumify: Tomcat Server with authentication</name>
     <description>This project creates a classpath for running Tomcat with an authentication plugin via your IDE</description>
 
     <dependencies>
