@@ -5,6 +5,7 @@ import com.google.inject.Inject;
 import io.lumify.core.ingest.graphProperty.GraphPropertyWorkData;
 import io.lumify.core.ingest.graphProperty.GraphPropertyWorker;
 import io.lumify.core.ingest.term.extraction.TermExtractionResult;
+import io.lumify.core.model.audit.AuditAction;
 import io.lumify.core.model.properties.LumifyProperties;
 import io.lumify.core.model.properties.RawLumifyProperties;
 import org.apache.commons.io.IOUtils;
@@ -44,7 +45,8 @@ public class DocumentMappingGraphPropertyWorker extends GraphPropertyWorker {
         textMetadata.put(RawLumifyProperties.MIME_TYPE.getKey(), "text/plain");
         RawLumifyProperties.TEXT.addPropertyValue(m, MULTIVALUE_KEY, textValue, textMetadata, data.getVisibility());
         LumifyProperties.TITLE.addPropertyValue(m, MULTIVALUE_KEY, mapping.getSubject(), data.getPropertyMetadata(), data.getVisibility());
-        m.save();
+        Vertex v = m.save();
+        getAuditRepository().auditVertexElementMutation(AuditAction.UPDATE, m, v, MULTIVALUE_KEY, getUser(), data.getVisibility());
 
         getGraph().flush();
 

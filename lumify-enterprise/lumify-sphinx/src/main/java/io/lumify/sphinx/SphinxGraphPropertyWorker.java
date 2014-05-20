@@ -3,6 +3,7 @@ package io.lumify.sphinx;
 import io.lumify.core.ingest.graphProperty.GraphPropertyWorkData;
 import io.lumify.core.ingest.graphProperty.GraphPropertyWorker;
 import io.lumify.core.ingest.video.VideoTranscript;
+import io.lumify.core.model.audit.AuditAction;
 import io.lumify.core.model.properties.MediaLumifyProperties;
 import io.lumify.core.model.properties.RawLumifyProperties;
 import io.lumify.core.util.ProcessRunner;
@@ -34,7 +35,8 @@ public class SphinxGraphPropertyWorker extends GraphPropertyWorker {
 
         ExistingElementMutation<Vertex> m = data.getElement().prepareMutation();
         MediaLumifyProperties.VIDEO_TRANSCRIPT.addPropertyValue(m, MULTI_VALUE_KEY, transcript, data.getPropertyMetadata(), data.getVisibility());
-        m.save();
+        Vertex v = m.save();
+        getAuditRepository().auditVertexElementMutation(AuditAction.UPDATE, m, v, MULTI_VALUE_KEY, getUser(), data.getVisibility());
 
         getGraph().flush();
         getWorkQueueRepository().pushGraphPropertyQueue(data.getElement(), MULTI_VALUE_KEY, MediaLumifyProperties.VIDEO_TRANSCRIPT.getKey());

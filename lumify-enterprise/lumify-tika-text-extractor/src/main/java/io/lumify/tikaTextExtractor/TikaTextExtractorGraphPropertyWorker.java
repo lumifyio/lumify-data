@@ -6,6 +6,7 @@ import de.l3s.boilerpipe.extractors.NumWordsRulesExtractor;
 import io.lumify.core.ingest.graphProperty.GraphPropertyWorkData;
 import io.lumify.core.ingest.graphProperty.GraphPropertyWorker;
 import io.lumify.core.ingest.graphProperty.GraphPropertyWorkerPrepareData;
+import io.lumify.core.model.audit.AuditAction;
 import io.lumify.core.model.properties.LumifyProperties;
 import io.lumify.core.model.properties.RawLumifyProperties;
 import io.lumify.core.util.LumifyLogger;
@@ -147,7 +148,8 @@ public class TikaTextExtractorGraphPropertyWorker extends GraphPropertyWorker {
             // TODO set("retrievalTime", extractRetrievalTime(metadata));
         }
 
-        m.save();
+        Vertex v = m.save();
+        getAuditRepository().auditVertexElementMutation(AuditAction.UPDATE, m, v, MULTIVALUE_KEY, getUser(), data.getVisibility());
         getGraph().flush();
         getWorkQueueRepository().pushGraphPropertyQueue(data.getElement(), MULTIVALUE_KEY, RawLumifyProperties.TEXT.getKey());
     }

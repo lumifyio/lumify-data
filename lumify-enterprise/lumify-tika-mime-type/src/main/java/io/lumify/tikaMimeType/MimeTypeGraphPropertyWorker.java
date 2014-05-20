@@ -3,6 +3,7 @@ package io.lumify.tikaMimeType;
 import io.lumify.core.ingest.graphProperty.GraphPropertyWorkData;
 import io.lumify.core.ingest.graphProperty.GraphPropertyWorker;
 import io.lumify.core.ingest.graphProperty.GraphPropertyWorkerPrepareData;
+import io.lumify.core.model.audit.AuditAction;
 import io.lumify.core.model.properties.RawLumifyProperties;
 import io.lumify.core.security.LumifyVisibilityProperties;
 import io.lumify.core.util.LumifyLogger;
@@ -43,7 +44,8 @@ public class MimeTypeGraphPropertyWorker extends GraphPropertyWorker {
         }
         RawLumifyProperties.MIME_TYPE.setProperty(m, mimeType, mimeTypeMetadata, data.getVisibility());
         m.alterPropertyMetadata(data.getProperty(), RawLumifyProperties.MIME_TYPE.getKey(), mimeType);
-        m.save();
+        Vertex v = m.save();
+        getAuditRepository().auditVertexElementMutation(AuditAction.UPDATE, m, v, MimeTypeGraphPropertyWorker.class.getName(), getUser(), data.getVisibility());
 
         getGraph().flush();
         getWorkQueueRepository().pushGraphPropertyQueue(data.getElement(), data.getProperty());

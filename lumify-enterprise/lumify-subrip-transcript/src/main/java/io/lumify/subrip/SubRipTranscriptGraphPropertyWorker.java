@@ -3,6 +3,7 @@ package io.lumify.subrip;
 import io.lumify.core.ingest.graphProperty.GraphPropertyWorkData;
 import io.lumify.core.ingest.graphProperty.GraphPropertyWorker;
 import io.lumify.core.ingest.video.VideoTranscript;
+import io.lumify.core.model.audit.AuditAction;
 import io.lumify.core.model.properties.MediaLumifyProperties;
 import io.lumify.core.model.properties.RawLumifyProperties;
 import io.lumify.storm.video.SubRip;
@@ -24,7 +25,8 @@ public class SubRipTranscriptGraphPropertyWorker extends GraphPropertyWorker {
 
         ExistingElementMutation<Vertex> m = data.getElement().prepareMutation();
         MediaLumifyProperties.VIDEO_TRANSCRIPT.addPropertyValue(m, PROPERTY_KEY, videoTranscript, data.getPropertyMetadata(), data.getVisibility());
-        m.save();
+        Vertex v = m.save();
+        getAuditRepository().auditVertexElementMutation(AuditAction.UPDATE, m, v, PROPERTY_KEY, getUser(), data.getVisibility());
 
         getGraph().flush();
         getWorkQueueRepository().pushGraphPropertyQueue(data.getElement(), PROPERTY_KEY, MediaLumifyProperties.VIDEO_TRANSCRIPT.getKey());
