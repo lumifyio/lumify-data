@@ -96,7 +96,7 @@ public class ZipCodeResolverTermMentionFilter extends TermMentionFilter {
                         .sign(sign)
                         .ontologyClassUri(zipCodeIri)
                         .setProperty(geoLocationIri, geoPoint)
-                        .setProperty(EntityLumifyProperties.SOURCE.getKey(), "CLAVIN")
+                        .setProperty(EntityLumifyProperties.SOURCE.getKey(), "Zip Code Resolver")
                         .process(getClass().getName())
                         .build();
             }
