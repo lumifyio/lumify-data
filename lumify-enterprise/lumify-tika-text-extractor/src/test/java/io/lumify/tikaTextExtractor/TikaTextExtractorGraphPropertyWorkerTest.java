@@ -2,6 +2,7 @@ package io.lumify.tikaTextExtractor;
 
 import io.lumify.core.ingest.graphProperty.GraphPropertyWorkData;
 import io.lumify.core.ingest.graphProperty.GraphPropertyWorkerPrepareData;
+import io.lumify.core.model.audit.AuditRepository;
 import io.lumify.core.model.properties.LumifyProperties;
 import io.lumify.core.model.properties.RawLumifyProperties;
 import io.lumify.core.model.workQueue.WorkQueueRepository;
@@ -34,6 +35,9 @@ public class TikaTextExtractorGraphPropertyWorkerTest {
     @Mock
     private WorkQueueRepository workQueueRepository;
 
+    @Mock
+    private AuditRepository auditRepository;
+
     @Before
     public void before() throws Exception {
         graph = new InMemoryGraph();
@@ -49,6 +53,7 @@ public class TikaTextExtractorGraphPropertyWorkerTest {
         textExtractor.setConfiguration(configuration);
         textExtractor.setGraph(graph);
         textExtractor.setWorkQueueRepository(workQueueRepository);
+        textExtractor.setAuditRepository(auditRepository);
         textExtractor.prepare(prepareData);
     }
 
