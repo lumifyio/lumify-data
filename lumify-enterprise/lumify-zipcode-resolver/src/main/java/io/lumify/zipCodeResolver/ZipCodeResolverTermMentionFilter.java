@@ -86,14 +86,13 @@ public class ZipCodeResolverTermMentionFilter extends TermMentionFilter {
                     return termMention;
                 }
 
-                String sign = toSign(zipCodeEntry);
-                String id = String.format("GEO-CITY-%s", sign);
-                GeoPoint geoPoint = new GeoPoint(zipCodeEntry.getLatitude(), zipCodeEntry.getLongitude(), sign);
+                String id = String.format("GEO-ZIPCODE-%s", zipCodeEntry.getZipCode());
+                GeoPoint geoPoint = new GeoPoint(zipCodeEntry.getLatitude(), zipCodeEntry.getLongitude(), zipCodeEntry.getZipCode());
                 return new TermMention.Builder(termMention)
                         .id(id)
                         .resolved(true)
                         .useExisting(true)
-                        .sign(sign)
+                        .sign(zipCodeEntry.getZipCode())
                         .ontologyClassUri(zipCodeIri)
                         .setProperty(geoLocationIri, geoPoint)
                         .setProperty(EntityLumifyProperties.SOURCE.getKey(), "Zip Code Resolver")
@@ -101,10 +100,6 @@ public class ZipCodeResolverTermMentionFilter extends TermMentionFilter {
                         .build();
             }
         };
-    }
-
-    private String toSign(ZipCodeEntry zipCodeEntry) {
-        return zipCodeEntry.getCity() + ", " + zipCodeEntry.getState();
     }
 
     private static class ZipCodeEntry {
