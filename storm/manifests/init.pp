@@ -7,7 +7,7 @@
 #	Python 2.6.6
 ######################################################################################################
 class storm(
-  $version = "0.8.2",
+  $version = hiera('storm_version', "0.8.2"),
   $user = "storm",
   $group = "storm",
   $installdir = "/opt",
