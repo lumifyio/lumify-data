@@ -325,6 +325,7 @@ function _storm_start {
   for node in $(_nodes); do
     echo -n "${node}: "
     _run_at ${node} initctl start storm-supervisor
+    _run_at ${node} initctl start storm-logviewer
   done
 }
 
@@ -332,6 +333,7 @@ function _storm_stop {
   for node in $(_nodes); do
     echo -n "${node}: "
     _run_at ${node} initctl stop storm-supervisor
+    _run_at ${node} initctl stop storm-logviewer
   done
 
   _run_at $(_stormmaster) initctl stop storm-ui
@@ -345,6 +347,7 @@ function _storm_status {
   for node in $(_nodes); do
     echo -n "${node}: "
     _run_at ${node} initctl status storm-supervisor
+    _run_at ${node} initctl status storm-logviewer
   done
 }
 
