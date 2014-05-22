@@ -81,10 +81,10 @@ public class PhoneNumberGraphPropertyWorkerTest {
     @Test
     public void testPhoneNumberExtraction() throws Exception {
         InputStream in = asStream(PHONE_TEXT);
-        VertexBuilder vertexBuilder = graph.prepareVertex("v1", visibility, authorizations);
+        VertexBuilder vertexBuilder = graph.prepareVertex("v1", visibility);
         StreamingPropertyValue textPropertyValue = new StreamingPropertyValue(in, String.class);
         RawLumifyProperties.TEXT.setProperty(vertexBuilder, textPropertyValue, visibility);
-        Vertex vertex = vertexBuilder.save();
+        Vertex vertex = vertexBuilder.save(authorizations);
 
         Property property = vertex.getProperty(RawLumifyProperties.TEXT.getKey());
         GraphPropertyWorkData workData = new GraphPropertyWorkData(vertex, property);
@@ -106,10 +106,10 @@ public class PhoneNumberGraphPropertyWorkerTest {
     @Test
     public void testPhoneNumberExtractionWithNewlines() throws Exception {
         InputStream in = asStream(PHONE_NEW_LINES);
-        VertexBuilder vertexBuilder = graph.prepareVertex("v1", visibility, authorizations);
+        VertexBuilder vertexBuilder = graph.prepareVertex("v1", visibility);
         StreamingPropertyValue textPropertyValue = new StreamingPropertyValue(in, String.class);
         RawLumifyProperties.TEXT.setProperty(vertexBuilder, textPropertyValue, visibility);
-        Vertex vertex = vertexBuilder.save();
+        Vertex vertex = vertexBuilder.save(authorizations);
 
         Property property = vertex.getProperty(RawLumifyProperties.TEXT.getKey());
         GraphPropertyWorkData workData = new GraphPropertyWorkData(vertex, property);
@@ -131,10 +131,10 @@ public class PhoneNumberGraphPropertyWorkerTest {
     @Test
     public void testNegativePhoneNumberExtraction() throws Exception {
         InputStream in = asStream(PHONE_MISSING);
-        VertexBuilder vertexBuilder = graph.prepareVertex("v1", visibility, authorizations);
+        VertexBuilder vertexBuilder = graph.prepareVertex("v1", visibility);
         StreamingPropertyValue textPropertyValue = new StreamingPropertyValue(in, String.class);
         RawLumifyProperties.TEXT.setProperty(vertexBuilder, textPropertyValue, visibility);
-        Vertex vertex = vertexBuilder.save();
+        Vertex vertex = vertexBuilder.save(authorizations);
 
         Property property = vertex.getProperty(RawLumifyProperties.TEXT.getKey());
         GraphPropertyWorkData workData = new GraphPropertyWorkData(vertex, property);

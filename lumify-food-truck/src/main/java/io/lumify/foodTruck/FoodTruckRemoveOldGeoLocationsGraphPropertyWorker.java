@@ -31,10 +31,10 @@ public class FoodTruckRemoveOldGeoLocationsGraphPropertyWorker extends GraphProp
         }
 
         for (Property property : toList(FoodTruckOntology.GEO_LOCATION.getProperties(data.getElement()))) {
-            data.getElement().removeProperty(property.getKey(), property.getName());
+            data.getElement().removeProperty(property.getKey(), property.getName(), getAuthorizations());
         }
         for (Property property : toList(FoodTruckOntology.GEO_LOCATION_DATE.getProperties(data.getElement()))) {
-            data.getElement().removeProperty(property.getKey(), property.getName());
+            data.getElement().removeProperty(property.getKey(), property.getName(), getAuthorizations());
         }
         getGraph().flush();
     }

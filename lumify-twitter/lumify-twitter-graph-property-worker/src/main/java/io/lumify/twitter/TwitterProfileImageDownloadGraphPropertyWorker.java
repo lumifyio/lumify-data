@@ -57,15 +57,15 @@ public class TwitterProfileImageDownloadGraphPropertyWorker extends GraphPropert
             StreamingPropertyValue imageValue = new StreamingPropertyValue(imageData, byte[].class);
             imageValue.searchIndex(false);
 
-            VertexBuilder v = getGraph().prepareVertex(profileImageId, data.getVisibility(), getAuthorizations());
+            VertexBuilder v = getGraph().prepareVertex(profileImageId, data.getVisibility());
             LumifyProperties.TITLE.setProperty(v, "Profile Image of " + userTitle, data.getVisibility());
             RawLumifyProperties.RAW.setProperty(v, imageValue, data.getVisibility());
             OntologyLumifyProperties.CONCEPT_TYPE.setProperty(v, TwitterOntology.CONCEPT_TYPE_PROFILE_IMAGE, data.getVisibility());
-            profileImageVertex = v.save();
+            profileImageVertex = v.save(getAuthorizations());
             LOGGER.debug("created vertex: %s", profileImageVertex.getId());
 
             getGraph().addEdge((Vertex) data.getElement(), profileImageVertex, entityHasImageIri, data.getVisibility(), getAuthorizations());
-            EntityLumifyProperties.IMAGE_VERTEX_ID.setProperty(data.getElement(), profileImageVertex.getId().toString(), data.getVisibility());
+            EntityLumifyProperties.IMAGE_VERTEX_ID.setProperty(data.getElement(), profileImageVertex.getId().toString(), data.getVisibility(), getAuthorizations());
 
             getGraph().flush();
         } finally {

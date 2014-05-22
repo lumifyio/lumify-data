@@ -19,7 +19,7 @@ import static io.lumify.core.util.CollectionUtil.singleOrDefault;
 public class ClassFileGraphPropertyWorker extends GraphPropertyWorker {
     @Override
     public void execute(InputStream in, GraphPropertyWorkData data) throws Exception {
-        RawLumifyProperties.MIME_TYPE.setProperty(data.getElement(), "application/x-java-class", data.getPropertyMetadata(), data.getVisibility());
+        RawLumifyProperties.MIME_TYPE.setProperty(data.getElement(), "application/x-java-class", data.getPropertyMetadata(), data.getVisibility(), getAuthorizations());
 
         Vertex jarVertex = singleOrDefault(((Vertex) data.getElement()).getVertices(Direction.BOTH, Ontology.EDGE_LABEL_JAR_CONTAINS, getAuthorizations()), null);
 
@@ -51,7 +51,7 @@ public class ClassFileGraphPropertyWorker extends GraphPropertyWorker {
         } else {
             OntologyLumifyProperties.CONCEPT_TYPE.setProperty(classVertexBuilder, Ontology.CONCEPT_TYPE_CLASS, data.getProperty().getVisibility());
         }
-        Vertex classVertex = classVertexBuilder.save();
+        Vertex classVertex = classVertexBuilder.save(getAuthorizations());
 
         String containsClassEdgeId = JavaCodeIngestIdGenerator.createFileContainsClassEdgeId((Vertex) data.getElement(), classVertex);
         getGraph().addEdge(containsClassEdgeId, (Vertex) data.getElement(), classVertex, Ontology.EDGE_LABEL_CLASS_FILE_CONTAINS_CLASS, data.getProperty().getVisibility(), getAuthorizations());
@@ -61,7 +61,7 @@ public class ClassFileGraphPropertyWorker extends GraphPropertyWorker {
 
     private Vertex createClassVertex(String className, GraphPropertyWorkData data) {
         VertexBuilder classVertexBuilder = createClassVertexBuilder(className, data);
-        return classVertexBuilder.save();
+        return classVertexBuilder.save(getAuthorizations());
     }
 
     private VertexBuilder createClassVertexBuilder(String className, GraphPropertyWorkData data) {
@@ -70,7 +70,7 @@ public class ClassFileGraphPropertyWorker extends GraphPropertyWorker {
             className = className.substring(0, i);
         }
         String classId = JavaCodeIngestIdGenerator.createClassId(className);
-        VertexBuilder vertexBuilder = getGraph().prepareVertex(classId, data.getVisibility(), getAuthorizations());
+        VertexBuilder vertexBuilder = getGraph().prepareVertex(classId, data.getVisibility());
         data.setVisibilityJsonOnElement(vertexBuilder);
         LumifyProperties.TITLE.setProperty(vertexBuilder, classNameToTitle(className), data.getPropertyMetadata(), data.getVisibility());
         Ontology.CLASS_NAME.setProperty(vertexBuilder, className, data.getPropertyMetadata(), data.getVisibility());
@@ -87,22 +87,22 @@ public class ClassFileGraphPropertyWorker extends GraphPropertyWorker {
 
     private void createMethodVertex(Method method, Vertex classVertex, JavaClass javaClass, ConstantPoolGen constants, GraphPropertyWorkData data) {
         String methodId = JavaCodeIngestIdGenerator.createMethodId(javaClass, method);
-        VertexBuilder vertexBuilder = getGraph().prepareVertex(methodId, data.getVisibility(), getAuthorizations());
+        VertexBuilder vertexBuilder = getGraph().prepareVertex(methodId, data.getVisibility());
         data.setVisibilityJsonOnElement(vertexBuilder);
         LumifyProperties.TITLE.setProperty(vertexBuilder, method.getName() + method.getSignature(), data.getPropertyMetadata(), data.getVisibility());
         OntologyLumifyProperties.CONCEPT_TYPE.setProperty(vertexBuilder, Ontology.CONCEPT_TYPE_METHOD, data.getPropertyMetadata(), data.getVisibility());
-        Vertex methodVertex = vertexBuilder.save();
+        Vertex methodVertex = vertexBuilder.save(getAuthorizations());
 
         String classContainsMethodEdgeId = JavaCodeIngestIdGenerator.createClassContainsMethodEdgeId(classVertex, methodVertex);
         Edge edge = getGraph().addEdge(classContainsMethodEdgeId, classVertex, methodVertex, Ontology.EDGE_LABEL_CLASS_CONTAINS, data.getVisibility(), getAuthorizations());
-        data.setVisibilityJsonOnElement(edge);
+        data.setVisibilityJsonOnElement(edge, getAuthorizations());
 
         // return type
         if (!method.getReturnType().toString().equals("void")) {
             Vertex returnTypeVertex = createClassVertex(method.getReturnType().toString(), data);
             String returnTypeEdgeId = JavaCodeIngestIdGenerator.createReturnTypeEdgeId(methodVertex, returnTypeVertex);
             edge = getGraph().addEdge(returnTypeEdgeId, methodVertex, returnTypeVertex, Ontology.EDGE_LABEL_METHOD_RETURN_TYPE, data.getVisibility(), getAuthorizations());
-            data.setVisibilityJsonOnElement(edge);
+            data.setVisibilityJsonOnElement(edge, getAuthorizations());
             createClassReferencesEdge(classVertex, returnTypeVertex, data);
         }
 
@@ -113,8 +113,8 @@ public class ClassFileGraphPropertyWorker extends GraphPropertyWorker {
             Vertex argumentTypeVertex = createClassVertex(argumentType.toString(), data);
             String argumentEdgeId = JavaCodeIngestIdGenerator.createArgumentEdgeId(methodVertex, argumentTypeVertex, argumentName);
             edge = getGraph().addEdge(argumentEdgeId, methodVertex, argumentTypeVertex, Ontology.EDGE_LABEL_METHOD_ARGUMENT, data.getVisibility(), getAuthorizations());
-            data.setVisibilityJsonOnElement(edge);
-            Ontology.ARGUMENT_NAME.setProperty(edge, argumentName, data.getPropertyMetadata(), data.getVisibility());
+            data.setVisibilityJsonOnElement(edge, getAuthorizations());
+            Ontology.ARGUMENT_NAME.setProperty(edge, argumentName, data.getPropertyMetadata(), data.getVisibility(), getAuthorizations());
             createClassReferencesEdge(classVertex, argumentTypeVertex, data);
         }
 
@@ -132,15 +132,15 @@ public class ClassFileGraphPropertyWorker extends GraphPropertyWorker {
                 String methodName = ii.getMethodName(constantPool);
                 String methodSignature = ii.getSignature(constantPool);
                 String invokedMethodId = JavaCodeIngestIdGenerator.createMethodId(methodClassName, methodName, methodSignature);
-                VertexBuilder invokedMethodVertexBuilder = getGraph().prepareVertex(invokedMethodId, data.getVisibility(), getAuthorizations());
+                VertexBuilder invokedMethodVertexBuilder = getGraph().prepareVertex(invokedMethodId, data.getVisibility());
                 data.setVisibilityJsonOnElement(invokedMethodVertexBuilder);
                 LumifyProperties.TITLE.setProperty(invokedMethodVertexBuilder, method.getSignature(), data.getPropertyMetadata(), data.getVisibility());
                 OntologyLumifyProperties.CONCEPT_TYPE.setProperty(invokedMethodVertexBuilder, Ontology.CONCEPT_TYPE_METHOD, data.getPropertyMetadata(), data.getVisibility());
-                Vertex invokedMethodVertex = invokedMethodVertexBuilder.save();
+                Vertex invokedMethodVertex = invokedMethodVertexBuilder.save(getAuthorizations());
 
                 String methodInvokesMethodEdgeId = JavaCodeIngestIdGenerator.createMethodInvokesMethodEdgeId(methodVertex, invokedMethodVertex);
                 edge = getGraph().addEdge(methodInvokesMethodEdgeId, methodVertex, invokedMethodVertex, Ontology.EDGE_LABEL_INVOKED, data.getVisibility(), getAuthorizations());
-                data.setVisibilityJsonOnElement(edge);
+                data.setVisibilityJsonOnElement(edge, getAuthorizations());
 
                 Vertex invokeMethodClassVertex = createClassVertex(methodClassName, data);
                 createClassReferencesEdge(classVertex, invokeMethodClassVertex, data);
@@ -150,27 +150,27 @@ public class ClassFileGraphPropertyWorker extends GraphPropertyWorker {
 
     private void createFieldVertex(Field field, Vertex classVertex, JavaClass javaClass, GraphPropertyWorkData data) {
         String fieldId = JavaCodeIngestIdGenerator.createFieldId(javaClass, field);
-        VertexBuilder vertexBuilder = getGraph().prepareVertex(fieldId, data.getVisibility(), getAuthorizations());
+        VertexBuilder vertexBuilder = getGraph().prepareVertex(fieldId, data.getVisibility());
         data.setVisibilityJsonOnElement(vertexBuilder);
         LumifyProperties.TITLE.setProperty(vertexBuilder, field.getName(), data.getPropertyMetadata(), data.getVisibility());
         OntologyLumifyProperties.CONCEPT_TYPE.setProperty(vertexBuilder, Ontology.CONCEPT_TYPE_FIELD, data.getPropertyMetadata(), data.getVisibility());
-        Vertex fieldVertex = vertexBuilder.save();
+        Vertex fieldVertex = vertexBuilder.save(getAuthorizations());
 
         String classContainsFieldEdgeId = JavaCodeIngestIdGenerator.createClassContainsFieldEdgeId(classVertex, fieldVertex);
         Edge edge = getGraph().addEdge(classContainsFieldEdgeId, classVertex, fieldVertex, Ontology.EDGE_LABEL_CLASS_CONTAINS, data.getVisibility(), getAuthorizations());
-        data.setVisibilityJsonOnElement(edge);
+        data.setVisibilityJsonOnElement(edge, getAuthorizations());
 
         Vertex fieldTypeVertex = createClassVertex(field.getType().toString(), data);
         String fieldTypeEdgeId = JavaCodeIngestIdGenerator.createFieldTypeEdgeId(fieldVertex, fieldTypeVertex);
         edge = getGraph().addEdge(fieldTypeEdgeId, fieldVertex, fieldTypeVertex, Ontology.EDGE_LABEL_FIELD_TYPE, data.getVisibility(), getAuthorizations());
-        data.setVisibilityJsonOnElement(edge);
+        data.setVisibilityJsonOnElement(edge, getAuthorizations());
         createClassReferencesEdge(classVertex, fieldTypeVertex, data);
     }
 
     private void createClassReferencesEdge(Vertex classVertex, Vertex typeVertex, GraphPropertyWorkData data) {
         String classReferencesEdgeId = JavaCodeIngestIdGenerator.createClassReferencesEdgeId(classVertex, typeVertex);
         Edge edge = getGraph().addEdge(classReferencesEdgeId, classVertex, typeVertex, Ontology.EDGE_LABEL_CLASS_REFERENCES, data.getVisibility(), getAuthorizations());
-        data.setVisibilityJsonOnElement(edge);
+        data.setVisibilityJsonOnElement(edge, getAuthorizations());
     }
 
     @Override

@@ -92,9 +92,9 @@ public class OpenNLPDictionaryExtractorGraphPropertyWorkerTest {
 
     @Test
     public void testEntityExtraction() throws Exception {
-        Vertex vertex = graph.prepareVertex("v1", new Visibility(""), new InMemoryAuthorizations())
+        Vertex vertex = graph.prepareVertex("v1", new Visibility(""))
                 .setProperty("text", "none", new Visibility(""))
-                .save();
+                .save(new InMemoryAuthorizations());
 
         GraphPropertyWorkData workData = new GraphPropertyWorkData(vertex, vertex.getProperty("text"));
         extractor.execute(new ByteArrayInputStream(text.getBytes()), workData);

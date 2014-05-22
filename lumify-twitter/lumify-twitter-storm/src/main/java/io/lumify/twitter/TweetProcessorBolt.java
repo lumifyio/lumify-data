@@ -73,7 +73,7 @@ public class TweetProcessorBolt extends BaseRichBolt {
 
         String vertexId = "TWEET_" + json.getLong("id");
         Visibility visibility = new Visibility("");
-        VertexBuilder v = this.graph.prepareVertex(vertexId, visibility, authorizations);
+        VertexBuilder v = this.graph.prepareVertex(vertexId, visibility);
 
         OntologyLumifyProperties.CONCEPT_TYPE.addPropertyValue(v, MULTI_VALUE_KEY, TwitterOntology.CONCEPT_TYPE_TWEET, visibility);
         EntityLumifyProperties.SOURCE.addPropertyValue(v, MULTI_VALUE_KEY, SOURCE_NAME, visibility);
@@ -95,7 +95,7 @@ public class TweetProcessorBolt extends BaseRichBolt {
             RawLumifyProperties.PUBLISHED_DATE.addPropertyValue(v, MULTI_VALUE_KEY, publishedDate, visibility);
         }
 
-        Vertex tweetVertex = v.save();
+        Vertex tweetVertex = v.save(authorizations);
         graph.flush();
 
         workQueueRepository.pushGraphPropertyQueue(tweetVertex, RawLumifyProperties.RAW.getProperty(tweetVertex));
@@ -143,7 +143,7 @@ public class TweetProcessorBolt extends BaseRichBolt {
         userVertex = graph.getVertex(vertexId, authorizations);
         if (userVertex == null) {
             Visibility visibility = new Visibility("");
-            VertexBuilder v = this.graph.prepareVertex(vertexId, visibility, authorizations);
+            VertexBuilder v = this.graph.prepareVertex(vertexId, visibility);
 
             OntologyLumifyProperties.CONCEPT_TYPE.addPropertyValue(v, MULTI_VALUE_KEY, TwitterOntology.CONCEPT_TYPE_USER, visibility);
             EntityLumifyProperties.SOURCE.addPropertyValue(v, MULTI_VALUE_KEY, SOURCE_NAME, visibility);
@@ -155,7 +155,7 @@ public class TweetProcessorBolt extends BaseRichBolt {
             }
             TwitterOntology.SCREEN_NAME.addPropertyValue(v, MULTI_VALUE_KEY, userJson.getString("screen_name"), visibility);
 
-            userVertex = v.save();
+            userVertex = v.save(authorizations);
 
             graph.flush();
 
@@ -244,14 +244,14 @@ public class TweetProcessorBolt extends BaseRichBolt {
         urlVertex = graph.getVertex(vertexId, authorizations);
         if (urlVertex == null) {
             Visibility visibility = new Visibility("");
-            VertexBuilder v = this.graph.prepareVertex(vertexId, visibility, authorizations);
+            VertexBuilder v = this.graph.prepareVertex(vertexId, visibility);
 
             OntologyLumifyProperties.CONCEPT_TYPE.addPropertyValue(v, MULTI_VALUE_KEY, TwitterOntology.CONCEPT_TYPE_URL, visibility);
             EntityLumifyProperties.SOURCE.addPropertyValue(v, MULTI_VALUE_KEY, SOURCE_NAME, visibility);
 
             LumifyProperties.TITLE.addPropertyValue(v, MULTI_VALUE_KEY, url, visibility);
 
-            urlVertex = v.save();
+            urlVertex = v.save(authorizations);
 
             graph.flush();
 
@@ -297,14 +297,14 @@ public class TweetProcessorBolt extends BaseRichBolt {
         hashtagVertex = graph.getVertex(vertexId, authorizations);
         if (hashtagVertex == null) {
             Visibility visibility = new Visibility("");
-            VertexBuilder v = this.graph.prepareVertex(vertexId, visibility, authorizations);
+            VertexBuilder v = this.graph.prepareVertex(vertexId, visibility);
 
             OntologyLumifyProperties.CONCEPT_TYPE.addPropertyValue(v, MULTI_VALUE_KEY, TwitterOntology.CONCEPT_TYPE_HASHTAG, visibility);
             EntityLumifyProperties.SOURCE.addPropertyValue(v, MULTI_VALUE_KEY, SOURCE_NAME, visibility);
 
             LumifyProperties.TITLE.addPropertyValue(v, MULTI_VALUE_KEY, text, visibility);
 
-            hashtagVertex = v.save();
+            hashtagVertex = v.save(authorizations);
 
             graph.flush();
 
