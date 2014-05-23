@@ -182,10 +182,20 @@
             <artifactId>lumify-zipcode-resolver</artifactId>
             <version>${project.version}</version>
         </dependency>
+        <dependency>
+            <groupId>io.lumify</groupId>
+            <artifactId>lumify-translate</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>io.lumify</groupId>
+            <artifactId>lumify-translator-bing</artifactId>
+            <version>${project.version}</version>
+        </dependency>
         <!--<dependency>-->
-            <!--<groupId>lumify-all</groupId>-->
-            <!--<artifactId>lumify-food-truck</artifactId>-->
-            <!--<version>${project.version}</version>-->
+        <!--<groupId>lumify-all</groupId>-->
+        <!--<artifactId>lumify-food-truck</artifactId>-->
+        <!--<version>${project.version}</version>-->
         <!--</dependency>-->
     </dependencies>
 
