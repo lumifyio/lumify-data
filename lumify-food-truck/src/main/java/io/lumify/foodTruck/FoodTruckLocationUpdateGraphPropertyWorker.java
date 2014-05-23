@@ -51,8 +51,8 @@ public class FoodTruckLocationUpdateGraphPropertyWorker extends GraphPropertyWor
                 }
 
                 geoLocation = new GeoPoint(geoLocation.getLatitude(), geoLocation.getLongitude(), geoLocation.getAltitude(), keywordTitle);
-                FoodTruckOntology.GEO_LOCATION.addPropertyValue(foodTruck, MULTI_VALUE_KEY, geoLocation, data.getVisibility());
-                FoodTruckOntology.GEO_LOCATION_DATE.addPropertyValue(foodTruck, MULTI_VALUE_KEY, geoLocationDate, data.getVisibility());
+                FoodTruckOntology.GEO_LOCATION.addPropertyValue(foodTruck, MULTI_VALUE_KEY, geoLocation, data.getVisibility(), getAuthorizations());
+                FoodTruckOntology.GEO_LOCATION_DATE.addPropertyValue(foodTruck, MULTI_VALUE_KEY, geoLocationDate, data.getVisibility(), getAuthorizations());
                 getGraph().flush();
                 getWorkQueueRepository().pushGraphPropertyQueue(foodTruck, FoodTruckOntology.GEO_LOCATION.getProperty(foodTruck));
             }

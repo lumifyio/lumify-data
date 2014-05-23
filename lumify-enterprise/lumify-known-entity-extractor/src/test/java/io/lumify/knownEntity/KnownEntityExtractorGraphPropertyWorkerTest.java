@@ -76,10 +76,10 @@ public class KnownEntityExtractorGraphPropertyWorkerTest {
     @Test
     public void textExtract() throws Exception {
         InputStream in = getClass().getResourceAsStream("bffls.txt");
-        VertexBuilder vertexBuilder = graph.prepareVertex("v1", visibility, authorizations);
+        VertexBuilder vertexBuilder = graph.prepareVertex("v1", visibility);
         StreamingPropertyValue textPropertyValue = new StreamingPropertyValue(in, String.class);
         RawLumifyProperties.TEXT.setProperty(vertexBuilder, textPropertyValue, visibility);
-        Vertex vertex = vertexBuilder.save();
+        Vertex vertex = vertexBuilder.save(authorizations);
 
         in = getClass().getResourceAsStream("bffls.txt");
         Property property = vertex.getProperty(RawLumifyProperties.TEXT.getKey());
