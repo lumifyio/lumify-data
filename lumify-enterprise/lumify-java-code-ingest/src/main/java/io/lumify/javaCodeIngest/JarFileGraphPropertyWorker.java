@@ -18,8 +18,8 @@ import static org.securegraph.util.IterableUtils.toList;
 public class JarFileGraphPropertyWorker extends GraphPropertyWorker {
     @Override
     public void execute(InputStream in, GraphPropertyWorkData data) throws Exception {
-        OntologyLumifyProperties.CONCEPT_TYPE.setProperty(data.getElement(), Ontology.CONCEPT_TYPE_JAR_FILE, data.getProperty().getVisibility());
-        RawLumifyProperties.MIME_TYPE.setProperty(data.getElement(), "application/java-archive", data.getProperty().getVisibility());
+        OntologyLumifyProperties.CONCEPT_TYPE.setProperty(data.getElement(), Ontology.CONCEPT_TYPE_JAR_FILE, data.getProperty().getVisibility(), getAuthorizations());
+        RawLumifyProperties.MIME_TYPE.setProperty(data.getElement(), "application/java-archive", data.getProperty().getVisibility(), getAuthorizations());
 
         List<Vertex> existingFileVerticies = toList(((Vertex) data.getElement()).getVertices(Direction.BOTH, Ontology.EDGE_LABEL_JAR_CONTAINS, getAuthorizations()));
 
@@ -61,18 +61,18 @@ public class JarFileGraphPropertyWorker extends GraphPropertyWorker {
     }
 
     private void createJarContainsFileEdge(Vertex jarEntryVertex, GraphPropertyWorkData data) {
-        EdgeBuilder jarContainsEdgeBuilder = getGraph().prepareEdge((Vertex) data.getElement(), jarEntryVertex, Ontology.EDGE_LABEL_JAR_CONTAINS, data.getProperty().getVisibility(), getAuthorizations());
-        jarContainsEdgeBuilder.save();
+        EdgeBuilder jarContainsEdgeBuilder = getGraph().prepareEdge((Vertex) data.getElement(), jarEntryVertex, Ontology.EDGE_LABEL_JAR_CONTAINS, data.getProperty().getVisibility());
+        jarContainsEdgeBuilder.save(getAuthorizations());
     }
 
     private Vertex createFileVertex(JarEntry jarEntry, StreamingPropertyValue rawValue, GraphPropertyWorkData data) {
-        VertexBuilder jarEntryVertexBuilder = getGraph().prepareVertex(data.getProperty().getVisibility(), getAuthorizations());
+        VertexBuilder jarEntryVertexBuilder = getGraph().prepareVertex(data.getProperty().getVisibility());
         LumifyProperties.TITLE.setProperty(jarEntryVertexBuilder, jarEntry.getName(), data.getProperty().getVisibility());
         OntologyLumifyProperties.CONCEPT_TYPE.setProperty(jarEntryVertexBuilder, Ontology.CONCEPT_TYPE_CLASS_FILE, data.getProperty().getVisibility());
         RawLumifyProperties.MIME_TYPE.setProperty(jarEntryVertexBuilder, "application/octet-stream", data.getProperty().getVisibility());
         RawLumifyProperties.FILE_NAME.setProperty(jarEntryVertexBuilder, jarEntry.getName(), data.getProperty().getVisibility());
         RawLumifyProperties.RAW.setProperty(jarEntryVertexBuilder, rawValue, data.getProperty().getVisibility());
-        return jarEntryVertexBuilder.save();
+        return jarEntryVertexBuilder.save(getAuthorizations());
     }
 
     @Override

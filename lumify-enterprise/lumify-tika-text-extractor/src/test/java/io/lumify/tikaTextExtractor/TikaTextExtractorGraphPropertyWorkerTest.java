@@ -91,13 +91,13 @@ public class TikaTextExtractorGraphPropertyWorkerTest {
     }
 
     private void createVertex(String data) {
-        VertexBuilder v = graph.prepareVertex("v1", visibility, authorizations);
+        VertexBuilder v = graph.prepareVertex("v1", visibility);
         StreamingPropertyValue textValue = new StreamingPropertyValue(new ByteArrayInputStream(data.getBytes()), byte[].class);
         textValue.searchIndex(false);
         Map<String, Object> metadata = new HashMap<String, Object>();
         metadata.put(RawLumifyProperties.MIME_TYPE.getKey(), "text/html");
         RawLumifyProperties.RAW.setProperty(v, textValue, metadata, visibility);
-        v.save();
+        v.save(authorizations);
     }
 
     @Test

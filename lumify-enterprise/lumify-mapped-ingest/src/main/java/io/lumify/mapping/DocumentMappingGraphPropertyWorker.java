@@ -45,7 +45,7 @@ public class DocumentMappingGraphPropertyWorker extends GraphPropertyWorker {
         textMetadata.put(RawLumifyProperties.MIME_TYPE.getKey(), "text/plain");
         RawLumifyProperties.TEXT.addPropertyValue(m, MULTIVALUE_KEY, textValue, textMetadata, data.getVisibility());
         LumifyProperties.TITLE.addPropertyValue(m, MULTIVALUE_KEY, mapping.getSubject(), data.getPropertyMetadata(), data.getVisibility());
-        Vertex v = m.save();
+        Vertex v = m.save(getAuthorizations());
         getAuditRepository().auditVertexElementMutation(AuditAction.UPDATE, m, v, MULTIVALUE_KEY, getUser(), data.getVisibility());
 
         getGraph().flush();

@@ -148,7 +148,7 @@ public class TikaTextExtractorGraphPropertyWorker extends GraphPropertyWorker {
             // TODO set("retrievalTime", extractRetrievalTime(metadata));
         }
 
-        Vertex v = m.save();
+        Vertex v = m.save(getAuthorizations());
         getAuditRepository().auditVertexElementMutation(AuditAction.UPDATE, m, v, MULTIVALUE_KEY, getUser(), data.getVisibility());
         getGraph().flush();
         getWorkQueueRepository().pushGraphPropertyQueue(data.getElement(), MULTIVALUE_KEY, RawLumifyProperties.TEXT.getKey());
