@@ -3,6 +3,9 @@ class env::cluster::storm_supervisor inherits env::cluster::base {
   class { 'storm::fw::supervisor' :
     stage => 'first',
   }
+  class { 'storm::fw::logviewer' :
+    stage => 'first',
+  }
 
   include role::storm::supervisor
 
