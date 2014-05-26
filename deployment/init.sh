@@ -5,7 +5,7 @@ PUPPETLABS_RPM_URL="http://yum.puppetlabs.com/el/6/products/i386/${PUPPETLABS_RP
 SSH_OPTS='-o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -o LogLevel=QUIET'
 
 HOSTS_FILE=$1
-PROXY_URL=http://$(hostname):8080
+[ "${PROXY_URL}" != '' ] || PROXY_URL=http://$(hostname):8080
 
 function heading {
   local text=$1
@@ -161,6 +161,14 @@ case ${mode_or_ip} in
     stage_jobtracker
     stage_stormmaster
     stage_www
+    setup_other
+    ;;
+  stage)
+    stage_jobtracker
+    stage_stormmaster
+    stage_www
+    ;;
+  other)
     setup_other
     ;;
   *.*.*.*)
