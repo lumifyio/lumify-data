@@ -64,7 +64,6 @@ class env::common::config(
   $elasticsearch_locations = hiera_array('elasticsearch_locations')
   $rabbitmq_nodes = hiera_array('rabbitmq_nodes')
   $storm_supervisor_slots_ports = hiera_array('storm_supervisor_slots_ports')
-  $authentication_provider = hiera('authentication_provider')
   $clavin_index_dir = hiera('clavin_index_dir')
 
   define config_file {
