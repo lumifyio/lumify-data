@@ -24,7 +24,6 @@ io/lumify/lumify-zipcode-extractor                with-dependencies.jar
 io/lumify/lumify-wikipedia-mr                     with-dependencies.jar
 io/lumify/lumify-import                           with-dependencies.jar
 io/lumify/lumify-storm                            with-dependencies.jar
-io/lumify/lumify-ldap-auth                        with-dependencies.jar
 io/lumify/lumify-web-dev-tools                    .jar
 io/lumify/lumify-opennlp-dictionary-extractor-web with-dependencies.jar
 io/lumify/lumify-web-war                          .war lumify.war
