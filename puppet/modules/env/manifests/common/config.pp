@@ -46,7 +46,7 @@ class env::common::config(
   $data_dir_list = split($data_directories, ',')
   $first_data_dir = $data_dir_list[0]
 
-  file { "${first_data_dir}/hdfslibcahe" :
+  file { "${first_data_dir}/hdfslibcache" :
     ensure => directory,
     group => 'lumify',
     mode => 'u=rwx,g=rwxs,o=rx',
