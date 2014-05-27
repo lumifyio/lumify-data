@@ -38,3 +38,11 @@ class storm::fw::supervisor {
     action => accept,
   }
 }
+
+class storm::fw::logviewer {
+  firewall { '196 allow storm logviewers' :
+    port   => 8000,
+    proto  => tcp,
+    action => accept,
+  }
+}

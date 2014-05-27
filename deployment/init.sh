@@ -5,6 +5,7 @@ PUPPETLABS_RPM_URL="http://yum.puppetlabs.com/el/6/products/i386/${PUPPETLABS_RP
 SSH_OPTS='-o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -o LogLevel=QUIET'
 
 HOSTS_FILE=$1
+[ "${PROXY_URL}" != '' ] || PROXY_URL=http://$(hostname):8080
 
 function heading {
   local text=$1
@@ -99,7 +100,7 @@ function setup_remote {
   heading "${other_host}: configure yum to use the proxy"
   cat <<EO_YUM_CONF | ssh ${SSH_OPTS} ${other_host} 'cat >> /etc/yum.conf'
 
-proxy=http://$(hostname):8080
+proxy=${PROXY_URL}
 EO_YUM_CONF
 
   heading "${other_host}: install LVM"
@@ -124,7 +125,7 @@ net.ipv6.conf.all.disable_ipv6 = 1
 EO_SYSCTL_CONF
 
   heading "${other_host}: add the PuppetLabs yum repo, install and enable puppet"
-  ssh ${SSH_OPTS} ${other_host} "rpm -q ${PUPPETLABS_RPM_NAME} || http_proxy=http://$(hostname):8080 rpm -ivh ${PUPPETLABS_RPM_URL}"
+  ssh ${SSH_OPTS} ${other_host} "rpm -q ${PUPPETLABS_RPM_NAME} || http_proxy=${PROXY_URL} rpm -ivh ${PUPPETLABS_RPM_URL}"
   ssh ${SSH_OPTS} ${other_host} yum -y install puppet
   ssh ${SSH_OPTS} ${other_host} chkconfig puppet on
 
@@ -160,6 +161,14 @@ case ${mode_or_ip} in
     stage_jobtracker
     stage_stormmaster
     stage_www
+    setup_other
+    ;;
+  stage)
+    stage_jobtracker
+    stage_stormmaster
+    stage_www
+    ;;
+  other)
     setup_other
     ;;
   *.*.*.*)

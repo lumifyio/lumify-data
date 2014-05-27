@@ -37,10 +37,14 @@ setup
 1. ssh from the puppet server to the namenode and run:
 
         /root/setup_config.sh
+        /root/setup_libcache.sh
 
 1. ssh from the puppet server to the web server and run:
 
-        service jetty stop && rm -f /opt/jetty/logs/* && service jetty start && tail -100f /opt/jetty/logs/*
+        service jetty stop \
+          && rm -f /opt/jetty/logs/* /opt/lumify/logs/lumify-jetty-* \
+          && service jetty start \
+          && tail -f /opt/jetty/logs/* /opt/lumify/logs/lumify-jetty-*
 
 1. web browse to https://demo.lumify.io/admin/uploadOntology.html and upload `dev-ontology.zip`
 
@@ -50,8 +54,8 @@ setup
 
         n=5
 
-        /opt/storm/bin/storm jar lumify-enterprise-storm-1.0-SNAPSHOT-jar-with-dependencies.jar \
-          io.lumify.storm.StormEnterpriseRunner -tpb $((${n} * 8)) -w $((${n} * 2)) -ph $((${n} * 4))
+        /opt/storm/bin/storm jar lumify-storm.jar \
+          io.lumify.storm.StormRunner -tpb $((${n} * 8)) -w $((${n} * 2)) -ph $((${n} * 4))
 
 turning it off
 ==============

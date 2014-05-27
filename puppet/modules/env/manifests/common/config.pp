@@ -46,7 +46,7 @@ class env::common::config(
   $data_dir_list = split($data_directories, ',')
   $first_data_dir = $data_dir_list[0]
 
-  file { "${first_data_dir}/hdfslibcahe" :
+  file { "${first_data_dir}/hdfslibcache" :
     ensure => directory,
     group => 'lumify',
     mode => 'u=rwx,g=rwxs,o=rx',
@@ -64,7 +64,6 @@ class env::common::config(
   $elasticsearch_locations = hiera_array('elasticsearch_locations')
   $rabbitmq_nodes = hiera_array('rabbitmq_nodes')
   $storm_supervisor_slots_ports = hiera_array('storm_supervisor_slots_ports')
-  $authentication_provider = hiera('authentication_provider')
   $clavin_index_dir = hiera('clavin_index_dir')
 
   define config_file {
