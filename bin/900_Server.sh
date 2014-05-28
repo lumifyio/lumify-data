@@ -24,6 +24,7 @@ java ${debug_option} \
 -Djava.awt.headless=true \
 -Djava.security.krb5.realm= \
 -Djava.security.krb5.kdc= \
+-Dlumify.request.debug=true \
 -classpath ${classpath} \
 -Xmx1024M \
 io.lumify.web.JettyWebServer \
