@@ -31,7 +31,7 @@ function setup_local {
   heading 'add the PuppetLabs yum repo, install and enable puppet'
   rpm -q ${PUPPETLABS_RPM_NAME} || rpm -ivh ${PUPPETLABS_RPM_URL}
   yum -y install puppet-server-3.6.0-1.el6.noarch
-  # TODO: check if a version > 3.6.1 unbreaks things
+  # TODO: check if a version > 3.6.1 unbreaks things (https://tickets.puppetlabs.com/browse/PUP-2659)
   chkconfig puppetmaster on
   chkconfig puppet on
 
@@ -131,7 +131,7 @@ EO_SYSCTL_CONF
   heading "${other_host}: add the PuppetLabs yum repo, install and enable puppet"
   ssh ${SSH_OPTS} ${other_host} "rpm -q ${PUPPETLABS_RPM_NAME} || http_proxy=${PROXY_URL} rpm -ivh ${PUPPETLABS_RPM_URL}"
   ssh ${SSH_OPTS} ${other_host} yum -y install puppet-3.6.0-1.el6.noarch
-  # TODO: check if a version > 3.6.1 unbreaks things
+  # TODO: check if a version > 3.6.1 unbreaks things (https://tickets.puppetlabs.com/browse/PUP-2659)
 
   ssh ${SSH_OPTS} ${other_host} chkconfig puppet on
 
