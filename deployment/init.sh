@@ -5,7 +5,10 @@ PUPPETLABS_RPM_URL="http://yum.puppetlabs.com/el/6/products/i386/${PUPPETLABS_RP
 SSH_OPTS='-o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -o LogLevel=QUIET'
 
 HOSTS_FILE=$1
+
+set +u
 [ "${PROXY_URL}" != '' ] || PROXY_URL=http://$(hostname):8080
+set -u
 
 function heading {
   local text=$1
