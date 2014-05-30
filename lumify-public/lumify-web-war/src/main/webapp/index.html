@@ -24,15 +24,22 @@
     // require.urlArgs = "cache-bust=" +  Date.now();
   </script>
   <script data-main="lumify" src='libs/requirejs/require.js'></script>
+
   <script>
-    require(['https://igw-us.s3-us-gov-west-1.amazonaws.com/gateway-banner/gateway-banner'
-        ], function(Banner) {
-            Banner.init({
-                element: '.gateway-banner',
-                gatewayUrl: 'https://www.igw.us'
-            });
-        }
-    );
+    // Add Banner
+    require([
+        'jquery',
+        'https://igw-us.s3-us-gov-west-1.amazonaws.com/gateway-banner/gateway-banner.js'
+    ], function($, Banner) {
+      $('#app') 
+        .css({ top: '40px', 'border-top': '1px solid #ccc' })
+        .before('<div class="gateway-banner"></div>');
+
+      Banner.init({
+          element: '.gateway-banner',
+          gatewayUrl: 'https://www.igw.us'
+      });
+    });
   </script>
 </head>
 <body>
@@ -40,8 +47,8 @@
   <!-- SCM URL: ${project.scm.url} -->
   <!-- Git SHA-1: ${buildNumber} -->
   <!-- Build Timestamp: ${build.timestamp.formatted} -->
-  <div class="gateway-banner"></div>
   <div id='app'></div>
   <div id='login'></div>
+
 </body>
 </html>
