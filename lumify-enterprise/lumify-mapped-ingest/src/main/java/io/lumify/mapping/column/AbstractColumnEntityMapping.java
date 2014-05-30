@@ -1,6 +1,7 @@
 package io.lumify.mapping.column;
 
 import io.lumify.core.ingest.term.extraction.TermMention;
+import io.lumify.mapping.DocumentMapping;
 import org.securegraph.Visibility;
 
 import java.util.Collections;
@@ -139,7 +140,7 @@ public abstract class AbstractColumnEntityMapping implements ColumnEntityMapping
                     .resolved(true)
                     .process(processId);
             for (Map.Entry<String, ColumnValue<?>> prop : properties.entrySet()) {
-                builder.setProperty(prop.getKey(), prop.getValue().getValue(row));
+                builder.addProperty(DocumentMapping.class.getName(), prop.getKey(), prop.getValue().getValue(row));
             }
             mention = builder.build();
         }

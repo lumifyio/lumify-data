@@ -18,6 +18,7 @@ import java.util.List;
 import java.util.Map;
 
 public class ZipCodeResolverTermMentionFilter extends TermMentionFilter {
+    private static final String MULTI_VALUE_PROPERTY_KEY = ZipCodeResolverTermMentionFilter.class.getName();
     private static final String CONFIG_ZIP_CODE_IRI = "ontology.iri.zipCode";
     private static final String CONFIG_GEO_LOCATION_IRI = "ontology.iri.geoLocation";
     private String zipCodeIri;
@@ -87,15 +88,16 @@ public class ZipCodeResolverTermMentionFilter extends TermMentionFilter {
                 }
 
                 String id = String.format("GEO-ZIPCODE-%s", zipCodeEntry.getZipCode());
-                GeoPoint geoPoint = new GeoPoint(zipCodeEntry.getLatitude(), zipCodeEntry.getLongitude(), zipCodeEntry.getZipCode());
+                String sign = String.format("%s - %s, %s", zipCodeEntry.getZipCode(), zipCodeEntry.getCity(), zipCodeEntry.getState());
+                GeoPoint geoPoint = new GeoPoint(zipCodeEntry.getLatitude(), zipCodeEntry.getLongitude());
                 return new TermMention.Builder(termMention)
                         .id(id)
                         .resolved(true)
                         .useExisting(true)
-                        .sign(zipCodeEntry.getZipCode())
+                        .sign(sign)
                         .ontologyClassUri(zipCodeIri)
-                        .setProperty(geoLocationIri, geoPoint)
-                        .setProperty(EntityLumifyProperties.SOURCE.getKey(), "Zip Code Resolver")
+                        .addProperty(MULTI_VALUE_PROPERTY_KEY, geoLocationIri, geoPoint)
+                        .addProperty(MULTI_VALUE_PROPERTY_KEY, EntityLumifyProperties.SOURCE.getKey(), "Zip Code Resolver")
                         .process(getClass().getName())
                         .build();
             }
