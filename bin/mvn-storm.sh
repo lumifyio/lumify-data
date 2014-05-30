@@ -11,15 +11,23 @@ DIR="$(cd -P "$(dirname "$SOURCE")" && pwd)"
 (
   cd ${DIR}/..
 
-  modules=$(find lumify-enterprise -name '*PropertyWorker.java' -o -name '*TermMentionFilter.java' | cut -d / -f 1-2 | sort -u)
-  modules_comma_separated=$(echo ${modules} | sed -e 's/ /,/g')
+  ENTERPRISE_MODULES=$(find lumify-enterprise -name '*PropertyWorker.java' \
+                                           -o -name '*TermMentionFilter.java' \
+                                           -o -name '*Translator.java' \
+                         | cut -d / -f 1-2 \
+                         | sort -u)
+  OTHER_MODULES="
+    lumify-public/lumify-storm
+    lumify-public/lumify-ontology-dev
+  "
+  MODULES=$(echo ${ENTERPRISE_MODULES} ${OTHER_MODULES} | sed -e 's/ /,/g')
 
   set -x
   mvn install -pl lumify-root -am -DskipTests -Dsource.skip=true
-  mvn package -pl ${modules_comma_separated} -am -DskipTests -Dsource.skip=true
+  mvn package -pl ${MODULES} -am -DskipTests -Dsource.skip=true
   set +x
 
-  for module in ${modules}; do
+  for module in $(echo ${MODULES} | sed -e 's/,/ /g'); do
     simple_module_name=$(echo ${module} | cut -d / -f 2)
     if [ -f ${module}/target/${simple_module_name}-*-jar-with-dependencies.jar ]; then
       file=$(ls ${module}/target/${simple_module_name}-*-jar-with-dependencies.jar)
