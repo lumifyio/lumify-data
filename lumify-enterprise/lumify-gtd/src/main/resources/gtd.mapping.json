@@ -157,7 +157,7 @@
 				"http://lumify.io/gtd#reportSource": { "index": 125 },
 				"http://lumify.io/gtd#reportSource": { "index": 126 },
 				"http://lumify.io/gtd#reportSource": { "index": 127 },
-				"http://lumify.io/dev#source": {
+				"http://lumify.io#source": {
 					"type": "formattedMultiColumn",
 					"columns": [
 						{ "index": 128 }
@@ -244,7 +244,7 @@
 						"xform": { "dataType": "double" }
 					}
 				},
-				"http://lumify.io/dev#source": {
+				"http://lumify.io#source": {
 					"type": "formattedMultiColumn",
 					"columns": [
 						{ "index": 128 }
@@ -259,7 +259,7 @@
 			"useExisting": true,
 			"properties": {
 				"http://lumify.io/gtd#country": { "index": 41 },
-				"http://lumify.io/dev#source": {
+				"http://lumify.io#source": {
 					"type": "formattedMultiColumn",
 					"columns": [
 						{ "index": 128 }
@@ -280,7 +280,7 @@
 			"conceptURI": "http://lumify.io/gtd#terroristGroup",
 			"useExisting": true,
 			"properties": {
-				"http://lumify.io/dev#source": {
+				"http://lumify.io#source": {
 					"type": "formattedMultiColumn",
 					"columns": [
 						{ "index": 128 }
@@ -312,7 +312,7 @@
 			"conceptURI": "http://lumify.io/gtd#terroristGroup",
 			"useExisting": true,
 			"properties": {
-				"http://lumify.io/dev#source": {
+				"http://lumify.io#source": {
 					"type": "formattedMultiColumn",
 					"columns": [
 						{ "index": 128 }

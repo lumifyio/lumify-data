@@ -244,6 +244,7 @@
         <module>lumify-zipcode-resolver</module>
         <module>lumify-translate</module>
         <module>lumify-translator-bing</module>
+        <module>lumify-reindex</module>
         <!--<module>lumify-gtd</module>-->
     </modules>
 </project>

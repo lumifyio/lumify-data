@@ -123,8 +123,6 @@ define([
                     y: event.pageY
                 }
             });
-
-            this.selectItems($target);
         };
 
         this.move = function(e, data) {
@@ -223,9 +221,9 @@ define([
 
             if (loadingListElement.length) {
                 var data = { conceptType: this.attr.verticesConceptId };
-                if (!this.offset) this.offset = this.attr.vertices.length;
+                if (!this.offset) this.offset = this.attr.nextOffset;
                 data.paging = {
-                    offset: this.offset
+                    offset: this.offset,
                 };
                 this.trigger('infiniteScrollRequest', data);
             }
@@ -241,7 +239,7 @@ define([
                 loading.remove();
                 this.attr.infiniteScrolling = false;
             } else {
-                this.offset += data.vertices.length;
+                this.offset = data.nextOffset;
                 var clsMap = this.classNameMapForVertices(data.vertices),
                     added = data.vertices.map(function(vertex) {
                         return vertexTemplate({

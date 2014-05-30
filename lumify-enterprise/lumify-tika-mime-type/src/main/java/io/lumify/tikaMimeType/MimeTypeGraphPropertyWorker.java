@@ -46,6 +46,7 @@ public class MimeTypeGraphPropertyWorker extends GraphPropertyWorker {
         m.alterPropertyMetadata(data.getProperty(), RawLumifyProperties.MIME_TYPE.getKey(), mimeType);
         Vertex v = m.save(getAuthorizations());
         getAuditRepository().auditVertexElementMutation(AuditAction.UPDATE, m, v, MimeTypeGraphPropertyWorker.class.getName(), getUser(), data.getVisibility());
+        getAuditRepository().auditAnalyzedBy(AuditAction.ANALYZED_BY, v, getClass().getSimpleName(), getUser(), v.getVisibility());
 
         getGraph().flush();
         getWorkQueueRepository().pushGraphPropertyQueue(data.getElement(), data.getProperty());

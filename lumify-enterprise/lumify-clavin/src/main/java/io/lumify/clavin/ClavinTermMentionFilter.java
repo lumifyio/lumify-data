@@ -12,11 +12,14 @@ import io.lumify.core.exception.LumifyException;
 import io.lumify.core.ingest.graphProperty.TermMentionFilter;
 import io.lumify.core.ingest.graphProperty.TermMentionFilterPrepareData;
 import io.lumify.core.ingest.term.extraction.TermMention;
+import io.lumify.core.model.audit.AuditAction;
+import io.lumify.core.model.audit.AuditRepository;
 import io.lumify.core.model.ontology.Concept;
 import io.lumify.core.model.ontology.OntologyProperty;
 import io.lumify.core.model.ontology.OntologyRepository;
 import io.lumify.core.model.ontology.PropertyType;
 import io.lumify.core.model.properties.EntityLumifyProperties;
+import io.lumify.core.user.User;
 import io.lumify.core.util.LumifyLogger;
 import io.lumify.core.util.LumifyLoggerFactory;
 import org.apache.lucene.queryparser.classic.ParseException;
@@ -85,6 +88,8 @@ public class ClavinTermMentionFilter extends TermMentionFilter {
     private String countryIri;
     private String cityIri;
     private String geoLocationIri;
+    private AuditRepository auditRespository;
+    private User user;
 
     @Override
     public void prepare(TermMentionFilterPrepareData termMentionFilterPrepareData) throws Exception {
@@ -97,6 +102,7 @@ public class ClavinTermMentionFilter extends TermMentionFilter {
         prepareClavinLuceneIndex(config);
         prepareFuzzy(config);
         prepareTargetConcepts(config);
+        user = termMentionFilterPrepareData.getUser();
     }
 
     public void prepareTargetConcepts(Configuration config) {
@@ -226,6 +232,8 @@ public class ClavinTermMentionFilter extends TermMentionFilter {
                 results.add(termMention);
             }
         }
+        auditRespository.auditAnalyzedBy(AuditAction.ANALYZED_BY, artifactGraphVertex, getClass().getSimpleName(),
+                user, artifactGraphVertex.getVisibility());
         return results;
     }
 
@@ -280,5 +288,10 @@ public class ClavinTermMentionFilter extends TermMentionFilter {
     @Inject
     public void setOntologyRepository(OntologyRepository ontologyRepository) {
         this.ontologyRepository = ontologyRepository;
+    }
+
+    @Inject
+    public void setAuditRepository (AuditRepository auditRepository) {
+        this.auditRespository = auditRepository;
     }
 }

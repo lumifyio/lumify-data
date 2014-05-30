@@ -432,6 +432,11 @@
             </dependency>
             <dependency>
                 <groupId>org.securegraph</groupId>
+                <artifactId>securegraph-elasticsearch-parentchild</artifactId>
+                <version>${securegraph.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.securegraph</groupId>
                 <artifactId>securegraph-tools</artifactId>
                 <version>${securegraph.version}</version>
             </dependency>

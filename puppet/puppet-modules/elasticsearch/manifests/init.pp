@@ -122,12 +122,6 @@ class elasticsearch(
     require => Exec["copy-elasticsearch-servicewrapper"],
   }
 
-  exec { "install-elasticsearch-gui-plugin" :
-    command => "${homedir}/bin/plugin --install jettro/elasticsearch-gui",
-    creates => "${homedir}/plugins/gui",
-    require => Macro::Extract[$downloadpath],
-  }
-
   file { '/etc/init/elasticsearch.conf':
     ensure  => file,
     content => template("elasticsearch/upstart.conf.erb")

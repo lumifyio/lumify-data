@@ -6,6 +6,7 @@ import io.lumify.core.ingest.ArtifactDetectedObject;
 import io.lumify.core.ingest.graphProperty.GraphPropertyWorkData;
 import io.lumify.core.ingest.graphProperty.GraphPropertyWorker;
 import io.lumify.core.ingest.graphProperty.GraphPropertyWorkerPrepareData;
+import io.lumify.core.model.audit.AuditAction;
 import io.lumify.core.model.detectedObjects.DetectedObjectRepository;
 import io.lumify.core.model.properties.RawLumifyProperties;
 import io.lumify.core.security.LumifyVisibility;
@@ -105,6 +106,8 @@ public class OpenCVObjectDetectorPropertyWorker extends GraphPropertyWorker {
     }
 
     private void saveDetectedObjects(Vertex artifactVertex, List<ArtifactDetectedObject> detectedObjects) {
+        getAuditRepository().auditAnalyzedBy(AuditAction.ANALYZED_BY, artifactVertex,
+                getClass().getSimpleName(), getUser(), artifactVertex.getVisibility());
         for (ArtifactDetectedObject detectedObject : detectedObjects) {
             saveDetectedObject(artifactVertex, detectedObject);
         }
