@@ -27,7 +27,7 @@ DIR="$(cd -P "$(dirname "$SOURCE")" && pwd)"
   mvn package -pl ${MODULES} -am -DskipTests -Dsource.skip=true
   set +x
 
-  for module in ${modules}; do
+  for module in $(echo ${MODULES} | sed -e 's/,/ /g'); do
     simple_module_name=$(echo ${module} | cut -d / -f 2)
     if [ -f ${module}/target/${simple_module_name}-*-jar-with-dependencies.jar ]; then
       file=$(ls ${module}/target/${simple_module_name}-*-jar-with-dependencies.jar)
