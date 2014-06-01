@@ -8,6 +8,16 @@ while [ -h "$SOURCE" ]; do
 done
 DIR="$(cd -P "$(dirname "$SOURCE")" && pwd)"
 
+if [ "$1" ]; then
+  FILTER="$1"
+else
+  FILTER='.'
+  OTHER_MODULES='
+    lumify-public/lumify-storm
+    lumify-public/lumify-ontology-dev
+  '
+fi
+
 (
   cd ${DIR}/..
 
@@ -15,11 +25,8 @@ DIR="$(cd -P "$(dirname "$SOURCE")" && pwd)"
                                            -o -name '*TermMentionFilter.java' \
                                            -o -name '*Translator.java' \
                          | cut -d / -f 1-2 \
+                         | grep ${FILTER} \
                          | sort -u)
-  OTHER_MODULES="
-    lumify-public/lumify-storm
-    lumify-public/lumify-ontology-dev
-  "
   MODULES=$(echo ${ENTERPRISE_MODULES} ${OTHER_MODULES} | sed -e 's/ /,/g')
 
   set -x
