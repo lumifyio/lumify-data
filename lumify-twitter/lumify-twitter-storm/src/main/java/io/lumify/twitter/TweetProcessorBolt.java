@@ -30,6 +30,7 @@ import java.io.ByteArrayInputStream;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
@@ -85,7 +86,9 @@ public class TweetProcessorBolt extends BaseRichBolt {
         String text = json.getString("text");
         text = text.replaceAll("&lt;", "<").replaceAll("&gt;", "<").replaceAll("&amp;", "&");
         StreamingPropertyValue textValue = new StreamingPropertyValue(new ByteArrayInputStream(text.getBytes()), String.class);
-        RawLumifyProperties.TEXT.addPropertyValue(v, MULTI_VALUE_KEY, textValue, visibility);
+        Map<String, Object> textMetadata = new HashMap<String, Object>();
+        textMetadata.put(RawLumifyProperties.META_DATA_TEXT_DESCRIPTION, "Tweet Text");
+        RawLumifyProperties.TEXT.addPropertyValue(v, MULTI_VALUE_KEY, textValue, textMetadata, visibility);
 
         String title = json.getJSONObject("user").getString("name") + ": " + text;
         LumifyProperties.TITLE.addPropertyValue(v, MULTI_VALUE_KEY, title, visibility);

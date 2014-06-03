@@ -111,8 +111,9 @@ public class TikaTextExtractorGraphPropertyWorker extends GraphPropertyWorker {
         }
 
         String customImageMetadata = extractTextField(metadata, customFlickrMetadataKeys);
-        Map<String, Object> textMetadata = data.getPropertyMetadata();
+        Map<String, Object> textMetadata = new HashMap<String, Object>(data.getPropertyMetadata());
         textMetadata.put(RawLumifyProperties.MIME_TYPE.getKey(), "text/plain");
+        textMetadata.put(RawLumifyProperties.META_DATA_TEXT_DESCRIPTION, "Extracted Text");
 
         if (customImageMetadata != null && !customImageMetadata.equals("")) {
             try {
