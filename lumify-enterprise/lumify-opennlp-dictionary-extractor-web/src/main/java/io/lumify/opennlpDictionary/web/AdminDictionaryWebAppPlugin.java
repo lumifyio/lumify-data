@@ -16,8 +16,8 @@ public class AdminDictionaryWebAppPlugin implements WebAppPlugin {
         Class<? extends Handler> csrfHandlerClass = LumifyCsrfHandler.class;
 
         app.get("/admin/dictionaryAdmin.html", authenticationHandler, new StaticResourceHandler(getClass(), "/dictionaryAdmin.html", "text/html"));
-        app.get("/admin/dictionary", authenticationHandlerClass, AdminPrivilegeFilter.class, AdminDictionary.class);
-        app.get("/admin/dictionary/concept", authenticationHandlerClass, AdminPrivilegeFilter.class, AdminDictionaryByConcept.class);
+        app.get("/admin/dictionary", authenticationHandlerClass, csrfHandlerClass, AdminPrivilegeFilter.class, AdminDictionary.class);
+        app.get("/admin/dictionary/concept", authenticationHandlerClass, csrfHandlerClass, AdminPrivilegeFilter.class, AdminDictionaryByConcept.class);
         app.post("/admin/dictionary", authenticationHandlerClass, csrfHandlerClass, AdminPrivilegeFilter.class, AdminDictionaryEntryAdd.class);
         app.post("/admin/dictionary/delete", authenticationHandlerClass, csrfHandlerClass, AdminPrivilegeFilter.class, AdminDictionaryEntryDelete.class);
     }
