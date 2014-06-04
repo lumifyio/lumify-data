@@ -3,18 +3,17 @@
          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <parent>
-        <artifactId>lumify-enterprise</artifactId>
         <groupId>io.lumify</groupId>
+        <artifactId>lumify-root</artifactId>
         <version>0.2.0-SNAPSHOT</version>
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
-    <artifactId>lumify-tika-text-extractor</artifactId>
-    <name>Lumify: Tika Text Extractor</name>
+    <artifactId>lumify-phone-number-extractor</artifactId>
+    <name>Lumify: Phone Number Extractor</name>
 
     <properties>
-        <nekohtml.version>1.9.18</nekohtml.version>
-        <natty.version>0.7</natty.version>
+        <libphonenumber.version>5.7</libphonenumber.version>
     </properties>
 
     <dependencies>
@@ -25,22 +24,9 @@
             <scope>provided</scope>
         </dependency>
         <dependency>
-            <groupId>org.apache.tika</groupId>
-            <artifactId>tika-core</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.apache.tika</groupId>
-            <artifactId>tika-parsers</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>com.joestelmach</groupId>
-            <artifactId>natty</artifactId>
-            <version>${natty.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>net.sourceforge.nekohtml</groupId>
-            <artifactId>nekohtml</artifactId>
-            <version>${nekohtml.version}</version>
+            <groupId>com.googlecode.libphonenumber</groupId>
+            <artifactId>libphonenumber</artifactId>
+            <version>${libphonenumber.version}</version>
         </dependency>
     </dependencies>
 
@@ -84,5 +70,4 @@
             </plugin>
         </plugins>
     </build>
-
 </project>

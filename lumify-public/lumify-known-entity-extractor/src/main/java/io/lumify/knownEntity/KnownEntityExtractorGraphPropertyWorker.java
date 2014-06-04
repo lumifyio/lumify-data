@@ -13,7 +13,7 @@ import org.apache.hadoop.fs.FileStatus;
 import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.Path;
 import org.arabidopsis.ahocorasick.AhoCorasick;
-import org.arabidopsis.ahocorasick.OutputResult;
+import org.arabidopsis.ahocorasick.SearchResult;
 import org.securegraph.Element;
 import org.securegraph.Property;
 import org.securegraph.Vertex;
@@ -26,6 +26,7 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.net.URLDecoder;
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 
 public class KnownEntityExtractorGraphPropertyWorker extends GraphPropertyWorker {
@@ -48,27 +49,28 @@ public class KnownEntityExtractorGraphPropertyWorker extends GraphPropertyWorker
     @Override
     public void execute(InputStream in, GraphPropertyWorkData data) throws Exception {
         String text = IOUtils.toString(in); // TODO convert AhoCorasick to use InputStream
-        List<OutputResult> searchResults = tree.completeSearch(text, false, true);
+        Iterator<SearchResult<Match>> searchResults = tree.search(text.getBytes());
         List<TermMention> termMentions = new ArrayList<TermMention>();
-        for (OutputResult searchResult : searchResults) {
-            TermMention termMention = outputResultToTermMention(searchResult, data.getProperty().getKey(), data.getVisibility());
-            termMentions.add(termMention);
+        while (searchResults.hasNext()) {
+            SearchResult searchResult = searchResults.next();
+            outputResultToTermMention(termMentions, searchResult, data.getProperty().getKey(), data.getVisibility());
             getGraph().flush();
         }
         saveTermMentions((Vertex) data.getElement(), termMentions);
     }
 
-    private TermMention outputResultToTermMention(OutputResult searchResult, String propertyKey, Visibility visibility) {
-        Match match = (Match) searchResult.getOutput();
-        int start = searchResult.getStartIndex();
-        int end = searchResult.getLastIndex();
-        String sign = match.getEntityTitle();
-        String ontologyClassUri = match.getConceptTitle();
-        return new TermMention.Builder(start, end, sign, ontologyClassUri, propertyKey, visibility)
-                .resolved(true)
-                .useExisting(true)
-                .process(getClass().getName())
-                .build();
+    private void outputResultToTermMention(List<TermMention> termMentions, SearchResult<Match> searchResult, String propertyKey, Visibility visibility) {
+        for (Match match : searchResult.getOutputs()) {
+            int start = searchResult.getLastIndex() - match.getMatchText().length();
+            int end = searchResult.getLastIndex();
+            String sign = match.getEntityTitle();
+            String ontologyClassUri = match.getConceptTitle();
+            termMentions.add(new TermMention.Builder(start, end, sign, ontologyClassUri, propertyKey, visibility)
+                    .resolved(true)
+                    .useExisting(true)
+                    .process(getClass().getName())
+                    .build());
+        }
     }
 
     @Override
@@ -118,7 +120,7 @@ public class KnownEntityExtractorGraphPropertyWorker extends GraphPropertyWorker
             if (line.size() != 2) {
                 throw new RuntimeException("Invalid number of entries on a line. Expected 2 found " + line.size());
             }
-            tree.add(line.get(0), new Match(type, line.get(0), line.get(1)));
+            tree.add(line.get(0).getBytes(), new Match(type, line.get(0), line.get(1)));
         }
     }
 
