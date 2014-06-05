@@ -56,7 +56,7 @@ public class TesseractGraphPropertyWorker extends GraphPropertyWorker {
             return;
         }
 
-        String textPropertyKey = RowKeyHelper.buildMajor(TEXT_PROPERTY_KEY, data.getProperty().getName(), data.getProperty().getKey());
+        String textPropertyKey = RowKeyHelper.buildMinor(TEXT_PROPERTY_KEY, data.getProperty().getName(), data.getProperty().getKey());
 
         InputStream textIn = new ByteArrayInputStream(ocrResults.getBytes());
         StreamingPropertyValue textValue = new StreamingPropertyValue(textIn, String.class);
@@ -64,6 +64,7 @@ public class TesseractGraphPropertyWorker extends GraphPropertyWorker {
         ExistingElementMutation<Vertex> m = data.getElement().prepareMutation();
         Map<String, Object> textMetadata = new HashMap<String, Object>(data.getPropertyMetadata());
         textMetadata.put(RawLumifyProperties.META_DATA_TEXT_DESCRIPTION, "OCR");
+        textMetadata.put(RawLumifyProperties.META_DATA_MIME_TYPE, "text/plain");
         RawLumifyProperties.TEXT.addPropertyValue(m, textPropertyKey, textValue, textMetadata, data.getVisibility());
         Vertex v = m.save(getAuthorizations());
         getAuditRepository().auditVertexElementMutation(AuditAction.UPDATE, m, v, TEXT_PROPERTY_KEY, getUser(), data.getVisibility());

@@ -74,6 +74,7 @@ public class TranslateGraphPropertyWorker extends GraphPropertyWorker {
                     description = "Text";
                 }
                 metadata.put(RawLumifyProperties.META_DATA_TEXT_DESCRIPTION, description + " (en)");
+                metadata.put(RawLumifyProperties.META_DATA_MIME_TYPE, "text/plain");
                 m.addPropertyValue(translatedTextPropertyKey, data.getProperty().getName(), translatedTextValue, metadata, data.getProperty().getVisibility());
                 translated = true;
             }
