@@ -17,6 +17,8 @@ import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.HashMap;
+import java.util.Map;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 
@@ -34,7 +36,9 @@ public class SphinxGraphPropertyWorker extends GraphPropertyWorker {
         }
 
         ExistingElementMutation<Vertex> m = data.getElement().prepareMutation();
-        MediaLumifyProperties.VIDEO_TRANSCRIPT.addPropertyValue(m, MULTI_VALUE_KEY, transcript, data.getPropertyMetadata(), data.getVisibility());
+        Map<String, Object> metadata = new HashMap<String, Object>(data.getPropertyMetadata());
+        metadata.put(RawLumifyProperties.META_DATA_TEXT_DESCRIPTION, "Audio Transcript");
+        MediaLumifyProperties.VIDEO_TRANSCRIPT.addPropertyValue(m, MULTI_VALUE_KEY, transcript, metadata, data.getVisibility());
         Vertex v = m.save(getAuthorizations());
         getAuditRepository().auditVertexElementMutation(AuditAction.UPDATE, m, v, MULTI_VALUE_KEY, getUser(), data.getVisibility());
         getAuditRepository().auditAnalyzedBy(AuditAction.ANALYZED_BY, v, getClass().getSimpleName(), getUser(), v.getVisibility());
