@@ -40,6 +40,9 @@ public class CCExtractorGraphPropertyWorker extends GraphPropertyWorker {
             );
 
             VideoTranscript videoTranscript = SubRip.read(ccFile);
+            if (videoTranscript.getEntries().size() == 0) {
+                return;
+            }
 
             ExistingElementMutation<Vertex> m = data.getElement().prepareMutation();
             Map<String, Object> metadata = new HashMap<String, Object>(data.getPropertyMetadata());
