@@ -1,5 +1,5 @@
 class elasticsearch(
-  $version = "1.1.1",
+  $version = "1.1.2",
   $user = "esearch",
   $group = "hadoop",
   $installdir = "/usr/lib",
@@ -127,18 +127,21 @@ class elasticsearch(
     content => template("elasticsearch/upstart.conf.erb")
   }
 
-  define install_plugin ($plugins) {
-    file { "${plugins}/${name}.tar.gz" :
-      ensure => file,
-      source => "puppet:///modules/elasticsearch/${name}.tar.gz",
-    } -> macro::extract { "${plugins}/${name}.tar.gz" :
-      path => $plugins,
-      creates => "${plugins}/${name}",
-    }
+  macro::download { "https://oss.sonatype.org/service/local/repositories/releases/content/org/securegraph/securegraph-elasticsearch-plugin/0.6.0/securegraph-elasticsearch-plugin-0.6.0.zip":
+    path    => "${tmpdir}/securegraph-elasticsearch-plugin-0.6.0.zip",
+  } -> exec { "securegraph-install" :
+    command => "${homedir}/bin/plugin --url file://${tmpdir}/securegraph-elasticsearch-plugin-0.6.0.zip --install securegraph",
+    cwd     => "${homedir}",
+    creates => "${homedir}/plugins/securegraph",
+    require => Macro::Extract[$downloadpath],
   }
 
-  install_plugin { [ 'bigdesk', 'head' ] :
-    plugins => "${homedir}/plugins",
+  macro::download { "https://github.com/mobz/elasticsearch-head/archive/master.zip":
+    path    => "${tmpdir}/head-plugin.zip",
+  } -> exec { "head-install" :
+    command => "${homedir}/bin/plugin --url file://${tmpdir}/head-plugin.zip --install head",
+    cwd     => "${homedir}",
+    creates => "${homedir}/plugins/head",
     require => Macro::Extract[$downloadpath],
   }
 

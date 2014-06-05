@@ -15,7 +15,7 @@
   <link rel="image_src" href="img/lumify-thumb.png" />
 
   <link href='css/lumify.css' rel='stylesheet' media='screen'>
-  <link rel="stylesheet" href="https://igw-us.s3-us-gov-west-1.amazonaws.com/gateway-banner/gateway-banner.css">
+  <link href='plugins.css' rel='stylesheet' media='screen'>
 
   <script src='jsc/require.config.js'></script>
   <script>
@@ -24,23 +24,6 @@
     // require.urlArgs = "cache-bust=" +  Date.now();
   </script>
   <script data-main="lumify" src='libs/requirejs/require.js'></script>
-
-  <script>
-    // Add Banner
-    require([
-        'jquery',
-        'https://igw-us.s3-us-gov-west-1.amazonaws.com/gateway-banner/gateway-banner.js'
-    ], function($, Banner) {
-      $('#app') 
-        .css({ top: '40px', 'border-top': '1px solid #ccc' })
-        .before('<div class="gateway-banner"></div>');
-
-      Banner.init({
-          element: '.gateway-banner',
-          gatewayUrl: 'https://www.igw.us'
-      });
-    });
-  </script>
 </head>
 <body>
   <!-- Version: ${project.version} -->
@@ -50,5 +33,6 @@
   <div id='app'></div>
   <div id='login'></div>
 
+  <script src='plugins.js'></script>
 </body>
 </html>

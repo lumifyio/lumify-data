@@ -166,11 +166,10 @@ public class SecureGraphOntologyRepository extends OntologyRepositoryBase {
         String displayName = null;
         if (relationshipIRI != null && !relationshipIRI.trim().isEmpty()) {
             try {
-                Vertex relVertex = Iterables.getOnlyElement(graph.query(getAuthorizations())
-                        .has(CONCEPT_TYPE.getKey(), TYPE_RELATIONSHIP)
-                        .has(ONTOLOGY_TITLE.getKey(), relationshipIRI)
-                        .vertices(), null);
-                displayName = relVertex != null ? DISPLAY_NAME.getPropertyValue(relVertex) : null;
+                Relationship relationship = getRelationshipByIRI(relationshipIRI);
+                if (relationship != null) {
+                    displayName = relationship.getDisplayName();
+                }
             } catch (IllegalArgumentException iae) {
                 throw new IllegalStateException(String.format("Found multiple vertices for relationship label \"%s\"", relationshipIRI),
                         iae);
@@ -215,7 +214,10 @@ public class SecureGraphOntologyRepository extends OntologyRepositoryBase {
 
     @Override
     public Relationship getRelationshipByIRI(String relationshipIRI) {
-        Vertex relationshipVertex = graph.getVertex(relationshipIRI, getAuthorizations());
+        Vertex relationshipVertex = Iterables.getFirst(graph.query(getAuthorizations())
+                .has(CONCEPT_TYPE.getKey(), TYPE_RELATIONSHIP)
+                .has(ONTOLOGY_TITLE.getKey(), relationshipIRI)
+                .vertices(), null);
         if (relationshipVertex == null) {
             return null;
         }
@@ -346,6 +348,11 @@ public class SecureGraphOntologyRepository extends OntologyRepositoryBase {
         CONCEPT_TYPE.setProperty(builder, TYPE_CONCEPT, VISIBILITY.getVisibility());
         ONTOLOGY_TITLE.setProperty(builder, conceptIRI, VISIBILITY.getVisibility());
         DISPLAY_NAME.setProperty(builder, displayName, VISIBILITY.getVisibility());
+        if (conceptIRI.equals(OntologyRepository.ENTITY_CONCEPT_IRI)) {
+            OntologyLumifyProperties.TITLE_FORMULA.setProperty(builder, "prop('http://lumify.io#title') || ''", VISIBILITY.getVisibility());
+            OntologyLumifyProperties.SUBTITLE_FORMULA.setProperty(builder, "prop('http://lumify.io#source') || ''", VISIBILITY.getVisibility());
+            OntologyLumifyProperties.TIME_FORMULA.setProperty(builder, "prop('http://lumify.io#publishedDate') || ''", VISIBILITY.getVisibility());
+        }
         Vertex vertex = builder.save(getAuthorizations());
 
         concept = new SecureGraphConcept(vertex);
@@ -399,7 +406,7 @@ public class SecureGraphOntologyRepository extends OntologyRepositoryBase {
             return relationship;
         }
 
-        VertexBuilder builder = graph.prepareVertex(relationshipIRI, VISIBILITY.getVisibility());
+        VertexBuilder builder = graph.prepareVertex(VISIBILITY.getVisibility());
         CONCEPT_TYPE.setProperty(builder, TYPE_RELATIONSHIP, VISIBILITY.getVisibility());
         ONTOLOGY_TITLE.setProperty(builder, relationshipIRI, VISIBILITY.getVisibility());
         DISPLAY_NAME.setProperty(builder, displayName, VISIBILITY.getVisibility());

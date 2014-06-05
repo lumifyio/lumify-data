@@ -22,19 +22,16 @@
 
     <properties>
         <!-- Dependency Versions -->
-        <ahocorasick.version>1.4</ahocorasick.version>
         <bliki.version>3.0.19</bliki.version>
         <boilerpipe.version>1.1.0</boilerpipe.version>
         <clavin.version>1.1.0-Altamira</clavin.version>
         <commons.httpclient.version>3.1</commons.httpclient.version>
-        <libphonenumber.version>5.7</libphonenumber.version>
         <lucene.version>4.7.0</lucene.version>
         <lumify.public.version>0.2.0-SNAPSHOT</lumify.public.version>
         <opencv.version>2.4.5</opencv.version>
         <opennlp.version>1.5.3</opennlp.version>
         <tika.version>1.5</tika.version>
         <tess4j.version>1.1</tess4j.version>
-        <supercsv.version>2.1.0</supercsv.version>
 
         <!-- Test Dependency Versions -->
         <javax.ws.rs.api.version>2.0-rc3</javax.ws.rs.api.version>
@@ -98,11 +95,6 @@
                 </exclusions>
             </dependency>
             <dependency>
-                <groupId>com.googlecode.libphonenumber</groupId>
-                <artifactId>libphonenumber</artifactId>
-                <version>${libphonenumber.version}</version>
-            </dependency>
-            <dependency>
                 <groupId>de.l3s.boilerpipe</groupId>
                 <artifactId>boilerpipe</artifactId>
                 <version>${boilerpipe.version}</version>
@@ -113,11 +105,6 @@
                 <version>${bliki.version}</version>
             </dependency>
             <dependency>
-                <groupId>net.sf.supercsv</groupId>
-                <artifactId>super-csv</artifactId>
-                <version>${supercsv.version}</version>
-            </dependency>
-            <dependency>
                 <groupId>net.sourceforge.tess4j</groupId>
                 <artifactId>tess4j</artifactId>
                 <version>${tess4j.version}</version>
@@ -126,31 +113,6 @@
                 <groupId>org.apache.opennlp</groupId>
                 <artifactId>opennlp-tools</artifactId>
                 <version>${opennlp.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>org.apache.tika</groupId>
-                <artifactId>tika-core</artifactId>
-                <version>${tika.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>org.apache.tika</groupId>
-                <artifactId>tika-parsers</artifactId>
-                <version>${tika.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>org.arabidopsis.ahocorasick</groupId>
-                <artifactId>ahocorasick</artifactId>
-                <version>${ahocorasick.version}</version>
-                <exclusions>
-                    <exclusion>
-                        <groupId>org.apache.lucene</groupId>
-                        <artifactId>lucene-core</artifactId>
-                    </exclusion>
-                    <exclusion>
-                        <groupId>org.apache.lucene</groupId>
-                        <artifactId>lucene-analyzers-common</artifactId>
-                    </exclusion>
-                </exclusions>
             </dependency>
             <dependency>
                 <groupId>org.opencv</groupId>
@@ -223,15 +185,9 @@
         <module>lumify-sphinx</module>
         <module>lumify-opencv-object-detector</module>
         <module>lumify-tesseract</module>
-        <module>lumify-tika-text-extractor</module>
-        <module>lumify-tika-mime-type</module>
-        <module>lumify-known-entity-extractor</module>
-        <module>lumify-phone-number-extractor</module>
         <module>lumify-opennlp-dictionary-extractor</module>
         <module>lumify-opennlp-dictionary-extractor-web</module>
         <module>lumify-opennlp-me-extractor</module>
-        <module>lumify-zipcode-extractor</module>
-        <module>lumify-email-extractor</module>
         <module>lumify-ccextractor</module>
         <module>lumify-subrip-parser</module>
         <module>lumify-youtube-transcript</module>
@@ -241,10 +197,12 @@
         <module>lumify-java-code-ingest</module>
         <module>lumify-newuser-workspace-sharer</module>
         <module>lumify-newuser-workspace-copy</module>
-        <module>lumify-zipcode-resolver</module>
         <module>lumify-translate</module>
         <module>lumify-translator-bing</module>
         <module>lumify-reindex</module>
+        <module>lumify-geocoder-bing</module>
+        <module>lumify-igw</module>
+        <module>lumify-classification</module>
         <!--<module>lumify-gtd</module>-->
     </modules>
 </project>

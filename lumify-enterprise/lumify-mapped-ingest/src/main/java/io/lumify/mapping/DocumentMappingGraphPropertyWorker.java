@@ -43,6 +43,7 @@ public class DocumentMappingGraphPropertyWorker extends GraphPropertyWorker {
         StreamingPropertyValue textValue = new StreamingPropertyValue(new ByteArrayInputStream(writer.toString().getBytes()), String.class);
         Map<String, Object> textMetadata = data.getPropertyMetadata();
         textMetadata.put(RawLumifyProperties.MIME_TYPE.getKey(), "text/plain");
+        textMetadata.put(RawLumifyProperties.META_DATA_TEXT_DESCRIPTION, "Text");
         RawLumifyProperties.TEXT.addPropertyValue(m, MULTIVALUE_KEY, textValue, textMetadata, data.getVisibility());
         LumifyProperties.TITLE.addPropertyValue(m, MULTIVALUE_KEY, mapping.getSubject(), data.getPropertyMetadata(), data.getVisibility());
         Vertex v = m.save(getAuthorizations());

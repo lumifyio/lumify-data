@@ -8,16 +8,17 @@ while [ -h "$SOURCE" ]; do
 done
 DIR="$(cd -P "$(dirname "$SOURCE")" && pwd)"
 
-AUTH_PLUGINS=$(find ${DIR}/.. -type d -name 'lumify-web-auth-*' | sed -e "s|${DIR}/../||")
-OTHER_PLUGINS="
-  lumify-public/lumify-web-dev-tools
-  lumify-public/lumify-web-import-export-workspaces
-  lumify-enterprise/lumify-opennlp-dictionary-extractor-web
-"
-MODULES=$(echo ${AUTH_PLUGINS} ${OTHER_PLUGINS} | sed -e 's/ /,/g')
+[ "$1" ] && FILTER="$1" || FILTER='.'
 
 (
   cd ${DIR}/..
+
+  PLUGINS=$(find . -type f -name io.lumify.web.WebAppPlugin \
+              | grep /src \
+              | grep ${FILTER} \
+              | sed -e 's|./||' -e  's|/src.*||' \
+              | sort)
+  MODULES=$(echo ${PLUGINS} | sed -e 's/ /,/g')
 
   set -x
   mvn install -pl lumify-root -am -DskipTests -Dsource.skip=true

@@ -9,6 +9,8 @@ import java.util.HashMap;
 import java.util.List;
 
 import com.cybozu.labs.langdetect.util.LangProfile;
+import io.lumify.core.util.LumifyLogger;
+import io.lumify.core.util.LumifyLoggerFactory;
 import org.apache.commons.io.IOUtils;
 import org.json.JSONObject;
 
@@ -33,6 +35,7 @@ import org.json.JSONObject;
  * @author Nakatani Shuyo
  */
 public class DetectorFactory {
+    private static final LumifyLogger LOGGER = LumifyLoggerFactory.getLogger(DetectorFactory.class);
     public HashMap<String, double[]> wordLangProbMap;
     public ArrayList<String> langlist;
     public Long seed = null;
@@ -74,7 +77,11 @@ public class DetectorFactory {
             try {
                 is = new FileInputStream(file);
                 LangProfile profile = new LangProfile(new JSONObject(IOUtils.toString(is)));
-                addProfile(profile, index, langsize);
+                try {
+                    addProfile(profile, index, langsize);
+                } catch (LangDetectException e) {
+                    LOGGER.info("Duplicate language profile, %s, ", profile.name);
+                }
                 ++index;
             } catch (IOException e) {
                 throw new LangDetectException(ErrorCode.FileLoadError, "can't open '" + file.getName() + "'");

@@ -12,6 +12,10 @@
 
     <name>Lumify: Mapped Ingest</name>
 
+    <properties>
+        <supercsv.version>2.1.0</supercsv.version>
+    </properties>
+
     <dependencies>
         <dependency>
             <groupId>io.lumify</groupId>
@@ -29,6 +33,7 @@
         <dependency>
             <groupId>net.sf.supercsv</groupId>
             <artifactId>super-csv</artifactId>
+            <version>${supercsv.version}</version>
         </dependency>
     </dependencies>
 

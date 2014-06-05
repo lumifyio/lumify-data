@@ -3,15 +3,21 @@ package io.lumify.web;
 import com.altamiracorp.miniweb.App;
 import com.altamiracorp.miniweb.Handler;
 import com.google.inject.Injector;
+import io.lumify.core.exception.LumifyException;
+import org.apache.commons.io.IOUtils;
 
 import javax.servlet.ServletConfig;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import java.util.Enumeration;
+import java.io.IOException;
+import java.io.InputStream;
+import java.util.*;
 
 
 public class WebApp extends App {
     private final Injector injector;
+    private Map<String, String> javaScriptSources = new HashMap<String, String>();
+    private Map<String, String> cssSources = new HashMap<String, String>();
 
     public WebApp(final ServletConfig servletConfig, final Injector injector) {
         super(servletConfig);
@@ -40,5 +46,41 @@ public class WebApp extends App {
         }
         response.setCharacterEncoding("UTF-8");
         super.handle(request, response);
+    }
+
+    public void registerJavaScript(String scriptResourceName) {
+        InputStream stream = WebApp.class.getResourceAsStream(scriptResourceName);
+        if (stream == null) {
+            throw new LumifyException("Could not find script resource: " + scriptResourceName);
+        }
+        try {
+            javaScriptSources.put(scriptResourceName, IOUtils.toString(stream));
+        } catch (IOException e) {
+            throw new LumifyException("Could not read script resource: " + scriptResourceName);
+        } finally {
+            IOUtils.closeQuietly(stream);
+        }
+    }
+
+    public void registerCss(String cssResourceName) {
+        InputStream stream = WebApp.class.getResourceAsStream(cssResourceName);
+        if (stream == null) {
+            throw new LumifyException("Could not find css resource: " + cssResourceName);
+        }
+        try {
+            cssSources.put(cssResourceName, IOUtils.toString(stream));
+        } catch (IOException e) {
+            throw new LumifyException("Could not read css resource: " + cssResourceName);
+        } finally {
+            IOUtils.closeQuietly(stream);
+        }
+    }
+
+    public Map<String, String> getJavaScriptSources() {
+        return javaScriptSources;
+    }
+
+    public Map<String, String> getCssSources() {
+        return cssSources;
     }
 }

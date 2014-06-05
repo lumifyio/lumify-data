@@ -39,6 +39,8 @@ import static org.securegraph.util.IterableUtils.count;
 public class ClavinTermMentionFilter extends TermMentionFilter {
     private static final LumifyLogger LOGGER = LumifyLoggerFactory.getLogger(ClavinTermMentionFilter.class);
 
+    private static final String MULTI_VALUE_PROERTY_KEY = ClavinTermMentionFilter.class.getName();
+
     /**
      * The CLAVIN index directory configuration key.
      */
@@ -222,8 +224,8 @@ public class ClavinTermMentionFilter extends TermMentionFilter {
                         .useExisting(true)
                         .sign(toSign(loc))
                         .ontologyClassUri(getOntologyClassUri(loc, termMention.getOntologyClassUri()))
-                        .setProperty(geoLocationIri, geoPoint)
-                        .setProperty(EntityLumifyProperties.SOURCE.getKey(), "CLAVIN")
+                        .addProperty(MULTI_VALUE_PROERTY_KEY, geoLocationIri, geoPoint)
+                        .addProperty(MULTI_VALUE_PROERTY_KEY, EntityLumifyProperties.SOURCE.getKey(), "CLAVIN")
                         .process(processId)
                         .build();
                 LOGGER.debug("Replacing original location [%s] with resolved location [%s]", termMention, resolvedMention);
@@ -291,7 +293,7 @@ public class ClavinTermMentionFilter extends TermMentionFilter {
     }
 
     @Inject
-    public void setAuditRepository (AuditRepository auditRepository) {
+    public void setAuditRepository(AuditRepository auditRepository) {
         this.auditRespository = auditRepository;
     }
 }

@@ -1,11 +1,22 @@
 package io.lumify.wikipedia.mapreduce;
 
+import com.altamiracorp.bigtable.model.FlushFlag;
 import com.altamiracorp.bigtable.model.accumulo.AccumuloSession;
+import io.lumify.core.config.Configuration;
+import io.lumify.core.model.audit.Audit;
+import io.lumify.core.model.audit.AuditAction;
+import io.lumify.core.model.ontology.OntologyLumifyProperties;
+import io.lumify.core.model.properties.EntityLumifyProperties;
 import io.lumify.core.model.properties.LumifyProperties;
+import io.lumify.core.model.properties.RawLumifyProperties;
 import io.lumify.core.model.termMention.TermMentionModel;
 import io.lumify.core.model.termMention.TermMentionRowKey;
+import io.lumify.core.user.SystemUser;
+import io.lumify.core.user.User;
 import io.lumify.core.util.LumifyLogger;
 import io.lumify.core.util.LumifyLoggerFactory;
+import io.lumify.core.version.VersionService;
+import io.lumify.securegraph.model.audit.SecureGraphAuditRepository;
 import io.lumify.wikipedia.*;
 import org.apache.accumulo.core.data.Mutation;
 import org.apache.commons.codec.binary.Base64;
@@ -21,7 +32,7 @@ import org.securegraph.*;
 import org.securegraph.accumulo.AccumuloAuthorizations;
 import org.securegraph.accumulo.AccumuloGraph;
 import org.securegraph.accumulo.mapreduce.ElementMapper;
-import org.securegraph.elasticsearch.ElasticSearchSearchIndex;
+import org.securegraph.accumulo.mapreduce.SecureGraphMRUtils;
 import org.securegraph.id.IdGenerator;
 import org.securegraph.property.StreamingPropertyValue;
 import org.securegraph.util.ConvertingIterable;
@@ -40,17 +51,13 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 
-import static io.lumify.core.model.ontology.OntologyLumifyProperties.CONCEPT_TYPE;
-import static io.lumify.core.model.properties.EntityLumifyProperties.SOURCE;
-import static io.lumify.core.model.properties.LumifyProperties.TITLE;
-import static io.lumify.core.model.properties.RawLumifyProperties.*;
-
 class ImportMRMapper extends ElementMapper<LongWritable, Text, Text, Mutation> {
     private static final LumifyLogger LOGGER = LumifyLoggerFactory.getLogger(ImportMRMapper.class);
     public static final String TEXT_XPATH = "/page/revision/text/text()";
     public static final String TITLE_XPATH = "/page/title/text()";
     public static final String REVISION_TIMESTAMP_XPATH = "/page/revision/timestamp/text()";
     public static final SimpleDateFormat ISO8601DATEFORMAT = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss");
+    public static final String CONFIG_SOURCE_FILE_NAME = "sourceFileName";
 
     private XPathExpression<org.jdom2.Text> textXPath;
     private XPathExpression<org.jdom2.Text> titleXPath;
@@ -60,6 +67,9 @@ class ImportMRMapper extends ElementMapper<LongWritable, Text, Text, Mutation> {
     private SimpleWikiConfiguration config;
     private org.sweble.wikitext.engine.Compiler compiler;
     private AccumuloGraph graph;
+    private User user;
+    private SecureGraphAuditRepository auditRepository;
+    private String sourceFileName;
 
     public ImportMRMapper() {
         this.textXPath = XPathFactory.instance().compile(TEXT_XPATH, Filters.text());
@@ -70,10 +80,15 @@ class ImportMRMapper extends ElementMapper<LongWritable, Text, Text, Mutation> {
     @Override
     protected void setup(Context context) throws IOException, InterruptedException {
         super.setup(context);
-        Map configurationMap = ImportMR.toMap(context.getConfiguration());
+        Map configurationMap = SecureGraphMRUtils.toMap(context.getConfiguration());
         this.graph = (AccumuloGraph) new GraphFactory().createGraph(MapUtils.getAllWithPrefix(configurationMap, "graph"));
         this.visibility = new Visibility("");
         this.authorizations = new AccumuloAuthorizations();
+        this.user = new SystemUser(null);
+        VersionService versionService = new VersionService();
+        Configuration configuration = new Configuration(configurationMap);
+        this.auditRepository = new SecureGraphAuditRepository(null, versionService, configuration, null);
+        this.sourceFileName = context.getConfiguration().get(CONFIG_SOURCE_FILE_NAME);
 
         try {
             config = new SimpleWikiConfiguration("classpath:/org/sweble/wikitext/engine/SimpleWikiConfiguration.xml");
@@ -143,20 +158,28 @@ class ImportMRMapper extends ElementMapper<LongWritable, Text, Text, Mutation> {
         StreamingPropertyValue textPropertyValue = new StreamingPropertyValue(new ByteArrayInputStream(wikitext.getBytes()), String.class);
 
         VertexBuilder pageVertexBuilder = prepareVertex(wikipediaPageVertexId, visibility);
-        CONCEPT_TYPE.setProperty(pageVertexBuilder, WikipediaConstants.WIKIPEDIA_PAGE_CONCEPT_URI, visibility);
-        RAW.setProperty(pageVertexBuilder, rawPropertyValue, visibility);
+        OntologyLumifyProperties.CONCEPT_TYPE.setProperty(pageVertexBuilder, WikipediaConstants.WIKIPEDIA_PAGE_CONCEPT_URI, visibility);
+        RawLumifyProperties.RAW.setProperty(pageVertexBuilder, rawPropertyValue, visibility);
 
         Map<String, Object> titleMetadata = new HashMap<String, Object>();
         LumifyProperties.CONFIDENCE.setMetadata(titleMetadata, 0.4);
-        TITLE.addPropertyValue(pageVertexBuilder, ImportMR.MULTI_VALUE_KEY, pageTitle, titleMetadata, visibility);
+        LumifyProperties.TITLE.addPropertyValue(pageVertexBuilder, ImportMR.MULTI_VALUE_KEY, pageTitle, titleMetadata, visibility);
 
-        MIME_TYPE.setProperty(pageVertexBuilder, ImportMR.WIKIPEDIA_MIME_TYPE, visibility);
-        SOURCE.addPropertyValue(pageVertexBuilder, ImportMR.MULTI_VALUE_KEY, ImportMR.WIKIPEDIA_SOURCE, visibility);
+        RawLumifyProperties.MIME_TYPE.setProperty(pageVertexBuilder, ImportMR.WIKIPEDIA_MIME_TYPE, visibility);
+        RawLumifyProperties.FILE_NAME.setProperty(pageVertexBuilder, sourceFileName, visibility);
+        EntityLumifyProperties.SOURCE.addPropertyValue(pageVertexBuilder, ImportMR.MULTI_VALUE_KEY, ImportMR.WIKIPEDIA_SOURCE, visibility);
         if (revisionTimestamp != null) {
-            PUBLISHED_DATE.setProperty(pageVertexBuilder, revisionTimestamp, visibility);
+            RawLumifyProperties.PUBLISHED_DATE.setProperty(pageVertexBuilder, revisionTimestamp, visibility);
         }
-        TEXT.setProperty(pageVertexBuilder, textPropertyValue, visibility);
+        Map<String, Object> textMetadata = new HashMap<String, Object>();
+        textMetadata.put(RawLumifyProperties.META_DATA_TEXT_DESCRIPTION, "Text");
+        RawLumifyProperties.TEXT.setProperty(pageVertexBuilder, textPropertyValue, textMetadata, visibility);
         Vertex pageVertex = pageVertexBuilder.save(authorizations);
+
+        // audit vertex
+        Text key = ImportMR.getKey(Audit.TABLE_NAME, pageVertex.getId().toString().getBytes());
+        Audit audit = auditRepository.createAudit(AuditAction.CREATE, pageVertex.getId(), "Wikipedia MR", "", user, FlushFlag.DEFAULT, visibility);
+        context.write(key, AccumuloSession.createMutationFromRow(audit));
 
         // because save above will cause the StreamingPropertyValue to be read we need to reset the position to 0 for search indexing
         rawPropertyValue.getInputStream().reset();
@@ -166,14 +189,15 @@ class ImportMRMapper extends ElementMapper<LongWritable, Text, Text, Mutation> {
             String linkTarget = link.getLinkTargetWithoutHash();
             String linkVertexId = ImportMR.getWikipediaPageVertexId(linkTarget);
             VertexBuilder linkedPageVertexBuilder = prepareVertex(linkVertexId, visibility);
-            CONCEPT_TYPE.setProperty(linkedPageVertexBuilder, WikipediaConstants.WIKIPEDIA_PAGE_CONCEPT_URI, visibility);
-            MIME_TYPE.setProperty(linkedPageVertexBuilder, ImportMR.WIKIPEDIA_MIME_TYPE, visibility);
-            SOURCE.addPropertyValue(linkedPageVertexBuilder, ImportMR.WIKIPEDIA_MIME_TYPE, ImportMR.WIKIPEDIA_SOURCE, visibility);
+            OntologyLumifyProperties.CONCEPT_TYPE.setProperty(linkedPageVertexBuilder, WikipediaConstants.WIKIPEDIA_PAGE_CONCEPT_URI, visibility);
+            RawLumifyProperties.MIME_TYPE.setProperty(linkedPageVertexBuilder, ImportMR.WIKIPEDIA_MIME_TYPE, visibility);
+            EntityLumifyProperties.SOURCE.addPropertyValue(linkedPageVertexBuilder, ImportMR.MULTI_VALUE_KEY, ImportMR.WIKIPEDIA_SOURCE, visibility);
 
             titleMetadata = new HashMap<String, Object>();
             LumifyProperties.CONFIDENCE.setMetadata(titleMetadata, 0.1);
             String linkTargetHash = Base64.encodeBase64String(linkTarget.trim().toLowerCase().getBytes());
-            TITLE.addPropertyValue(linkedPageVertexBuilder, ImportMR.MULTI_VALUE_KEY + "#" + linkTargetHash, linkTarget, titleMetadata, visibility);
+            LumifyProperties.TITLE.addPropertyValue(linkedPageVertexBuilder, ImportMR.MULTI_VALUE_KEY + "#" + linkTargetHash, linkTarget, titleMetadata, visibility);
+            RawLumifyProperties.FILE_NAME.setProperty(pageVertexBuilder, sourceFileName, visibility);
 
             Vertex linkedPageVertex = linkedPageVertexBuilder.save(authorizations);
             Edge edge = addEdge(ImportMR.getWikipediaPageToPageEdgeId(pageVertex, linkedPageVertex),
@@ -191,9 +215,8 @@ class ImportMRMapper extends ElementMapper<LongWritable, Text, Text, Mutation> {
                     .setVertexId(linkedPageVertex.getId().toString(), visibility)
                     .setEdgeId(edge.getId().toString(), visibility)
                     .setOntologyClassUri(WikipediaConstants.WIKIPEDIA_PAGE_CONCEPT_URI, visibility);
-            Text key = ImportMR.getKey(TermMentionModel.TABLE_NAME, termMention.getRowKey().toString().getBytes());
-            Mutation m = AccumuloSession.createMutationFromRow(termMention);
-            context.write(key, m);
+            key = ImportMR.getKey(TermMentionModel.TABLE_NAME, termMention.getRowKey().toString().getBytes());
+            context.write(key, AccumuloSession.createMutationFromRow(termMention));
         }
     }
 

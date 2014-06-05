@@ -37,9 +37,11 @@ import org.securegraph.accumulo.AccumuloGraph;
 import org.securegraph.accumulo.AccumuloGraphConfiguration;
 import org.securegraph.accumulo.mapreduce.AccumuloElementOutputFormat;
 import org.securegraph.accumulo.mapreduce.ElementMapper;
+import org.securegraph.accumulo.mapreduce.SecureGraphMRUtils;
 import org.securegraph.util.MapUtils;
 
 import java.io.BufferedOutputStream;
+import java.io.File;
 import java.io.IOException;
 import java.io.PrintStream;
 import java.util.*;
@@ -55,7 +57,7 @@ public class ImportMR extends Configured implements Tool {
     static final char KEY_SPLIT = '\u001f';
 
     static String getWikipediaPageVertexId(String pageTitle) {
-        return WIKIPEDIA_ID_PREFIX + pageTitle;
+        return WIKIPEDIA_ID_PREFIX + pageTitle.trim();
     }
 
     static String getWikipediaPageToPageEdgeId(Vertex pageVertex, Vertex linkedPageVertex) {
@@ -72,7 +74,7 @@ public class ImportMR extends Configured implements Tool {
         Configuration conf = getConfiguration(args, lumifyConfig);
         AccumuloGraphConfiguration accumuloGraphConfiguration = new AccumuloGraphConfiguration(conf, "graph.");
 
-        Map configurationMap = toMap(conf);
+        Map configurationMap = SecureGraphMRUtils.toMap(conf);
         AccumuloGraph graph = (AccumuloGraph) new GraphFactory().createGraph(MapUtils.getAllWithPrefix(configurationMap, "graph"));
         ExponentialBackoffRetry retryPolicy = new ExponentialBackoffRetry(1000, 3);
         String zookeeperConnectionString = conf.get(io.lumify.core.config.Configuration.ZK_SERVERS);
@@ -158,7 +160,7 @@ public class ImportMR extends Configured implements Tool {
     private void verifyWikipediaPageInternalLinkWikipediaPageRelationship(OntologyRepository ontologyRepository) {
         Relationship wikipediaPageInternalLinkWikipediaPageRelationship = ontologyRepository.getRelationshipByIRI(WikipediaConstants.WIKIPEDIA_PAGE_INTERNAL_LINK_WIKIPEDIA_PAGE_CONCEPT_URI);
         if (wikipediaPageInternalLinkWikipediaPageRelationship == null) {
-            throw new RuntimeException(WikipediaConstants.WIKIPEDIA_PAGE_INTERNAL_LINK_WIKIPEDIA_PAGE_CONCEPT_URI + " concept not found");
+            throw new RuntimeException(WikipediaConstants.WIKIPEDIA_PAGE_INTERNAL_LINK_WIKIPEDIA_PAGE_CONCEPT_URI + " relationship not found");
         }
     }
 
@@ -180,6 +182,7 @@ public class ImportMR extends Configured implements Tool {
         hadoopConfig.set(ElementMapper.GRAPH_CONFIG_PREFIX, "graph.");
         LOGGER.info("inFileName: %s", inFileName);
         hadoopConfig.set("in", inFileName);
+        hadoopConfig.set(ImportMRMapper.CONFIG_SOURCE_FILE_NAME, new File(inFileName).getName());
         this.setConf(hadoopConfig);
         return hadoopConfig;
     }
@@ -187,13 +190,5 @@ public class ImportMR extends Configured implements Tool {
     public static void main(String[] args) throws Exception {
         int res = ToolRunner.run(new Configuration(), new ImportMR(), args);
         System.exit(res);
-    }
-
-    protected static Map toMap(Configuration configuration) {
-        Map map = new HashMap();
-        for (Map.Entry<String, String> entry : configuration) {
-            map.put(entry.getKey(), entry.getValue());
-        }
-        return map;
     }
 }

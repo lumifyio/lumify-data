@@ -43,15 +43,18 @@ class env::common::config(
     require => [ File['/opt/lumify'], Group['lumify'] ],
   }
 
-  $data_dir_list = split($data_directories, ',')
-  $first_data_dir = $data_dir_list[0]
-
-  file { "${first_data_dir}/hdfslibcache" :
-    ensure => directory,
-    group => 'lumify',
-    mode => 'u=rwx,g=rwxs,o=rx',
-    require => [ File[$first_data_dir], Group['lumify'] ],
+  define hdfslibcache_dir {
+    file { "${name}/hdfslibcache" :
+      ensure  => directory,
+      group   => 'lumify',
+      mode    => 'u=rwx,g=rwxs,o=rx',
+      require => [ File[$name], Group['lumify'] ],
+    }
   }
+
+  $data_dir_list = split($data_directories, ',')
+
+  hdfslibcache_dir { $data_dir_list : }
 
   $syslog_server = hiera('syslog_server', '')
   $syslog_facility = 'local3'

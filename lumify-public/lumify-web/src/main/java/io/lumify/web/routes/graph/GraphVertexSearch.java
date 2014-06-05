@@ -29,7 +29,7 @@ import org.securegraph.query.*;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.text.ParseException;
-import java.util.List;
+import java.util.*;
 
 import static io.lumify.core.model.ontology.OntologyLumifyProperties.CONCEPT_TYPE;
 
@@ -59,6 +59,7 @@ public class GraphVertexSearch extends BaseRequestHandler {
 
     @Override
     public void handle(HttpServletRequest request, HttpServletResponse response, HandlerChain chain) throws Exception {
+        long totalStartTime = System.nanoTime();
         final String query;
         final String filter = getRequiredParameter(request, "filter");
         final int offset = (int) getOptionalParameterLong(request, "offset", 0);
@@ -131,27 +132,54 @@ public class GraphVertexSearch extends BaseRequestHandler {
             return;
         }
 
-        JSONArray verticesJson = new JSONArray();
-        int verticesCount = 0;
-        for (Vertex vertex : searchResults) {
-            verticesJson.put(JsonSerializer.toJson(vertex, workspaceId));
-            verticesJson.getJSONObject(verticesCount).put("detectedObjects", detectedObjectRepository.toJSON(vertex, modelUserContext, authorizations, workspaceId));
-            verticesCount++;
+        Map<Object, Double> scores = null;
+        if (searchResults instanceof IterableWithScores) {
+            scores = ((IterableWithScores) searchResults).getScores();
         }
+
+        long retrievalStartTime = System.nanoTime();
+        List<JSONObject> verticesJsonList = new ArrayList<JSONObject>();
+        for (Vertex vertex : searchResults) {
+            JSONObject vertexJson = JsonSerializer.toJson(vertex, workspaceId);
+            if (scores != null) {
+                vertexJson.put("score", scores.get(vertex.getId()));
+            }
+            vertexJson.put("detectedObjects", detectedObjectRepository.toJSON(vertex, modelUserContext, authorizations, workspaceId));
+            verticesJsonList.add(vertexJson);
+        }
+        long retrievalEndTime = System.nanoTime();
+
+        Collections.sort(verticesJsonList, new Comparator<JSONObject>() {
+            @Override
+            public int compare(JSONObject o1, JSONObject o2) {
+                double score1 = o1.optDouble("score", 0.0);
+                double score2 = o2.optDouble("score", 0.0);
+                return -Double.compare(score1, score2);
+            }
+        });
+
+        JSONArray verticesJson = new JSONArray();
+        for (JSONObject vertexJson : verticesJsonList) {
+            verticesJson.put(vertexJson);
+        }
+
+        long totalEndTime = System.nanoTime();
 
         JSONObject results = new JSONObject();
         results.put("vertices", verticesJson);
         results.put("nextOffset", offset + size);
+        results.put("retrievalTime", retrievalEndTime - retrievalStartTime);
+        results.put("totalTime", totalEndTime - totalStartTime);
 
         if (searchResults instanceof IterableWithTotalHits) {
-            IterableWithTotalHits searchResultsFaceted = (IterableWithTotalHits) searchResults;
-            if (searchResultsFaceted.getTotalHits() != null) {
-                results.put("totalHits", searchResultsFaceted.getTotalHits());
-            }
+            results.put("totalHits", ((IterableWithTotalHits) searchResults).getTotalHits());
+        }
+        if (searchResults instanceof IterableWithSearchTime) {
+            results.put("searchTime", ((IterableWithSearchTime) searchResults).getSearchTimeNanoSeconds());
         }
 
         long endTime = System.nanoTime();
-        LOGGER.info("Search for \"%s\" found %d vertices in %dms", query, verticesCount, (endTime - startTime) / 1000 / 1000);
+        LOGGER.info("Search for \"%s\" found %d vertices in %dms", query, verticesJsonList.size(), (endTime - startTime) / 1000 / 1000);
 
         respondWithJson(response, results);
     }

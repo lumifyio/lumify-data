@@ -43,11 +43,31 @@
     <button id="add">Add Auth</button>
 </form>
 
+<h3>Workspaces</h3>
+
+<h4>Current Workspace</h4>
+<div id="current-workspace"></div>
+
+<h4>Workspaces</h4>
+<ul id="workspaces"></ul>
+
 <button onclick="deleteUser()">Delete User</button>
 
 <script type="text/javascript">
+    $.ajaxPrefilter(function(options) {
+        var eligibleForProtection = options.type !== 'GET',
+            token = window.token;
+
+        if (eligibleForProtection && token) {
+            options.headers = $.extend(options.headers || {}, {
+                'Lumify-CSRF-Token': token
+            });
+        }
+    });
+
     $(function () {
         document.authorizationsTemplate = document.getElementById('authorizationsTemplate').innerHTML;
+        document.workspacesTemplate = document.getElementById('workspacesTemplate').innerHTML;
 
         $('#add').click(function () {
             try {
@@ -90,6 +110,12 @@
                 $('#privilege-edit').attr('checked', data.privileges.indexOf('EDIT') >= 0);
                 $('#privilege-publish').attr('checked', data.privileges.indexOf('PUBLISH') >= 0);
                 $('#privilege-admin').attr('checked', data.privileges.indexOf('ADMIN') >= 0);
+
+                $('#current-workspace').html(data.currentWorkspaceId);
+                if (data.workspaces) {
+                    html = ejs.render(document.workspacesTemplate, data);
+                    $('#workspaces').html(html);
+                }
             },
             dataType: 'json'
         });
@@ -98,6 +124,7 @@
             url: '/user/me',
             success: function (data) {
                 console.log(data);
+                window.token = data.csrfToken;
                 $('#me-user-id').html(data.id);
                 $('#me-user-name').html(data.userName);
             },
@@ -125,6 +152,22 @@
             type: 'POST',
             url: '/user/auth/remove',
             data: { auth: auth },
+            success: function (data) {
+                console.log(data);
+                reload();
+            }
+        });
+    }
+
+    function shareWithMe(workspaceId) {
+        var userNameParameter = getURLParameter('user-name');
+        $.ajax({
+            type: 'POST',
+            url: '/workspace/shareWithMe',
+            data: {
+                'user-name': userNameParameter,
+                workspaceId: workspaceId
+            },
             success: function (data) {
                 console.log(data);
                 reload();
@@ -163,6 +206,20 @@
     <% authorizations.forEach(function(auth) { %>
     <li>
         <%= auth %> <a href="javascript:removeAuth('<%= auth %>')">remove</a>
+    </li>
+    <% }) %>
+</script>
+
+<script id="workspacesTemplate" type="text/template">
+    <% workspaces.forEach(function(workspace) { %>
+    <li>
+        <%= workspace.title %> (<%= workspace.workspaceId %>) <a href="javascript:shareWithMe('<%= workspace.workspaceId %>')">share with me</a><br/>
+        <b>Users:</b><br/>
+        <ul class="workspace-users">
+            <% workspace.users.forEach(function(user) { %>
+                <li><%= user.userId %> (<%= user.access %>)</li>
+            <% }) %>
+        </ul>
     </li>
     <% }) %>
 </script>
