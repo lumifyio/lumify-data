@@ -21,13 +21,13 @@ fi
 (
   cd ${DIR}/..
 
-  ENTERPRISE_MODULES=$(find lumify-enterprise -name '*PropertyWorker.java' \
-                                           -o -name '*TermMentionFilter.java' \
-                                           -o -name '*Translator.java' \
+  STORM_MODULES=$(find lumify-public lumify-enterprise -name '*PropertyWorker.java' \
+                                                    -o -name '*TermMentionFilter.java' \
+                                                    -o -name '*Translator.java' \
                          | cut -d / -f 1-2 \
                          | grep ${FILTER} \
                          | sort -u)
-  MODULES=$(echo ${ENTERPRISE_MODULES} ${OTHER_MODULES} | sed -e 's/ /,/g')
+  MODULES=$(echo ${STORM_MODULES} ${OTHER_MODULES} | sed -e 's/ /,/g')
 
   set -x
   mvn install -pl lumify-root -am -DskipTests -Dsource.skip=true
