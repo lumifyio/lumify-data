@@ -64,6 +64,12 @@ function _run_at_v {
   __run_at ${host} $*
 }
 
+function _color_status {
+  cat \
+    | GREP_COLORS='mt=01;32' grep --color=always -E 'running|' \
+    | GREP_COLORS='mt=01;31' grep --color=always -E 'Unknown|stop|stopped|'
+}
+
 function _hadoop_start {
   if [ "${FORMAT_HDFS}" = 'true' ]; then
     local ready='no'
@@ -109,15 +115,15 @@ function _hadoop_stop {
 }
 
 function _hadoop_status {
-  _run_at $(_namenode) service hadoop-hdfs-namenode status
-  _run_at $(_secondarynamenode) service hadoop-hdfs-secondarynamenode status
+  _run_at $(_namenode) service hadoop-hdfs-namenode status 2>&1 | _color_status
+  _run_at $(_secondarynamenode) service hadoop-hdfs-secondarynamenode status 2>&1 | _color_status
 
   for node in $(_nodes); do
-    _run_at ${node} service hadoop-hdfs-datanode status
-    _run_at ${node} service hadoop-0.20-mapreduce-tasktracker status
+    _run_at ${node} service hadoop-hdfs-datanode status 2>&1 | _color_status
+    _run_at ${node} service hadoop-0.20-mapreduce-tasktracker status 2>&1 | _color_status
   done
 
-  _run_at $(_namenode) service hadoop-0.20-mapreduce-jobtracker status
+  _run_at $(_namenode) service hadoop-0.20-mapreduce-jobtracker status 2>&1 | _color_status
 }
 
 function _hadoop_rmlogs {
@@ -142,7 +148,7 @@ function _zookeeper_stop {
 
 function _zookeeper_status {
   for zk in $(_zk_servers); do
-    _run_at ${zk} service zookeeper-server status
+    _run_at ${zk} service zookeeper-server status 2>&1 | _color_status
   done
 }
 
@@ -186,13 +192,13 @@ function _accumulo_stop {
 }
 
 function _accumulo_status {
-  _run_at $(_accumulomaster) initctl status accumulo-master
-  _run_at $(_accumulomaster) initctl status accumulo-gc
-  _run_at $(_accumulomaster) initctl status accumulo-monitor
-  _run_at $(_accumulomaster) initctl status accumulo-tracer
+  _run_at $(_accumulomaster) initctl status accumulo-master 2>&1 | _color_status
+  _run_at $(_accumulomaster) initctl status accumulo-gc 2>&1 | _color_status
+  _run_at $(_accumulomaster) initctl status accumulo-monitor 2>&1 | _color_status
+  _run_at $(_accumulomaster) initctl status accumulo-tracer 2>&1 | _color_status
 
   for node in $(_nodes); do
-    _run_at ${node} initctl status accumulo-tserver
+    _run_at ${node} initctl status accumulo-tserver 2>&1 | _color_status
   done
 }
 
@@ -218,7 +224,7 @@ function _elasticsearch_stop {
 
 function _elasticsearch_status {
   for node in $(_nodes); do
-    _run_at ${node} initctl status elasticsearch
+    _run_at ${node} initctl status elasticsearch 2>&1 | _color_status
   done
 }
 
@@ -244,7 +250,7 @@ function _jetty_stop {
 
 function _jetty_status {
   for webserver in $(_webservers); do
-    _run_at_m ${webserver} service jetty status
+    _run_at_m ${webserver} service jetty status 2>&1 | _color_status
   done
 }
 
@@ -270,7 +276,7 @@ function _rabbitmq_stop {
 
 function _rabbitmq_status {
   for rabbitmq in $(_rabbitmq_servers); do
-    _run_at_m ${rabbitmq} service rabbitmq-server status
+    _run_at_m ${rabbitmq} service rabbitmq-server status 2>&1 | _color_status
   done
 }
 
@@ -303,12 +309,12 @@ function _storm_stop {
 }
 
 function _storm_status {
-  _run_at $(_stormmaster) initctl status storm-ui
-  _run_at $(_stormmaster) initctl status storm-nimbus
+  _run_at $(_stormmaster) initctl status storm-ui 2>&1 | _color_status
+  _run_at $(_stormmaster) initctl status storm-nimbus 2>&1 | _color_status
 
   for node in $(_nodes); do
-    _run_at ${node} initctl status storm-supervisor
-    _run_at ${node} initctl status storm-logviewer
+    _run_at ${node} initctl status storm-supervisor 2>&1 | _color_status
+    _run_at ${node} initctl status storm-logviewer 2>&1 | _color_status
   done
 }
 
