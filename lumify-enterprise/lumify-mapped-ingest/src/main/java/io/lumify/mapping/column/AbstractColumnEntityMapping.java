@@ -142,8 +142,9 @@ public abstract class AbstractColumnEntityMapping implements ColumnEntityMapping
                     .process(processId);
             for (Map.Entry<String, ColumnValue<?>> prop : properties.entrySet()) {
                 Object value = prop.getValue().getValue(row);
-                checkNotNull(sign, "property " + prop.getKey() + " value cannot be null (offset: " + offset + ")");
-                builder.addProperty(DocumentMapping.class.getName(), prop.getKey(), value);
+                if (value != null) {
+                    builder.addProperty(DocumentMapping.class.getName(), prop.getKey(), value);
+                }
             }
             mention = builder.build();
         }
