@@ -122,6 +122,7 @@ public abstract class AbstractColumnEntityMapping implements ColumnEntityMapping
     public final TermMention mapTerm(final List<String> row, final int offset, final String processId, String propertyKey, Visibility visibility) {
         Object id = idColumn != null ? idColumn.getValue(row) : null;
         String sign = signColumn.getValue(row);
+        checkNotNull(sign, "sign cannot be null (offset: " + offset + ")");
         String conceptURI = getConceptURI(row);
         TermMention mention;
         if (sign == null || sign.trim().isEmpty() || conceptURI == null) {
@@ -140,7 +141,9 @@ public abstract class AbstractColumnEntityMapping implements ColumnEntityMapping
                     .resolved(true)
                     .process(processId);
             for (Map.Entry<String, ColumnValue<?>> prop : properties.entrySet()) {
-                builder.addProperty(DocumentMapping.class.getName(), prop.getKey(), prop.getValue().getValue(row));
+                Object value = prop.getValue().getValue(row);
+                checkNotNull(sign, "property " + prop.getKey() + " value cannot be null (offset: " + offset + ")");
+                builder.addProperty(DocumentMapping.class.getName(), prop.getKey(), value);
             }
             mention = builder.build();
         }
