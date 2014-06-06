@@ -202,6 +202,7 @@
         <module>lumify-reindex</module>
         <module>lumify-geocoder-bing</module>
         <module>lumify-igw</module>
+        <module>lumify-classification</module>
         <!--<module>lumify-gtd</module>-->
     </modules>
 </project>
