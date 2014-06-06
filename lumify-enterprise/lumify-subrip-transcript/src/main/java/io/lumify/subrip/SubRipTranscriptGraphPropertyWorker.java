@@ -24,7 +24,7 @@ public class SubRipTranscriptGraphPropertyWorker extends GraphPropertyWorker {
         VideoTranscript videoTranscript = SubRip.read(youtubeccValue.getInputStream());
 
         ExistingElementMutation<Vertex> m = data.getElement().prepareMutation();
-        MediaLumifyProperties.VIDEO_TRANSCRIPT.addPropertyValue(m, PROPERTY_KEY, videoTranscript, data.getPropertyMetadata(), data.getVisibility());
+        MediaLumifyProperties.VIDEO_TRANSCRIPT.addPropertyValue(m, PROPERTY_KEY, videoTranscript, data.createPropertyMetadata(), data.getVisibility());
         Vertex v = m.save(getAuthorizations());
         getAuditRepository().auditVertexElementMutation(AuditAction.UPDATE, m, v, PROPERTY_KEY, getUser(), data.getVisibility());
         getAuditRepository().auditAnalyzedBy(AuditAction.ANALYZED_BY, v, getClass().getSimpleName(), getUser(), v.getVisibility());

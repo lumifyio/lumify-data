@@ -41,11 +41,11 @@ public class DocumentMappingGraphPropertyWorker extends GraphPropertyWorker {
 
         ExistingElementMutation<Vertex> m = data.getElement().prepareMutation();
         StreamingPropertyValue textValue = new StreamingPropertyValue(new ByteArrayInputStream(writer.toString().getBytes()), String.class);
-        Map<String, Object> textMetadata = data.getPropertyMetadata();
+        Map<String, Object> textMetadata = data.createPropertyMetadata();
         textMetadata.put(RawLumifyProperties.MIME_TYPE.getKey(), "text/plain");
         textMetadata.put(RawLumifyProperties.META_DATA_TEXT_DESCRIPTION, "Text");
         RawLumifyProperties.TEXT.addPropertyValue(m, MULTIVALUE_KEY, textValue, textMetadata, data.getVisibility());
-        LumifyProperties.TITLE.addPropertyValue(m, MULTIVALUE_KEY, mapping.getSubject(), data.getPropertyMetadata(), data.getVisibility());
+        LumifyProperties.TITLE.addPropertyValue(m, MULTIVALUE_KEY, mapping.getSubject(), data.createPropertyMetadata(), data.getVisibility());
         Vertex v = m.save(getAuthorizations());
         getAuditRepository().auditVertexElementMutation(AuditAction.UPDATE, m, v, MULTIVALUE_KEY, getUser(), data.getVisibility());
         getAuditRepository().auditAnalyzedBy(AuditAction.ANALYZED_BY, v, getClass().getSimpleName(), getUser(), v.getVisibility());
