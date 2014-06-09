@@ -5,7 +5,6 @@ import io.lumify.core.exception.LumifyException;
 import io.lumify.core.ingest.graphProperty.GraphPropertyWorkData;
 import io.lumify.core.ingest.graphProperty.GraphPropertyWorker;
 import io.lumify.core.ingest.graphProperty.GraphPropertyWorkerPrepareData;
-import io.lumify.core.model.ontology.LabelName;
 import io.lumify.core.model.ontology.OntologyLumifyProperties;
 import io.lumify.core.model.properties.EntityLumifyProperties;
 import io.lumify.core.model.properties.LumifyProperties;
@@ -87,6 +86,6 @@ public class TwitterProfileImageDownloadGraphPropertyWorker extends GraphPropert
             return false;
         }
 
-        return property.getName().equals(TwitterOntology.PROFILE_IMAGE_URL.getKey());
+        return property.getName().equals(TwitterOntology.PROFILE_IMAGE_URL.getPropertyName());
     }
 }

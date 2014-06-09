@@ -85,7 +85,7 @@ public class FoodTruckTweetAnalyzerGraphPropertyWorker extends GraphPropertyWork
             keywordVertices = toList(
                     getGraph()
                             .query(getAuthorizations())
-                            .has(OntologyLumifyProperties.CONCEPT_TYPE.getKey(), FoodTruckOntology.CONCEPT_TYPE_LOCATION)
+                            .has(OntologyLumifyProperties.CONCEPT_TYPE.getPropertyName(), FoodTruckOntology.CONCEPT_TYPE_LOCATION)
                             .vertices()
             );
             keywordVerticesCache.put(KEYWORD_VERTICES_CACHE_KEY, keywordVertices);
@@ -99,7 +99,7 @@ public class FoodTruckTweetAnalyzerGraphPropertyWorker extends GraphPropertyWork
             return false;
         }
 
-        if (!property.getName().equals(RawLumifyProperties.TEXT.getKey())) {
+        if (!property.getName().equals(RawLumifyProperties.TEXT.getPropertyName())) {
             return false;
         }
         if (!OntologyLumifyProperties.CONCEPT_TYPE.getPropertyValue(element).equals(TwitterOntology.CONCEPT_TYPE_TWEET)) {

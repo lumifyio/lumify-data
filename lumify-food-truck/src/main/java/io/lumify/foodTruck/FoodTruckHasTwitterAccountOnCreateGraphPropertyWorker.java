@@ -21,7 +21,7 @@ public class FoodTruckHasTwitterAccountOnCreateGraphPropertyWorker extends Graph
         if (imageVertexId != null && imageVertexId.length() > 0) {
             EntityLumifyProperties.IMAGE_VERTEX_ID.addPropertyValue(foodTruckVertex, MULTI_VALUE_KEY, imageVertexId, data.getVisibility(), getAuthorizations());
             getGraph().flush();
-            getWorkQueueRepository().pushGraphPropertyQueue(foodTruckVertex, MULTI_VALUE_KEY, EntityLumifyProperties.IMAGE_VERTEX_ID.getKey());
+            getWorkQueueRepository().pushGraphPropertyQueue(foodTruckVertex, MULTI_VALUE_KEY, EntityLumifyProperties.IMAGE_VERTEX_ID.getPropertyName());
         }
     }
 
