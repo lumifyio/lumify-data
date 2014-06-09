@@ -18,7 +18,6 @@ import org.securegraph.mutation.ExistingElementMutation;
 import org.securegraph.property.StreamingPropertyValue;
 
 import java.io.*;
-import java.util.HashMap;
 import java.util.Map;
 
 public class TranslateGraphPropertyWorker extends GraphPropertyWorker {
@@ -67,9 +66,9 @@ public class TranslateGraphPropertyWorker extends GraphPropertyWorker {
                 } else {
                     translatedTextValue = translatedText;
                 }
-                Map<String, Object> metadata = new HashMap<String, Object>(data.getPropertyMetadata());
+                Map<String, Object> metadata = data.createPropertyMetadata();
                 metadata.put(RawLumifyProperties.META_DATA_LANGUAGE, "en");
-                String description = (String) data.getPropertyMetadata().get(RawLumifyProperties.META_DATA_TEXT_DESCRIPTION);
+                String description = (String) data.getProperty().getMetadata().get(RawLumifyProperties.META_DATA_TEXT_DESCRIPTION);
                 if (description == null || description.length() == 0) {
                     description = "Text";
                 }
