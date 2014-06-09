@@ -16,7 +16,6 @@ import org.securegraph.mutation.ExistingElementMutation;
 
 import java.io.File;
 import java.io.InputStream;
-import java.util.HashMap;
 import java.util.Map;
 
 public class CCExtractorGraphPropertyWorker extends GraphPropertyWorker {
@@ -45,7 +44,7 @@ public class CCExtractorGraphPropertyWorker extends GraphPropertyWorker {
             }
 
             ExistingElementMutation<Vertex> m = data.getElement().prepareMutation();
-            Map<String, Object> metadata = new HashMap<String, Object>(data.getPropertyMetadata());
+            Map<String, Object> metadata = data.createPropertyMetadata();
             metadata.put(RawLumifyProperties.META_DATA_TEXT_DESCRIPTION, "Close Caption");
             MediaLumifyProperties.VIDEO_TRANSCRIPT.addPropertyValue(m, PROPERTY_KEY, videoTranscript, metadata, data.getVisibility());
             Vertex v = m.save(getAuthorizations());

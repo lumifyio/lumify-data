@@ -1,5 +1,6 @@
 package io.lumify.sphinx;
 
+import com.google.inject.Inject;
 import io.lumify.core.ingest.graphProperty.GraphPropertyWorkData;
 import io.lumify.core.ingest.graphProperty.GraphPropertyWorker;
 import io.lumify.core.ingest.video.VideoTranscript;
@@ -11,13 +12,11 @@ import org.securegraph.Element;
 import org.securegraph.Property;
 import org.securegraph.Vertex;
 import org.securegraph.mutation.ExistingElementMutation;
-import com.google.inject.Inject;
 
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.HashMap;
 import java.util.Map;
 
 import static com.google.common.base.Preconditions.checkNotNull;
@@ -36,7 +35,7 @@ public class SphinxGraphPropertyWorker extends GraphPropertyWorker {
         }
 
         ExistingElementMutation<Vertex> m = data.getElement().prepareMutation();
-        Map<String, Object> metadata = new HashMap<String, Object>(data.getPropertyMetadata());
+        Map<String, Object> metadata = data.createPropertyMetadata();
         metadata.put(RawLumifyProperties.META_DATA_TEXT_DESCRIPTION, "Audio Transcript");
         MediaLumifyProperties.VIDEO_TRANSCRIPT.addPropertyValue(m, MULTI_VALUE_KEY, transcript, metadata, data.getVisibility());
         Vertex v = m.save(getAuthorizations());

@@ -19,7 +19,7 @@ import static io.lumify.core.util.CollectionUtil.singleOrDefault;
 public class ClassFileGraphPropertyWorker extends GraphPropertyWorker {
     @Override
     public void execute(InputStream in, GraphPropertyWorkData data) throws Exception {
-        RawLumifyProperties.MIME_TYPE.setProperty(data.getElement(), "application/x-java-class", data.getPropertyMetadata(), data.getVisibility(), getAuthorizations());
+        RawLumifyProperties.MIME_TYPE.setProperty(data.getElement(), "application/x-java-class", data.createPropertyMetadata(), data.getVisibility(), getAuthorizations());
 
         Vertex jarVertex = singleOrDefault(((Vertex) data.getElement()).getVertices(Direction.BOTH, Ontology.EDGE_LABEL_JAR_CONTAINS, getAuthorizations()), null);
 
@@ -72,8 +72,8 @@ public class ClassFileGraphPropertyWorker extends GraphPropertyWorker {
         String classId = JavaCodeIngestIdGenerator.createClassId(className);
         VertexBuilder vertexBuilder = getGraph().prepareVertex(classId, data.getVisibility());
         data.setVisibilityJsonOnElement(vertexBuilder);
-        LumifyProperties.TITLE.setProperty(vertexBuilder, classNameToTitle(className), data.getPropertyMetadata(), data.getVisibility());
-        Ontology.CLASS_NAME.setProperty(vertexBuilder, className, data.getPropertyMetadata(), data.getVisibility());
+        LumifyProperties.TITLE.setProperty(vertexBuilder, classNameToTitle(className), data.createPropertyMetadata(), data.getVisibility());
+        Ontology.CLASS_NAME.setProperty(vertexBuilder, className, data.createPropertyMetadata(), data.getVisibility());
         return vertexBuilder;
     }
 
@@ -89,8 +89,8 @@ public class ClassFileGraphPropertyWorker extends GraphPropertyWorker {
         String methodId = JavaCodeIngestIdGenerator.createMethodId(javaClass, method);
         VertexBuilder vertexBuilder = getGraph().prepareVertex(methodId, data.getVisibility());
         data.setVisibilityJsonOnElement(vertexBuilder);
-        LumifyProperties.TITLE.setProperty(vertexBuilder, method.getName() + method.getSignature(), data.getPropertyMetadata(), data.getVisibility());
-        OntologyLumifyProperties.CONCEPT_TYPE.setProperty(vertexBuilder, Ontology.CONCEPT_TYPE_METHOD, data.getPropertyMetadata(), data.getVisibility());
+        LumifyProperties.TITLE.setProperty(vertexBuilder, method.getName() + method.getSignature(), data.createPropertyMetadata(), data.getVisibility());
+        OntologyLumifyProperties.CONCEPT_TYPE.setProperty(vertexBuilder, Ontology.CONCEPT_TYPE_METHOD, data.createPropertyMetadata(), data.getVisibility());
         Vertex methodVertex = vertexBuilder.save(getAuthorizations());
 
         String classContainsMethodEdgeId = JavaCodeIngestIdGenerator.createClassContainsMethodEdgeId(classVertex, methodVertex);
@@ -114,7 +114,7 @@ public class ClassFileGraphPropertyWorker extends GraphPropertyWorker {
             String argumentEdgeId = JavaCodeIngestIdGenerator.createArgumentEdgeId(methodVertex, argumentTypeVertex, argumentName);
             edge = getGraph().addEdge(argumentEdgeId, methodVertex, argumentTypeVertex, Ontology.EDGE_LABEL_METHOD_ARGUMENT, data.getVisibility(), getAuthorizations());
             data.setVisibilityJsonOnElement(edge, getAuthorizations());
-            Ontology.ARGUMENT_NAME.setProperty(edge, argumentName, data.getPropertyMetadata(), data.getVisibility(), getAuthorizations());
+            Ontology.ARGUMENT_NAME.setProperty(edge, argumentName, data.createPropertyMetadata(), data.getVisibility(), getAuthorizations());
             createClassReferencesEdge(classVertex, argumentTypeVertex, data);
         }
 
@@ -134,8 +134,8 @@ public class ClassFileGraphPropertyWorker extends GraphPropertyWorker {
                 String invokedMethodId = JavaCodeIngestIdGenerator.createMethodId(methodClassName, methodName, methodSignature);
                 VertexBuilder invokedMethodVertexBuilder = getGraph().prepareVertex(invokedMethodId, data.getVisibility());
                 data.setVisibilityJsonOnElement(invokedMethodVertexBuilder);
-                LumifyProperties.TITLE.setProperty(invokedMethodVertexBuilder, method.getSignature(), data.getPropertyMetadata(), data.getVisibility());
-                OntologyLumifyProperties.CONCEPT_TYPE.setProperty(invokedMethodVertexBuilder, Ontology.CONCEPT_TYPE_METHOD, data.getPropertyMetadata(), data.getVisibility());
+                LumifyProperties.TITLE.setProperty(invokedMethodVertexBuilder, method.getSignature(), data.createPropertyMetadata(), data.getVisibility());
+                OntologyLumifyProperties.CONCEPT_TYPE.setProperty(invokedMethodVertexBuilder, Ontology.CONCEPT_TYPE_METHOD, data.createPropertyMetadata(), data.getVisibility());
                 Vertex invokedMethodVertex = invokedMethodVertexBuilder.save(getAuthorizations());
 
                 String methodInvokesMethodEdgeId = JavaCodeIngestIdGenerator.createMethodInvokesMethodEdgeId(methodVertex, invokedMethodVertex);
@@ -152,8 +152,8 @@ public class ClassFileGraphPropertyWorker extends GraphPropertyWorker {
         String fieldId = JavaCodeIngestIdGenerator.createFieldId(javaClass, field);
         VertexBuilder vertexBuilder = getGraph().prepareVertex(fieldId, data.getVisibility());
         data.setVisibilityJsonOnElement(vertexBuilder);
-        LumifyProperties.TITLE.setProperty(vertexBuilder, field.getName(), data.getPropertyMetadata(), data.getVisibility());
-        OntologyLumifyProperties.CONCEPT_TYPE.setProperty(vertexBuilder, Ontology.CONCEPT_TYPE_FIELD, data.getPropertyMetadata(), data.getVisibility());
+        LumifyProperties.TITLE.setProperty(vertexBuilder, field.getName(), data.createPropertyMetadata(), data.getVisibility());
+        OntologyLumifyProperties.CONCEPT_TYPE.setProperty(vertexBuilder, Ontology.CONCEPT_TYPE_FIELD, data.createPropertyMetadata(), data.getVisibility());
         Vertex fieldVertex = vertexBuilder.save(getAuthorizations());
 
         String classContainsFieldEdgeId = JavaCodeIngestIdGenerator.createClassContainsFieldEdgeId(classVertex, fieldVertex);

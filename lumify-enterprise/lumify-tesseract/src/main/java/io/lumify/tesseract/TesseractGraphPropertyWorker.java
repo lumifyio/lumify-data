@@ -22,7 +22,6 @@ import java.awt.image.BufferedImage;
 import java.io.ByteArrayInputStream;
 import java.io.InputStream;
 import java.util.Arrays;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -62,7 +61,7 @@ public class TesseractGraphPropertyWorker extends GraphPropertyWorker {
         StreamingPropertyValue textValue = new StreamingPropertyValue(textIn, String.class);
 
         ExistingElementMutation<Vertex> m = data.getElement().prepareMutation();
-        Map<String, Object> textMetadata = new HashMap<String, Object>(data.getPropertyMetadata());
+        Map<String, Object> textMetadata = data.createPropertyMetadata();
         textMetadata.put(RawLumifyProperties.META_DATA_TEXT_DESCRIPTION, "OCR Text");
         textMetadata.put(RawLumifyProperties.META_DATA_MIME_TYPE, "text/plain");
         RawLumifyProperties.TEXT.addPropertyValue(m, textPropertyKey, textValue, textMetadata, data.getVisibility());
