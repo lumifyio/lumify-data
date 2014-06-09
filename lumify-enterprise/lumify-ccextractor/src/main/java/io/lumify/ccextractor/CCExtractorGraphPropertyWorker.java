@@ -12,6 +12,7 @@ import io.lumify.storm.video.SubRip;
 import org.securegraph.Element;
 import org.securegraph.Property;
 import org.securegraph.Vertex;
+import org.securegraph.Visibility;
 import org.securegraph.mutation.ExistingElementMutation;
 
 import java.io.File;
@@ -46,13 +47,13 @@ public class CCExtractorGraphPropertyWorker extends GraphPropertyWorker {
             ExistingElementMutation<Vertex> m = data.getElement().prepareMutation();
             Map<String, Object> metadata = data.createPropertyMetadata();
             metadata.put(RawLumifyProperties.META_DATA_TEXT_DESCRIPTION, "Close Caption");
-            MediaLumifyProperties.VIDEO_TRANSCRIPT.addPropertyValue(m, PROPERTY_KEY, videoTranscript, metadata, data.getVisibility());
+            addVideoTranscriptAsTextPropertiesToMutation(m, PROPERTY_KEY, videoTranscript, metadata, data.getVisibility());
             Vertex v = m.save(getAuthorizations());
             getAuditRepository().auditVertexElementMutation(AuditAction.UPDATE, m, v, PROPERTY_KEY, getUser(), data.getVisibility());
             getAuditRepository().auditAnalyzedBy(AuditAction.ANALYZED_BY, v, getClass().getSimpleName(), getUser(), data.getVisibility());
 
             getGraph().flush();
-            getWorkQueueRepository().pushGraphPropertyQueue(data.getElement(), PROPERTY_KEY, MediaLumifyProperties.VIDEO_TRANSCRIPT.getPropertyName());
+            pushVideoTranscriptTextPropertiesOnWorkQueue(data.getElement(), PROPERTY_KEY, videoTranscript);
         } finally {
             ccFile.delete();
         }
