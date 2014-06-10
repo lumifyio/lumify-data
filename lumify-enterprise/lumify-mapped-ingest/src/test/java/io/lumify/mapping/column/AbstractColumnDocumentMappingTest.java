@@ -113,7 +113,7 @@ public class AbstractColumnDocumentMappingTest {
         Map<String, ColumnEntityMapping> singleton = new HashMap<String, ColumnEntityMapping>();
         singleton.put(ENTITY1_ID, entity1);
         doConstructorTest_Entities("one entity", singleton);
-        doConstructorTest_Rels("null relationships", null, Collections.EMPTY_LIST);
+        doConstructorTest_Rels("null relationships", Collections.EMPTY_LIST, Collections.EMPTY_LIST);
         doConstructorTest_Rels("empty relationships", new ArrayList<ColumnRelationshipMapping>(), Collections.EMPTY_LIST);
     }
 
@@ -307,6 +307,7 @@ public class AbstractColumnDocumentMappingTest {
         assertEquals(testName, expSubject, mapping.getSubject());
         assertEquals(testName, expEntities, mapping.getEntities());
         assertEquals(testName, expRelationships, mapping.getRelationships());
+        assertEquals(testName, expVertexRelationships, mapping.getVertexRelationships());
     }
 
     private static interface Delegate {
