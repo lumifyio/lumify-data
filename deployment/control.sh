@@ -373,8 +373,7 @@ function _run {
   echo ${command_and_args}
 
   for host in $(awk "/${pattern}/ {print \$1}" ${HOSTS_FILE}); do
-    echo ${host}
-    echo "${command_and_args}" | _run_at ${host} bash -s
+    echo "${command_and_args}" | _run_at_m ${host} bash -s
   done
 }
 
