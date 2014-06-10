@@ -1,29 +1,26 @@
 package io.lumify.mapping.csv;
 
-import static com.google.common.base.Preconditions.*;
-
+import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.annotation.JsonTypeName;
 import io.lumify.core.util.LumifyLogger;
 import io.lumify.core.util.LumifyLoggerFactory;
 import io.lumify.mapping.column.AbstractColumnDocumentMapping;
 import io.lumify.mapping.column.ColumnEntityMapping;
 import io.lumify.mapping.column.ColumnRelationshipMapping;
+import io.lumify.mapping.column.ColumnVertexRelationshipMapping;
 import io.lumify.util.LineReader;
-import com.fasterxml.jackson.annotation.JsonCreator;
-import com.fasterxml.jackson.annotation.JsonProperty;
-import com.fasterxml.jackson.annotation.JsonTypeName;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.io.Reader;
-import java.io.StringReader;
-import java.io.Writer;
+import org.supercsv.io.CsvListReader;
+import org.supercsv.io.CsvListWriter;
+import org.supercsv.prefs.CsvPreference;
+
+import java.io.*;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.NoSuchElementException;
-import org.supercsv.io.CsvListReader;
-import org.supercsv.io.CsvListWriter;
-import org.supercsv.prefs.CsvPreference;
+
+import static com.google.common.base.Preconditions.checkArgument;
 
 /**
  * DocumentMapping for CSV files.
@@ -57,23 +54,26 @@ public class CsvDocumentMapping extends AbstractColumnDocumentMapping {
 
     /**
      * Create a new CsvDocumentMapping.
-     * @param subject the subject for the ingested Document
-     * @param skipRows the number of rows to skip
-     * @param entities the entity mappings
+     *
+     * @param subject       the subject for the ingested Document
+     * @param skipRows      the number of rows to skip
+     * @param entities      the entity mappings
      * @param relationships the relationship mappings
      */
     @JsonCreator
     public CsvDocumentMapping(@JsonProperty("subject") final String subject,
-            @JsonProperty(value="skipRows",required=false) final Integer skipRows,
-            @JsonProperty("entities") final Map<String, ColumnEntityMapping> entities,
-            @JsonProperty(value="relationships", required=false) final List<ColumnRelationshipMapping> relationships) {
-        super(subject, entities, relationships);
+                              @JsonProperty(value = "skipRows", required = false) final Integer skipRows,
+                              @JsonProperty("entities") final Map<String, ColumnEntityMapping> entities,
+                              @JsonProperty(value = "relationships", required = false) final List<ColumnRelationshipMapping> relationships,
+                              @JsonProperty(value = "vertexRelationships", required = false) final List<ColumnVertexRelationshipMapping> vertexRelationships) {
+        super(subject, entities, relationships, vertexRelationships);
         checkArgument(skipRows == null || skipRows >= 0, "skipRows must be >= 0 if provided.");
         this.skipRows = skipRows != null && skipRows >= 0 ? skipRows : DEFAULT_SKIP_ROWS;
     }
 
     /**
      * Get the number of rows to skip.
+     *
      * @return the number of rows to skip
      */
     @JsonProperty("skipRows")
@@ -111,6 +111,7 @@ public class CsvDocumentMapping extends AbstractColumnDocumentMapping {
 
         /**
          * Create a new CsvRowIterator.
+         *
          * @param reader the input document
          */
         public CsvRowIterator(final Reader reader) throws IOException {

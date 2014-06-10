@@ -1,25 +1,10 @@
 package io.lumify.mapping.csv;
 
-import static org.junit.Assert.*;
-import static org.mockito.Mockito.*;
-
 import io.lumify.mapping.column.AbstractColumnDocumentMapping.Row;
 import io.lumify.mapping.column.ColumnEntityMapping;
 import io.lumify.mapping.column.ColumnRelationshipMapping;
+import io.lumify.mapping.column.ColumnVertexRelationshipMapping;
 import io.lumify.util.LineReader;
-import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.io.Reader;
-import java.io.StringReader;
-import java.io.Writer;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-import java.util.NoSuchElementException;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -31,8 +16,14 @@ import org.supercsv.io.CsvListReader;
 import org.supercsv.io.CsvListWriter;
 import org.supercsv.prefs.CsvPreference;
 
+import java.io.*;
+import java.util.*;
+
+import static org.junit.Assert.*;
+import static org.mockito.Mockito.*;
+
 @RunWith(PowerMockRunner.class)
-@PrepareForTest({ CsvDocumentMapping.class })
+@PrepareForTest({CsvDocumentMapping.class})
 public class CsvDocumentMappingTest {
     private static final String TEST_SUBJECT = "Test Subject";
     private static final int TEST_SKIP_ROWS = 1;
@@ -58,6 +49,7 @@ public class CsvDocumentMappingTest {
 
     private Map<String, ColumnEntityMapping> entityMap;
     private List<ColumnRelationshipMapping> relList;
+    private List<ColumnVertexRelationshipMapping> vertexRelList;
 
     private CsvDocumentMapping instance;
 
@@ -68,6 +60,7 @@ public class CsvDocumentMappingTest {
         entityMap.put(ENTITY2_ID, entity2);
         entityMap.put(ENTITY3_ID, entity3);
         relList = Arrays.asList(rel1, rel2);
+        vertexRelList = Arrays.asList();
 
         when(entity1.getSortColumn()).thenReturn(ENTITY1_IDX);
         when(entity2.getSortColumn()).thenReturn(ENTITY2_IDX);
@@ -83,7 +76,7 @@ public class CsvDocumentMappingTest {
         when(entity3.compareTo(entity3)).thenReturn(0);
 
         // instance must be configured AFTER comparisons are set up for entity mocks
-        instance = new CsvDocumentMapping(TEST_SUBJECT, TEST_SKIP_ROWS, entityMap, relList);
+        instance = new CsvDocumentMapping(TEST_SUBJECT, TEST_SKIP_ROWS, entityMap, relList, vertexRelList);
     }
 
     @Test
@@ -134,7 +127,7 @@ public class CsvDocumentMappingTest {
         verify(writer).close();
     }
 
-    @Test(expected=NoSuchElementException.class)
+    @Test(expected = NoSuchElementException.class)
     public void testCsvRowIterator_EmptyDocument() throws Exception {
         when(mappingReader.read()).thenReturn(-1);
         Iterator<Row> iter = instance.getRows(mappingReader).iterator();
@@ -184,7 +177,7 @@ public class CsvDocumentMappingTest {
     @SuppressWarnings("unchecked")
     private void doConstructorTest(final String testName, final Integer skipRows, final Class<? extends Throwable> expectedError) {
         try {
-            new CsvDocumentMapping(TEST_SUBJECT, skipRows, entityMap, Collections.EMPTY_LIST);
+            new CsvDocumentMapping(TEST_SUBJECT, skipRows, entityMap, Collections.EMPTY_LIST, Collections.EMPTY_LIST);
             fail(String.format("[%s] Expected %s.", testName, expectedError.getName()));
         } catch (Exception e) {
             assertTrue(String.format("[%s] expected %s, got %s.", testName, expectedError.getName(), e.getClass().getName()),
@@ -198,7 +191,7 @@ public class CsvDocumentMappingTest {
 
     @SuppressWarnings("unchecked")
     private void doConstructorTest(final String testName, final Integer skipRows, final Integer expSkipRows) {
-        CsvDocumentMapping mapping = new CsvDocumentMapping(TEST_SUBJECT, skipRows, entityMap, Collections.EMPTY_LIST);
+        CsvDocumentMapping mapping = new CsvDocumentMapping(TEST_SUBJECT, skipRows, entityMap, Collections.EMPTY_LIST, Collections.EMPTY_LIST);
         assertEquals(testName, expSkipRows.intValue(), mapping.getSkipRows());
     }
 }

@@ -5,13 +5,13 @@ import io.lumify.core.ingest.term.extraction.TermMention;
 import io.lumify.core.ingest.term.extraction.TermRelationship;
 import io.lumify.mapping.column.AbstractColumnDocumentMapping.Row;
 import io.lumify.mapping.csv.CsvDocumentMapping;
-import org.securegraph.Visibility;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.powermock.core.classloader.annotations.PrepareForTest;
 import org.powermock.modules.junit4.PowerMockRunner;
+import org.securegraph.Visibility;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -63,6 +63,7 @@ public class AbstractColumnDocumentMappingTest {
     private AbstractColumnDocumentMapping instance;
 
     private Visibility visibility = new Visibility("");
+    private List<ColumnVertexRelationshipMapping> vertexRelList;
 
     @Before
     public void setup() {
@@ -71,6 +72,7 @@ public class AbstractColumnDocumentMappingTest {
         entityMap.put(ENTITY2_ID, entity2);
         entityMap.put(ENTITY3_ID, entity3);
         relList = Arrays.asList(rel1, rel2);
+        vertexRelList = Arrays.asList();
 
         when(entity1.getSortColumn()).thenReturn(ENTITY1_IDX);
         when(entity2.getSortColumn()).thenReturn(ENTITY2_IDX);
@@ -89,7 +91,7 @@ public class AbstractColumnDocumentMappingTest {
         when(rowIterable.iterator()).thenReturn(rowIter);
 
         // instance must be configured AFTER comparisons are set up for entity mocks
-        instance = new TestImpl(TEST_SUBJECT, entityMap, relList);
+        instance = new TestImpl(TEST_SUBJECT, entityMap, relList, vertexRelList);
     }
 
     @Test
@@ -113,8 +115,6 @@ public class AbstractColumnDocumentMappingTest {
         doConstructorTest_Entities("one entity", singleton);
         doConstructorTest_Rels("null relationships", null, Collections.EMPTY_LIST);
         doConstructorTest_Rels("empty relationships", new ArrayList<ColumnRelationshipMapping>(), Collections.EMPTY_LIST);
-        doConstructorTest_Rels("multiple relationships", relList);
-        doConstructorTest_Rels("single relationships", Arrays.asList(rel1));
     }
 
     @Test
@@ -252,19 +252,20 @@ public class AbstractColumnDocumentMappingTest {
 
     @SuppressWarnings("unchecked")
     private void doConstructorTest(final String testName, final String subject, final Class<? extends Throwable> expectedError) {
-        doConstructorTest(testName, subject, entityMap, Collections.EMPTY_LIST, expectedError);
+        doConstructorTest(testName, subject, entityMap, Collections.EMPTY_LIST, Collections.EMPTY_LIST, expectedError);
     }
 
     @SuppressWarnings("unchecked")
     private void doConstructorTest(final String testName, final Map<String, ColumnEntityMapping> entities,
                                    final Class<? extends Throwable> expectedError) {
-        doConstructorTest(testName, TEST_SUBJECT, entities, Collections.EMPTY_LIST, expectedError);
+        doConstructorTest(testName, TEST_SUBJECT, entities, Collections.EMPTY_LIST, Collections.EMPTY_LIST, expectedError);
     }
 
     private void doConstructorTest(final String testName, final String subject, final Map<String, ColumnEntityMapping> entities,
-                                   final List<ColumnRelationshipMapping> relationships, final Class<? extends Throwable> expectedError) {
+                                   final List<ColumnRelationshipMapping> relationships,
+                                   final List<ColumnVertexRelationshipMapping> vertexRelationships, final Class<? extends Throwable> expectedError) {
         try {
-            new TestImpl(subject, entities, relationships);
+            new TestImpl(subject, entities, relationships, vertexRelationships);
             fail(String.format("[%s] Expected %s.", testName, expectedError.getName()));
         } catch (Exception e) {
             assertTrue(String.format("[%s] expected %s, got %s.", testName, expectedError.getName(), e.getClass().getName()),
@@ -279,28 +280,30 @@ public class AbstractColumnDocumentMappingTest {
     @SuppressWarnings("unchecked")
     private void doConstructorTest(final String testName, final String subject, final String expSubject) {
         doConstructorTest(testName, subject, entityMap, Collections.EMPTY_LIST,
-                expSubject, entityMap, Collections.EMPTY_LIST);
+                expSubject, entityMap, Collections.EMPTY_LIST, Collections.EMPTY_LIST);
     }
 
     @SuppressWarnings("unchecked")
     private void doConstructorTest_Entities(final String testName, final Map<String, ColumnEntityMapping> entities) {
         doConstructorTest(testName, TEST_SUBJECT, entities, Collections.EMPTY_LIST,
-                TEST_SUBJECT, entities, Collections.EMPTY_LIST);
+                TEST_SUBJECT, entities, Collections.EMPTY_LIST, Collections.EMPTY_LIST);
     }
 
-    private void doConstructorTest_Rels(final String testName, final List<ColumnRelationshipMapping> rels) {
-        doConstructorTest_Rels(testName, rels, rels);
+    private void doConstructorTest_Rels(final String testName, final List<ColumnRelationshipMapping> rels, final List<ColumnVertexRelationshipMapping> vertexRels) {
+        doConstructorTest_Rels(testName, rels, rels, vertexRels);
     }
 
     private void doConstructorTest_Rels(final String testName, final List<ColumnRelationshipMapping> rels,
-                                        final List<ColumnRelationshipMapping> expRels) {
-        doConstructorTest(testName, TEST_SUBJECT, entityMap, rels, TEST_SUBJECT, entityMap, expRels);
+                                        final List<ColumnRelationshipMapping> expRels,
+                                        final List<ColumnVertexRelationshipMapping> expVertexRels) {
+        doConstructorTest(testName, TEST_SUBJECT, entityMap, rels, TEST_SUBJECT, entityMap, expRels, expVertexRels);
     }
 
     private void doConstructorTest(final String testName, final String subject, final Map<String, ColumnEntityMapping> entities,
                                    final List<ColumnRelationshipMapping> relationships, final String expSubject,
-                                   final Map<String, ColumnEntityMapping> expEntities, final List<ColumnRelationshipMapping> expRelationships) {
-        AbstractColumnDocumentMapping mapping = new TestImpl(subject, entities, relationships);
+                                   final Map<String, ColumnEntityMapping> expEntities, final List<ColumnRelationshipMapping> expRelationships,
+                                   final List<ColumnVertexRelationshipMapping> expVertexRelationships) {
+        AbstractColumnDocumentMapping mapping = new TestImpl(subject, entities, relationships, expVertexRelationships);
         assertEquals(testName, expSubject, mapping.getSubject());
         assertEquals(testName, expEntities, mapping.getEntities());
         assertEquals(testName, expRelationships, mapping.getRelationships());
@@ -314,8 +317,8 @@ public class AbstractColumnDocumentMappingTest {
 
     private class TestImpl extends AbstractColumnDocumentMapping {
 
-        public TestImpl(String subject, Map<String, ColumnEntityMapping> entities, List<ColumnRelationshipMapping> relationships) {
-            super(subject, entities, relationships);
+        public TestImpl(String subject, Map<String, ColumnEntityMapping> entities, List<ColumnRelationshipMapping> relationships, List<ColumnVertexRelationshipMapping> vertexRelationships) {
+            super(subject, entities, relationships, vertexRelationships);
         }
 
         @Override
