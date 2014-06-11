@@ -80,6 +80,7 @@ public class LdapX509AuthenticationHandler extends X509AuthenticationHandler {
         User user = getUserRepository().findOrAddUser(
                 username,
                 displayName,
+                null,
                 randomPassword,
                 groups.toArray(new String[groups.size()])
         );

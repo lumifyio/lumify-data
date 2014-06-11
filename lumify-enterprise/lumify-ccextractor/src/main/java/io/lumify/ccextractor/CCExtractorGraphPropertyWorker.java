@@ -12,10 +12,12 @@ import io.lumify.storm.video.SubRip;
 import org.securegraph.Element;
 import org.securegraph.Property;
 import org.securegraph.Vertex;
+import org.securegraph.Visibility;
 import org.securegraph.mutation.ExistingElementMutation;
 
 import java.io.File;
 import java.io.InputStream;
+import java.util.Map;
 
 public class CCExtractorGraphPropertyWorker extends GraphPropertyWorker {
     private static final String PROPERTY_KEY = CCExtractorGraphPropertyWorker.class.getName();
@@ -38,15 +40,20 @@ public class CCExtractorGraphPropertyWorker extends GraphPropertyWorker {
             );
 
             VideoTranscript videoTranscript = SubRip.read(ccFile);
+            if (videoTranscript.getEntries().size() == 0) {
+                return;
+            }
 
             ExistingElementMutation<Vertex> m = data.getElement().prepareMutation();
-            MediaLumifyProperties.VIDEO_TRANSCRIPT.addPropertyValue(m, PROPERTY_KEY, videoTranscript, data.createPropertyMetadata(), data.getVisibility());
+            Map<String, Object> metadata = data.createPropertyMetadata();
+            metadata.put(RawLumifyProperties.META_DATA_TEXT_DESCRIPTION, "Close Caption");
+            addVideoTranscriptAsTextPropertiesToMutation(m, PROPERTY_KEY, videoTranscript, metadata, data.getVisibility());
             Vertex v = m.save(getAuthorizations());
             getAuditRepository().auditVertexElementMutation(AuditAction.UPDATE, m, v, PROPERTY_KEY, getUser(), data.getVisibility());
             getAuditRepository().auditAnalyzedBy(AuditAction.ANALYZED_BY, v, getClass().getSimpleName(), getUser(), data.getVisibility());
 
             getGraph().flush();
-            getWorkQueueRepository().pushGraphPropertyQueue(data.getElement(), PROPERTY_KEY, MediaLumifyProperties.VIDEO_TRANSCRIPT.getKey());
+            pushVideoTranscriptTextPropertiesOnWorkQueue(data.getElement(), PROPERTY_KEY, videoTranscript);
         } finally {
             ccFile.delete();
         }
@@ -58,10 +65,10 @@ public class CCExtractorGraphPropertyWorker extends GraphPropertyWorker {
             return false;
         }
 
-        if (!property.getName().equals(RawLumifyProperties.RAW.getKey())) {
+        if (!property.getName().equals(RawLumifyProperties.RAW.getPropertyName())) {
             return false;
         }
-        String mimeType = (String) property.getMetadata().get(RawLumifyProperties.MIME_TYPE.getKey());
+        String mimeType = (String) property.getMetadata().get(RawLumifyProperties.MIME_TYPE.getPropertyName());
         if (mimeType == null || !mimeType.startsWith("video")) {
             return false;
         }

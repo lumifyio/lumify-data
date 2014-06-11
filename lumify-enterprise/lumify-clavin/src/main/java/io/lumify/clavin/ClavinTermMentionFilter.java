@@ -225,7 +225,7 @@ public class ClavinTermMentionFilter extends TermMentionFilter {
                         .sign(toSign(loc))
                         .ontologyClassUri(getOntologyClassUri(loc, termMention.getOntologyClassUri()))
                         .addProperty(MULTI_VALUE_PROERTY_KEY, geoLocationIri, geoPoint)
-                        .addProperty(MULTI_VALUE_PROERTY_KEY, EntityLumifyProperties.SOURCE.getKey(), "CLAVIN")
+                        .addProperty(MULTI_VALUE_PROERTY_KEY, EntityLumifyProperties.SOURCE.getPropertyName(), "CLAVIN")
                         .process(processId)
                         .build();
                 LOGGER.debug("Replacing original location [%s] with resolved location [%s]", termMention, resolvedMention);

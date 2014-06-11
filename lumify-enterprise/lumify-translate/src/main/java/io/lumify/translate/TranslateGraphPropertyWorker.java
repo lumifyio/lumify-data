@@ -18,6 +18,7 @@ import org.securegraph.mutation.ExistingElementMutation;
 import org.securegraph.property.StreamingPropertyValue;
 
 import java.io.*;
+import java.util.Map;
 
 public class TranslateGraphPropertyWorker extends GraphPropertyWorker {
     private static final LumifyLogger LOGGER = LumifyLoggerFactory.getLogger(TranslateGraphPropertyWorker.class);
@@ -55,7 +56,8 @@ public class TranslateGraphPropertyWorker extends GraphPropertyWorker {
 
         boolean translated = false;
         String translatedTextPropertyKey = data.getProperty().getKey() + "#en";
-        if (!language.equals("en")) {
+        if (!language.equals("en") && !hasTranslatedProperty(data, translatedTextPropertyKey)) {
+            LOGGER.debug("translating text of property: %s", data.getProperty().toString());
             String translatedText = translator.translate(text, language, data);
             if (translatedText != null && translatedText.length() > 0) {
                 Object translatedTextValue;
@@ -64,7 +66,15 @@ public class TranslateGraphPropertyWorker extends GraphPropertyWorker {
                 } else {
                     translatedTextValue = translatedText;
                 }
-                m.addPropertyValue(translatedTextPropertyKey, data.getProperty().getName(), translatedTextValue, data.getProperty().getVisibility());
+                Map<String, Object> metadata = data.createPropertyMetadata();
+                metadata.put(RawLumifyProperties.META_DATA_LANGUAGE, "en");
+                String description = (String) data.getProperty().getMetadata().get(RawLumifyProperties.META_DATA_TEXT_DESCRIPTION);
+                if (description == null || description.length() == 0) {
+                    description = "Text";
+                }
+                metadata.put(RawLumifyProperties.META_DATA_TEXT_DESCRIPTION, description + " (en)");
+                metadata.put(RawLumifyProperties.META_DATA_MIME_TYPE, "text/plain");
+                m.addPropertyValue(translatedTextPropertyKey, data.getProperty().getName(), translatedTextValue, metadata, data.getProperty().getVisibility());
                 translated = true;
             }
         }
@@ -75,6 +85,10 @@ public class TranslateGraphPropertyWorker extends GraphPropertyWorker {
             getGraph().flush();
             getWorkQueueRepository().pushGraphPropertyQueue(data.getElement(), translatedTextPropertyKey, data.getProperty().getName());
         }
+    }
+
+    public boolean hasTranslatedProperty(GraphPropertyWorkData data, String translatedTextPropertyKey) {
+        return data.getElement().getProperty(translatedTextPropertyKey, data.getProperty().getName()) != null;
     }
 
     private String detectLanguage(String text) throws LangDetectException, IOException {

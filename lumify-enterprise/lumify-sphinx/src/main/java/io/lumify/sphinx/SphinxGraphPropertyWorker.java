@@ -1,22 +1,22 @@
 package io.lumify.sphinx;
 
+import com.google.inject.Inject;
 import io.lumify.core.ingest.graphProperty.GraphPropertyWorkData;
 import io.lumify.core.ingest.graphProperty.GraphPropertyWorker;
 import io.lumify.core.ingest.video.VideoTranscript;
 import io.lumify.core.model.audit.AuditAction;
-import io.lumify.core.model.properties.MediaLumifyProperties;
 import io.lumify.core.model.properties.RawLumifyProperties;
 import io.lumify.core.util.ProcessRunner;
 import org.securegraph.Element;
 import org.securegraph.Property;
 import org.securegraph.Vertex;
 import org.securegraph.mutation.ExistingElementMutation;
-import com.google.inject.Inject;
 
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.Map;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 
@@ -34,13 +34,15 @@ public class SphinxGraphPropertyWorker extends GraphPropertyWorker {
         }
 
         ExistingElementMutation<Vertex> m = data.getElement().prepareMutation();
-        MediaLumifyProperties.VIDEO_TRANSCRIPT.addPropertyValue(m, MULTI_VALUE_KEY, transcript, data.createPropertyMetadata(), data.getVisibility());
+        Map<String, Object> metadata = data.createPropertyMetadata();
+        metadata.put(RawLumifyProperties.META_DATA_TEXT_DESCRIPTION, "Audio Transcript");
+        addVideoTranscriptAsTextPropertiesToMutation(m, MULTI_VALUE_KEY, transcript, metadata, data.getVisibility());
         Vertex v = m.save(getAuthorizations());
         getAuditRepository().auditVertexElementMutation(AuditAction.UPDATE, m, v, MULTI_VALUE_KEY, getUser(), data.getVisibility());
         getAuditRepository().auditAnalyzedBy(AuditAction.ANALYZED_BY, v, getClass().getSimpleName(), getUser(), v.getVisibility());
 
         getGraph().flush();
-        getWorkQueueRepository().pushGraphPropertyQueue(data.getElement(), MULTI_VALUE_KEY, MediaLumifyProperties.VIDEO_TRANSCRIPT.getKey());
+        pushVideoTranscriptTextPropertiesOnWorkQueue(data.getElement(), MULTI_VALUE_KEY, transcript);
     }
 
     @Override
@@ -49,7 +51,7 @@ public class SphinxGraphPropertyWorker extends GraphPropertyWorker {
             return false;
         }
 
-        String mimeType = (String) property.getMetadata().get(RawLumifyProperties.MIME_TYPE.getKey());
+        String mimeType = (String) property.getMetadata().get(RawLumifyProperties.MIME_TYPE.getPropertyName());
         return !(mimeType == null || !mimeType.startsWith("audio"));
     }
 

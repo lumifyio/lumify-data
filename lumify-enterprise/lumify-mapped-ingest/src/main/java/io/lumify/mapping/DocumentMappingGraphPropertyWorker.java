@@ -28,21 +28,19 @@ public class DocumentMappingGraphPropertyWorker extends GraphPropertyWorker {
         String mappingJsonString = IOUtils.toString(mappingJson.getInputStream());
         DocumentMapping mapping = jsonMapper.readValue(mappingJsonString, DocumentMapping.class);
 
-        if (data.getProperty().getName().equals(RawLumifyProperties.RAW.getKey())) {
-            executeTextExtraction(in, data, mapping);
-        } else {
-            executeTermExtraction(in, data, mapping);
-        }
+        String text = executeTextExtraction(in, data, mapping);
+        executeTermExtraction(new ByteArrayInputStream(text.getBytes()), data, mapping);
     }
 
-    private void executeTextExtraction(InputStream in, GraphPropertyWorkData data, DocumentMapping mapping) throws IOException {
+    private String executeTextExtraction(InputStream in, GraphPropertyWorkData data, DocumentMapping mapping) throws IOException {
         StringWriter writer = new StringWriter();
         mapping.ingestDocument(in, writer);
+        String text = writer.toString();
 
         ExistingElementMutation<Vertex> m = data.getElement().prepareMutation();
-        StreamingPropertyValue textValue = new StreamingPropertyValue(new ByteArrayInputStream(writer.toString().getBytes()), String.class);
+        StreamingPropertyValue textValue = new StreamingPropertyValue(new ByteArrayInputStream(text.getBytes()), String.class);
         Map<String, Object> textMetadata = data.createPropertyMetadata();
-        textMetadata.put(RawLumifyProperties.MIME_TYPE.getKey(), "text/plain");
+        textMetadata.put(RawLumifyProperties.MIME_TYPE.getPropertyName(), "text/plain");
         textMetadata.put(RawLumifyProperties.META_DATA_TEXT_DESCRIPTION, "Text");
         RawLumifyProperties.TEXT.addPropertyValue(m, MULTIVALUE_KEY, textValue, textMetadata, data.getVisibility());
         LumifyProperties.TITLE.addPropertyValue(m, MULTIVALUE_KEY, mapping.getSubject(), data.createPropertyMetadata(), data.getVisibility());
@@ -52,8 +50,8 @@ public class DocumentMappingGraphPropertyWorker extends GraphPropertyWorker {
 
         getGraph().flush();
 
-        getWorkQueueRepository().pushGraphPropertyQueue(data.getElement(), MULTIVALUE_KEY, LumifyProperties.TITLE.getKey());
-        getWorkQueueRepository().pushGraphPropertyQueue(data.getElement(), MULTIVALUE_KEY, RawLumifyProperties.TEXT.getKey());
+        getWorkQueueRepository().pushGraphPropertyQueue(data.getElement(), MULTIVALUE_KEY, LumifyProperties.TITLE.getPropertyName());
+        return text;
     }
 
     private void executeTermExtraction(InputStream in, GraphPropertyWorkData data, DocumentMapping mapping) throws IOException {
@@ -72,7 +70,7 @@ public class DocumentMappingGraphPropertyWorker extends GraphPropertyWorker {
             return false;
         }
 
-        String mimeType = (String) property.getMetadata().get(RawLumifyProperties.MIME_TYPE.getKey());
+        String mimeType = (String) property.getMetadata().get(RawLumifyProperties.MIME_TYPE.getPropertyName());
         return !(mimeType == null || !mimeType.startsWith("text"));
     }
 

@@ -1,6 +1,6 @@
-package io.lumify.opennlpme;
+package io.lumify.opennlpDictionary;
 
-import io.lumify.core.exception.LumifyException;
+import com.google.inject.Inject;
 import io.lumify.core.ingest.graphProperty.GraphPropertyWorkData;
 import io.lumify.core.ingest.graphProperty.GraphPropertyWorker;
 import io.lumify.core.ingest.graphProperty.GraphPropertyWorkerPrepareData;
@@ -8,15 +8,18 @@ import io.lumify.core.ingest.term.extraction.TermMention;
 import io.lumify.core.model.properties.RawLumifyProperties;
 import io.lumify.core.util.LumifyLogger;
 import io.lumify.core.util.LumifyLoggerFactory;
-import opennlp.tools.namefind.NameFinderME;
+import io.lumify.opennlpDictionary.model.DictionaryEntry;
+import io.lumify.opennlpDictionary.model.DictionaryEntryRepository;
+import opennlp.tools.dictionary.Dictionary;
+import opennlp.tools.namefind.DictionaryNameFinder;
 import opennlp.tools.namefind.TokenNameFinder;
-import opennlp.tools.namefind.TokenNameFinderModel;
 import opennlp.tools.tokenize.Tokenizer;
 import opennlp.tools.tokenize.TokenizerME;
 import opennlp.tools.tokenize.TokenizerModel;
 import opennlp.tools.util.ObjectStream;
 import opennlp.tools.util.PlainTextByLineStream;
 import opennlp.tools.util.Span;
+import opennlp.tools.util.StringList;
 import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.Path;
 import org.securegraph.Element;
@@ -28,49 +31,32 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
-public class OpenNLPMaximumEntropyExtractorGraphPropertyWorker extends GraphPropertyWorker {
-    private static final LumifyLogger LOGGER = LumifyLoggerFactory.getLogger(OpenNLPMaximumEntropyExtractorGraphPropertyWorker.class);
-    public static final String CONFIG_LOCATION_IRI = "ontology.iri.location";
-    public static final String CONFIG_ORGANIZATION_IRI = "ontology.iri.organization";
-    public static final String CONFIG_PERSON_IRI = "ontology.iri.person";
+public class OpenNLPDictionaryExtractorGraphPropertyWorker extends GraphPropertyWorker {
+    private static final LumifyLogger LOGGER = LumifyLoggerFactory.getLogger(OpenNLPDictionaryExtractorGraphPropertyWorker.class);
     public static final String PATH_PREFIX_CONFIG = "termextraction.opennlp.pathPrefix";
     private static final String DEFAULT_PATH_PREFIX = "hdfs://";
     private static final int NEW_LINE_CHARACTER_LENGTH = 1;
-    public static final String THING_IRI = "http://www.w3.org/2002/07/owl#Thing";
 
     private List<TokenNameFinder> finders;
+    private DictionaryEntryRepository dictionaryEntryRepository;
     private Tokenizer tokenizer;
-    private String locationIri;
-    private String organizationIri;
-    private String personIri;
 
     @Override
     public void prepare(GraphPropertyWorkerPrepareData workerPrepareData) throws Exception {
         super.prepare(workerPrepareData);
 
-        this.locationIri = (String) workerPrepareData.getStormConf().get(CONFIG_LOCATION_IRI);
-        if (this.locationIri == null || this.locationIri.length() == 0) {
-            throw new LumifyException("Could not find configuration: " + CONFIG_LOCATION_IRI);
-        }
-
-        this.organizationIri = (String) workerPrepareData.getStormConf().get(CONFIG_ORGANIZATION_IRI);
-        if (this.organizationIri == null || this.organizationIri.length() == 0) {
-            throw new LumifyException("Could not find configuration: " + CONFIG_ORGANIZATION_IRI);
-        }
-
-        this.personIri = (String) workerPrepareData.getStormConf().get(CONFIG_PERSON_IRI);
-        if (this.personIri == null || this.personIri.length() == 0) {
-            throw new LumifyException("Could not find configuration: " + CONFIG_PERSON_IRI);
-        }
+        dictionaryEntryRepository.initializeTable(workerPrepareData.getUser());
 
         String pathPrefix = (String) workerPrepareData.getStormConf().get(PATH_PREFIX_CONFIG);
         if (pathPrefix == null) {
             pathPrefix = DEFAULT_PATH_PREFIX;
         }
         this.tokenizer = loadTokenizer(pathPrefix, workerPrepareData.getHdfsFileSystem());
-        this.finders = loadFinders(pathPrefix, workerPrepareData.getHdfsFileSystem());
+        this.finders = loadFinders();
     }
 
     @Override
@@ -80,14 +66,14 @@ public class OpenNLPMaximumEntropyExtractorGraphPropertyWorker extends GraphProp
         int charOffset = 0;
 
         LOGGER.debug("Processing artifact content stream");
-        List<TermMention> termMenitons = new ArrayList<TermMention>();
+        List<TermMention> termMentions = new ArrayList<TermMention>();
         while ((line = untokenizedLineStream.read()) != null) {
             ArrayList<TermMention> newTermMentions = processLine(line, charOffset, data.getProperty().getKey(), data.getVisibility());
-            termMenitons.addAll(newTermMentions);
+            termMentions.addAll(newTermMentions);
             getGraph().flush();
             charOffset += line.length() + NEW_LINE_CHARACTER_LENGTH;
         }
-        saveTermMentions((Vertex) data.getElement(), termMenitons);
+        saveTermMentions((Vertex) data.getElement(), termMentions);
 
         untokenizedLineStream.close();
         LOGGER.debug("Stream processing completed");
@@ -112,18 +98,7 @@ public class OpenNLPMaximumEntropyExtractorGraphPropertyWorker extends GraphProp
         String name = Span.spansToStrings(new Span[]{foundName}, tokens)[0];
         int start = charOffset + tokenListPositions[foundName.getStart()].getStart();
         int end = charOffset + tokenListPositions[foundName.getEnd() - 1].getEnd();
-        String type = foundName.getType();
-        String ontologyClassUri;
-
-        if ("location".equals(type)) {
-            ontologyClassUri = this.locationIri;
-        } else if ("organization".equals(type)) {
-            ontologyClassUri = this.organizationIri;
-        } else if ("person".equals(type)) {
-            ontologyClassUri = this.personIri;
-        } else {
-            ontologyClassUri = THING_IRI;
-        }
+        String ontologyClassUri = foundName.getType();
         return new TermMention.Builder(start, end, name, ontologyClassUri, propertyKey, visibility)
                 .resolved(false)
                 .useExisting(true)
@@ -137,33 +112,19 @@ public class OpenNLPMaximumEntropyExtractorGraphPropertyWorker extends GraphProp
             return false;
         }
 
-        if (property.getName().equals(RawLumifyProperties.RAW.getKey())) {
+        if (property.getName().equals(RawLumifyProperties.RAW.getPropertyName())) {
             return false;
         }
 
-        String mimeType = (String) property.getMetadata().get(RawLumifyProperties.MIME_TYPE.getKey());
+        String mimeType = (String) property.getMetadata().get(RawLumifyProperties.MIME_TYPE.getPropertyName());
         return !(mimeType == null || !mimeType.startsWith("text"));
     }
 
-    protected List<TokenNameFinder> loadFinders(String pathPrefix, FileSystem fs)
-            throws IOException {
-        Path finderHdfsPaths[] = {
-                new Path(pathPrefix + "/en-ner-location.bin"),
-                new Path(pathPrefix + "/en-ner-organization.bin"),
-                new Path(pathPrefix + "/en-ner-person.bin")};
+    protected List<TokenNameFinder> loadFinders() throws IOException {
         List<TokenNameFinder> finders = new ArrayList<TokenNameFinder>();
-        for (Path finderHdfsPath : finderHdfsPaths) {
-            InputStream finderModelInputStream = fs.open(finderHdfsPath);
-            TokenNameFinderModel model = null;
-            try {
-                model = new TokenNameFinderModel(finderModelInputStream);
-            } finally {
-                finderModelInputStream.close();
-            }
-            NameFinderME finder = new NameFinderME(model);
-            finders.add(finder);
+        for (Map.Entry<String, Dictionary> dictionaryEntry : getDictionaries().entrySet()) {
+            finders.add(new DictionaryNameFinder(dictionaryEntry.getValue(), dictionaryEntry.getKey()));
         }
-
         return finders;
     }
 
@@ -179,5 +140,29 @@ public class OpenNLPMaximumEntropyExtractorGraphPropertyWorker extends GraphProp
         }
 
         return new TokenizerME(tokenizerModel);
+    }
+
+    private Map<String, Dictionary> getDictionaries() {
+        Map<String, Dictionary> dictionaries = new HashMap<String, Dictionary>();
+        Iterable<DictionaryEntry> entries = dictionaryEntryRepository.findAll(getUser().getModelUserContext());
+        for (DictionaryEntry entry : entries) {
+
+            if (!dictionaries.containsKey(entry.getMetadata().getConcept())) {
+                dictionaries.put(entry.getMetadata().getConcept(), new Dictionary());
+            }
+
+            dictionaries.get(entry.getMetadata().getConcept()).put(tokensToStringList(entry.getMetadata().getTokens()));
+        }
+
+        return dictionaries;
+    }
+
+    private StringList tokensToStringList(String tokens) {
+        return new StringList(tokens.split(" "));
+    }
+
+    @Inject
+    public void setDictionaryEntryRepository(DictionaryEntryRepository dictionaryEntryRepository) {
+        this.dictionaryEntryRepository = dictionaryEntryRepository;
     }
 }

@@ -185,9 +185,6 @@
         <module>lumify-sphinx</module>
         <module>lumify-opencv-object-detector</module>
         <module>lumify-tesseract</module>
-        <module>lumify-opennlp-dictionary-extractor</module>
-        <module>lumify-opennlp-dictionary-extractor-web</module>
-        <module>lumify-opennlp-me-extractor</module>
         <module>lumify-ccextractor</module>
         <module>lumify-subrip-parser</module>
         <module>lumify-youtube-transcript</module>

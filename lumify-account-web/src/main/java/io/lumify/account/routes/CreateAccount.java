@@ -55,7 +55,7 @@ public class CreateAccount extends BaseRequestHandler {
             return;
         }
 
-        userRepository.addUser(graph.getIdGenerator().nextId().toString(), user.getData().getEmail(), password, new String[0]);
+        userRepository.addUser(graph.getIdGenerator().nextId().toString(), user.getData().getEmail(), user.getData().getEmail(), password, new String[0]);
 
         // expire the token
         user.getData().setTokenExpiration(new Date());

@@ -1,24 +1,19 @@
 package io.lumify.mapping.column;
 
-import static com.google.common.base.Preconditions.checkArgument;
-import static com.google.common.base.Preconditions.checkNotNull;
-
 import com.fasterxml.jackson.annotation.JsonProperty;
 import io.lumify.core.ingest.term.extraction.TermExtractionResult;
 import io.lumify.core.ingest.term.extraction.TermMention;
 import io.lumify.core.ingest.term.extraction.TermRelationship;
+import io.lumify.core.ingest.term.extraction.VertexRelationship;
 import io.lumify.mapping.DocumentMapping;
+import org.securegraph.Visibility;
+
 import java.io.IOException;
 import java.io.Reader;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-import java.util.SortedSet;
-import java.util.TreeSet;
-import org.securegraph.Visibility;
+import java.util.*;
+
+import static com.google.common.base.Preconditions.checkArgument;
+import static com.google.common.base.Preconditions.checkNotNull;
 
 /**
  * Base class for Columnar document mappings.
@@ -39,6 +34,8 @@ public abstract class AbstractColumnDocumentMapping implements DocumentMapping {
      */
     private final List<ColumnRelationshipMapping> relationshipMappings;
 
+    private final List<ColumnVertexRelationshipMapping> vertexRelationshipMappings;
+
     /**
      * Create a new AbstractColumnDocumentMapping.
      *
@@ -46,8 +43,11 @@ public abstract class AbstractColumnDocumentMapping implements DocumentMapping {
      * @param entities      the entity mappings
      * @param relationships the relationship mappings
      */
-    protected AbstractColumnDocumentMapping(final String subject, final Map<String, ColumnEntityMapping> entities,
-                                            final List<ColumnRelationshipMapping> relationships) {
+    protected AbstractColumnDocumentMapping(
+            final String subject,
+            final Map<String, ColumnEntityMapping> entities,
+            final List<ColumnRelationshipMapping> relationships,
+            final List<ColumnVertexRelationshipMapping> vertexRelationships) {
         checkArgument(subject != null && !subject.trim().isEmpty(), "Subject must be provided.");
         checkNotNull(entities, "At least one entity mapping must be provided.");
         checkArgument(!entities.isEmpty(), "At least one entity mapping must be provided.");
@@ -57,11 +57,18 @@ public abstract class AbstractColumnDocumentMapping implements DocumentMapping {
             myEntities.add(new EntityMapping(entry.getKey(), entry.getValue()));
         }
         this.entityMappings = Collections.unmodifiableSortedSet(myEntities);
+
         List<ColumnRelationshipMapping> myRels = new ArrayList<ColumnRelationshipMapping>();
         if (relationships != null) {
             myRels.addAll(relationships);
         }
         this.relationshipMappings = Collections.unmodifiableList(myRels);
+
+        List<ColumnVertexRelationshipMapping> myVertexRels = new ArrayList<ColumnVertexRelationshipMapping>();
+        if (vertexRelationships != null) {
+            myVertexRels.addAll(vertexRelationships);
+        }
+        this.vertexRelationshipMappings = Collections.unmodifiableList(myVertexRels);
     }
 
     @JsonProperty("subject")
@@ -84,6 +91,11 @@ public abstract class AbstractColumnDocumentMapping implements DocumentMapping {
         return relationshipMappings;
     }
 
+    @JsonProperty("vertexRelationships")
+    public final List<ColumnVertexRelationshipMapping> getVertexRelationships() {
+        return vertexRelationshipMappings;
+    }
+
     /**
      * Get an Iterable that returns the rows of the input document
      * that will be processed.
@@ -102,13 +114,14 @@ public abstract class AbstractColumnDocumentMapping implements DocumentMapping {
             TermExtractionResult rowResult = rowResults.next();
             result.addAllTermMentions(rowResult.getTermMentions());
             result.addAllRelationships(rowResult.getRelationships());
+            result.addAllVertexRelationships(rowResult.getVertexRelationships());
         }
         return result;
     }
 
     @Override
     public final Iterator<TermExtractionResult> mapDocumentElements(final Reader inputDoc, final String processId, final String propertyKey,
-            final Visibility visibility) throws IOException {
+                                                                    final Visibility visibility) throws IOException {
         Iterable<Row> rows = getRows(inputDoc);
         return new RowResultIterator(rows.iterator(), processId, propertyKey, visibility);
     }
@@ -186,8 +199,18 @@ public abstract class AbstractColumnDocumentMapping implements DocumentMapping {
                             relationships.add(rel);
                         }
                     }
+
+                    List<VertexRelationship> vertexRelationships = new ArrayList<VertexRelationship>();
+                    for (ColumnVertexRelationshipMapping relMapping : vertexRelationshipMappings) {
+                        VertexRelationship rel = relMapping.createVertexRelationship(termMap, columns, visibility);
+                        if (rel != null) {
+                            vertexRelationships.add(rel);
+                        }
+                    }
+
                     results.addAllTermMentions(mentions);
                     results.addAllRelationships(relationships);
+                    results.addAllVertexRelationships(vertexRelationships);
                 }
             }
             return results;

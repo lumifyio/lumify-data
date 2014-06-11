@@ -119,9 +119,9 @@ public class FlightRepository {
 
         graph.flush();
 
-        workQueueRepository.pushGraphPropertyQueue(airplaneVertex, MULTI_VALUE_PROPERTY_KEY, FlightTrackOntology.LOCATION.getKey());
-        workQueueRepository.pushGraphPropertyQueue(airplaneVertex, MULTI_VALUE_PROPERTY_KEY, FlightTrackOntology.ALTITUDE.getKey());
-        workQueueRepository.pushGraphPropertyQueue(airplaneVertex, MULTI_VALUE_PROPERTY_KEY, FlightTrackOntology.HEADING.getKey());
+        workQueueRepository.pushGraphPropertyQueue(airplaneVertex, MULTI_VALUE_PROPERTY_KEY, FlightTrackOntology.LOCATION.getPropertyName());
+        workQueueRepository.pushGraphPropertyQueue(airplaneVertex, MULTI_VALUE_PROPERTY_KEY, FlightTrackOntology.ALTITUDE.getPropertyName());
+        workQueueRepository.pushGraphPropertyQueue(airplaneVertex, MULTI_VALUE_PROPERTY_KEY, FlightTrackOntology.HEADING.getPropertyName());
     }
 
     public boolean updateDestination(Vertex airplaneVertex, Vertex destinationVertex, Visibility visibility, Authorizations authorizations) {
@@ -185,7 +185,7 @@ public class FlightRepository {
         graph.flush();
 
         workQueueRepository.pushElement(v);
-        workQueueRepository.pushGraphPropertyQueue(v, MULTI_VALUE_PROPERTY_KEY, FlightTrackOntology.AIRPORT_CODE.getKey());
+        workQueueRepository.pushGraphPropertyQueue(v, MULTI_VALUE_PROPERTY_KEY, FlightTrackOntology.AIRPORT_CODE.getPropertyName());
 
         return v;
     }
@@ -214,7 +214,7 @@ public class FlightRepository {
         graph.flush();
 
         workQueueRepository.pushElement(airplaneVertex);
-        workQueueRepository.pushGraphPropertyQueue(airplaneVertex, MULTI_VALUE_PROPERTY_KEY, FlightTrackOntology.IDENT.getKey());
+        workQueueRepository.pushGraphPropertyQueue(airplaneVertex, MULTI_VALUE_PROPERTY_KEY, FlightTrackOntology.IDENT.getPropertyName());
 
         Vertex airlineVertex = findAirlineVertexFromIdent(ident, visibility, authorizations);
         graph.flush();
@@ -263,8 +263,8 @@ public class FlightRepository {
         graph.flush();
 
         workQueueRepository.pushElement(v);
-        workQueueRepository.pushGraphPropertyQueue(v, MULTI_VALUE_PROPERTY_KEY, LumifyProperties.TITLE.getKey());
-        workQueueRepository.pushGraphPropertyQueue(v, MULTI_VALUE_PROPERTY_KEY, FlightTrackOntology.AIRLINE_PREFIX.getKey());
+        workQueueRepository.pushGraphPropertyQueue(v, MULTI_VALUE_PROPERTY_KEY, LumifyProperties.TITLE.getPropertyName());
+        workQueueRepository.pushGraphPropertyQueue(v, MULTI_VALUE_PROPERTY_KEY, FlightTrackOntology.AIRLINE_PREFIX.getPropertyName());
 
         return v;
     }

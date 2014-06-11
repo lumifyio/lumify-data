@@ -4,7 +4,6 @@ import io.lumify.core.ingest.graphProperty.GraphPropertyWorkData;
 import io.lumify.core.ingest.graphProperty.GraphPropertyWorker;
 import io.lumify.core.ingest.video.VideoTranscript;
 import io.lumify.core.model.audit.AuditAction;
-import io.lumify.core.model.properties.MediaLumifyProperties;
 import io.lumify.core.model.properties.RawLumifyProperties;
 import org.securegraph.Element;
 import org.securegraph.Property;
@@ -23,13 +22,13 @@ public class YoutubeTranscriptGraphPropertyWorker extends GraphPropertyWorker {
         VideoTranscript videoTranscript = YoutubeccReader.read(youtubeccValue.getInputStream());
 
         ExistingElementMutation<Vertex> m = data.getElement().prepareMutation();
-        MediaLumifyProperties.VIDEO_TRANSCRIPT.addPropertyValue(m, PROPERTY_KEY, videoTranscript, data.createPropertyMetadata(), data.getVisibility());
+        addVideoTranscriptAsTextPropertiesToMutation(m, PROPERTY_KEY, videoTranscript, data.createPropertyMetadata(), data.getVisibility());
         Vertex v = m.save(getAuthorizations());
         getAuditRepository().auditVertexElementMutation(AuditAction.UPDATE, m, v, PROPERTY_KEY, getUser(), data.getVisibility());
         getAuditRepository().auditAnalyzedBy(AuditAction.ANALYZED_BY, v, getClass().getSimpleName(), getUser(), v.getVisibility());
 
         getGraph().flush();
-        getWorkQueueRepository().pushGraphPropertyQueue(data.getElement(), PROPERTY_KEY, MediaLumifyProperties.VIDEO_TRANSCRIPT.getKey());
+        pushVideoTranscriptTextPropertiesOnWorkQueue(data.getElement(), PROPERTY_KEY, videoTranscript);
     }
 
 
@@ -44,10 +43,10 @@ public class YoutubeTranscriptGraphPropertyWorker extends GraphPropertyWorker {
             return false;
         }
 
-        if (!property.getName().equals(RawLumifyProperties.RAW.getKey())) {
+        if (!property.getName().equals(RawLumifyProperties.RAW.getPropertyName())) {
             return false;
         }
-        String mimeType = (String) property.getMetadata().get(RawLumifyProperties.MIME_TYPE.getKey());
+        String mimeType = (String) property.getMetadata().get(RawLumifyProperties.MIME_TYPE.getPropertyName());
         if (mimeType == null || !mimeType.startsWith("video")) {
             return false;
         }

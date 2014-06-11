@@ -81,7 +81,7 @@ public class JarFileGraphPropertyWorker extends GraphPropertyWorker {
             return false;
         }
 
-        if (!property.getName().equals(RawLumifyProperties.RAW.getKey())) {
+        if (!property.getName().equals(RawLumifyProperties.RAW.getPropertyName())) {
             return false;
         }
 

@@ -55,21 +55,22 @@ public class TesseractGraphPropertyWorker extends GraphPropertyWorker {
             return;
         }
 
-        String textPropertyKey = RowKeyHelper.buildMajor(TEXT_PROPERTY_KEY, data.getProperty().getName(), data.getProperty().getKey());
+        String textPropertyKey = RowKeyHelper.buildMinor(TEXT_PROPERTY_KEY, data.getProperty().getName(), data.getProperty().getKey());
 
         InputStream textIn = new ByteArrayInputStream(ocrResults.getBytes());
         StreamingPropertyValue textValue = new StreamingPropertyValue(textIn, String.class);
 
         ExistingElementMutation<Vertex> m = data.getElement().prepareMutation();
         Map<String, Object> textMetadata = data.createPropertyMetadata();
-        textMetadata.put(RawLumifyProperties.META_DATA_TEXT_DESCRIPTION, "OCR");
+        textMetadata.put(RawLumifyProperties.META_DATA_TEXT_DESCRIPTION, "OCR Text");
+        textMetadata.put(RawLumifyProperties.META_DATA_MIME_TYPE, "text/plain");
         RawLumifyProperties.TEXT.addPropertyValue(m, textPropertyKey, textValue, textMetadata, data.getVisibility());
         Vertex v = m.save(getAuthorizations());
         getAuditRepository().auditVertexElementMutation(AuditAction.UPDATE, m, v, TEXT_PROPERTY_KEY, getUser(), data.getVisibility());
         getAuditRepository().auditAnalyzedBy(AuditAction.ANALYZED_BY, v, getClass().getSimpleName(), getUser(), v.getVisibility());
 
         getGraph().flush();
-        getWorkQueueRepository().pushGraphPropertyQueue(data.getElement(), textPropertyKey, RawLumifyProperties.TEXT.getKey());
+        getWorkQueueRepository().pushGraphPropertyQueue(data.getElement(), textPropertyKey, RawLumifyProperties.TEXT.getPropertyName());
     }
 
     private String extractTextFromImage(BufferedImage image) throws TesseractException {
@@ -89,7 +90,7 @@ public class TesseractGraphPropertyWorker extends GraphPropertyWorker {
             return false;
         }
 
-        String mimeType = (String) property.getMetadata().get(RawLumifyProperties.MIME_TYPE.getKey());
+        String mimeType = (String) property.getMetadata().get(RawLumifyProperties.MIME_TYPE.getPropertyName());
         if (mimeType == null) {
             return false;
         }
