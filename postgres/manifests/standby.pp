@@ -6,7 +6,11 @@ class postgres::standby inherits postgres {
   $replication_master = hiera("postgres_replication_master")
   $pg_data_dir = hiera("postgres_data_dir","/var/lib/pgsql/9.3/data")
   
+<<<<<<< Updated upstream
   pgsql_service { 'postgresql-service':
+=======
+  postgres::service { 'postgresql-service':
+>>>>>>> Stashed changes
     ensure  => 'stopped',
     require => Package['postgresql93'],
   }
@@ -19,4 +23,8 @@ class postgres::standby inherits postgres {
   setup_configs { "standby_configs":
     require => Service[$serviceName], 
   }
+<<<<<<< Updated upstream
 }
+=======
+}
+>>>>>>> Stashed changes
