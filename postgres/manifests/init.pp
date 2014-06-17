@@ -22,7 +22,6 @@ class postgres {
   
   package { 'postgresql93':
     ensure  => present,
-<<<<<<< Updated upstream
     require => Package['pgdg-centos93-9.3-1'],
   }
   
