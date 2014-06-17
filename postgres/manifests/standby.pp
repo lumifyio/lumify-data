@@ -13,10 +13,11 @@ class postgres::standby inherits postgres {
   
   file { '/usr/local/sbin/init_streaming_replication':
     ensure  => file,
-    content => template('postgres/init_streaming_replication.erb')
+    content => template('postgres/init_streaming_replication.erb'),
+    mode    => '0755',
   }
   
   setup_configs { "standby_configs":
-    require => Service[$serviceName], 
+    require => Postgres::Service['postgresql-service'], 
   }
 }

@@ -26,7 +26,7 @@ class postgres {
   }
   
   define postgres::service ($ensure = 'running') {
-    service { $serviceName :
+    service { $postgres::serviceName :
       ensure  => $ensure,
       enable  => true,
     }    

@@ -1,5 +1,4 @@
 #!/bin/bash
 /etc/init.d/postgresql-9.3 stop
-PGPASSWORD=<%= @replication_user_pw %>
-/usr/bin/pg_basebackup -R -D <%= @pg_data_dir %> -h <%= @replication_master %> -p <%= @listen_port %> -U <%= @replication_user %>
+sudo -u postgres PGPASSWORD=<%= @replication_user_pw %> /usr/bin/pg_basebackup -R -D <%= @pg_data_dir %> -h <%= @replication_master %> -p <%= @listen_port %> -U <%= @replication_user %>
 /etc/init.d/postgresql-9.3 start
