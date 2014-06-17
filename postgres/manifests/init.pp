@@ -25,23 +25,6 @@ class postgres {
     require => Package['pgdg-centos93-9.3-1'],
   }
   
-  define pgsql_service ($ensure = 'running') {
-    service { $serviceName :
-      ensure  => $ensure,
-      enable  => true,
-    }    
-  }
-  
-  define initdb () {
-    exec { 'initdb':
-      command => "/sbin/service ${serviceName} initdb",
-      onlyif  => "/usr/bin/test ! -f /var/lib/pgsql/9.3/data/PG_VERSION",
-      user    => "root",
-      group   => "root",
-      require => Package['postgresql93'],
-    }
-  }
-  
   define postgres::service ($ensure = 'running') {
     service { $serviceName :
       ensure  => $ensure,
