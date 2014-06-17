@@ -14,7 +14,7 @@ import org.securegraph.*;
 
 import java.io.InputStream;
 
-import static io.lumify.core.util.CollectionUtil.singleOrDefault;
+import static org.securegraph.util.IterableUtils.singleOrDefault;
 
 public class ClassFileGraphPropertyWorker extends GraphPropertyWorker {
     @Override
