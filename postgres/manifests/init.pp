@@ -43,24 +43,6 @@ class postgres {
     }
   }
   
-  define setup_configs () {
-    file { '/var/lib/pgsql/9.3/data/pg_hba.conf' :
-      ensure  => file,
-      content => template('postgres/pg_hba.conf.erb'),
-    }
-
-    file { '/var/lib/pgsql/9.3/data/postgresql.conf' :
-      ensure  => file,
-      content => template('postgres/postgresql.conf.erb'),
-    }
-=======
-<<<<<<< Updated upstream
-    require => Package['postgres-repo'],
-=======
-    require => Package['pgdg-centos93-9.3-1'],
->>>>>>> Stashed changes
-  }
-  
   define postgres::service ($ensure = 'running') {
     service { $serviceName :
       ensure  => $ensure,
@@ -88,6 +70,5 @@ class postgres {
       ensure  => file,
       content => template('postgres/postgresql.conf.erb'),
     }
->>>>>>> Stashed changes
   }
 }
