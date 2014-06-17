@@ -3,6 +3,8 @@ class postgres::master inherits postgres::standalone_common {
   $hot_standby = "off"
   $replication_user = hiera("postgres_replication_user","replication")
   $replication_user_pw = hiera("postgres_replication_user_pw")
+  $replication_max_senders = hiera("postgres_replication_max_senders", 5)
+  $replication_keep_segments = hiera("postgres_replication_keep_segments", 32)
   
   setup_configs { "master_configs":
     require => Exec['initdb'],
