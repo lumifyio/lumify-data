@@ -32,16 +32,6 @@ class postgres {
     }    
   }
   
-  define initdb () {
-    exec { 'initdb':
-      command => "/sbin/service ${serviceName} initdb",
-      onlyif  => "/usr/bin/test ! -f /var/lib/pgsql/9.3/data/PG_VERSION",
-      user    => "root",
-      group   => "root",
-      require => Package['postgresql93'],
-    }
-  }
-  
   define setup_configs () {
     file { '/var/lib/pgsql/9.3/data/pg_hba.conf' :
       ensure  => file,
