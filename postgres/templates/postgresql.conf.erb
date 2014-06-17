@@ -160,7 +160,7 @@ shared_buffers = 128MB			# min 128kB
 
 # - Settings -
 
-#wal_level = minimal			# minimal, archive, or hot_standby
+<% if @replication_enabled == "true" -%>wal_level = hot_standby <% end -%> # minimal, archive, or hot_standby
 					# (change requires restart)
 #fsync = on				# turns forced synchronization on or off
 #synchronous_commit = on		# synchronization level;
@@ -207,9 +207,9 @@ shared_buffers = 128MB			# min 128kB
 
 # Set these on the master and on any standby that will send replication data.
 
-#max_wal_senders = 0		# max number of walsender processes
+<% if @replication_enabled == "false" -%>#<% end -%>max_wal_senders = <%= @replication_max_senders %>		# max number of walsender processes
 				# (change requires restart)
-#wal_keep_segments = 0		# in logfile segments, 16MB each; 0 disables
+<% if @replication_enabled == "false" -%>#<% end -%>wal_keep_segments = <%= @replication_keep_segments %>		# in logfile segments, 16MB each; 0 disables
 #wal_sender_timeout = 60s	# in milliseconds; 0 disables
 
 # - Master Server -
@@ -225,7 +225,7 @@ shared_buffers = 128MB			# min 128kB
 
 # These settings are ignored on a master server.
 
-#hot_standby = off			# "on" allows queries during recovery
+hot_standby = <%= @hot_standby %>			# "on" allows queries during recovery
 					# (change requires restart)
 #max_standby_archive_delay = 30s	# max delay before canceling queries
 					# when reading WAL from archive;
