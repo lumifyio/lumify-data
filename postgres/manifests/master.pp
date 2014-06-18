@@ -1,6 +1,6 @@
 class postgres::master inherits postgres::standalone_common {
   $replication_enabled = "true"
-  $hot_standby = "off"
+  $hot_standby = "on"
   $replication_user = hiera("postgres_replication_user","replication")
   $replication_user_pw = hiera("postgres_replication_user_pw")
   $replication_max_senders = hiera("postgres_replication_max_senders", 5)
