@@ -1,5 +1,9 @@
 package io.lumify.imageMetadataExtractorTestPlatform;
 
+import com.drew.imaging.ImageMetadataReader;
+import com.drew.imaging.ImageProcessingException;
+import com.drew.metadata.Metadata;
+import com.sun.javafx.iio.ImageMetadata;
 import io.lumify.core.ingest.graphProperty.GraphPropertyWorkData;
 import io.lumify.core.ingest.graphProperty.GraphPropertyWorker;
 import io.lumify.core.ingest.graphProperty.GraphPropertyWorkerPrepareData;
@@ -20,6 +24,7 @@ import org.securegraph.property.StreamingPropertyValue;
 import javax.imageio.ImageIO;
 import java.awt.image.BufferedImage;
 import java.io.ByteArrayInputStream;
+import java.io.IOException;
 import java.io.InputStream;
 import java.util.Arrays;
 import java.util.List;
@@ -48,14 +53,31 @@ public class TestImageMetadataGraphPropertyWorker extends GraphPropertyWorker {
 
     @Override
     public void execute(InputStream in, GraphPropertyWorkData data) throws Exception {
+        //Keep.
         BufferedImage image = ImageIO.read(in);
         if (image == null) {
             LOGGER.error("Could not load image from property %s on vertex %s", data.getProperty().toString(), data.getElement().getId());
             return;
         }
+
+        //Old - Delete.
         String ocrResults = extractTextFromImage(image);
 
+        //New.
 
+        //Extract all of the metadata.
+        try {
+            Metadata metadata = ImageMetadataReader.readMetadata(image);
+            String dateString = DateExtractor.getDateDefault(metadata);
+
+        } catch (ImageProcessingException e) {
+            System.err.println("Caught ImageProcessingException: " + e.getMessage());
+        } catch (IOException e) {
+            System.err.println("Caught IOException: " + e.getMessage());
+        }
+
+
+        //Old - Delete.
         if (ocrResults == null) {
             return;
         }
@@ -105,5 +127,8 @@ public class TestImageMetadataGraphPropertyWorker extends GraphPropertyWorker {
             return false;
         }
         return mimeType.startsWith("image");
+
+        //We may want to check the file extensions somehow. Because only some file extensions are supported.
+
     }
 }
