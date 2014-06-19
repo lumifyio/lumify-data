@@ -5,6 +5,7 @@ import com.cybozu.labs.langdetect.DetectorFactory;
 import com.cybozu.labs.langdetect.LangDetectException;
 import com.google.common.io.Files;
 import com.google.inject.Inject;
+import io.lumify.core.exception.LumifyException;
 import io.lumify.core.ingest.graphProperty.GraphPropertyWorkData;
 import io.lumify.core.ingest.graphProperty.GraphPropertyWorker;
 import io.lumify.core.ingest.graphProperty.GraphPropertyWorkerPrepareData;
@@ -12,6 +13,7 @@ import io.lumify.core.model.properties.RawLumifyProperties;
 import io.lumify.core.util.LumifyLogger;
 import io.lumify.core.util.LumifyLoggerFactory;
 import org.apache.commons.io.IOUtils;
+import org.json.JSONObject;
 import org.securegraph.Element;
 import org.securegraph.Property;
 import org.securegraph.mutation.ExistingElementMutation;
@@ -111,19 +113,39 @@ public class TranslateGraphPropertyWorker extends GraphPropertyWorker {
         tempDirectory.deleteOnExit();
         String[] filesList = getProfileFilesList();
         for (String profileFileName : filesList) {
-            File profileFile = new File(tempDirectory, profileFileName);
-            InputStream profileFileIn = TranslateGraphPropertyWorker.class.getResourceAsStream(profileFileName);
-            OutputStream profileFileOut = new FileOutputStream(profileFile);
+            LOGGER.info("Loading langdetect profile file: %s", profileFileName);
             try {
-                LOGGER.info("Loading langdetect profile file: %s", profileFile);
-                IOUtils.copy(profileFileIn, profileFileOut);
-            } finally {
-                profileFileIn.close();
-                profileFileOut.close();
+                copyProfileFile(profileFileName, tempDirectory);
+            } catch (Exception ex) {
+                throw new LumifyException("Could not load profile file '" + profileFileName + "' to '" + tempDirectory + "'");
             }
-            profileFile.deleteOnExit();
         }
+        LOGGER.info("created profile directory: %s", tempDirectory);
         return tempDirectory;
+    }
+
+    public void copyProfileFile(String profileFileName, File tempDirectory) throws IOException {
+        File profileFile = new File(tempDirectory, profileFileName);
+        String profileFileString = getFileAsString(profileFileName);
+        new JSONObject(profileFileString).length(); // validate the json
+        OutputStream profileFileOut = new FileOutputStream(profileFile);
+        try {
+            profileFileOut.write(profileFileString.getBytes());
+        } finally {
+            profileFileOut.close();
+        }
+        profileFile.deleteOnExit();
+    }
+
+    public String getFileAsString(String profileFileName) throws IOException {
+        String profileFileString;
+        InputStream profileFileIn = TranslateGraphPropertyWorker.class.getResourceAsStream(profileFileName);
+        try {
+            profileFileString = IOUtils.toString(profileFileIn);
+        } finally {
+            profileFileIn.close();
+        }
+        return profileFileString;
     }
 
     public String[] getProfileFilesList() throws IOException {
