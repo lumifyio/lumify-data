@@ -24,6 +24,7 @@ import org.securegraph.property.StreamingPropertyValue;
 import javax.imageio.ImageIO;
 import java.awt.image.BufferedImage;
 import java.io.ByteArrayInputStream;
+import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.Arrays;
@@ -61,14 +62,20 @@ public class TestImageMetadataGraphPropertyWorker extends GraphPropertyWorker {
         }
 
         //Old - Delete.
-        String ocrResults = extractTextFromImage(image);
+        //String ocrResults = extractTextFromImage(image);
 
         //New.
-
         //Extract all of the metadata.
         try {
-            Metadata metadata = ImageMetadataReader.readMetadata(image);
+            //ImageMetadataReader.readMetadata() needs a File, so we will write to a temp file.
+            File tempImageFile = new File("tempFile.jpg");
+            ImageIO.write(image, "jpg", tempImageFile);
+            //TODO. Will need to support more than just .jpg.
+
+            Metadata metadata = ImageMetadataReader.readMetadata(tempImageFile);
             String dateString = DateExtractor.getDateDefault(metadata);
+
+            System.out.println("dateString: " + dateString);
 
         } catch (ImageProcessingException e) {
             System.err.println("Caught ImageProcessingException: " + e.getMessage());
@@ -77,7 +84,8 @@ public class TestImageMetadataGraphPropertyWorker extends GraphPropertyWorker {
         }
 
 
-        //Old - Delete.
+        //Old - Delete later. Keep for reference.
+        /*
         if (ocrResults == null) {
             return;
         }
@@ -98,9 +106,10 @@ public class TestImageMetadataGraphPropertyWorker extends GraphPropertyWorker {
 
         getGraph().flush();
         getWorkQueueRepository().pushGraphPropertyQueue(data.getElement(), textPropertyKey, RawLumifyProperties.TEXT.getPropertyName());
+        */
     }
 
-
+    //Delete later. Keep for reference.
     private String extractTextFromImage(BufferedImage image) throws TesseractException {
         BufferedImage grayImage = ImageHelper.convertImageToGrayscale(image);
         String ocrResults = tesseract.doOCR(grayImage).replaceAll("\\n{2,}", "\n");
@@ -112,7 +121,7 @@ public class TestImageMetadataGraphPropertyWorker extends GraphPropertyWorker {
         return ocrResults;
     }
 
-
+    //Keep. This method works fine the way it is.
     @Override
     public boolean isHandled(Element element, Property property) {
         if (property == null) {
