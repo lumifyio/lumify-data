@@ -134,15 +134,83 @@ width: 215px;
   left: 0;
   right: 0;
   bottom: 0;
-  //background: red;
   top: 7em;  
   .content {
     overflow: auto;
+    overflow-x: hidden;
   }
   
   .concepts-dropdown select {
     width: 100%;
     font-size: 90%;
+  }
+
+  svg {
+    margin: 0 -1em;
+
+    .bar rect {
+      fill: @blue-color;
+      shape-rendering: crispEdges;
+    }
+
+    .bar text {
+      fill: #fff;
+    }
+    .preventDrag, .axis-overlay {
+      opacity: 0;     
+    }
+    .axis-overlay {
+      cursor: move;
+    }
+    .axis path, .axis line {
+      fill: none;      
+      stroke: lighten(black, 40%);
+      shape-rendering: crispEdges;
+    }
+    .axis text {
+      font-size: 85%;
+      fill: lighten(black, 40%);
+    }
+    .axis * {
+      pointer-events: none;
+    }
+    .brush .extent {
+      stroke: @blue-color;
+      fill: @blue-color;
+      fill-opacity: .125;
+      shape-rendering: crispEdges;
+    }
+    .brushText rect {
+      fill: white;
+      fill-opacity: 0.75;
+      pointer-events: none;
+    }
+    .brush text {      
+      font-size: 80%;
+      font-variant: small-caps;
+      text-transform: lowercase;
+      pointer-events: none;
+      fill: darken(@blue-color, 15%);
+    }
+    .resize path {
+      fill: @blue-color;
+      fill-opacity: .125;
+      stroke: @blue-color;
+      stroke-width: 1px;
+    }
+    .overlay {
+      fill: none;
+      pointer-events: all;
+    }
+    .focus  {
+      pointer-events: none;
+      text {
+        fill: lighten(black, 40%);
+      }
+    }
+    .scrub {
+      fill: lighten(black, 40%);
+    }
   }
 
   .typeahead {
@@ -270,5 +338,51 @@ width: 215px;
       }
     }
   }
-}
 
+  .configuration {
+
+    &.alternate {
+      .segmented-control {
+        button {
+          &:first-child {
+          }
+
+          &:last-child {
+          }
+        }
+      }
+
+      table {
+        display: none;
+      }
+      .histogram {
+        display: block;
+      }
+    }
+
+    .segmented-control {
+      width: auto;
+      display: inline-block;
+      margin: 0;
+      button {
+        width: auto;
+        padding: 0.1em 0.4em 0.4em 0.5em;
+      }
+    }
+    
+    .histogram {
+      display: none;
+      position: relative;
+      .segmented-control {
+        position: absolute;
+        bottom: 100%;
+        right: 0;
+        margin-bottom: 0.5em;
+        button {
+          padding: 0.5em;          
+          line-height: 1em;
+        }
+      }    
+    }
+  }
+}

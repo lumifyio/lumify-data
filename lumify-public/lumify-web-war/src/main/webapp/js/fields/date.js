@@ -3,12 +3,13 @@ define([
     'flight/lib/component',
     'hbs!./dateTpl',
     './withPropertyField',
+    './withHistogram',
     'util/formatters',
     'chrono'
-], function(defineComponent, template, withPropertyField, F, chrono) {
+], function(defineComponent, template, withPropertyField, withHistogram, F, chrono) {
     'use strict';
 
-    return defineComponent(DateField, withPropertyField);
+    return defineComponent(DateField, withPropertyField, withHistogram);
 
     function DateField() {
 
@@ -33,7 +34,10 @@ define([
             }
 
             this.getValues = function() {
-                var values = this.select('visibleInputsSelector').map(function() {
+                var inputs = this.$node.hasClass('alternate') ?
+                        this.$node.find('.input-row input') :
+                        this.select('visibleInputsSelector'),
+                    values = inputs.map(function() {
                         return $(this).val();
                     }).toArray();
 

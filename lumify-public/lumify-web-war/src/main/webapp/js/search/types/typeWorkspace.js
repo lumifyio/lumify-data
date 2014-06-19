@@ -10,6 +10,10 @@ define([
 
     function SearchTypeWorkspace() {
 
+        this.before('initialize', function(node, config) {
+            config.supportsHistogram = true;
+        });
+
         this.after('initialize', function() {
             this.on('queryupdated', this.onQueryUpdated);
             this.on('workspaceFiltered', this.onWorkspaceFiltered);
