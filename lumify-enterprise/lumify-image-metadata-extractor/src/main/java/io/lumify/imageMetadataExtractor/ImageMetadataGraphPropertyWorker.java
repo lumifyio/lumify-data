@@ -34,6 +34,11 @@ public class ImageMetadataGraphPropertyWorker extends GraphPropertyWorker {
 
     @Override
     public void prepare(GraphPropertyWorkerPrepareData workerPrepareData) throws Exception {
+        String myString = "Hello";
+        //LOGGER.error("Test -- Could not load image from property.");
+        LOGGER.info("Test -- Could not load image from property.");
+        //LOGGER.info()
+
         super.prepare(workerPrepareData);
         tesseract = Tesseract.getInstance();
 
@@ -45,34 +50,38 @@ public class ImageMetadataGraphPropertyWorker extends GraphPropertyWorker {
 
     @Override
     public void execute(InputStream in, GraphPropertyWorkData data) throws Exception {
-        BufferedImage image = ImageIO.read(in);
-        if (image == null) {
-            LOGGER.error("Could not load image from property %s on vertex %s", data.getProperty().toString(), data.getElement().getId());
-            return;
-        }
-        String ocrResults = extractTextFromImage(image);
-        if (ocrResults == null) {
-            return;
-        }
+        LOGGER.error("Test -- Could not load image from property %s on vertex %s", data.getProperty().toString(), data.getElement().getId());
 
-        String textPropertyKey = RowKeyHelper.buildMinor(TEXT_PROPERTY_KEY, data.getProperty().getName(), data.getProperty().getKey());
 
-        InputStream textIn = new ByteArrayInputStream(ocrResults.getBytes());
-        StreamingPropertyValue textValue = new StreamingPropertyValue(textIn, String.class);
+        //BufferedImage image = ImageIO.read(in);
+        //if (image == null) {
+        //    LOGGER.error("Could not load image from property %s on vertex %s", data.getProperty().toString(), data.getElement().getId());
+        //    return;
+        //}
+        //String ocrResults = extractTextFromImage(image);
+        //if (ocrResults == null) {
+        //    return;
+        //}
 
-        ExistingElementMutation<Vertex> m = data.getElement().prepareMutation();
-        Map<String, Object> textMetadata = data.createPropertyMetadata();
-        textMetadata.put(RawLumifyProperties.META_DATA_TEXT_DESCRIPTION, "OCR Text");
-        textMetadata.put(RawLumifyProperties.META_DATA_MIME_TYPE, "text/plain");
-        RawLumifyProperties.TEXT.addPropertyValue(m, textPropertyKey, textValue, textMetadata, data.getVisibility());
-        Vertex v = m.save(getAuthorizations());
-        getAuditRepository().auditVertexElementMutation(AuditAction.UPDATE, m, v, TEXT_PROPERTY_KEY, getUser(), data.getVisibility());
-        getAuditRepository().auditAnalyzedBy(AuditAction.ANALYZED_BY, v, getClass().getSimpleName(), getUser(), v.getVisibility());
+        //String textPropertyKey = RowKeyHelper.buildMinor(TEXT_PROPERTY_KEY, data.getProperty().getName(), data.getProperty().getKey());
 
-        getGraph().flush();
-        getWorkQueueRepository().pushGraphPropertyQueue(data.getElement(), textPropertyKey, RawLumifyProperties.TEXT.getPropertyName());
+        //InputStream textIn = new ByteArrayInputStream(ocrResults.getBytes());
+        //StreamingPropertyValue textValue = new StreamingPropertyValue(textIn, String.class);
+
+        //ExistingElementMutation<Vertex> m = data.getElement().prepareMutation();
+        //Map<String, Object> textMetadata = data.createPropertyMetadata();
+        //textMetadata.put(RawLumifyProperties.META_DATA_TEXT_DESCRIPTION, "OCR Text");
+        //textMetadata.put(RawLumifyProperties.META_DATA_MIME_TYPE, "text/plain");
+        //RawLumifyProperties.TEXT.addPropertyValue(m, textPropertyKey, textValue, textMetadata, data.getVisibility());
+        //Vertex v = m.save(getAuthorizations());
+        //getAuditRepository().auditVertexElementMutation(AuditAction.UPDATE, m, v, TEXT_PROPERTY_KEY, getUser(), data.getVisibility());
+        //getAuditRepository().auditAnalyzedBy(AuditAction.ANALYZED_BY, v, getClass().getSimpleName(), getUser(), v.getVisibility());
+
+        //getGraph().flush();
+        //getWorkQueueRepository().pushGraphPropertyQueue(data.getElement(), textPropertyKey, RawLumifyProperties.TEXT.getPropertyName());
     }
 
+    /*
     private String extractTextFromImage(BufferedImage image) throws TesseractException {
         BufferedImage grayImage = ImageHelper.convertImageToGrayscale(image);
         String ocrResults = tesseract.doOCR(grayImage).replaceAll("\\n{2,}", "\n");
@@ -83,6 +92,7 @@ public class ImageMetadataGraphPropertyWorker extends GraphPropertyWorker {
         // TODO remove the trash that doesn't seem to be words
         return ocrResults;
     }
+    */
 
     @Override
     public boolean isHandled(Element element, Property property) {
