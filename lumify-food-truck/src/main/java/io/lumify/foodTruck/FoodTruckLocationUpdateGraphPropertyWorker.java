@@ -4,7 +4,6 @@ import io.lumify.core.ingest.graphProperty.GraphPropertyWorkData;
 import io.lumify.core.ingest.graphProperty.GraphPropertyWorker;
 import io.lumify.core.model.properties.LumifyProperties;
 import io.lumify.core.model.properties.RawLumifyProperties;
-import io.lumify.core.util.CollectionUtil;
 import io.lumify.twitter.TwitterOntology;
 import org.securegraph.*;
 import org.securegraph.type.GeoPoint;
@@ -14,6 +13,8 @@ import java.util.Calendar;
 import java.util.Date;
 
 import static org.securegraph.util.IterableUtils.count;
+import static org.securegraph.util.IterableUtils.single;
+import static org.securegraph.util.IterableUtils.singleOrDefault;
 
 public class FoodTruckLocationUpdateGraphPropertyWorker extends GraphPropertyWorker {
     private static final String MULTI_VALUE_KEY = FoodTruckLocationUpdateGraphPropertyWorker.class.getName();
@@ -28,8 +29,8 @@ public class FoodTruckLocationUpdateGraphPropertyWorker extends GraphPropertyWor
         }
 
         Vertex keywordVertex = hasKeywordEdge.getVertex(Direction.IN, getAuthorizations());
-        Vertex tweeter = CollectionUtil.single(tweetVertex.getVertices(Direction.BOTH, TwitterOntology.EDGE_LABEL_TWEETED, getAuthorizations()));
-        Vertex foodTruck = CollectionUtil.singleOrDefault(tweeter.getVertices(Direction.BOTH, FoodTruckOntology.EDGE_LABEL_HAS_TWITTER_USER, getAuthorizations()), null);
+        Vertex tweeter = single(tweetVertex.getVertices(Direction.BOTH, TwitterOntology.EDGE_LABEL_TWEETED, getAuthorizations()));
+        Vertex foodTruck = singleOrDefault(tweeter.getVertices(Direction.BOTH, FoodTruckOntology.EDGE_LABEL_HAS_TWITTER_USER, getAuthorizations()), null);
         if (foodTruck == null) {
             return;
         }

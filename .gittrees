@@ -1,9 +1,9 @@
 [subtree "lumify-public"]
-	url = git@github.com:altamiracorp/lumify.git
+	url = git@github.com:lumifyio/lumify.git
 	path = lumify-public
 	branch = master
 [subtree "lumify-root"]
-	url = git@github.com:altamiracorp/lumify-root.git
+	url = git@github.com:lumifyio/lumify-root.git
 	path = lumify-root
 	branch = master
 [subtree "lumify-enterprise"]
@@ -23,10 +23,10 @@
 	path = deployment/aws
 	branch = master
 [subtree "lumify-wikipedia"]
-	url = git@github.com:altamiracorp/lumify-wikipedia.git
+	url = git@github.com:lumifyio/lumify-wikipedia.git
 	path = lumify-wikipedia
 	branch = master
 [subtree "lumify-twitter"]
-	url = git@github.com:altamiracorp/lumify-twitter.git
+	url = git@github.com:lumifyio/lumify-twitter.git
 	path = lumify-twitter
 	branch = master

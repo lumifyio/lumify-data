@@ -1,7 +1,7 @@
 package io.lumify.wikipedia.mapreduce;
 
-import com.altamiracorp.bigtable.model.FlushFlag;
 import com.altamiracorp.bigtable.model.accumulo.AccumuloSession;
+import com.google.inject.Inject;
 import io.lumify.core.config.Configuration;
 import io.lumify.core.model.audit.Audit;
 import io.lumify.core.model.audit.AuditAction;
@@ -11,6 +11,7 @@ import io.lumify.core.model.properties.LumifyProperties;
 import io.lumify.core.model.properties.RawLumifyProperties;
 import io.lumify.core.model.termMention.TermMentionModel;
 import io.lumify.core.model.termMention.TermMentionRowKey;
+import io.lumify.core.model.user.UserRepository;
 import io.lumify.core.user.SystemUser;
 import io.lumify.core.user.User;
 import io.lumify.core.util.LumifyLogger;
@@ -38,17 +39,19 @@ import org.securegraph.property.StreamingPropertyValue;
 import org.securegraph.util.ConvertingIterable;
 import org.securegraph.util.JoinIterable;
 import org.securegraph.util.MapUtils;
-import org.sweble.wikitext.engine.CompiledPage;
-import org.sweble.wikitext.engine.Compiler;
 import org.sweble.wikitext.engine.PageId;
 import org.sweble.wikitext.engine.PageTitle;
-import org.sweble.wikitext.engine.utils.SimpleWikiConfiguration;
+import org.sweble.wikitext.engine.WtEngineImpl;
+import org.sweble.wikitext.engine.config.WikiConfigImpl;
+import org.sweble.wikitext.engine.nodes.EngProcessedPage;
+import org.sweble.wikitext.engine.utils.DefaultConfigEnWp;
 
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 class ImportMRMapper extends ElementMapper<LongWritable, Text, Text, Mutation> {
@@ -64,11 +67,12 @@ class ImportMRMapper extends ElementMapper<LongWritable, Text, Text, Mutation> {
     private XPathExpression<org.jdom2.Text> revisionTimestampXPath;
     private Visibility visibility;
     private Authorizations authorizations;
-    private SimpleWikiConfiguration config;
-    private org.sweble.wikitext.engine.Compiler compiler;
+    private WikiConfigImpl config;
+    private WtEngineImpl compiler;
     private AccumuloGraph graph;
     private User user;
     private SecureGraphAuditRepository auditRepository;
+    private UserRepository userRepository;
     private String sourceFileName;
 
     public ImportMRMapper() {
@@ -87,12 +91,12 @@ class ImportMRMapper extends ElementMapper<LongWritable, Text, Text, Mutation> {
         this.user = new SystemUser(null);
         VersionService versionService = new VersionService();
         Configuration configuration = new Configuration(configurationMap);
-        this.auditRepository = new SecureGraphAuditRepository(null, versionService, configuration, null);
+        this.auditRepository = new SecureGraphAuditRepository(null, versionService, configuration, null, userRepository);
         this.sourceFileName = context.getConfiguration().get(CONFIG_SOURCE_FILE_NAME);
 
         try {
-            config = new SimpleWikiConfiguration("classpath:/org/sweble/wikitext/engine/SimpleWikiConfiguration.xml");
-            compiler = new Compiler(config);
+            config = DefaultConfigEnWp.generate();
+            compiler = new WtEngineImpl(config);
         } catch (Exception ex) {
             throw new IOException("Could not configure sweble", ex);
         }
@@ -121,7 +125,7 @@ class ImportMRMapper extends ElementMapper<LongWritable, Text, Text, Mutation> {
             SAXBuilder builder = new SAXBuilder();
             Document doc = builder.build(new ByteArrayInputStream(pageString.getBytes()));
             pageTitle = textToString(titleXPath.evaluateFirst(doc));
-            wikitext = textToString(textXPath.evaluateFirst(doc));
+            wikitext = textToString(textXPath.evaluate(doc));
             String revisionTimestampString = textToString(revisionTimestampXPath.evaluateFirst(doc));
             try {
                 revisionTimestamp = ISO8601DATEFORMAT.parse(revisionTimestampString);
@@ -130,6 +134,7 @@ class ImportMRMapper extends ElementMapper<LongWritable, Text, Text, Mutation> {
             }
         } catch (JDOMException e) {
             LOGGER.error("Could not parse XML: " + filePosition + ":\n" + pageString, e);
+            context.getCounter(WikipediaImportCounters.XML_PARSE_ERRORS).increment(1);
             return;
         }
 
@@ -140,7 +145,7 @@ class ImportMRMapper extends ElementMapper<LongWritable, Text, Text, Mutation> {
         try {
             String fileTitle = wikipediaPageVertexId;
             PageId pageId = new PageId(PageTitle.make(config, fileTitle), -1);
-            CompiledPage compiledPage = compiler.postprocess(pageId, wikitext, null);
+            EngProcessedPage compiledPage = compiler.postprocess(pageId, wikitext, null);
             textConverter = new TextConverter(config);
             String text = (String) textConverter.go(compiledPage.getPage());
             if (text.length() > 0) {
@@ -148,6 +153,7 @@ class ImportMRMapper extends ElementMapper<LongWritable, Text, Text, Mutation> {
             }
         } catch (Exception ex) {
             LOGGER.error("Could not process wikipedia text: " + filePosition + ":\n" + wikitext, ex);
+            context.getCounter(WikipediaImportCounters.WIKI_TEXT_PARSE_ERRORS).increment(1);
             return;
         }
 
@@ -178,7 +184,7 @@ class ImportMRMapper extends ElementMapper<LongWritable, Text, Text, Mutation> {
 
         // audit vertex
         Text key = ImportMR.getKey(Audit.TABLE_NAME, pageVertex.getId().toString().getBytes());
-        Audit audit = auditRepository.createAudit(AuditAction.CREATE, pageVertex.getId(), "Wikipedia MR", "", user, FlushFlag.DEFAULT, visibility);
+        Audit audit = auditRepository.createAudit(AuditAction.CREATE, pageVertex.getId(), "Wikipedia MR", "", user, visibility);
         context.write(key, AccumuloSession.createMutationFromRow(audit));
 
         // because save above will cause the StreamingPropertyValue to be read we need to reset the position to 0 for search indexing
@@ -218,6 +224,8 @@ class ImportMRMapper extends ElementMapper<LongWritable, Text, Text, Mutation> {
             key = ImportMR.getKey(TermMentionModel.TABLE_NAME, termMention.getRowKey().toString().getBytes());
             context.write(key, AccumuloSession.createMutationFromRow(termMention));
         }
+
+        context.getCounter(WikipediaImportCounters.PAGES_PROCESSED).increment(1);
     }
 
     private Iterable<LinkWithOffsets> getLinks(TextConverter textConverter) {
@@ -244,6 +252,14 @@ class ImportMRMapper extends ElementMapper<LongWritable, Text, Text, Mutation> {
         return text.getText();
     }
 
+    private String textToString(List<org.jdom2.Text> texts) {
+        StringBuilder sb = new StringBuilder();
+        for (org.jdom2.Text t : texts) {
+            sb.append(textToString(t));
+        }
+        return sb.toString();
+    }
+
     @Override
     protected void saveDataMutation(Context context, Text dataTableName, Mutation m) throws IOException, InterruptedException {
         context.write(ImportMR.getKey(dataTableName.toString(), m.getRow()), m);
@@ -257,5 +273,10 @@ class ImportMRMapper extends ElementMapper<LongWritable, Text, Text, Mutation> {
     @Override
     protected void saveVertexMutation(Context context, Text verticesTableName, Mutation m) throws IOException, InterruptedException {
         context.write(ImportMR.getKey(verticesTableName.toString(), m.getRow()), m);
+    }
+
+    @Inject
+    public void setUserRepository (UserRepository userRepository) {
+        this.userRepository = userRepository;
     }
 }
