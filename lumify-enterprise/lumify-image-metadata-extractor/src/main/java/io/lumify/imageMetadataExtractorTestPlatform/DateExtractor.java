@@ -34,12 +34,16 @@ public class DateExtractor {
      */
     public static String getDateDefault(Metadata metadata){
 
-        Date date;
+        Date date = null;
 
         //TODO. Check these directories and tags against the excel spreadsheet of constant values.
 
         ExifIFD0Directory exifIFD0dir = metadata.getDirectory(ExifIFD0Directory.class);
-        date = exifIFD0dir.getDate(ExifIFD0Directory.TAG_DATETIME);
+        try {
+            date = exifIFD0dir.getDate(ExifIFD0Directory.TAG_DATETIME);
+        } catch (Exception e) {
+            System.out.println("Caught an exception.");
+        }
         if (date != null)
             return date.toString();
 

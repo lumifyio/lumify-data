@@ -1,5 +1,6 @@
 package io.lumify.imageMetadataExtractor;
 
+import io.lumify.core.exception.LumifyException;
 import io.lumify.core.ingest.graphProperty.GraphPropertyWorkData;
 import io.lumify.core.ingest.graphProperty.GraphPropertyWorker;
 import io.lumify.core.ingest.graphProperty.GraphPropertyWorkerPrepareData;
@@ -20,38 +21,56 @@ import org.securegraph.property.StreamingPropertyValue;
 import javax.imageio.ImageIO;
 import java.awt.image.BufferedImage;
 import java.io.ByteArrayInputStream;
+import java.io.File;
 import java.io.InputStream;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 
+import com.google.i18n.phonenumbers.PhoneNumberUtil;
+
+
 public class ImageMetadataGraphPropertyWorker extends GraphPropertyWorker {
     private static final LumifyLogger LOGGER = LumifyLoggerFactory.getLogger(ImageMetadataGraphPropertyWorker.class);
-    private static final List<String> ICON_MIME_TYPES = Arrays.asList("image/x-icon", "image/vnd.microsoft.icon");
-    private static final String TEXT_PROPERTY_KEY = ImageMetadataGraphPropertyWorker.class.getName();
-    private static final String CONFIG_DATA_PATH = "tesseract.dataPath";
-    private Tesseract tesseract;
+    public static final String CONFIG_PHONE_NUMBER_IRI = "ontology.iri.phoneNumber";
+    public static final String DEFAULT_REGION_CODE = "phoneNumber.defaultRegionCode";
+    public static final String DEFAULT_DEFAULT_REGION_CODE = "US";
+
+    private final PhoneNumberUtil phoneNumberUtil = PhoneNumberUtil.getInstance();
+    private String defaultRegionCode;
+    private String entityType;
+
+    @Override
+    public boolean isLocalFileRequired() {
+        return true;
+    }
 
     @Override
     public void prepare(GraphPropertyWorkerPrepareData workerPrepareData) throws Exception {
-        String myString = "Hello";
-        //LOGGER.error("Test -- Could not load image from property.");
-        LOGGER.info("Test -- Could not load image from property.");
-        //LOGGER.info()
-
         super.prepare(workerPrepareData);
-        tesseract = Tesseract.getInstance();
 
-        String dataPath = getConfiguration().get(CONFIG_DATA_PATH);
-        if (dataPath != null) {
-            tesseract.setDatapath(dataPath);
+        LOGGER.info("Test -- Got to here - prepare method 1.");
+
+        defaultRegionCode = (String) workerPrepareData.getStormConf().get(DEFAULT_REGION_CODE);
+        if (defaultRegionCode == null) {
+            defaultRegionCode = DEFAULT_DEFAULT_REGION_CODE;
         }
+
+        entityType = (String) workerPrepareData.getStormConf().get(CONFIG_PHONE_NUMBER_IRI);
+        if (entityType == null || entityType.length() == 0) {
+            throw new LumifyException("Could not find config: " + CONFIG_PHONE_NUMBER_IRI);
+        }
+
+        LOGGER.info("Test -- Got to here - prepare method 2.");
+
     }
 
     @Override
     public void execute(InputStream in, GraphPropertyWorkData data) throws Exception {
-        LOGGER.error("Test -- Could not load image from property %s on vertex %s", data.getProperty().toString(), data.getElement().getId());
+        //LOGGER.error("Test -- Could not load image from property %s on vertex %s", data.getProperty().toString(), data.getElement().getId());
+        LOGGER.info("Test -- Got to here - execute method");
 
+        File myFile = data.getLocalFile()
 
         //BufferedImage image = ImageIO.read(in);
         //if (image == null) {
@@ -96,6 +115,9 @@ public class ImageMetadataGraphPropertyWorker extends GraphPropertyWorker {
 
     @Override
     public boolean isHandled(Element element, Property property) {
+
+        LOGGER.info("Test -- Got to here - isHandled method 1.");
+
         if (property == null) {
             return false;
         }
@@ -104,9 +126,10 @@ public class ImageMetadataGraphPropertyWorker extends GraphPropertyWorker {
         if (mimeType == null) {
             return false;
         }
-        if (ICON_MIME_TYPES.contains(mimeType)) {
-            return false;
-        }
+        //if (ICON_MIME_TYPES.contains(mimeType)) {
+        //    return false;
+        // }
         return mimeType.startsWith("image");
+
     }
 }
