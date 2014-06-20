@@ -14,6 +14,7 @@ import io.lumify.core.util.LumifyLogger;
 import io.lumify.core.util.LumifyLoggerFactory;
 import io.lumify.core.util.RowKeyHelper;
 import io.lumify.imageMetadataHelper.DateExtractor;
+import io.lumify.imageMetadataHelper.MakeExtractor;
 import net.sourceforge.tess4j.Tesseract;
 import net.sourceforge.tess4j.TesseractException;
 import net.sourceforge.vietocr.ImageHelper;
@@ -110,8 +111,10 @@ public class ImageMetadataGraphPropertyWorker extends GraphPropertyWorker {
         Ontology.ORIENTATION.addPropertyValue(data.getElement(), MULTI_VALUE_KEY, dateString, data.getVisibility(), getAuthorizations());
         //Ontology.ORIENTATION.addPropertyValue(data.getElement(), MULTI_VALUE_KEY, "hor", data.getVisibility(), getAuthorizations());
 
-        String makeString = "Apple";
-        Ontology.DEVICE_MAKE.addPropertyValue(data.getElement(), MULTI_VALUE_KEY, makeString, data.getVisibility(), getAuthorizations());
+        String makeString = MakeExtractor.getMake(metadata);
+        if (makeString != null) {
+            Ontology.DEVICE_MAKE.addPropertyValue(data.getElement(), MULTI_VALUE_KEY, makeString, data.getVisibility(), getAuthorizations());
+        }
 
         String modelString = "iPhone 4S";
         Ontology.DEVICE_MODEL.addPropertyValue(data.getElement(), MULTI_VALUE_KEY, modelString, data.getVisibility(), getAuthorizations());

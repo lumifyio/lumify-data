@@ -5,6 +5,7 @@ import com.drew.metadata.Directory;
 import com.drew.metadata.Metadata;
 import com.drew.metadata.Tag;
 import io.lumify.imageMetadataHelper.DateExtractor;
+import io.lumify.imageMetadataHelper.MakeExtractor;
 
 import java.io.File;
 
@@ -30,6 +31,8 @@ public class FakeImageMetadataGraphPropertyWorker {
         String dateString = DateExtractor.getDateDefault(metadata);
         System.out.println("dateString: " + dateString);
 
+        String makeString = MakeExtractor.getMake(metadata);
+        System.out.println("makeString: " + makeString);
 
     }
 
