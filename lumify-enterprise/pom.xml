@@ -200,6 +200,7 @@
         <module>lumify-geocoder-bing</module>
         <module>lumify-igw</module>
         <module>lumify-classification</module>
+        <module>lumify-image-metadata-extractor</module>
         <!--<module>lumify-gtd</module>-->
     </modules>
 </project>
