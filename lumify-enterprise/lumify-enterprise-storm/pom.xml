@@ -197,6 +197,11 @@
             <artifactId>lumify-reindex</artifactId>
             <version>${project.version}</version>
         </dependency>
+        <dependency>
+            <groupId>io.lumify</groupId>
+            <artifactId>lumify-image-metadata-extractor</artifactId>
+            <version>${project.version}</version>
+        </dependency>
         <!--<dependency>-->
         <!--<groupId>lumify-all</groupId>-->
         <!--<artifactId>lumify-food-truck</artifactId>-->

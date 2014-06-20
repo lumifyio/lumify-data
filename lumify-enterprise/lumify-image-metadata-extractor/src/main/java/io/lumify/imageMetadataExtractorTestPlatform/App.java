@@ -12,9 +12,8 @@ import javax.imageio.stream.ImageInputStream;
 import javax.swing.*;
 import java.awt.*;
 import java.awt.image.BufferedImage;
-import java.io.FileInputStream;
-import java.io.IOException;
-import java.io.InputStream;
+import java.io.*;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -23,16 +22,45 @@ import java.util.Map;
  */
 public class App
 {
+    private String myDirectoryPath = "images3";
+    private String supportedExtensions[] = {".jpg", ".jpeg", ".bmp", ".tiff", ".gif", ".psd", ".nef", ".cr2", ".orf", ".arw", ".rw2"};
+    //Removed support for crw (was not working).
+    private int numImagesProcessed = 0;
+    private ArrayList<String> rejectedFiles = new ArrayList<String>();
+
     public static void main( String[] args ) throws Exception
     {
+        new App();
+    }
+
+    public App() throws Exception
+    {
+
         System.out.println( "Starting Program." );
 
-        //Load an image.
-        String imageFileName = "images/Apple iPhone 4S.jpg";
+        //Iterate through all the images in a directory.
+        File dir = new File(myDirectoryPath);
+        File[] imageFiles = dir.listFiles();
+        if (imageFiles != null) {
+            for (File imageFile : imageFiles) {
+                if (isSupportedFileExtension(imageFile, supportedExtensions)) {
+                    System.out.println("\n#######################################################");
+                    System.out.println("Filename: " + imageFile.getName());
 
-        InputStream input = new FileInputStream(imageFileName);
-        //ImageInputStream imageInput = ImageIO.createImageInputStream(input);
-        //BufferedImage bufImage = ImageIO.read(imageInput);
+                    FakeImageMetadataGraphPropertyWorker worker = new FakeImageMetadataGraphPropertyWorker();
+                    worker.execute(imageFile);
+
+                    numImagesProcessed++;
+                } else {
+                    rejectedFiles.add(imageFile.getName());
+                }
+            }
+        }
+
+        //Print out some of the processing data.
+        System.out.println("\nNumber of images processed: " + numImagesProcessed);
+        System.out.println("Files Rejected: " + rejectedFiles);
+
 
         /*
         Use this code to check that the image was found. It will display the image in a JFrame.
@@ -43,41 +71,17 @@ public class App
         frame.setVisible(true);
         */
 
-        //For Testing Purposes.
-        FakeImageMetadataGraphPropertyWorker worker = new FakeImageMetadataGraphPropertyWorker();
-        worker.execute(input);
-
-
-        /*
-        //See https://github.com/altamiracorp/securegraph for how to setup a graph and add vertices.
-
-        // specify Accumulo config, more options than shown are available
-        Map mapConfig = new HashMap();
-        mapConfig.put(AccumuloGraphConfiguration.USE_SERVER_SIDE_ELEMENT_VISIBILITY_ROW_FILTER, false);
-        mapConfig.put(AccumuloGraphConfiguration.ACCUMULO_INSTANCE_NAME, "instance_name");
-        mapConfig.put(AccumuloGraphConfiguration.ACCUMULO_USERNAME, "username");
-        mapConfig.put(AccumuloGraphConfiguration.ACCUMULO_PASSWORD, "password");
-        mapConfig.put(AccumuloGraphConfiguration.ZOOKEEPER_SERVERS, "localhost");
-
-        AccumuloGraphConfiguration graphConfig = new AccumuloGraphConfiguration(mapConfig);
-        Graph graph = AccumuloGraph.create(graphConfig);
-
-        //TestImageMetadataGraphPropertyWorker worker = new TestImageMetadataGraphPropertyWorker();
-        //Check if isHandled...
-        //Run prepare method.
-
-        //Element element = new Element();
-        //Vertex vertex = new Vertex();
-        //GraphPropertyWorkData workData = new GraphPropertyWorkData();
-        //worker.execute(imageInput, );
-        */
-
-
-
-        System.out.println("Got here.");
-
-
-
         System.out.println( "Finished program." );
+
+    }
+
+    public boolean isSupportedFileExtension(File file, String[] extensions)
+    {
+        for(String extension: extensions) {
+            if (file.getName().toLowerCase().endsWith(extension)){
+                return true;
+            }
+        }
+        return false;
     }
 }
