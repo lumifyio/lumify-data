@@ -106,10 +106,32 @@ public class ImageMetadataGraphPropertyWorker extends GraphPropertyWorker {
         //Get the date.
         String dateString = DateExtractor.getDateDefault(metadata);
         LOGGER.info("dateString: " + dateString );
-
         //Add the Property.
         Ontology.ORIENTATION.addPropertyValue(data.getElement(), MULTI_VALUE_KEY, dateString, data.getVisibility(), getAuthorizations());
-        //Ontology.ORIENTATION.addPropertyValue(data.getElement(), MULTI_VALUE_KEY, "hor", data.getVisibility(), getAuthorizations());
+
+
+
+
+
+
+        //Make up a date..
+        Calendar cal = Calendar.getInstance();
+        cal.set(2013,Calendar.JANUARY,9,3,40,12);
+        Date date = cal.getTime();
+        int num = 5;
+
+        //New method of adding a property. Testing adding the date.
+        data.getElement().addPropertyValue(data.getProperty().getKey(), data.getProperty().getName(),date, data.getVisibility(), getAuthorizations());
+
+
+        Ontology.DATE_TAKEN.addPropertyValue(data.getElement(), MULTI_VALUE_KEY, date, data.getVisibility(), getAuthorizations());
+
+
+
+
+
+
+
 
         String makeString = MakeExtractor.getMake(metadata);
         if (makeString != null) {
