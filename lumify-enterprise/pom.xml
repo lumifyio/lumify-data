@@ -31,7 +31,6 @@
         <opencv.version>2.4.5</opencv.version>
         <opennlp.version>1.5.3</opennlp.version>
         <tika.version>1.5</tika.version>
-        <tess4j.version>1.1</tess4j.version>
 
         <!-- Test Dependency Versions -->
         <javax.ws.rs.api.version>2.0-rc3</javax.ws.rs.api.version>
@@ -103,11 +102,6 @@
                 <groupId>info.bliki.wiki</groupId>
                 <artifactId>bliki-core</artifactId>
                 <version>${bliki.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>net.sourceforge.tess4j</groupId>
-                <artifactId>tess4j</artifactId>
-                <version>${tess4j.version}</version>
             </dependency>
             <dependency>
                 <groupId>org.apache.opennlp</groupId>
@@ -182,13 +176,7 @@
         <module>lumify-mapped-ingest</module>
         <module>lumify-enterprise-storm</module>
         <module>lumify-enterprise-tools</module>
-        <module>lumify-sphinx</module>
         <module>lumify-opencv-object-detector</module>
-        <module>lumify-tesseract</module>
-        <module>lumify-ccextractor</module>
-        <module>lumify-subrip-parser</module>
-        <module>lumify-youtube-transcript</module>
-        <module>lumify-subrip-transcript</module>
         <module>lumify-clavin</module>
         <module>lumify-jetty-server-enterprise</module>
         <module>lumify-java-code-ingest</module>
@@ -197,7 +185,6 @@
         <module>lumify-translate</module>
         <module>lumify-translator-bing</module>
         <module>lumify-reindex</module>
-        <module>lumify-geocoder-bing</module>
         <module>lumify-igw</module>
         <module>lumify-classification</module>
         <!--<module>lumify-gtd</module>-->
