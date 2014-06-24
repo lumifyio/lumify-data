@@ -4,6 +4,7 @@ import com.drew.imaging.ImageMetadataReader;
 import com.drew.metadata.Directory;
 import com.drew.metadata.Metadata;
 import com.drew.metadata.Tag;
+import com.drew.metadata.exif.ExifIFD0Directory;
 import io.lumify.core.exception.LumifyException;
 import io.lumify.core.ingest.graphProperty.GraphPropertyWorkData;
 import io.lumify.core.ingest.graphProperty.GraphPropertyWorker;
@@ -13,8 +14,7 @@ import io.lumify.core.model.properties.RawLumifyProperties;
 import io.lumify.core.util.LumifyLogger;
 import io.lumify.core.util.LumifyLoggerFactory;
 import io.lumify.core.util.RowKeyHelper;
-import io.lumify.imageMetadataHelper.DateExtractor;
-import io.lumify.imageMetadataHelper.MakeExtractor;
+import io.lumify.imageMetadataHelper.*;
 import net.sourceforge.tess4j.Tesseract;
 import net.sourceforge.tess4j.TesseractException;
 import net.sourceforge.vietocr.ImageHelper;
@@ -75,72 +75,32 @@ public class ImageMetadataGraphPropertyWorker extends GraphPropertyWorker {
     public void execute(InputStream in, GraphPropertyWorkData data) throws Exception {
         LOGGER.info("Test -- Got to here - execute method");
 
-
-        /*
-        Iterator itr = data.getElement().getProperties().iterator();
-        while(itr.hasNext())
-        {
-            Property property = (Property) itr.next();
-            LOGGER.info("Test -- next Property: ");
-            LOGGER.info("Test -- Got to here - execute method: property Name = " + property.getName() );
-            LOGGER.info("Test -- Got to here - execute method: property Value = " + property.getValue() );
-            LOGGER.info("Test -- Got to here - execute method: property Key = " + property.getKey() );
-        }
-        */
-
         //Create a reference to the local file.
         File imageFile = data.getLocalFile();
 
         //Retrieve the metadata from the image.
         Metadata metadata = ImageMetadataReader.readMetadata(imageFile);
 
-        //Test printing out the metadata.
-        /*
-        for(Directory directory : metadata.getDirectories()){
-            for(Tag tag : directory.getTags()) {
-                LOGGER.info("Tag: " + tag );
-            }
-        }
-        */
+        //Get the date as a Date object using the metadata-extractor library.
+        Date date = DateExtractor.getDateDefault(metadata);
+        printDateInfo("imageMetadata date", date);
 
-        //Get the date.
-        String dateString = DateExtractor.getDateDefault(metadata);
-        LOGGER.info("dateString: " + dateString );
-        //Add the Property.
-        Ontology.ORIENTATION.addPropertyValue(data.getElement(), MULTI_VALUE_KEY, dateString, data.getVisibility(), getAuthorizations());
-
-
-
-
-
-
-        //Make up a date..
-        Calendar cal = Calendar.getInstance();
-        cal.set(2013,Calendar.JANUARY,9,3,40,12);
-        Date date = cal.getTime();
-        int num = 5;
-
-        //New method of adding a property. Testing adding the date.
-        data.getElement().addPropertyValue(data.getProperty().getKey(), data.getProperty().getName(),date, data.getVisibility(), getAuthorizations());
-
-
-        Ontology.DATE_TAKEN.addPropertyValue(data.getElement(), MULTI_VALUE_KEY, date, data.getVisibility(), getAuthorizations());
-
-
-
-
-
-
-
-
-        String makeString = MakeExtractor.getMake(metadata);
-        if (makeString != null) {
-            Ontology.DEVICE_MAKE.addPropertyValue(data.getElement(), MULTI_VALUE_KEY, makeString, data.getVisibility(), getAuthorizations());
+        //Add the Date Taken property.
+        if (date != null) {
+            Ontology.DATE_TAKEN.addPropertyValue(data.getElement(), MULTI_VALUE_KEY, date, data.getVisibility(), getAuthorizations());
         }
 
-        String modelString = "iPhone 4S";
-        Ontology.DEVICE_MODEL.addPropertyValue(data.getElement(), MULTI_VALUE_KEY, modelString, data.getVisibility(), getAuthorizations());
+        //Add the Device Make property.
+        String deviceMake = MakeExtractor.getMake(metadata);
+        if (deviceMake != null) {
+            Ontology.DEVICE_MAKE.addPropertyValue(data.getElement(), MULTI_VALUE_KEY, deviceMake, data.getVisibility(), getAuthorizations());
+        }
 
+        //Add the Device Model property.
+        String deviceModel = ModelExtractor.getModel(metadata);
+        if (deviceModel != null) {
+            Ontology.DEVICE_MODEL.addPropertyValue(data.getElement(), MULTI_VALUE_KEY, deviceModel, data.getVisibility(), getAuthorizations());
+        }
 
     }
 
@@ -166,5 +126,36 @@ public class ImageMetadataGraphPropertyWorker extends GraphPropertyWorker {
             return false;
         }
 
+    }
+
+    public void printDateInfo(String name, Date date){
+        if (date != null) {
+            LOGGER.info(name + ", years since 1900: " + date.getYear());
+            LOGGER.info(name + ", mon: " + date.getMonth());
+            LOGGER.info(name + ", day: " + date.getDate());
+            LOGGER.info(name + ", hours: " + date.getHours());
+            LOGGER.info(name + ", min: " + date.getMinutes());
+            LOGGER.info(name + ", sec: " + date.getSeconds());
+        }
+    }
+
+    public void printPropertyInfo(GraphPropertyWorkData data){
+        Iterator itr = data.getElement().getProperties().iterator();
+        while(itr.hasNext())
+        {
+            Property property = (Property) itr.next();
+            LOGGER.info("Test -- next Property: ");
+            LOGGER.info("Test -- Got to here - execute method: property Name = " + property.getName() );
+            LOGGER.info("Test -- Got to here - execute method: property Value = " + property.getValue() );
+            LOGGER.info("Test -- Got to here - execute method: property Key = " + property.getKey() );
+        }
+    }
+
+    public void printAllMetadata(Metadata metadata) {
+        for(Directory directory : metadata.getDirectories()){
+            for(Tag tag : directory.getTags()) {
+                LOGGER.info("Tag: " + tag );
+            }
+        }
     }
 }
