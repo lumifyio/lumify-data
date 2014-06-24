@@ -10,8 +10,9 @@ public class Ontology {
 
 
     public static final StringLumifyProperty ORIENTATION = new StringLumifyProperty("http://lumify.io/exif#orientation");
+    public static final DateLumifyProperty DATE_TAKEN = new DateLumifyProperty("http://lumify.io/exif#datetaken");
     public static final StringLumifyProperty DEVICE_MAKE = new StringLumifyProperty("http://lumify.io/exif#devicemake");
     public static final StringLumifyProperty DEVICE_MODEL = new StringLumifyProperty("http://lumify.io/exif#devicemodel");
-    public static final DateLumifyProperty DATE_TAKEN = new DateLumifyProperty("http://lumify.io/exif#datetaken");
+
 
 }

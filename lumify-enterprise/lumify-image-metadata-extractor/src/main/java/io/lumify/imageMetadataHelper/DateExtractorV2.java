@@ -1,13 +1,10 @@
 package io.lumify.imageMetadataHelper;
 
+import com.drew.metadata.Metadata;
 import com.drew.metadata.exif.ExifIFD0Directory;
 import com.drew.metadata.exif.ExifSubIFDDirectory;
-import com.drew.metadata.exif.GpsDirectory;
-import com.drew.metadata.icc.IccDirectory;
-import com.drew.metadata.Metadata;
 
 import java.util.Date;
-import java.util.TimeZone;
 
 /**
  * Created by jon.hellmann on 6/17/14.
@@ -20,7 +17,9 @@ import java.util.TimeZone;
  *
  *
  */
-public class DateExtractor {
+public class DateExtractorV2 {
+
+
 
     /**
      * Checks the metadata directories in order until the date is found. The first match is returned.
@@ -30,30 +29,32 @@ public class DateExtractor {
      * @param metadata
      * @return
      */
-    public static Date getDateDefault(Metadata metadata){
+    public static String getDateDefault(Metadata metadata){
 
         //TODO. Check these directories and tags against the excel spreadsheet of constant values.
-        Date date = null;
 
+        String dateString = null;
 
         ExifIFD0Directory exifDir = metadata.getDirectory(ExifIFD0Directory.class);
         if (exifDir != null) {
-            date = exifDir.getDate(ExifIFD0Directory.TAG_DATETIME);
-            if (date != null) {
-                return date;
+            dateString = exifDir.getDescription(ExifIFD0Directory.TAG_DATETIME);
+            if (dateString != null) {
+                //System.out.println("Returning the date string from ExifIFD0.");
+                return dateString;
             }
         }
 
         ExifSubIFDDirectory subDir = metadata.getDirectory(ExifSubIFDDirectory.class);
         if (subDir != null) {
-            date = subDir.getDate(ExifSubIFDDirectory.TAG_DATETIME_ORIGINAL);
-            if (date != null) {
-                return date;
+            dateString = subDir.getDescription(ExifSubIFDDirectory.TAG_DATETIME_ORIGINAL);
+            if (dateString != null) {
+                //System.out.println("Returning the date string from Exif--Sub--IFD0.");
+                return dateString;
             }
         }
 
         //If no date was found, send back this String.
-        return date;
+        return "no date available";
     }
 
 }
