@@ -1,4 +1,4 @@
-package io.lumify.imageMetadataHelper;
+package io.lumify.imageMetadataExtractorTestPlatform;
 
 import com.drew.metadata.Metadata;
 import com.drew.metadata.exif.CanonMakernoteDirectory;

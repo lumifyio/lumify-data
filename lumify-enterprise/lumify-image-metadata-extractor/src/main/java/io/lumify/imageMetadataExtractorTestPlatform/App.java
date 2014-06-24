@@ -22,7 +22,7 @@ import java.util.Map;
  */
 public class App
 {
-    private String myDirectoryPath = "images3";
+    private String myDirectoryPath = "images2";
     private String supportedExtensions[] = {".jpg", ".jpeg", ".bmp", ".tiff", ".gif", ".psd", ".nef", ".cr2", ".orf", ".arw", ".rw2"};
     //Removed support for crw (was not working).
     private int numImagesProcessed = 0;

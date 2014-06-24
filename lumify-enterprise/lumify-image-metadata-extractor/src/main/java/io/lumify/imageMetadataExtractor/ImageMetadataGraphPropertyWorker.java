@@ -70,6 +70,18 @@ public class ImageMetadataGraphPropertyWorker extends GraphPropertyWorker {
             Ontology.DATE_TAKEN.addPropertyValue(data.getElement(), MULTI_VALUE_KEY, date, data.getVisibility(), getAuthorizations());
         }
 
+        //Add the Orientation property.
+        String orientation = OrientationExtractor.getOrientation(metadata);
+        if (orientation != null) {
+            Ontology.ORIENTATION.addPropertyValue(data.getElement(), MULTI_VALUE_KEY, orientation, data.getVisibility(), getAuthorizations());
+        }
+
+        //Add the Orientation Description property.
+        String orientationDescription = OrientationExtractor.getOrientationDescription(metadata);
+        if (orientationDescription != null) {
+            Ontology.ORIENTATION_DESCRIPTION.addPropertyValue(data.getElement(), MULTI_VALUE_KEY, orientationDescription, data.getVisibility(), getAuthorizations());
+        }
+
         //Add the Device Make property.
         String deviceMake = MakeExtractor.getMake(metadata);
         if (deviceMake != null) {
