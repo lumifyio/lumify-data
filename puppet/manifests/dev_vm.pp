@@ -7,3 +7,4 @@ class { env::dev :
 }
 include env::demo
 include clavin
+include logstash_client
