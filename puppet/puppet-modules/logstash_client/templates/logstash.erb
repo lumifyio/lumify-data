@@ -30,8 +30,8 @@ start () {
     mkdir -p /var/log/logstash/
     chown -R logstash:logstash /var/log/logstash/
 
-    ps ax | grep '${name}' | grep -q java
-    if [ $? -ne 0 ]; then
+    ps ax | grep "${name}" | grep -q java
+    if [ $? -eq 0 ]; then
         log_failure_msg "Already running ${name}:"
         return 1
     fi
@@ -39,7 +39,7 @@ start () {
     daemon --user="$logstash_user" --pidfile="$pid_file" "$command > ${logstash_log_dir}/stdout 2>&1 &"
 
     RETVAL=$?
-    PID=`ps ax | grep '${name}' | grep java | awk '{print $1}'`
+    PID=`ps ax | grep "${name}" | grep java | awk '{print $1}'`
 
     echo $PID > $pid_file
 
@@ -52,12 +52,18 @@ start () {
 }
 
 stop () {
-    PID=$(ps ax | grep '${name}' | grep java | awk '{print $1}')
-    kill $PID
+    chkstatus
+    if [ $? -eq 0 ]; then
+        ps ax | grep "${name}" | grep java | awk '{print $1}' | xargs kill > /dev/null 2>&1
+        rm -rf $pid_file
+        log_success_msg "Stopped ${name}:"
+    else
+        log_failure_msg "Not Running ${name}:"
+    fi
 }
 
 chkstatus () {
-    ps ax | grep '${name}' | grep -q java
+    ps ax | grep "${name}" | grep -q java
 }
 
 status () {
