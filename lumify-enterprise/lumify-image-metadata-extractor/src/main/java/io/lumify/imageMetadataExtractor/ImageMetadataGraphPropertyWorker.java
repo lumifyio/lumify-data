@@ -36,14 +36,7 @@ import com.google.i18n.phonenumbers.PhoneNumberUtil;
 
 public class ImageMetadataGraphPropertyWorker extends GraphPropertyWorker {
     private static final LumifyLogger LOGGER = LumifyLoggerFactory.getLogger(ImageMetadataGraphPropertyWorker.class);
-    public static final String CONFIG_PHONE_NUMBER_IRI = "ontology.iri.phoneNumber";
-    public static final String DEFAULT_REGION_CODE = "phoneNumber.defaultRegionCode";
-    public static final String DEFAULT_DEFAULT_REGION_CODE = "US";
     private static final String MULTI_VALUE_KEY = ImageMetadataGraphPropertyWorker.class.getName();
-
-    private final PhoneNumberUtil phoneNumberUtil = PhoneNumberUtil.getInstance();
-    private String defaultRegionCode;
-    private String entityType;
 
     @Override
     public boolean isLocalFileRequired() {
@@ -54,20 +47,7 @@ public class ImageMetadataGraphPropertyWorker extends GraphPropertyWorker {
     public void prepare(GraphPropertyWorkerPrepareData workerPrepareData) throws Exception {
         super.prepare(workerPrepareData);
 
-        LOGGER.info("Test -- Got to here - prepare method 1.");
-
-        //TODO. Not sure what this code is doing/ Delete it?.
-        defaultRegionCode = (String) workerPrepareData.getStormConf().get(DEFAULT_REGION_CODE);
-        if (defaultRegionCode == null) {
-            defaultRegionCode = DEFAULT_DEFAULT_REGION_CODE;
-        }
-
-        entityType = (String) workerPrepareData.getStormConf().get(CONFIG_PHONE_NUMBER_IRI);
-        if (entityType == null || entityType.length() == 0) {
-            throw new LumifyException("Could not find config: " + CONFIG_PHONE_NUMBER_IRI);
-        }
-
-        LOGGER.info("Test -- Got to here - prepare method 2.");
+        LOGGER.info("Test -- Got to here - prepare method.");
 
     }
 
