@@ -1,8 +1,6 @@
-class logstash_client(
+class logstash(
   $version='1.4.2'
 ){
-  $logstash_server = hiera('logstash_server')
-
   group { 'logstash' :
     ensure => present,
   }
@@ -27,25 +25,5 @@ class logstash_client(
     ensure  => link,
     target  => "/opt/logstash-${version}",
     require => Macro::Extract['logstash-extract'],
-  }
-
-  file { '/etc/init.d/logstash' :
-    ensure  => file,
-    mode => '0744',
-    content => template('logstash_client/logstash.erb'),
-  }
-
-  file { '/opt/logstash/logstash.config' :
-    ensure  => file,
-    content => template('logstash_client/logstash.config.erb'),
-  }
-
-  service { 'logstash' :
-    enable  => true,
-    ensure  => running,
-    require => [
-      File['/etc/init.d/logstash'],
-      File['/opt/logstash'],
-    ],
   }
 }

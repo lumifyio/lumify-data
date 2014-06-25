@@ -1,7 +1,7 @@
 input {
   file {
     type => 'accumulo'
-    path => '/usr/lib/accumulo/logs/*'
+    path => '/var/log/accumulo/*'
     start_position => 'beginning'
   }
   file {
@@ -14,6 +14,10 @@ input {
     path => '/opt/storm/logs/*'
     start_position => 'beginning'
   }
+  # TODO: /var/log/elasticsearch
+  # TODO: /var/log/hadoop-0.20-mapreduce
+  # TODO: /var/log/hadoop-hdfs
+  # TODO: /var/log/zookeeper
 }
 
 filter {
@@ -61,4 +65,3 @@ output {
     host => '<%= @logstash_server %>'
   }
 }
-

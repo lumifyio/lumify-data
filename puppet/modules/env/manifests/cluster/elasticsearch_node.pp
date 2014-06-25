@@ -5,4 +5,7 @@ class env::cluster::elasticsearch_node inherits env::cluster::base {
   }
 
   include elasticsearch
+
+  include env::common::logstash_config
+  include logstash::client
 }

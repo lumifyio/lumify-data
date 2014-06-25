@@ -5,4 +5,7 @@ class env::cluster::webserver inherits env::cluster::base {
   }
 
   include env::common::webserver
+
+  include env::common::logstash_config
+  include logstash::client
 }

@@ -5,4 +5,7 @@ class env::cluster::zookeeper_server inherits env::cluster::base {
   }
 
   include zookeeper
+
+  include env::common::logstash_config
+  include logstash::client
 }
