@@ -4,9 +4,10 @@ import com.drew.imaging.ImageMetadataReader;
 import com.drew.metadata.Directory;
 import com.drew.metadata.Metadata;
 import com.drew.metadata.Tag;
-import io.lumify.imageMetadataHelper.DateExtractor;
-import io.lumify.imageMetadataHelper.DateExtractorV2;
+import com.drew.metadata.exif.ExifIFD0Directory;
+import io.lumify.imageMetadataHelper.DateExtractorInStringFormat;
 import io.lumify.imageMetadataHelper.MakeExtractor;
+import io.lumify.imageMetadataHelper.OrientationExtractorOld;
 
 import java.io.File;
 
@@ -27,9 +28,24 @@ public class FakeImageMetadataGraphPropertyWorker {
             }
         }
 
+        //Testing. Add the Orientation property.
+        Integer orientation = OrientationExtractorOld.getOrientation(metadata);
+        System.out.println("Orientation is :" + orientation);
+
+        //Testing2.
+        Integer orientationInteger = null;
+        ExifIFD0Directory exifDir = metadata.getDirectory(ExifIFD0Directory.class);
+        if (exifDir != null) {
+            orientationInteger = exifDir.getInteger(ExifIFD0Directory.TAG_ORIENTATION);
+            System.out.println("Orientation raw is:" + orientationInteger);
+        } else {
+            System.out.println("Orientation raw is: exifDir was null");
+        }
+
+
 
         //Get the date.
-        String dateString = DateExtractorV2.getDateDefault(metadata);
+        String dateString = DateExtractorInStringFormat.getDateDefault(metadata);
         System.out.println("dateString: " + dateString);
 
         String makeString = MakeExtractor.getMake(metadata);

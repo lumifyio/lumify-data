@@ -7,19 +7,17 @@ import com.drew.metadata.xmp.XmpDirectory;
 /**
  * Created by jon.hellmann on 6/24/14.
  */
-public class OrientationExtractor {
+public class OrientationExtractorOld {
 
+    public static Integer getOrientation(Metadata metadata){
 
-
-    public static String getOrientation(Metadata metadata){
-
-        String orientationString = null;
+        Integer orientationInteger = null;
 
         ExifIFD0Directory exifDir = metadata.getDirectory(ExifIFD0Directory.class);
         if (exifDir != null) {
-            orientationString = exifDir.getString(ExifIFD0Directory.TAG_ORIENTATION);
-            if (orientationString != null && !orientationString.equals("none")) {
-                return orientationString;
+            orientationInteger = exifDir.getInteger(ExifIFD0Directory.TAG_ORIENTATION);
+            if (orientationInteger != null) {
+                return orientationInteger;
             }
         }
 

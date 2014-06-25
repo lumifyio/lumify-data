@@ -17,11 +17,12 @@ import java.util.Date;
  *
  *
  */
-public class DateExtractorV2 {
+public class DateExtractorInStringFormat {
 
 
 
     /**
+     * THIS VERSION RETURNS A STRING.
      * Checks the metadata directories in order until the date is found. The first match is returned.
      *
      * NOTE: Only the ExifIFD0Directory and ExifSubIFDDirectory directories will be scanned for dates. The other 8
