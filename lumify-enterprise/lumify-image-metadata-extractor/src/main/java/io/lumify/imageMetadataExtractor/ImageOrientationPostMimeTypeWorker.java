@@ -19,21 +19,30 @@ public class ImageOrientationPostMimeTypeWorker extends PostMimeTypeWorker {
         }
 
         File localFile = getLocalFileForRaw(data.getElement());
-        ImageTransform imageTransform = getImageOrientation(localFile);
+        ImageTransform imageTransform = getImageTransform(localFile);
         if (imageTransform != null) {
+            data.getElement().addPropertyValue(
+                    MULTI_VALUE_PROPERTY_KEY,
+                    Ontology.Y_AXIS_FLIP_NEEDED.getPropertyName(),
+                    imageTransform.isYAxisFlipNeeded(),
+                    data.getVisibility(),
+                    authorizations);
+
             data.getElement().addPropertyValue(
                     MULTI_VALUE_PROPERTY_KEY,
                     Ontology.CW_ROTATION_NEEDED.getPropertyName(),
                     imageTransform.getCWRotationNeeded(),
                     data.getVisibility(),
                     authorizations);
+
             getGraph().flush();
 
+            getWorkQueueRepository().pushGraphPropertyQueue(data.getElement(), MULTI_VALUE_PROPERTY_KEY, Ontology.Y_AXIS_FLIP_NEEDED.getPropertyName());
             getWorkQueueRepository().pushGraphPropertyQueue(data.getElement(), MULTI_VALUE_PROPERTY_KEY, Ontology.CW_ROTATION_NEEDED.getPropertyName());
         }
     }
 
-    private ImageTransform getImageOrientation(File localFile){
+    private ImageTransform getImageTransform(File localFile){
 
         //Original image orientation, with no flip needed, and no rotation needed.
         ImageTransform imageTransform = new ImageTransform(false, 0);
@@ -45,7 +54,7 @@ public class ImageOrientationPostMimeTypeWorker extends PostMimeTypeWorker {
             if (exifDir != null) {
                 Integer orientationInteger = exifDir.getInteger(ExifIFD0Directory.TAG_ORIENTATION);
                 if (orientationInteger != null) {
-                    imageTransform = convertOrientation(orientationInteger);
+                    imageTransform = convertOrientationToTransform(orientationInteger);
                 }
             }
         } catch (Exception e) {
@@ -55,7 +64,7 @@ public class ImageOrientationPostMimeTypeWorker extends PostMimeTypeWorker {
         return imageTransform;
     }
 
-    private ImageTransform convertOrientation(int orientationInt){
+    private ImageTransform convertOrientationToTransform(int orientationInt){
         switch (orientationInt){
             case 1: return new ImageTransform(false, 0);
             case 2: return new ImageTransform(true, 0);

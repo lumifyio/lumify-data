@@ -47,8 +47,12 @@ public class App
                     System.out.println("\n#######################################################");
                     System.out.println("Filename: " + imageFile.getName());
 
-                    FakeImageMetadataGraphPropertyWorker worker = new FakeImageMetadataGraphPropertyWorker();
-                    worker.execute(imageFile);
+                    //###########################
+                    //FakeImageMetadataGraphPropertyWorker worker = new FakeImageMetadataGraphPropertyWorker();
+                    //worker.execute(imageFile);
+
+                    ImageRotationTesting testing = new ImageRotationTesting();
+                    testing.execute(imageFile);
 
                     numImagesProcessed++;
                 } else {

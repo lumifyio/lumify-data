@@ -5,9 +5,7 @@ import com.drew.metadata.Directory;
 import com.drew.metadata.Metadata;
 import com.drew.metadata.Tag;
 import com.drew.metadata.exif.ExifIFD0Directory;
-import io.lumify.imageMetadataHelper.DateExtractorInStringFormat;
 import io.lumify.imageMetadataHelper.MakeExtractor;
-import io.lumify.imageMetadataHelper.OrientationExtractorOld;
 
 import java.io.File;
 
