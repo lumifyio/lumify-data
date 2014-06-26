@@ -7,5 +7,5 @@ class env::cluster::logstash inherits env::cluster::base {
   class { 'elasticsearch' :
     elasticsearch_locations => [$ipaddress],
   }
-  include role::logstash::ui
+  include logstash::ui
 }

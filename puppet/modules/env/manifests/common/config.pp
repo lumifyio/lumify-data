@@ -44,6 +44,8 @@ class env::common::config(
   }
 
   define hdfslibcache_dir {
+    ensure_resource('file', "${name}", {ensure => directory})
+
     file { "${name}/hdfslibcache" :
       ensure  => directory,
       group   => 'lumify',

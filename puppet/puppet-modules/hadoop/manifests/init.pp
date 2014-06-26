@@ -106,9 +106,7 @@ class hadoop {
   }
 
   define setup_data_directory ($pkg) {
-    file { "${name}" :
-      ensure  => directory,
-    }
+    ensure_resource('file', "${name}", {ensure => directory})
 
     file { [ "${name}/hadoop", "${name}/hadoop/tmp" ] :
       ensure  => directory,

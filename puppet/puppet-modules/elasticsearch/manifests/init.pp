@@ -5,7 +5,7 @@ class elasticsearch(
   $installdir = "/usr/lib",
   $logdir = "/var/log/elasticsearch",
   $tmpdir = '/tmp',
-  $elasticsearch_locations = undef
+  $elasticsearch_locations = hiera_array('elasticsearch_locations')
 ) {
   include macro
   include macro::git
@@ -61,10 +61,6 @@ class elasticsearch(
     target  => $configdir,
     force   => true,
     require => [File[$configdir], Macro::Extract[$downloadpath]],
-  }
-
-  if $elasticsearch_locations == undef {
-    $elasticsearch_locations = hiera_array('elasticsearch_locations')
   }
 
   file { "elasticsearch-env-config":
