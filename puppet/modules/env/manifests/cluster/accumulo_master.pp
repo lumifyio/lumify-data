@@ -9,6 +9,9 @@ class env::cluster::accumulo_master inherits accumulo_base {
   class { 'accumulo::fw::monitor' :
     stage => 'first',
   }
+  class { 'accumulo::fw::tracer' :
+    stage => 'first',
+  }
 
   include role::accumulo::head
 
