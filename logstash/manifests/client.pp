@@ -13,4 +13,13 @@ class logstash::client inherits logstash {
       File['/opt/logstash'],
     ],
   }
+
+  define group_membership($group) {
+    ensure_resource('exec', "add-logstash-to-group-${group}", {
+      'command' => "/usr/sbin/usermod -a -G ${group} logstash",
+      'unless'  => "/usr/bin/groups logstash | /bin/grep -q ${group}",
+      'returns' => [ 0, 6 ],
+      'require' => User['logstash']
+    })
+  }
 }
