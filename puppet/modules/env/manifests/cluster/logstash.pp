@@ -3,6 +3,9 @@ class env::cluster::logstash inherits env::cluster::base {
   class { 'elasticsearch::fw::node' :
     stage => 'first',
   }
+  class { 'logstash::fw::ui' :
+    stage => 'first',
+  }
 
   class { 'elasticsearch' :
     elasticsearch_locations => [$ipaddress],
