@@ -1,5 +1,6 @@
 package io.lumify.imageMetadataExtractorTestPlatform;
 
+
 import io.lumify.core.ingest.graphProperty.GraphPropertyWorkData;
 import org.securegraph.Element;
 import org.securegraph.Graph;
@@ -22,7 +23,7 @@ import java.util.Map;
  */
 public class App
 {
-    private String myDirectoryPath = "images2";
+    private String myDirectoryPath = "images3";
     private String supportedExtensions[] = {".jpg", ".jpeg", ".bmp", ".tiff", ".gif", ".psd", ".nef", ".cr2", ".orf", ".arw", ".rw2"};
     //Removed support for crw (was not working).
     private int numImagesProcessed = 0;
@@ -53,6 +54,7 @@ public class App
 
                     ImageRotationTesting testing = new ImageRotationTesting();
                     testing.execute(imageFile);
+
 
                     numImagesProcessed++;
                 } else {

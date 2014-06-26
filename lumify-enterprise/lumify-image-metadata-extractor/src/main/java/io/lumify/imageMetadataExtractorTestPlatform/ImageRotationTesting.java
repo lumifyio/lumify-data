@@ -1,11 +1,12 @@
 package io.lumify.imageMetadataExtractorTestPlatform;
 
+
+import io.lumify.core.model.artifactThumbnails.ImageUtils;
+
 import javax.imageio.ImageIO;
-import java.awt.*;
-import java.awt.geom.AffineTransform;
+import javax.swing.*;
 import java.awt.image.BufferedImage;
 import java.io.File;
-import java.io.FileOutputStream;
 
 /**
  * Created by jon.hellmann on 6/25/14.
@@ -14,30 +15,32 @@ public class ImageRotationTesting {
 
     public void execute(File imageFile) throws Exception{
         BufferedImage old_img = ImageIO.read(imageFile);
-        int w = old_img.getWidth();
-        int h = old_img.getHeight();
+        BufferedImage new_img = ImageUtils.tilt(old_img, Math.PI / 2, thumnbailType(old_img));
+        showImageInFrame(old_img);
+        showImageInFrame(new_img);
+    }
 
-        BufferedImage new_img = new BufferedImage(h,w,BufferedImage.TYPE_INT_BGR);
-        Graphics2D g2d = new_img.createGraphics();
+    public void showImageInFrame(BufferedImage bufImage){
+        showImageInFrame(bufImage, bufImage.getWidth(), bufImage.getHeight() );
+    }
 
-        AffineTransform origXform = g2d.getTransform();
-        AffineTransform newXform = (AffineTransform)(origXform.clone());
-        // center of rotation is center of the panel
-        double xRot = w/2.0;
-        newXform.rotate(Math.toRadians(270.0), xRot, xRot); //270
+    public void showImageInFrame(BufferedImage bufImage, int frameWidth, int frameHeight){
+        JFrame frame = new JFrame("Image loaded from ImageInputStream");
+        JLabel label = new JLabel(new ImageIcon(bufImage));
+        frame.getContentPane().add(label);
+        //frame.pack();
+        frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        frame.setSize(frameWidth, frameHeight);
+        frame.setVisible(true);
+    }
 
-        g2d.setTransform(newXform);
-        // draw image centered in panel
-        g2d.drawImage(old_img, 0, 0, null);
-        // Reset to Original
-        g2d.setTransform(origXform);
-        //
-        FileOutputStream out = new FileOutputStream("D:\\test2.jpg");
-        try{
-            ImageIO.write(new_img, "JPG", out);
-        }finally{
-            out.close();
+
+    //TODO. Duplicate code from ArtifactThumbnailRespository. Can delete later.
+    private int thumnbailType(BufferedImage image) {
+        if (image.getColorModel().getNumComponents() > 3) {
+            return BufferedImage.TYPE_4BYTE_ABGR;
         }
+        return BufferedImage.TYPE_INT_RGB;
     }
 
 }
