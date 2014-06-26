@@ -11,7 +11,6 @@
 ### END INIT INFO
 
 . /etc/init.d/functions
-. /lib/lsb/init-functions
 
 mode="ui"
 name="logstash-$mode"
@@ -32,7 +31,7 @@ start () {
 
     ps ax | grep "${name}" | grep -q java
     if [ $? -eq 0 ]; then
-        log_failure_msg "Already running ${name}:"
+        echo "Already running ${name}:"
         return 1
     fi
 
@@ -44,9 +43,9 @@ start () {
     echo $PID > $pid_file
 
     if [ $RETVAL -eq 0 ]; then
-        log_success_msg "Starting ${name}:"
+        echo "Starting ${name}:"
     else
-        log_failure_msg "Starting ${name}:"
+        echo "Starting ${name}:"
     fi
     return $RETVAL
 }
@@ -56,9 +55,9 @@ stop () {
     if [ $? -eq 0 ]; then
         ps ax | grep "${name}" | grep java | awk '{print $1}' | xargs kill > /dev/null 2>&1
         rm -rf $pid_file
-        log_success_msg "Stopped ${name}:"
+        echo "Stopped ${name}:"
     else
-        log_failure_msg "Not Running ${name}:"
+        echo "Not Running ${name}:"
     fi
 }
 
@@ -72,13 +71,13 @@ status () {
 
     case "$status" in
         0)
-            log_success_msg "${name} is running"
+            echo "${name} is running"
             ;;
         1)
-            log_failure_msg "${name} is not running"
+            echo "${name} is not running"
             ;;
         *)
-            log_failure_msg "${name} status is unknown"
+            echo "${name} status is unknown"
             ;;
     esac
     return $status
