@@ -10,7 +10,6 @@ import io.lumify.core.ingest.graphProperty.GraphPropertyWorkerPrepareData;
 import io.lumify.core.model.properties.RawLumifyProperties;
 import io.lumify.core.util.LumifyLogger;
 import io.lumify.core.util.LumifyLoggerFactory;
-import io.lumify.imageMetadataExtractorTestPlatform.OrientationExtractorOld;
 import io.lumify.imageMetadataHelper.*;
 import org.securegraph.Element;
 import org.securegraph.Property;
@@ -54,12 +53,6 @@ public class ImageMetadataGraphPropertyWorker extends GraphPropertyWorker {
         //Add the Date Taken property.
         if (date != null) {
             Ontology.DATE_TAKEN.addPropertyValue(data.getElement(), MULTI_VALUE_KEY, date, data.getVisibility(), getAuthorizations());
-        }
-
-        //Add the Orientation Description property.
-        String orientationDescription = OrientationExtractorOld.getOrientationDescription(metadata);
-        if (orientationDescription != null) {
-            Ontology.ORIENTATION_DESCRIPTION.addPropertyValue(data.getElement(), MULTI_VALUE_KEY, orientationDescription, data.getVisibility(), getAuthorizations());
         }
 
         //Add the Device Make property.
