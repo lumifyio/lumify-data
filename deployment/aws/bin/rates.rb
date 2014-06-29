@@ -39,6 +39,8 @@ def sort_instances(instances_hash)
     instances_hash.sort_by {|type, i| type}
   when /cpu|cores/
     instances_hash.sort_by {|type, i| i[:vcpu]}
+  when /ecu/
+    instances_hash.sort_by {|type, i| i[:ecu]}
   when /ram|memory/
     instances_hash.sort_by {|type, i| i[:memory]}
   when /disk|storage/
@@ -73,5 +75,5 @@ while (line = stdout.gets) do
 end
 
 sort_instances(instances).each do |type, i|
-  puts '# %-11s (%2i cores, %5.1fGB RAM, %-15s) = $%5.3f/hr' % [type, i[:vcpu], i[:memory], fmt_is(i[:instance_storage]), i[:rate]]
+  puts '# %-11s (%2i cores, %3i ECU, %5.1fGB RAM, %-15s) = $%5.3f/hr' % [type, i[:vcpu], i[:ecu], i[:memory], fmt_is(i[:instance_storage]), i[:rate]]
 end
