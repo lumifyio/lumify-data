@@ -24,9 +24,10 @@ else
 fi
 
 for host in $(awk '!/puppet|osm/ {print $1}' ${hosts_file}); do
+  echo "testing ${host}..."
   ssh -o PasswordAuthentication=no root@${host} hostname &>/dev/null
   if [ $? -ne 0 ]; then
-    echo "copying our public key to ${host}"
+    echo "copying our public key to ${host}..."
     which ssh-copy-id &>/dev/null
     if [ $? -eq 0 ]; then
       ssh-copy-id root@${host}
