@@ -1,8 +1,4 @@
 class env::dev {
-  include env::common::logstash_config
-  include logstash::client
-  include logstash::ui
-
   file { '/etc/yum.repos.d/lumify.repo' :
     source => 'puppet:///modules/env/dev/lumify.repo',
     owner => 'vagrant',

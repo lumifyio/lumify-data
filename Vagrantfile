@@ -153,6 +153,7 @@ Vagrant.configure('2') do |config|
     configure_network(dev)
     provision_proxy(dev, ENV['PROXY_URL'])
     dev.vm.provision :shell, :inline => 'set -x; mkdir -p /data0'
+    install_puppet_modules(dev, ['puppetlabs-stdlib'])
     dev.vm.provision :puppet do |puppet|
       configure_puppet(puppet, 'dev_vm.pp', ENV['PROXY_URL'])
     end
