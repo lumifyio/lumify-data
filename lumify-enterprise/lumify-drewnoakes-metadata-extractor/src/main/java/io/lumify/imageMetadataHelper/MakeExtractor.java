@@ -2,20 +2,17 @@ package io.lumify.imageMetadataHelper;
 
 import com.drew.metadata.Metadata;
 import com.drew.metadata.exif.ExifIFD0Directory;
-import com.drew.metadata.exif.ExifSubIFDDirectory;
-import com.drew.metadata.icc.IccDirectory;
 import com.drew.metadata.xmp.XmpDirectory;
 
 /**
  * Created by jon.hellmann on 6/20/14.
  *
- * NOTE: Checks Exif and XMP.
- *
  */
 public class MakeExtractor {
 
     /**
-     * Checks the metadata directories in order until the make is found. The first match is returned.
+     * Checks the metadata directories in order until the make is found. The first match found in a directory
+     * is returned.
      * @param metadata
      * @return
      */
@@ -40,6 +37,5 @@ public class MakeExtractor {
         }
 
         return null;
-
     }
 }

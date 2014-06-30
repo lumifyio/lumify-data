@@ -2,7 +2,6 @@ package io.lumify.imageMetadataHelper;
 
 import com.drew.metadata.Metadata;
 import com.drew.metadata.exif.ExifIFD0Directory;
-import com.drew.metadata.icc.IccDirectory;
 import com.drew.metadata.xmp.XmpDirectory;
 
 /**
@@ -20,7 +19,6 @@ public class ModelExtractor {
 
         String modelString = null;
 
-
         ExifIFD0Directory exifDir = metadata.getDirectory(ExifIFD0Directory.class);
         if (exifDir != null) {
             modelString = exifDir.getDescription(ExifIFD0Directory.TAG_MODEL);
@@ -36,8 +34,6 @@ public class ModelExtractor {
                 return modelString;
             }
         }
-
         return null;
-
     }
 }

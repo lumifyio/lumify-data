@@ -199,7 +199,7 @@
         </dependency>
         <dependency>
             <groupId>io.lumify</groupId>
-            <artifactId>lumify-image-metadata-extractor</artifactId>
+            <artifactId>lumify-drewnoakes-metadata-extractor</artifactId>
             <version>${project.version}</version>
         </dependency>
         <!--<dependency>-->

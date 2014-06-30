@@ -1,8 +1,5 @@
 package io.lumify.imageMetadataExtractor;
 
-import com.drew.imaging.ImageMetadataReader;
-import com.drew.metadata.Metadata;
-import com.drew.metadata.exif.ExifIFD0Directory;
 import io.lumify.core.ingest.graphProperty.GraphPropertyWorkData;
 import io.lumify.core.ingest.graphProperty.PostMimeTypeWorker;
 import io.lumify.imageMetadataHelper.ImageTransformExtractor;
@@ -42,9 +39,5 @@ public class ImageOrientationPostMimeTypeWorker extends PostMimeTypeWorker {
             getWorkQueueRepository().pushGraphPropertyQueue(data.getElement(), MULTI_VALUE_PROPERTY_KEY, Ontology.CW_ROTATION_NEEDED.getPropertyName());
         }
     }
-
-
-
-
 
 }

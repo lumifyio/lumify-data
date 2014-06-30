@@ -1,22 +1,22 @@
 package io.lumify.imageMetadataExtractor;
 
 import com.drew.imaging.ImageMetadataReader;
-import com.drew.metadata.Directory;
 import com.drew.metadata.Metadata;
-import com.drew.metadata.Tag;
 import io.lumify.core.ingest.graphProperty.GraphPropertyWorkData;
 import io.lumify.core.ingest.graphProperty.GraphPropertyWorker;
 import io.lumify.core.ingest.graphProperty.GraphPropertyWorkerPrepareData;
 import io.lumify.core.model.properties.RawLumifyProperties;
 import io.lumify.core.util.LumifyLogger;
 import io.lumify.core.util.LumifyLoggerFactory;
-import io.lumify.imageMetadataHelper.*;
+import io.lumify.imageMetadataHelper.DateExtractor;
+import io.lumify.imageMetadataHelper.MakeExtractor;
+import io.lumify.imageMetadataHelper.ModelExtractor;
 import org.securegraph.Element;
 import org.securegraph.Property;
 
 import java.io.File;
 import java.io.InputStream;
-import java.util.*;
+import java.util.Date;
 
 
 public class ImageMetadataGraphPropertyWorker extends GraphPropertyWorker {
@@ -31,37 +31,25 @@ public class ImageMetadataGraphPropertyWorker extends GraphPropertyWorker {
     @Override
     public void prepare(GraphPropertyWorkerPrepareData workerPrepareData) throws Exception {
         super.prepare(workerPrepareData);
-
-        LOGGER.info("Test -- Got to here - prepare method.");
-
     }
 
     @Override
     public void execute(InputStream in, GraphPropertyWorkData data) throws Exception {
-        LOGGER.info("Test -- Got to here - execute method");
-
-        //Create a reference to the local file.
         File imageFile = data.getLocalFile();
 
-        //Retrieve the metadata from the image.
         Metadata metadata = ImageMetadataReader.readMetadata(imageFile);
 
-        //Get the date as a Date object using the metadata-extractor library.
         Date date = DateExtractor.getDateDefault(metadata);
-        printDateInfo("imageMetadata date", date);
 
-        //Add the Date Taken property.
         if (date != null) {
             Ontology.DATE_TAKEN.addPropertyValue(data.getElement(), MULTI_VALUE_KEY, date, data.getVisibility(), getAuthorizations());
         }
 
-        //Add the Device Make property.
         String deviceMake = MakeExtractor.getMake(metadata);
         if (deviceMake != null) {
             Ontology.DEVICE_MAKE.addPropertyValue(data.getElement(), MULTI_VALUE_KEY, deviceMake, data.getVisibility(), getAuthorizations());
         }
 
-        //Add the Device Model property.
         String deviceModel = ModelExtractor.getModel(metadata);
         if (deviceModel != null) {
             Ontology.DEVICE_MODEL.addPropertyValue(data.getElement(), MULTI_VALUE_KEY, deviceModel, data.getVisibility(), getAuthorizations());
@@ -72,9 +60,6 @@ public class ImageMetadataGraphPropertyWorker extends GraphPropertyWorker {
 
     @Override
     public boolean isHandled(Element element, Property property) {
-
-        LOGGER.info("Test -- Got to here - isHandled method 1.");
-
         if (property == null) {
             return false;
         }
@@ -84,43 +69,11 @@ public class ImageMetadataGraphPropertyWorker extends GraphPropertyWorker {
             return false;
         }
         //TODO. Checking for jpg only so far. Need to support other file types.
-        if (mimeType.startsWith("image/jpeg")){
-            LOGGER.info("Test -- Got to here - Starts with image/jpeg.");
+        if (mimeType.startsWith("image/jpeg")) {
             return true;
         } else {
             return false;
         }
-
     }
 
-    public void printDateInfo(String name, Date date){
-        if (date != null) {
-            LOGGER.info(name + ", years since 1900: " + date.getYear());
-            LOGGER.info(name + ", mon: " + date.getMonth());
-            LOGGER.info(name + ", day: " + date.getDate());
-            LOGGER.info(name + ", hours: " + date.getHours());
-            LOGGER.info(name + ", min: " + date.getMinutes());
-            LOGGER.info(name + ", sec: " + date.getSeconds());
-        }
-    }
-
-    public void printPropertyInfo(GraphPropertyWorkData data){
-        Iterator itr = data.getElement().getProperties().iterator();
-        while(itr.hasNext())
-        {
-            Property property = (Property) itr.next();
-            LOGGER.info("Test -- next Property: ");
-            LOGGER.info("Test -- Got to here - execute method: property Name = " + property.getName() );
-            LOGGER.info("Test -- Got to here - execute method: property Value = " + property.getValue() );
-            LOGGER.info("Test -- Got to here - execute method: property Key = " + property.getKey() );
-        }
-    }
-
-    public void printAllMetadata(Metadata metadata) {
-        for(Directory directory : metadata.getDirectories()){
-            for(Tag tag : directory.getTags()) {
-                LOGGER.info("Tag: " + tag );
-            }
-        }
-    }
 }
