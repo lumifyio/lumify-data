@@ -24,7 +24,7 @@ logstash_user=logstash
 NICE_LEVEL="-n 19"
 
 start () {
-    command="${logstash_bin} web -f $logstash_conf --log ${logstash_log}"
+    command="${logstash_bin} web"
 
     mkdir -p /var/log/logstash/
     chown -R logstash:logstash /var/log/logstash/
