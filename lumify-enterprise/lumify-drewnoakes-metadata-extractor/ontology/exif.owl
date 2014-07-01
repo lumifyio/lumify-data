@@ -86,12 +86,21 @@
 
     <!-- http://lumify.io/exif#devicemodel -->
 
-    <owl:DatatypeProperty rdf:about="http://lumify.io/exif#devicemodel">
-        <rdfs:label xml:lang="en">Device Model</rdfs:label>
-        <rdfs:domain rdf:resource="http://lumify.io/dev#image"/>
-        <rdfs:range rdf:resource="&xsd;string"/>
-    </owl:DatatypeProperty>
+        <owl:DatatypeProperty rdf:about="http://lumify.io/exif#devicemodel">
+            <rdfs:label xml:lang="en">Device Model</rdfs:label>
+            <rdfs:domain rdf:resource="http://lumify.io/dev#image"/>
+            <rdfs:range rdf:resource="&xsd;string"/>
+        </owl:DatatypeProperty>
 
+
+
+    <!-- http://lumify.io/exif#geoLocation -->
+
+        <owl:DatatypeProperty rdf:about="http://lumify.io/exif#geoLocation">
+            <rdfs:label xml:lang="en">Location</rdfs:label>
+            <rdfs:domain rdf:resource="http://lumify.io/dev#image"/>
+            <rdfs:range rdf:resource="&lumify;geolocation"/>
+        </owl:DatatypeProperty>
 
 
 

@@ -13,6 +13,7 @@ import io.lumify.imageMetadataHelper.MakeExtractor;
 import io.lumify.imageMetadataHelper.ModelExtractor;
 import org.securegraph.Element;
 import org.securegraph.Property;
+import org.securegraph.type.GeoPoint;
 
 import java.io.File;
 import java.io.InputStream;
@@ -54,6 +55,9 @@ public class ImageMetadataGraphPropertyWorker extends GraphPropertyWorker {
         if (deviceModel != null) {
             Ontology.DEVICE_MODEL.addPropertyValue(data.getElement(), MULTI_VALUE_KEY, deviceModel, data.getVisibility(), getAuthorizations());
         }
+
+        //GeoPoint geoLocation code. Reference FoodTruck.
+
 
     }
 
