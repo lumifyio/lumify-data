@@ -4,7 +4,6 @@ import com.drew.imaging.ImageMetadataReader;
 import com.drew.imaging.ImageProcessingException;
 import com.drew.metadata.Metadata;
 import com.drew.metadata.exif.ExifIFD0Directory;
-import io.lumify.core.exception.LumifyException;
 import io.lumify.core.util.LumifyLogger;
 import io.lumify.core.util.LumifyLoggerFactory;
 import io.lumify.imageMetadataExtractor.ImageTransform;
@@ -32,10 +31,10 @@ public class ImageTransformExtractor {
             }
         } catch (ImageProcessingException e) {
             LOGGER.warn("drewnoakes metadata extractor threw ImageProcessingException when reading metadata." +
-            " Returning default orientation for image.");
+                    " Returning default orientation for image.");
         } catch (IOException e) {
             LOGGER.warn("drewnoakes metadata extractor threw IOException when reading metadata." +
-            " Returning default orientation for image.");
+                    " Returning default orientation for image.");
         }
 
         return imageTransform;
