@@ -12,10 +12,11 @@ public class ModelExtractor {
     /**
      * Checks the metadata directories in order until the model is found. The first match found in a directory
      * is returned.
+     *
      * @param metadata
      * @return
      */
-    public static String getModel(Metadata metadata){
+    public static String getModel(Metadata metadata) {
 
         String modelString = null;
 

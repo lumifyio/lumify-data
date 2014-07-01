@@ -6,17 +6,17 @@ import com.drew.metadata.xmp.XmpDirectory;
 
 /**
  * Created by jon.hellmann on 6/20/14.
- *
  */
 public class MakeExtractor {
 
     /**
      * Checks the metadata directories in order until the make is found. The first match found in a directory
      * is returned.
+     *
      * @param metadata
      * @return
      */
-    public static String getMake(Metadata metadata){
+    public static String getMake(Metadata metadata) {
 
         String makeString = null;
 
