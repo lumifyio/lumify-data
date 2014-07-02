@@ -9,6 +9,7 @@ import io.lumify.core.model.properties.RawLumifyProperties;
 import io.lumify.core.util.LumifyLogger;
 import io.lumify.core.util.LumifyLoggerFactory;
 import io.lumify.imageMetadataHelper.DateExtractor;
+import io.lumify.imageMetadataHelper.GeoPointExtractor;
 import io.lumify.imageMetadataHelper.MakeExtractor;
 import io.lumify.imageMetadataHelper.ModelExtractor;
 import org.securegraph.Element;
@@ -56,11 +57,10 @@ public class ImageMetadataGraphPropertyWorker extends GraphPropertyWorker {
             Ontology.DEVICE_MODEL.addPropertyValue(data.getElement(), MULTI_VALUE_KEY, deviceModel, data.getVisibility(), getAuthorizations());
         }
 
-
-        GeoPoint imageLocation = new GeoPoint(38.921151, -77.232725, new Double(240));
-
+        GeoPoint imageLocation = GeoPointExtractor.getGeoPoint(metadata);
+        if (imageLocation != null) {
             Ontology.GEO_LOCATION.addPropertyValue(data.getElement(), MULTI_VALUE_KEY, imageLocation, data.getVisibility(), getAuthorizations());
-
+        }
     }
 
 
