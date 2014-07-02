@@ -9,8 +9,8 @@
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
-    <artifactId>lumify-drewnoakes-metadata-extractor</artifactId>
-    <name>Lumify: Drew Noakes Metadata Extractor</name>
+    <artifactId>lumify-drewnoakes-image-metadata-extractor</artifactId>
+    <name>Lumify: Drew Noakes Image Metadata Extractor</name>
 
     <dependencies>
         <dependency>
