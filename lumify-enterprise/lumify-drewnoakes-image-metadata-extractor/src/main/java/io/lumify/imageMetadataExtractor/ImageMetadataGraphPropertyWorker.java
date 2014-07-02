@@ -57,7 +57,7 @@ public class ImageMetadataGraphPropertyWorker extends GraphPropertyWorker {
             Ontology.DEVICE_MODEL.addPropertyValue(data.getElement(), MULTI_VALUE_KEY, deviceModel, data.getVisibility(), getAuthorizations());
         }
 
-        GeoPoint imageLocation = GeoPointExtractor.getGeoPoint(metadata);
+        GeoPoint imageLocation = GeoPointExtractor.getGeoPointWithDirection(metadata);
         if (imageLocation != null) {
             Ontology.GEO_LOCATION.addPropertyValue(data.getElement(), MULTI_VALUE_KEY, imageLocation, data.getVisibility(), getAuthorizations());
         }
