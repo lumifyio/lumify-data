@@ -10,6 +10,10 @@
      <name>dfs.permissions.enabled</name>
      <value>false</value>
   </property>
+  <property>
+     <name>dfs.datanode.synconclose</name>
+     <value>true</value>
+  </property>
 
   <% if @hadoop_slaves.count == 1 %>
   <!-- Immediately exit safemode as soon as one DataNode checks in. 

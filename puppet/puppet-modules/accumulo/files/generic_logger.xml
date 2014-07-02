@@ -26,7 +26,7 @@
      <param name="Threshold"      value="DEBUG"/>
      <layout class="org.apache.log4j.PatternLayout">
        <param name="ConversionPattern" value="%d{ISO8601} [%-8c{2}] %-5p: %m%n"/>
-     </layout>	    
+     </layout>
   </appender>
 
   <!--  Write out INFO and higher to the regular log -->
@@ -55,8 +55,7 @@
 
   <!-- Log accumulo events to the debug, normal and remote logs. -->
   <logger name="org.apache.accumulo" additivity="false">
-     <level value="DEBUG"/>
-     <appender-ref ref="A2" />
+     <level value="INFO"/>
      <appender-ref ref="A3" />
      <appender-ref ref="ASYNC" />
   </logger>
@@ -80,7 +79,6 @@
   <!-- Log non-accumulo events to the debug and normal logs. -->
   <root>
      <level value="INFO"/>
-     <appender-ref ref="A2" />
      <appender-ref ref="A3" />
   </root>
 

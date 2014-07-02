@@ -21,7 +21,7 @@ REQUIRED_CONFIG_KEYS          = ['default_availability_zone',
 # http://docs.aws.amazon.com/AWSEC2/latest/UserGuide/placement-groups.html#concepts-placement-groups
 PLACEMENT_GROUP_TYPES         = ['c3.large', 'c3.xlarge', 'c3.2xlarge', 'c3.4xlarge', 'c3.8xlarge', 'cc2.8xlarge',
                                  'cg1.4xlarge', 'g2.2xlarge',
-                                 'cr1.8xlarge',
+                                 'cr1.8xlarge', 'r3.large', 'r3.xlarge', 'r3.2xlarge', 'r3.4xlarge', 'r3.8xlarge',
                                  'hi1.4xlarge', 'hs1.8xlarge', 'i2.xlarge', 'i2.2xlarge', 'i2.4xlarge', 'i2.8xlarge'
                                 ]
 

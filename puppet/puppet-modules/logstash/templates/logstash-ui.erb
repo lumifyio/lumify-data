@@ -1,0 +1,111 @@
+#!/bin/sh
+
+### BEGIN INIT INFO
+# Provides:          logstash-client
+# Required-Start:    $remote_fs $syslog
+# Required-Stop:     $remote_fs $syslog
+# Default-Start:     2 3 4 5
+# Default-Stop:      0 1 6
+# Short-Description: Start daemon at boot time
+# Description:       Enable service provided by daemon.
+### END INIT INFO
+
+. /etc/init.d/functions
+
+mode="ui"
+name="logstash-$mode"
+logstash_bin="/opt/logstash/bin/logstash"
+logstash_conf="/opt/logstash/logstash.config"
+logstash_log_dir="/var/log/logstash"
+logstash_log="$logstash_log_dir/$name.log"
+pid_file="/var/run/$name.pid"
+logstash_user=logstash
+
+NICE_LEVEL="-n 19"
+
+start () {
+    command="${logstash_bin} web"
+
+    mkdir -p /var/log/logstash/
+    chown -R logstash:logstash /var/log/logstash/
+
+    ps ax | grep "${name}" | grep -q java
+    if [ $? -eq 0 ]; then
+        echo "Already running ${name}:"
+        return 1
+    fi
+
+    daemon --user="$logstash_user" --pidfile="$pid_file" "$command > ${logstash_log_dir}/stdout 2>&1 &"
+
+    RETVAL=$?
+    PID=`ps ax | grep "${name}" | grep java | awk '{print $1}'`
+
+    echo $PID > $pid_file
+
+    if [ $RETVAL -eq 0 ]; then
+        echo "Starting ${name}:"
+    else
+        echo "Starting ${name}:"
+    fi
+    return $RETVAL
+}
+
+stop () {
+    chkstatus
+    if [ $? -eq 0 ]; then
+        ps ax | grep "${name}" | grep java | awk '{print $1}' | xargs kill > /dev/null 2>&1
+        rm -rf $pid_file
+        echo "Stopped ${name}:"
+    else
+        echo "Not Running ${name}:"
+    fi
+}
+
+chkstatus () {
+    ps ax | grep "${name}" | grep -q java
+}
+
+status () {
+    chkstatus
+    status=$?
+
+    case "$status" in
+        0)
+            echo "${name} is running"
+            ;;
+        1)
+            echo "${name} is not running"
+            ;;
+        *)
+            echo "${name} status is unknown"
+            ;;
+    esac
+    return $status
+}
+
+case $1 in
+    start)
+        if chkstatus; then exit 0; fi
+        start
+        ;;
+    stop)
+        stop
+        ;;
+    reload)
+        stop
+        start
+        ;;
+    restart)
+        stop
+        start
+        ;;
+    status)
+        status && exit 0 || exit $?
+        ;;
+    *)
+        echo "Usage: $0 {start|stop|restart|reload|status}"
+        exit 1
+        ;;
+esac
+
+exit 0

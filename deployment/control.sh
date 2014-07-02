@@ -32,6 +32,13 @@ function _rabbitmq_servers {
 function _stormmaster {
   _localhost && echo 'localhost' || awk '/ +stormmaster/ {print $1}' ${HOSTS_FILE}
 }
+function _logstash {
+  _localhost && echo 'localhost' || awk '/ +logstash/ {print $1}' ${HOSTS_FILE}
+}
+function _logstash_clients {
+  echo $(_namenode) $(_secondarynamenode) $(_nodes) $(_zk_servers) $(_accumulomaster) $(_webservers) $(_stormmaster) \
+    | tr ' ' '\n' | sort -t . -k 4 -n -u
+}
 
 function __run_at {
   local host=$1; shift
@@ -66,8 +73,8 @@ function _run_at_v {
 
 function _color_status {
   cat \
-    | GREP_COLORS='mt=01;32' grep --color=always -E 'running|' \
-    | GREP_COLORS='mt=01;31' grep --color=always -E 'Unknown|stop|stopped|'
+    | GREP_COLORS='mt=01;32' grep --color=always -P '(?<!not )running|' \
+    | GREP_COLORS='mt=01;31' grep --color=always -E 'not running|Unknown|stop|stopped|'
 }
 
 function _hadoop_start {
@@ -326,7 +333,45 @@ function _storm_rmlogs {
   done
 }
 
+function _logstash_start {
+  _run_at $(_logstash) initctl start elasticsearch
+  _run_at $(_logstash) service logstash-ui start
+
+  for node in $(_logstash_clients); do
+    _run_at ${node} service logstash-client start
+  done
+}
+
+function _logstash_stop {
+  for node in $(_logstash_clients); do
+    _run_at ${node} service logstash-client stop
+  done
+
+  _run_at $(_logstash) service logstash-ui stop
+  _run_at $(_logstash) initctl stop elasticsearch
+}
+
+function _logstash_status {
+  _run_at $(_logstash) initctl status elasticsearch 2>&1 | _color_status
+  _run_at $(_logstash) service logstash-ui status 2>&1 | _color_status
+
+  for node in $(_logstash_clients); do
+    _run_at ${node} service logstash-client status 2>&1 | _color_status
+  done
+}
+
+function _logstash_rmlogs {
+  cmd='rm -f /var/log/elasticsearch/*'
+  _run_at_v $(_logstash) ${cmd}
+
+  cmd='rm -f /var/log/logstash/*'
+  for node in $(_logstash) $(_logstash_clients); do
+    _run_at_v ${node} ${cmd}
+  done
+}
+
 function _all_start {
+  _logstash_start
   _hadoop_start
   _zookeeper_start
   _accumulo_start
@@ -344,9 +389,11 @@ function _all_stop {
   _accumulo_stop
   _zookeeper_stop
   _hadoop_stop
+  _logstash_stop
 }
 
 function _all_status {
+  _logstash_status
   _hadoop_status
   _zookeeper_status
   _accumulo_status
@@ -357,6 +404,7 @@ function _all_status {
 }
 
 function _all_rmlogs {
+  _logstash_rmlogs
   _hadoop_rmlogs
   _zookeeper_rmlogs
   _accumulo_rmlogs
