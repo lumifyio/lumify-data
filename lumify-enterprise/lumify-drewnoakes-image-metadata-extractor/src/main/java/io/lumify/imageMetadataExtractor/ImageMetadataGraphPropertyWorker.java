@@ -8,10 +8,7 @@ import io.lumify.core.ingest.graphProperty.GraphPropertyWorkerPrepareData;
 import io.lumify.core.model.properties.RawLumifyProperties;
 import io.lumify.core.util.LumifyLogger;
 import io.lumify.core.util.LumifyLoggerFactory;
-import io.lumify.imageMetadataHelper.DateExtractor;
-import io.lumify.imageMetadataHelper.GeoPointExtractor;
-import io.lumify.imageMetadataHelper.MakeExtractor;
-import io.lumify.imageMetadataHelper.ModelExtractor;
+import io.lumify.imageMetadataHelper.*;
 import org.securegraph.Element;
 import org.securegraph.Property;
 import org.securegraph.type.GeoPoint;
@@ -57,9 +54,19 @@ public class ImageMetadataGraphPropertyWorker extends GraphPropertyWorker {
             Ontology.DEVICE_MODEL.addPropertyValue(data.getElement(), MULTI_VALUE_KEY, deviceModel, data.getVisibility(), getAuthorizations());
         }
 
-        GeoPoint imageLocation = GeoPointExtractor.getGeoPointWithDirection(metadata);
+        GeoPoint imageLocation = GeoPointExtractor.getGeoPoint(metadata);
         if (imageLocation != null) {
             Ontology.GEO_LOCATION.addPropertyValue(data.getElement(), MULTI_VALUE_KEY, imageLocation, data.getVisibility(), getAuthorizations());
+        }
+
+        Double imageFacingDirection = DirectionExtractor.getImageFacingDirection(metadata);
+        if (imageFacingDirection != null) {
+            Ontology.DIRECTION.addPropertyValue(data.getElement(), MULTI_VALUE_KEY, imageFacingDirection, data.getVisibility(), getAuthorizations());
+        }
+
+        String imageFacingDirectionDescription = DirectionExtractor.getImageFacingDirectionDescription(metadata);
+        if (imageFacingDirectionDescription != null) {
+            Ontology.DIRECTION_DESCRIPTION.addPropertyValue(data.getElement(), MULTI_VALUE_KEY, imageFacingDirectionDescription, data.getVisibility(), getAuthorizations());
         }
     }
 
