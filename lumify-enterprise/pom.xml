@@ -187,6 +187,7 @@
         <module>lumify-reindex</module>
         <module>lumify-igw</module>
         <module>lumify-classification</module>
+        <module>lumify-drewnoakes-image-metadata-extractor</module>
         <module>lumify-tomcat-server-enterprise</module>
         <!--<module>lumify-gtd</module>-->
     </modules>
