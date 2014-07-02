@@ -1,9 +1,9 @@
 # instance types, see http://docs.aws.amazon.com/AWSEC2/latest/UserGuide/instance-types.html
 #                     http://calculator.s3.amazonaws.com/calc5.html
-# m1.medium  (1 core,  3.7GB RAM)                       = $0.120/hr
-# m1.xlarge  (4 cores, 15GB RAM, 1680GB local storage)  = $0.480/hr
-# m3.xlarge  (4 cores, 15GB RAM)                        = $0.500/hr
-# EBS                                                   = $0.070/GB-month
+# m1.medium   ( 1 cores,   3.8GB RAM,  1 x  410GB    ) = $0.087/hr
+# m1.xlarge   ( 4 cores,  15.0GB RAM,  4 x  420GB    ) = $0.350/hr
+# m3.xlarge   ( 4 cores,  15.0GB RAM,  2 x   40GB SSD) = $0.280/hr
+# EBS                                                  = $0.100/GB-month
 
 m1.medium  10G          10.0.3.10   ip-10-0-3-10   puppet,proxy,syslog
 

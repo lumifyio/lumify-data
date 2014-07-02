@@ -9,6 +9,7 @@ MAP = {
   'stormmaster'       => ['include env::cluster::storm_master'],
   /kafka\d{2}/        => ['include env::cluster::kafka_node'],
   /rabbitmq\d{2}/     => ['include env::cluster::rabbitmq_node'],
+  'logstash'          => ['include env::cluster::logstash'],
   /node\d{2}/         => ['include env::cluster::node'],
   /zk\d{2}/           => ['include env::cluster::zookeeper_server'],
   /www(\d{2})?/       => ['include env::cluster::webserver']

@@ -17,6 +17,7 @@ twitter.consumerKey=
 twitter.consumerSecret=
 twitter.token=
 twitter.tokenSecret=
+twitter.inputMethod=twitter4j
 twitter.query= # Keywords to search Twitter for, e.g. twitter
 # When searching for multiple phrases it must be a semi-colon separated list, e.g. twitter; face book; instagram
 ```
