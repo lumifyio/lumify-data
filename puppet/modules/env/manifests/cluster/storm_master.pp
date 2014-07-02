@@ -1,4 +1,4 @@
-class env::cluster::storm_master inherits env::cluster::base {
+class env::cluster::storm_master inherits storm_base {
   include my_fw
   class { 'storm::fw::nimbus' :
     stage => 'first',

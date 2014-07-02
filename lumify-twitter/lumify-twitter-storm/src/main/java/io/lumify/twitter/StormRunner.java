@@ -15,6 +15,7 @@ public class StormRunner extends StormRunnerBase {
     private static final String OPT_FILE_NAME = "filename";
     private static final String OPT_STREAM = "stream";
     private static final String OPT_TWITTER4J = "twitter4j";
+    public static final String TWITTER_INPUT_METHOD = "twitter.inputMethod";
     private String fileName;
     private boolean stream;
     private boolean twitter4j;
@@ -67,13 +68,33 @@ public class StormRunner extends StormRunnerBase {
 
         if (cmd.hasOption(OPT_FILE_NAME)) {
             fileName = cmd.getOptionValue(OPT_FILE_NAME);
-        } else if (cmd.hasOption(OPT_STREAM)) {
-            stream = true;
-        } else if (cmd.hasOption(OPT_TWITTER4J)) {
-            twitter4j = true;
-        } else {
-            throw new LumifyException("You must specify one input method");
+            return;
         }
+
+        if (cmd.hasOption(OPT_STREAM)) {
+            stream = true;
+            return;
+        }
+
+        if (cmd.hasOption(OPT_TWITTER4J)) {
+            twitter4j = true;
+            return;
+        }
+
+        String inputMethod = (String) conf.get(TWITTER_INPUT_METHOD);
+        if (inputMethod != null) {
+            if ("stream".equals(inputMethod)) {
+                stream = true;
+                return;
+            }
+
+            if ("twitter4j".equals(inputMethod)) {
+                twitter4j = true;
+                return;
+            }
+        }
+
+        throw new LumifyException("You must specify one input method");
     }
 
     public StormTopology createTopology(int parallelismHint) {

@@ -39,13 +39,13 @@
             <groupId>com.google.guava</groupId>
             <artifactId>guava</artifactId>
             <version>${storm.guava.version}</version>
-            <scope>${cluster.dependency.scope}</scope>
+            <scope>provided</scope>
         </dependency>
         <dependency>
             <groupId>log4j</groupId>
             <artifactId>log4j</artifactId>
             <version>${storm.log4j.version}</version>
-            <scope>${cluster.dependency.scope}</scope>
+            <scope>provided</scope>
         </dependency>
         <dependency>
             <groupId>org.apache.httpcomponents</groupId>
@@ -60,12 +60,12 @@
             <groupId>org.slf4j</groupId>
             <artifactId>slf4j-log4j12</artifactId>
             <version>${storm.slf4j.version}</version>
-            <scope>${cluster.dependency.scope}</scope>
+            <scope>provided</scope>
         </dependency>
         <dependency>
             <groupId>storm</groupId>
             <artifactId>storm</artifactId>
-            <scope>${cluster.dependency.scope}</scope>
+            <scope>provided</scope>
             <exclusions>
                 <exclusion>
                     <groupId>commons-io</groupId>
@@ -124,16 +124,6 @@
         </dependency>
     </dependencies>
 
-    <profiles>
-        <!-- Use this profile to build when deploying to a clustered environment. -->
-        <profile>
-            <id>cluster</id>
-            <properties>
-                <cluster.dependency.scope>provided</cluster.dependency.scope>
-            </properties>
-        </profile>
-    </profiles>
-
     <build>
         <plugins>
             <plugin>
@@ -178,7 +168,7 @@
                     <descriptor>src/main/assembly/descriptor.xml</descriptor>
                     <archive>
                         <manifest>
-                            <mainClass>io.lumify.storm.StormRunner</mainClass>
+                            <mainClass>io.lumify.twitter.StormRunner</mainClass>
                         </manifest>
                     </archive>
                 </configuration>

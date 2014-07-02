@@ -1,0 +1,68 @@
+input {
+  file {
+    type => 'accumulo'
+    path => '/var/log/accumulo/*'
+    start_position => 'beginning'
+  }
+  file {
+    type => 'lumify'
+    path => '/opt/lumify/logs/*'
+    start_position => 'beginning'
+  }
+  file {
+    type => 'storm'
+    path => '/opt/storm/logs/*'
+    start_position => 'beginning'
+  }
+  # TODO: /var/log/elasticsearch
+  # TODO: /var/log/hadoop-0.20-mapreduce
+  # TODO: /var/log/hadoop-hdfs
+  # TODO: /var/log/zookeeper
+  # TODO: /opt/jetty/logs
+}
+
+filter {
+  if [type] == 'accumulo' {
+    # 2014-04-28 15:34:43,798 [server.Accumulo] INFO : Attempting to talk to zookeeper
+    grok {
+      match => [ "message", "%{GREEDYDATA:timestamp}\s\[%{JAVACLASS:category}\]\s+%{LOGLEVEL:severity}\s*:\s+%{GREEDYDATA:message}" ]
+      overwrite => [ "message" ]
+    }
+    date {
+      match => [ "timestamp", "YYYY-MM-dd HH:mm:ss,SSS" ]
+    }
+  }
+
+  if [type] == 'lumify' {
+    # 2014-06-03 17:36:25.520/UTC INFO  [core.util.LumifyLoggerFactory] Using log4j.xml: /opt/lumify/config/log4j.xml
+    grok {
+      match => [ "message", "%{GREEDYDATA:timestamp}\s%{LOGLEVEL:severity}\s+\[%{JAVACLASS:category}\]%{GREEDYDATA:message}" ]
+      overwrite => [ "message" ]
+    }
+    date {
+      match => [ "timestamp", "YYYY-MM-dd HH:mm:ss.SSS/zzz" ]
+    }
+  }
+
+  if [type] == 'storm' {
+    # 2014-05-21 15:31:34 o.a.z.ZooKeeper [INFO] Client environment:java.home=/usr/java/jdk1.6.0_45/jre
+    grok {
+      match => [ "message", "%{GREEDYDATA:timestamp}\s%{JAVACLASS:category}\s+\[%{LOGLEVEL:severity}\]\s+%{GREEDYDATA:message}" ]
+      overwrite => [ "message" ]
+    }
+    date {
+      match => [ "timestamp", "YYYY-MM-dd HH:mm:ss" ]
+    }
+  }
+
+  multiline {
+    pattern => '(^.+Exception: .+)|(^\s+at .+)|(^\s+... \d+ more)|(^\s*Caused by:.+)'
+    what => 'previous'
+  }
+}
+
+output {
+  elasticsearch_http {
+    host => '<%= @logstash_server %>'
+  }
+}
