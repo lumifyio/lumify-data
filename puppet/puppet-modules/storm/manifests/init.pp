@@ -105,7 +105,7 @@ class storm(
   }
 
   macro::download { "storm-download":
-    url     => "https://s3.amazonaws.com/RedDawn/puppet-repo/storm/${storm_basename}.zip",
+    url     => "http://s3.amazonaws.com/RedDawn/puppet-repo/storm/${storm_basename}.zip",
     path    => $downloadpath,
     require => [Package['python'], Exec['jzmq-build']],
   } -> macro::extract { $downloadpath:
