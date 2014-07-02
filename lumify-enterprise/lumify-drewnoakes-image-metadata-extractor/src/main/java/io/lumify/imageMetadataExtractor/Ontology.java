@@ -10,4 +10,5 @@ public class Ontology {
     public static final StringLumifyProperty DEVICE_MAKE = new StringLumifyProperty("http://lumify.io/exif#devicemake");
     public static final StringLumifyProperty DEVICE_MODEL = new StringLumifyProperty("http://lumify.io/exif#devicemodel");
     public static final GeoPointLumifyProperty GEO_LOCATION = new GeoPointLumifyProperty("http://lumify.io/exif#geoLocation");
+    public static final DoubleLumifyProperty DIRECTION = new DoubleLumifyProperty("http://lumify.io/exif#direction");
 }
