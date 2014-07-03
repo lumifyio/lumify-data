@@ -68,6 +68,9 @@ public class ElasticsearchBenchmark {
         if (clusterName != null) {
             settingsBuilder.put("cluster.name", clusterName);
         }
+        if (hostname != null) {
+            settingsBuilder.put("discovery.zen.ping.unicast.hosts", hostname);
+        }
         Settings settings = settingsBuilder.build();
 
         Client client = createClient(settings);
@@ -156,6 +159,7 @@ public class ElasticsearchBenchmark {
             LOGGER.info("Connecting to elasticsearch via node API");
             Node node = NodeBuilder.nodeBuilder()
                     .settings(settings)
+                    .client(true)
                     .node();
             client = node.client();
         } else {
