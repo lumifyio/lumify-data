@@ -24,7 +24,6 @@
         <module>lumify-account-web</module>
         <module>lumify-web-auth-x509ldap</module>
         <module>lumify-tomcat-server-with-auth</module>
-        <module>lumify-food-truck</module>
     </modules>
 </project>
 
