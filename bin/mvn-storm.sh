@@ -13,20 +13,15 @@ if [ "$1" ]; then
 else
   FILTER='.'
   OTHER_MODULES='
-    lumify-public/lumify-storm
-    lumify-public/lumify-ontology-dev
+    lumify-public/storm/storm
+    lumify-public/examples/ontology-dev
   '
 fi
 
 (
   cd ${DIR}/..
 
-  STORM_MODULES=$(find lumify-public lumify-enterprise -name '*PropertyWorker.java' \
-                                                    -o -name '*TermMentionFilter.java' \
-                                                    -o -name '*Translator.java' \
-                         | cut -d / -f 1-2 \
-                         | grep ${FILTER} \
-                         | sort -u)
+  STORM_MODULES=$(find lumify-public/storm/plugins -mindepth 1 -maxdepth 1 -type d ! -name target  | grep ${FILTER})
   MODULES=$(echo ${STORM_MODULES} ${OTHER_MODULES} | sed -e 's/ /,/g')
 
   set -x
