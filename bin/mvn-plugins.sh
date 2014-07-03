@@ -13,11 +13,7 @@ DIR="$(cd -P "$(dirname "$SOURCE")" && pwd)"
 (
   cd ${DIR}/..
 
-  PLUGINS=$(find . -type f -name io.lumify.web.WebAppPlugin \
-              | grep /src \
-              | grep ${FILTER} \
-              | sed -e 's|./||' -e  's|/src.*||' \
-              | sort)
+  PLUGINS=$(find lumify-public/web/plugins -mindepth 1 -maxdepth 1 -type d | grep ${FILTER})
   MODULES=$(echo ${PLUGINS} | sed -e 's/ /,/g')
 
   set -x
