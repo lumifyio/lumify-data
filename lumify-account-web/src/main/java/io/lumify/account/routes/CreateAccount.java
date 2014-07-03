@@ -6,13 +6,11 @@ import com.google.inject.Inject;
 import io.lumify.account.AccountUserRepository;
 import io.lumify.account.model.AccountUser;
 import io.lumify.core.model.user.UserRepository;
-import io.lumify.core.user.Privilege;
 import org.securegraph.Graph;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.util.Date;
-import java.util.EnumSet;
 
 public class CreateAccount extends BaseRequestHandler {
     private UserRepository userRepository;

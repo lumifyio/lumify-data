@@ -1,7 +1,6 @@
 package io.lumify.twitter;
 
 import io.lumify.core.model.properties.types.StringLumifyProperty;
-import org.securegraph.TextIndexHint;
 
 public class TwitterOntology {
     public static final String EDGE_LABEL_TWEETED = "http://lumify.io/twitter#tweeted";

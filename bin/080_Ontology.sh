@@ -14,7 +14,7 @@ if [ $? -ne 0 ]; then
   exit
 fi
 
-in=${DIR}/../lumify-public/lumify-ontology-dev/ontology/dev.owl
+in=${DIR}/../lumify-public/examples/ontology-dev/ontology/dev.owl
 iri=http://lumify.io/dev
 if [ $# -eq 2 ]; then
   in=$1
