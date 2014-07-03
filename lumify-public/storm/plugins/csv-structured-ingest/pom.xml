@@ -2,15 +2,14 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
-
     <parent>
+        <artifactId>lumify-storm-plugins-group</artifactId>
         <groupId>io.lumify</groupId>
-        <artifactId>lumify-enterprise</artifactId>
         <version>0.2.0-SNAPSHOT</version>
     </parent>
-    <artifactId>lumify-mapped-ingest</artifactId>
+    <artifactId>lumify-csv-structured-ingest</artifactId>
 
-    <name>Lumify: Mapped Ingest</name>
+    <name>Lumify: Storm: Plugin: CSV Structured Ingest</name>
 
     <properties>
         <supercsv.version>2.1.0</supercsv.version>
@@ -20,6 +19,7 @@
         <dependency>
             <groupId>io.lumify</groupId>
             <artifactId>lumify-core</artifactId>
+            <version>${project.version}</version>
             <scope>provided</scope>
         </dependency>
         <dependency>
