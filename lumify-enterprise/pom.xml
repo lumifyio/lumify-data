@@ -159,7 +159,6 @@
         <module>lumify-newuser-workspace-copy</module>
         <module>lumify-igw</module>
         <module>lumify-classification</module>
-        <module>lumify-drewnoakes-image-metadata-extractor</module>
         <module>lumify-tomcat-server-enterprise</module>
         <module>lumify-elasticsearch-benchmark</module>
         <!--<module>lumify-gtd</module>-->

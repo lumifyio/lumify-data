@@ -3,14 +3,14 @@
          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <parent>
-        <artifactId>lumify-enterprise</artifactId>
+        <artifactId>lumify-storm-plugins-group</artifactId>
         <groupId>io.lumify</groupId>
         <version>0.2.0-SNAPSHOT</version>
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
     <artifactId>lumify-drewnoakes-image-metadata-extractor</artifactId>
-    <name>Lumify: Drew Noakes Image Metadata Extractor</name>
+    <name>Lumify: Storm: Plugin: Drew Noakes Image Metadata Extractor</name>
 
     <dependencies>
         <dependency>
