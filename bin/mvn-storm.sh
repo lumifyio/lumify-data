@@ -21,7 +21,7 @@ fi
 (
   cd ${DIR}/..
 
-  STORM_MODULES=$(find lumify-public/storm/plugins -mindepth 1 -maxdepth 1 -type d | grep ${FILTER})
+  STORM_MODULES=$(find lumify-public/storm/plugins -mindepth 1 -maxdepth 1 -type d ! -name target  | grep ${FILTER})
   MODULES=$(echo ${STORM_MODULES} ${OTHER_MODULES} | sed -e 's/ /,/g')
 
   set -x
