@@ -10,7 +10,7 @@
     <modelVersion>4.0.0</modelVersion>
 
     <artifactId>lumify-twitter-storm</artifactId>
-    <name>Lumify: Twitter: Storm</name>
+    <name>Lumify: Datasets: Twitter: Storm</name>
 
     <properties>
         <twitter.hbc.version>1.4.2</twitter.hbc.version>

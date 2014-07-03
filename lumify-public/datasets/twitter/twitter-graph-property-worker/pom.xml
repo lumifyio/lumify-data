@@ -10,7 +10,7 @@
     <modelVersion>4.0.0</modelVersion>
 
     <artifactId>lumify-twitter-graph-property-worker</artifactId>
-    <name>Lumify: Twitter: Graph Property Worker</name>
+    <name>Lumify: Datasets: Twitter: Graph Property Worker</name>
 
     <dependencies>
         <dependency>

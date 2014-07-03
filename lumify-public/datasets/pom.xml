@@ -17,5 +17,6 @@
         <module>friendster</module>
         <module>wikipedia</module>
         <module>flight-aware</module>
+        <module>twitter</module>
     </modules>
 </project>
