@@ -155,8 +155,6 @@
         <module>lumify-enterprise-tools</module>
         <module>lumify-jetty-server-enterprise</module>
         <module>lumify-java-code-ingest</module>
-        <module>lumify-newuser-workspace-sharer</module>
-        <module>lumify-newuser-workspace-copy</module>
         <module>lumify-igw</module>
         <module>lumify-classification</module>
         <module>lumify-tomcat-server-enterprise</module>
