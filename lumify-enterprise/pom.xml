@@ -28,7 +28,6 @@
         <commons.httpclient.version>3.1</commons.httpclient.version>
         <lucene.version>4.7.0</lucene.version>
         <lumify.public.version>0.2.0-SNAPSHOT</lumify.public.version>
-        <opencv.version>2.4.5</opencv.version>
         <opennlp.version>1.5.3</opennlp.version>
         <tika.version>1.5</tika.version>
 
@@ -109,11 +108,6 @@
                 <version>${opennlp.version}</version>
             </dependency>
             <dependency>
-                <groupId>org.opencv</groupId>
-                <artifactId>opencv</artifactId>
-                <version>${opencv.version}</version>
-            </dependency>
-            <dependency>
                 <groupId>org.apache.lucene</groupId>
                 <artifactId>lucene-core</artifactId>
                 <version>${lucene.version}</version>
@@ -176,15 +170,11 @@
         <module>lumify-mapped-ingest</module>
         <module>lumify-enterprise-storm</module>
         <module>lumify-enterprise-tools</module>
-        <module>lumify-opencv-object-detector</module>
         <module>lumify-clavin</module>
         <module>lumify-jetty-server-enterprise</module>
         <module>lumify-java-code-ingest</module>
         <module>lumify-newuser-workspace-sharer</module>
         <module>lumify-newuser-workspace-copy</module>
-        <module>lumify-translate</module>
-        <module>lumify-translator-bing</module>
-        <module>lumify-reindex</module>
         <module>lumify-igw</module>
         <module>lumify-classification</module>
         <module>lumify-drewnoakes-image-metadata-extractor</module>

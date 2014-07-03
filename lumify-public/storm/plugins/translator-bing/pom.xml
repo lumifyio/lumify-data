@@ -3,24 +3,27 @@
          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <parent>
-        <artifactId>lumify-enterprise</artifactId>
+        <artifactId>lumify-storm-plugins-group</artifactId>
         <groupId>io.lumify</groupId>
         <version>0.2.0-SNAPSHOT</version>
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
-    <artifactId>lumify-opencv-object-detector</artifactId>
-    <name>Lumify: OpenCV Object Detector</name>
+    <artifactId>lumify-translator-bing</artifactId>
+    <name>Lumify: Storm: Plugin: Translator Bing</name>
 
     <dependencies>
         <dependency>
             <groupId>io.lumify</groupId>
-            <artifactId>lumify-core</artifactId>
+            <artifactId>lumify-translate</artifactId>
+            <version>${project.version}</version>
             <scope>provided</scope>
         </dependency>
         <dependency>
-            <groupId>org.opencv</groupId>
-            <artifactId>opencv</artifactId>
+            <groupId>io.lumify</groupId>
+            <artifactId>lumify-core</artifactId>
+            <version>${project.version}</version>
+            <scope>provided</scope>
         </dependency>
     </dependencies>
 
