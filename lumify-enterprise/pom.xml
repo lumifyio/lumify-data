@@ -154,7 +154,6 @@
         <module>lumify-enterprise-storm</module>
         <module>lumify-enterprise-tools</module>
         <module>lumify-jetty-server-enterprise</module>
-        <module>lumify-java-code-ingest</module>
         <module>lumify-igw</module>
         <module>lumify-classification</module>
         <module>lumify-tomcat-server-enterprise</module>
