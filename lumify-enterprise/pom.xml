@@ -126,29 +126,6 @@
         </dependencies>
     </dependencyManagement>
 
-    <build>
-        <pluginManagement>
-            <plugins>
-                <plugin>
-                    <groupId>org.apache.maven.plugins</groupId>
-                    <artifactId>maven-surefire-plugin</artifactId>
-                    <version>${plugin.maven.surefire.version}</version>
-                    <dependencies>
-                        <dependency>
-                            <groupId>org.apache.maven.plugins</groupId>
-                            <artifactId>maven-surefire-plugin</artifactId>
-                            <version>${plugin.maven.surefire.version}</version>
-                        </dependency>
-                    </dependencies>
-                    <configuration>
-                        <forkMode>once</forkMode>
-                        <argLine>-Djava.library.path=/usr/local/lib/</argLine>
-                    </configuration>
-                </plugin>
-            </plugins>
-        </pluginManagement>
-    </build>
-
     <modules>
         <module>lumify-mapped-ingest</module>
         <module>lumify-enterprise-storm</module>
