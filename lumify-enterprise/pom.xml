@@ -126,35 +126,11 @@
         </dependencies>
     </dependencyManagement>
 
-    <build>
-        <pluginManagement>
-            <plugins>
-                <plugin>
-                    <groupId>org.apache.maven.plugins</groupId>
-                    <artifactId>maven-surefire-plugin</artifactId>
-                    <version>${plugin.maven.surefire.version}</version>
-                    <dependencies>
-                        <dependency>
-                            <groupId>org.apache.maven.plugins</groupId>
-                            <artifactId>maven-surefire-plugin</artifactId>
-                            <version>${plugin.maven.surefire.version}</version>
-                        </dependency>
-                    </dependencies>
-                    <configuration>
-                        <forkMode>once</forkMode>
-                        <argLine>-Djava.library.path=/usr/local/lib/</argLine>
-                    </configuration>
-                </plugin>
-            </plugins>
-        </pluginManagement>
-    </build>
-
     <modules>
         <module>lumify-mapped-ingest</module>
         <module>lumify-enterprise-storm</module>
         <module>lumify-enterprise-tools</module>
         <module>lumify-jetty-server-enterprise</module>
-        <module>lumify-java-code-ingest</module>
         <module>lumify-igw</module>
         <module>lumify-classification</module>
         <module>lumify-tomcat-server-enterprise</module>

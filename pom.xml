@@ -26,7 +26,6 @@
         <module>lumify-tomcat-server-with-auth</module>
         <module>lumify-twitter</module>
         <module>lumify-food-truck</module>
-        <module>lumify-flight-track</module>
     </modules>
 </project>
 
