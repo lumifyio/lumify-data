@@ -51,8 +51,8 @@ public class DirectionExtractor {
             return "W";
         } else if (degree > 292.5 && degree <= 337.5) {
             return "NW";
-        } else if (degree > 337.5 && degree <= 360
-                && degree >= 0 && degree <= 22.5) {
+        } else if ((degree > 337.5 && degree <= 360)
+                || (degree >= 0 && degree <= 22.5)) {
             return "N";
         } else {
             //because improper degree. Negative degree.
