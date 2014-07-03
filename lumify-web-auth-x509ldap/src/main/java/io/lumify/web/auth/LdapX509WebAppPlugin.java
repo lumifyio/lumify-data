@@ -2,15 +2,10 @@ package io.lumify.web.auth;
 
 import com.altamiracorp.miniweb.Handler;
 import com.altamiracorp.miniweb.StaticResourceHandler;
-import com.google.inject.Inject;
 import io.lumify.core.bootstrap.InjectHelper;
-import io.lumify.core.config.Configuration;
-import io.lumify.core.model.user.UserRepository;
-import io.lumify.ldap.LdapSearchService;
 import io.lumify.web.AuthenticationHandler;
 import io.lumify.web.WebApp;
 import io.lumify.web.WebAppPlugin;
-import org.securegraph.Graph;
 
 import javax.servlet.ServletConfig;
 

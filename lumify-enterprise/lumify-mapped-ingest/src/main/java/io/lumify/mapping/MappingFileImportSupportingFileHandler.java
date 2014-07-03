@@ -2,7 +2,6 @@ package io.lumify.mapping;
 
 import io.lumify.core.ingest.FileImportSupportingFileHandler;
 import io.lumify.core.model.properties.RawLumifyProperties;
-import io.lumify.core.model.properties.types.StreamingLumifyProperty;
 import org.securegraph.VertexBuilder;
 import org.securegraph.Visibility;
 import org.securegraph.property.StreamingPropertyValue;
