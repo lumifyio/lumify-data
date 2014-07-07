@@ -11,6 +11,7 @@ MAP = {
   /rabbitmq\d{2}/     => ['include env::cluster::rabbitmq_node'],
   'logstash'          => ['include env::cluster::logstash'],
   /node\d{2}/         => ['include env::cluster::node'],
+  /es\d{2}/           => ['include env::cluster::elasticsearch_node'],
   /zk\d{2}/           => ['include env::cluster::zookeeper_server'],
   /www(\d{2})?/       => ['include env::cluster::webserver']
 }
