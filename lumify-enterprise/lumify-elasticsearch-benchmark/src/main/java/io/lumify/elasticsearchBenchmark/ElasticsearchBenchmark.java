@@ -16,7 +16,10 @@ import org.elasticsearch.node.NodeBuilder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.io.BufferedReader;
 import java.io.IOException;
+import java.io.InputStreamReader;
+import java.util.ArrayList;
 import java.util.Random;
 
 public class ElasticsearchBenchmark {
@@ -29,7 +32,7 @@ public class ElasticsearchBenchmark {
 
     private int currentCount = 0;
 
-    @Parameter(names = "--bulkSize", description = "Number of items to insert in bulk batches. Use 1 to not use bulk api.")
+    @Parameter(names = "--bulksize", description = "Number of items to insert in bulk batches. Use 1 to not use bulk api.")
     private int bulkSize = 100;
 
     @Parameter(names = "--hostname", description = "hostname of elasticsearch node.")
@@ -53,6 +56,12 @@ public class ElasticsearchBenchmark {
     @Parameter(names = "--storesourcedata", description = "Store data in the _source field.")
     private boolean storeSourceData = false;
 
+    @Parameter(names = "--documentsize", description = "The max size of the document in bytes.")
+    private int documentSize = 10000;
+
+    private ArrayList<String> words;
+    private int numberOfBytesInserted;
+
     public static void main(String[] args) throws Exception {
         new ElasticsearchBenchmark().run(args);
     }
@@ -63,6 +72,8 @@ public class ElasticsearchBenchmark {
             jcommander.usage();
             return;
         }
+
+        readWordList();
 
         ImmutableSettings.Builder settingsBuilder = ImmutableSettings.settingsBuilder();
         if (clusterName != null) {
@@ -97,9 +108,30 @@ public class ElasticsearchBenchmark {
         }
         long endTime = System.currentTimeMillis();
         rate = ((double) count) / ((double) (endTime - startTime)) * 1000;
-        LOGGER.info(String.format("inserted %d documents. (%.2f docs/s)", count, rate));
+        LOGGER.info("Complete");
+        LOGGER.info(String.format("             documents: %,d", count));
+        LOGGER.info(String.format("  documents per second: %,.2f", rate));
+        LOGGER.info(String.format("    bytes per document: %,.2f", ((double) numberOfBytesInserted) / ((double) count)));
 
         client.close();
+    }
+
+    private void readWordList() throws IOException {
+        LOGGER.info("Loading word list");
+        words = new ArrayList<String>();
+        BufferedReader reader = new BufferedReader(new InputStreamReader(this.getClass().getResourceAsStream("/words.txt")));
+        try {
+            String line;
+            while ((line = reader.readLine()) != null) {
+                line = line.trim();
+                if (line.length() == 0) {
+                    break;
+                }
+                words.add(line);
+            }
+        } finally {
+            reader.close();
+        }
     }
 
     private void insertDocuments(Client client) throws IOException {
@@ -119,20 +151,25 @@ public class ElasticsearchBenchmark {
 
     private IndexRequest createIndexRequest() throws IOException {
         XContentBuilder jsonBuilder;
+        String text = getRandomText();
+        numberOfBytesInserted += text.length();
         jsonBuilder = XContentFactory.jsonBuilder()
                 .startObject()
-                .field("title", getRandomText(10000));
+                .field("title", text);
 
         IndexRequest indexRequest = new IndexRequest(indexName, ELEMENT_TYPE);
         indexRequest.source(jsonBuilder);
         return indexRequest;
     }
 
-    private String getRandomText(int maxLength) {
+    private String getRandomText() {
         StringBuilder value = new StringBuilder();
-        int valueLength = RANDOM.nextInt(maxLength);
-        for (int i = 0; i < valueLength; i++) {
-            value.append(' ' + RANDOM.nextInt('~' - ' '));
+        int valueLength = RANDOM.nextInt(documentSize);
+        while (value.length() < valueLength) {
+            if (value.length() > 0) {
+                value.append(' ');
+            }
+            value.append(words.get(RANDOM.nextInt(words.size())));
         }
         return value.toString();
     }
@@ -165,7 +202,9 @@ public class ElasticsearchBenchmark {
         } else {
             LOGGER.info("Connecting to elasticsearch via transport client " + hostname + ":" + port);
             client = new TransportClient(settings);
-            ((TransportClient) client).addTransportAddress(new InetSocketTransportAddress(hostname, port));
+            for (String host : hostname.split(",")) {
+                ((TransportClient) client).addTransportAddress(new InetSocketTransportAddress(host, port));
+            }
         }
         return client;
     }
