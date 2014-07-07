@@ -39,7 +39,6 @@ public class ImageMetadataGraphPropertyWorker extends GraphPropertyWorker {
         Metadata metadata = ImageMetadataReader.readMetadata(imageFile);
 
         Date date = DateExtractor.getDateDefault(metadata);
-
         if (date != null) {
             Ontology.DATE_TAKEN.addPropertyValue(data.getElement(), MULTI_VALUE_KEY, date, data.getVisibility(), getAuthorizations());
         }
