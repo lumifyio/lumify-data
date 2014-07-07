@@ -89,7 +89,7 @@
         <!-- graph property worker dependencies -->
         <dependency>
             <groupId>io.lumify</groupId>
-            <artifactId>lumify-ontology-dev</artifactId>
+            <artifactId>lumify-mime-type-ontology-mapper</artifactId>
             <version>${lumify.public.version}</version>
         </dependency>
         <dependency>

@@ -12,8 +12,6 @@ Open Source components:
 Closed Source components:
 
 - [lumify-enterprise](https://github.com/altamiracorp/lumify-enterprise)
-- [lumify-wikipedia](https://github.com/altamiracorp/lumify-wikipedia)
-- [lumify-ldap-auth](https://github.com/altamiracorp/lumify-ldap-auth)
 
 Shared components:
 
