@@ -1,4 +1,0 @@
-io.lumify.foodTruck.FoodTruckTweetAnalyzerGraphPropertyWorker
-io.lumify.foodTruck.FoodTruckLocationUpdateGraphPropertyWorker
-io.lumify.foodTruck.FoodTruckHasTwitterAccountOnCreateGraphPropertyWorker
-io.lumify.foodTruck.FoodTruckRemoveOldGeoLocationsGraphPropertyWorker

@@ -13,20 +13,15 @@ if [ "$1" ]; then
 else
   FILTER='.'
   OTHER_MODULES='
-    lumify-public/lumify-storm
-    lumify-public/lumify-ontology-dev
+    lumify-public/storm/storm
+    lumify-public/examples/ontology-dev
   '
 fi
 
 (
   cd ${DIR}/..
 
-  STORM_MODULES=$(find lumify-public lumify-enterprise -name '*PropertyWorker.java' \
-                                                    -o -name '*TermMentionFilter.java' \
-                                                    -o -name '*Translator.java' \
-                         | cut -d / -f 1-2 \
-                         | grep ${FILTER} \
-                         | sort -u)
+  STORM_MODULES=$(find lumify-public/storm/plugins -mindepth 1 -maxdepth 1 -type d ! -name target  | grep ${FILTER})
   MODULES=$(echo ${STORM_MODULES} ${OTHER_MODULES} | sed -e 's/ /,/g')
 
   set -x
@@ -35,9 +30,8 @@ fi
   set +x
 
   for module in $(echo ${MODULES} | sed -e 's/,/ /g'); do
-    simple_module_name=$(echo ${module} | cut -d / -f 2)
-    if [ -f ${module}/target/${simple_module_name}-*-jar-with-dependencies.jar ]; then
-      file=$(ls ${module}/target/${simple_module_name}-*-jar-with-dependencies.jar)
+    if [ -f ${module}/target/*-jar-with-dependencies.jar ]; then
+      file=$(ls ${module}/target/*-jar-with-dependencies.jar)
       files="${files} ${DIR}/../${file}"
     else
       warnings="${warnings} ${module}"

@@ -127,7 +127,6 @@
     </dependencyManagement>
 
     <modules>
-        <module>lumify-mapped-ingest</module>
         <module>lumify-enterprise-storm</module>
         <module>lumify-enterprise-tools</module>
         <module>lumify-jetty-server-enterprise</module>

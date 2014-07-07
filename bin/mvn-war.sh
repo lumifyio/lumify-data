@@ -13,7 +13,7 @@ DIR="$(cd -P "$(dirname "$SOURCE")" && pwd)"
 
   set -x
   mvn install -pl lumify-root -am -DskipTests -Dsource.skip=true
-  mvn package -P web-war -pl lumify-public/lumify-web-war -am -DskipTests -Dsource.skip=true
+  mvn package -P web-war -pl lumify-public/web/war -am -DskipTests -Dsource.skip=true
   set +x
 
   if [ -f lumify-public/lumify-web-war/target/lumify-web-war-*.war ]; then
