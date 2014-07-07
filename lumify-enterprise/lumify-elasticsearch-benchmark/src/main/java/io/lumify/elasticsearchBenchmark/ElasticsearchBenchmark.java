@@ -16,7 +16,12 @@ import org.elasticsearch.node.NodeBuilder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.io.BufferedReader;
 import java.io.IOException;
+import java.io.InputStreamReader;
+import java.util.ArrayList;
+import java.util.LinkedList;
+import java.util.Queue;
 import java.util.Random;
 
 public class ElasticsearchBenchmark {
@@ -29,8 +34,11 @@ public class ElasticsearchBenchmark {
 
     private int currentCount = 0;
 
-    @Parameter(names = "--bulkSize", description = "Number of items to insert in bulk batches. Use 1 to not use bulk api.")
-    private int bulkSize = 100;
+    @Parameter(names = "--bulkcount", description = "Number of items to insert in bulk batches. Use 1 to not use bulk api.")
+    private int bulkCount = -1;
+
+    @Parameter(names = "--bulksize", description = "Size of the bulk insert.")
+    private int bulkSize = -1;
 
     @Parameter(names = "--hostname", description = "hostname of elasticsearch node.")
     private String hostname;
@@ -53,6 +61,14 @@ public class ElasticsearchBenchmark {
     @Parameter(names = "--storesourcedata", description = "Store data in the _source field.")
     private boolean storeSourceData = false;
 
+    @Parameter(names = "--documentsize", description = "The max size of the document in bytes.")
+    private int documentSize = 10000;
+
+    private ArrayList<String> words;
+    private int numberOfBytesInserted;
+
+    private final Queue<String> documentTexts = new LinkedList<String>();
+
     public static void main(String[] args) throws Exception {
         new ElasticsearchBenchmark().run(args);
     }
@@ -64,6 +80,8 @@ public class ElasticsearchBenchmark {
             return;
         }
 
+        readWordList();
+
         ImmutableSettings.Builder settingsBuilder = ImmutableSettings.settingsBuilder();
         if (clusterName != null) {
             settingsBuilder.put("cluster.name", clusterName);
@@ -72,6 +90,15 @@ public class ElasticsearchBenchmark {
             settingsBuilder.put("discovery.zen.ping.unicast.hosts", hostname);
         }
         Settings settings = settingsBuilder.build();
+
+        if (bulkCount != -1 && bulkSize == -1) {
+            bulkSize = Integer.MAX_VALUE;
+        }
+        if (bulkSize != -1 && bulkCount == -1) {
+            bulkCount = Integer.MAX_VALUE;
+        }
+
+        startCreateDocumentTextsThread();
 
         Client client = createClient(settings);
         ensureIndexIsCreated(client);
@@ -97,42 +124,107 @@ public class ElasticsearchBenchmark {
         }
         long endTime = System.currentTimeMillis();
         rate = ((double) count) / ((double) (endTime - startTime)) * 1000;
-        LOGGER.info(String.format("inserted %d documents. (%.2f docs/s)", count, rate));
+        LOGGER.info("Complete");
+        LOGGER.info(String.format("             documents: %,d", count));
+        LOGGER.info(String.format("  documents per second: %,.2f", rate));
+        LOGGER.info(String.format("    bytes per document: %,.2f", ((double) numberOfBytesInserted) / ((double) count)));
 
         client.close();
     }
 
-    private void insertDocuments(Client client) throws IOException {
-        if (bulkSize == 1) {
-            IndexRequest indexRequest = createIndexRequest();
-            client.index(indexRequest).actionGet();
-            currentCount++;
-        } else {
-            BulkRequest bulkRequest = new BulkRequest();
-            for (int i = 0; i < bulkSize; i++) {
-                bulkRequest.add(createIndexRequest());
+    private void startCreateDocumentTextsThread() {
+        Thread createIndexRequestsThread = new Thread(new Runnable() {
+            @Override
+            public void run() {
+                try {
+                    while (true) {
+                        if (documentTexts.size() < 1000) {
+                            synchronized (documentTexts) {
+                                documentTexts.add(getRandomText());
+                            }
+                        } else {
+                            Thread.sleep(10);
+                        }
+                    }
+                } catch (Exception ex) {
+                    LOGGER.error("oops", ex);
+                }
             }
-            client.bulk(bulkRequest).actionGet();
-            currentCount += bulkSize;
+        });
+        createIndexRequestsThread.setDaemon(true);
+        createIndexRequestsThread.start();
+    }
+
+    private void readWordList() throws IOException {
+        LOGGER.info("Loading word list");
+        words = new ArrayList<String>();
+        BufferedReader reader = new BufferedReader(new InputStreamReader(this.getClass().getResourceAsStream("/words.txt")));
+        try {
+            String line;
+            while ((line = reader.readLine()) != null) {
+                line = line.trim();
+                if (line.length() == 0) {
+                    break;
+                }
+                words.add(line);
+            }
+        } finally {
+            reader.close();
         }
     }
 
-    private IndexRequest createIndexRequest() throws IOException {
-        XContentBuilder jsonBuilder;
-        jsonBuilder = XContentFactory.jsonBuilder()
-                .startObject()
-                .field("title", getRandomText(10000));
-
-        IndexRequest indexRequest = new IndexRequest(indexName, ELEMENT_TYPE);
-        indexRequest.source(jsonBuilder);
-        return indexRequest;
+    private void insertDocuments(Client client) throws IOException, InterruptedException {
+        if (bulkSize == -1 && bulkCount == -1) {
+            String text = getNextDocumentText();
+            client.index(createIndexRequest(text)).actionGet();
+            numberOfBytesInserted += text.length();
+            currentCount++;
+        } else {
+            int initialSize = numberOfBytesInserted;
+            BulkRequest bulkRequest = new BulkRequest();
+            for (int i = 0; (i == 0) || ((i < bulkCount) && ((numberOfBytesInserted - initialSize) < bulkSize)); i++) {
+                String text = getNextDocumentText();
+                bulkRequest.add(createIndexRequest(text));
+                numberOfBytesInserted += text.length();
+                currentCount++;
+            }
+            client.bulk(bulkRequest).actionGet();
+        }
     }
 
-    private String getRandomText(int maxLength) {
+    private String getNextDocumentText() throws InterruptedException {
+        while (documentTexts.size() == 0) {
+            LOGGER.error("creating index requests is too slow.");
+            Thread.sleep(10);
+        }
+        synchronized (documentTexts) {
+            return documentTexts.remove();
+        }
+    }
+
+    private IndexRequest createIndexRequest(String text) {
+        try {
+            XContentBuilder jsonBuilder;
+            jsonBuilder = XContentFactory.jsonBuilder()
+                    .startObject()
+                    .field("title", text);
+
+            IndexRequest indexRequest = new IndexRequest(indexName, ELEMENT_TYPE);
+            indexRequest.source(jsonBuilder);
+            return indexRequest;
+        } catch (IOException ex) {
+            throw new RuntimeException("could not create index request", ex);
+        }
+    }
+
+    private String getRandomText() {
         StringBuilder value = new StringBuilder();
-        int valueLength = RANDOM.nextInt(maxLength);
-        for (int i = 0; i < valueLength; i++) {
-            value.append(' ' + RANDOM.nextInt('~' - ' '));
+        int valueLength = RANDOM.nextInt(documentSize);
+        while (value.length() < valueLength) {
+            if (value.length() > 0) {
+                value.append(' ');
+            }
+            value.append(words.get(RANDOM.nextInt(words.size())));
         }
         return value.toString();
     }
@@ -165,7 +257,9 @@ public class ElasticsearchBenchmark {
         } else {
             LOGGER.info("Connecting to elasticsearch via transport client " + hostname + ":" + port);
             client = new TransportClient(settings);
-            ((TransportClient) client).addTransportAddress(new InetSocketTransportAddress(hostname, port));
+            for (String host : hostname.split(",")) {
+                ((TransportClient) client).addTransportAddress(new InetSocketTransportAddress(host, port));
+            }
         }
         return client;
     }

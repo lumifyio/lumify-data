@@ -58,7 +58,7 @@ hiera['namenode_ipaddress'] = cluster['namenode'][:ip]
 hiera['namenode_hostname'] = 'namenode'
 hiera['namenode_rpc_address'] = cluster['namenode'][:ip] + ':8020'
 
-hiera['elasticsearch_locations'] = Array(get(cluster, /node\d{2}/, :ip)).collect{|ip| "#{ip}:9300"}
+hiera['elasticsearch_locations'] = Array(get(cluster, /es\d{2}/, :ip)).collect{|ip| "#{ip}:9300"}
 
 hiera['rabbitmq_nodes'] = get(cluster, /rabbitmq\d{2}/, :name)
 hiera['rabbitmq_erlang_cookie'] = "#{File.basename(__FILE__)}/#{Time.now.strftime('%Y%m%dT%H%M%S')}/#{SecureRandom.hex(16)}"
