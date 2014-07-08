@@ -24,7 +24,8 @@ class buildtools::epel($proxy_url = nil) {
 
   if $rpm_environment =~ /^http_proxy=/ {
     exec { 'epel-disable-mirrorlist' :
-      command => "/bin/sed -i -e 's/mirrorlist=/#mirrorlist=/' -e 's/#baseurl=/baseurl=/' /etc/yum.repos.d/epel*.repo",
+      command => "/bin/sed -i -e 's/mirrorlist=/#mirrorlist=/' -e 's/#baseurl=/baseurl=/' -e 's/download.fedoraproject.org/download-i2.fedoraproject.org/' /etc/yum.repos.d/epel*.repo",
+      unless  => '/bin/grep download-i2. /etc/yum.repos.d/epel*.repo',
       require => Exec['epel'],
     }
   }
