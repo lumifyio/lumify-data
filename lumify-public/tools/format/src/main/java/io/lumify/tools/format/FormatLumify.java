@@ -1,4 +1,4 @@
-package io.lumify.tools;
+package io.lumify.tools.format;
 
 import com.altamiracorp.bigtable.model.ModelSession;
 import io.lumify.core.cmdline.CommandLineBase;

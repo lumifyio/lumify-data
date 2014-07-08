@@ -8,7 +8,7 @@ while [ -h "$SOURCE" ]; do
 done
 DIR="$(cd -P "$(dirname "$SOURCE")" && pwd)"
 
-classpath=$(${DIR}/classpath.sh lumify-enterprise/lumify-enterprise-tools)
+classpath=$(${DIR}/classpath.sh tools/format)
 if [ $? -ne 0 ]; then
   echo "${classpath}"
   exit
@@ -17,4 +17,4 @@ fi
 java \
 -Dfile.encoding=UTF-8 \
 -classpath ${classpath} \
-io.lumify.tools.FormatLumify
+io.lumify.tools.format.FormatLumify
