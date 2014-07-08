@@ -8,21 +8,19 @@ while [ -h "$SOURCE" ]; do
 done
 DIR="$(cd -P "$(dirname "$SOURCE")" && pwd)"
 
-classpath=$(${DIR}/classpath.sh lumify-enterprise/lumify-enterprise-storm)
+classpath=$(${DIR}/classpath.sh tools/import)
 if [ $? -ne 0 ]; then
   echo "${classpath}"
   exit
 fi
 
-dir=${DIR}/../data/import
-if [ "$1" != '-d' ]; then
-	[ "$1" ] && dir=$1 && shift
+dir=$1
+if [ ! -d "$dir" ]; then
+    echo "you need to specify a data directory."
+	exit 1
 fi
 
-[ "${DEBUG_PORT}" ] || DEBUG_PORT=12345
-[ "$1" = '-d' ] && debug_option="-agentlib:jdwp=transport=dt_socket,server=y,suspend=y,address=${DEBUG_PORT}"
-
-java ${debug_option} \
+java \
 -Xmx512m \
 -Djava.awt.headless=true \
 -Dfile.encoding=UTF-8 \
