@@ -1,16 +1,17 @@
-<?xml version="1.0"?>
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
-    <modelVersion>4.0.0</modelVersion>
-
     <parent>
+        <artifactId>lumify-dev</artifactId>
         <groupId>io.lumify</groupId>
-        <artifactId>lumify-enterprise</artifactId>
         <version>0.2.0-SNAPSHOT</version>
     </parent>
-    <artifactId>lumify-enterprise-storm</artifactId>
+    <modelVersion>4.0.0</modelVersion>
 
-    <name>Lumify Enterprise: Storm</name>
+    <artifactId>lumify-storm-local</artifactId>
+    <name>Lumify: Dev: Storm Local</name>
+    <description>This project is only here to create a good classpath with the plugins for your IDE</description>
 
     <profiles>
         <!-- Use this profile to build when deploying to a clustered environment. -->
@@ -72,10 +73,12 @@
         <dependency>
             <groupId>io.lumify</groupId>
             <artifactId>lumify-storm</artifactId>
+            <version>${project.version}</version>
         </dependency>
         <dependency>
             <groupId>io.lumify</groupId>
             <artifactId>lumify-model-securegraph</artifactId>
+            <version>${project.version}</version>
         </dependency>
         <dependency>
             <groupId>com.codahale.metrics</groupId>
@@ -90,12 +93,12 @@
         <dependency>
             <groupId>io.lumify</groupId>
             <artifactId>lumify-mime-type-ontology-mapper</artifactId>
-            <version>${lumify.public.version}</version>
+            <version>${project.version}</version>
         </dependency>
         <dependency>
             <groupId>io.lumify</groupId>
             <artifactId>lumify-import</artifactId>
-            <version>${lumify.public.version}</version>
+            <version>${project.version}</version>
         </dependency>
         <dependency>
             <groupId>io.lumify</groupId>
@@ -202,11 +205,6 @@
             <artifactId>lumify-drewnoakes-image-metadata-extractor</artifactId>
             <version>${project.version}</version>
         </dependency>
-        <!--<dependency>-->
-        <!--<groupId>lumify-all</groupId>-->
-        <!--<artifactId>lumify-food-truck</artifactId>-->
-        <!--<version>${project.version}</version>-->
-        <!--</dependency>-->
     </dependencies>
 
     <build>

@@ -8,7 +8,7 @@ while [ -h "$SOURCE" ]; do
 done
 DIR="$(cd -P "$(dirname "$SOURCE")" && pwd)"
 
-classpath=$(${DIR}/classpath.sh lumify-enterprise/lumify-enterprise-storm)
+classpath=$(${DIR}/classpath.sh dev/storm-local)
 if [ $? -ne 0 ]; then
   echo "${classpath}"
   exit

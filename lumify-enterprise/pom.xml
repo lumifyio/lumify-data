@@ -127,7 +127,6 @@
     </dependencyManagement>
 
     <modules>
-        <module>lumify-enterprise-storm</module>
         <module>lumify-enterprise-tools</module>
         <module>lumify-igw</module>
         <module>lumify-classification</module>
