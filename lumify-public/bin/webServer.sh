@@ -8,7 +8,7 @@ while [ -h "$SOURCE" ]; do
 done
 DIR="$(cd -P "$(dirname "$SOURCE")" && pwd)"
 
-classpath=$(${DIR}/classpath.sh lumify-enterprise/lumify-jetty-server-enterprise)
+classpath=$(${DIR}/classpath.sh dev/jetty-server)
 if [ $? -ne 0 ]; then
   echo "${classpath}"
   exit
@@ -17,7 +17,7 @@ fi
 [ "${DEBUG_PORT}" ] || DEBUG_PORT=12345
 [ "$1" = '-d' ] && debug_option="-agentlib:jdwp=transport=dt_socket,server=y,suspend=y,address=${DEBUG_PORT}"
 
-cd ${DIR}/../lumify-public
+cd ${DIR}/../
 
 java ${debug_option} \
 -Dfile.encoding=UTF-8 \
@@ -29,5 +29,6 @@ java ${debug_option} \
 -Xmx1024M \
 io.lumify.web.JettyWebServer \
 --port=8080 \
---keyStorePath=${DIR}/../config/ssl/lumify-vm.lumify.io.jks \
+--httpsPort=8443 \
+--keyStorePath=${DIR}/../dev/jetty-server/config/lumify-vm.lumify.io.jks \
 --keyStorePassword=password
