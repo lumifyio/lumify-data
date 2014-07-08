@@ -19,10 +19,8 @@ import org.slf4j.LoggerFactory;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
-import java.util.ArrayList;
-import java.util.LinkedList;
-import java.util.Queue;
-import java.util.Random;
+import java.net.InetAddress;
+import java.util.*;
 
 public class ElasticsearchBenchmark {
     private static final Logger LOGGER = LoggerFactory.getLogger(ElasticsearchBenchmark.class);
@@ -65,7 +63,7 @@ public class ElasticsearchBenchmark {
     private int documentSize = 10000;
 
     private ArrayList<String> words;
-    private int numberOfBytesInserted;
+    private long numberOfBytesInserted;
 
     private final Queue<String> documentTexts = new LinkedList<String>();
 
@@ -83,13 +81,18 @@ public class ElasticsearchBenchmark {
         readWordList();
 
         ImmutableSettings.Builder settingsBuilder = ImmutableSettings.settingsBuilder();
+        settingsBuilder.put("node.data", false);
+        settingsBuilder.put("node.name", "benchmark-" + InetAddress.getLocalHost().getHostName() + "-" + UUID.randomUUID().toString());
         if (clusterName != null) {
             settingsBuilder.put("cluster.name", clusterName);
         }
         if (hostname != null) {
+            settingsBuilder.put("discovery.zen.ping.multicast.enabled", false);
+            settingsBuilder.put("discovery.zen.ping.unicast.enabled", true);
             settingsBuilder.put("discovery.zen.ping.unicast.hosts", hostname);
         }
         Settings settings = settingsBuilder.build();
+        LOGGER.info("settings:\n" + settings.toDelimitedString('\n'));
 
         if (bulkCount != -1 && bulkSize == -1) {
             bulkSize = Integer.MAX_VALUE;
@@ -180,7 +183,7 @@ public class ElasticsearchBenchmark {
             numberOfBytesInserted += text.length();
             currentCount++;
         } else {
-            int initialSize = numberOfBytesInserted;
+            long initialSize = numberOfBytesInserted;
             BulkRequest bulkRequest = new BulkRequest();
             for (int i = 0; (i == 0) || ((i < bulkCount) && ((numberOfBytesInserted - initialSize) < bulkSize)); i++) {
                 String text = getNextDocumentText();
