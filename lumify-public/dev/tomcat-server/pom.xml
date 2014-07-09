@@ -3,15 +3,16 @@
          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <parent>
-        <artifactId>lumify-enterprise</artifactId>
+        <artifactId>lumify-dev</artifactId>
         <groupId>io.lumify</groupId>
         <version>0.2.0-SNAPSHOT</version>
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
-    <artifactId>lumify-tomcat-server-enterprise</artifactId>
-    <name>Lumify: Tomcat Enterprise Server</name>
-    <description>This project is only here to create a good classpath with the enterprise plugins for your IDE</description>
+    <artifactId>lumify-dev-tomcat-server</artifactId>
+
+    <name>Lumify: Dev: Tomcat Server</name>
+    <description>This project is only here to create a good classpath with the plugins for your IDE</description>
 
     <dependencies>
         <dependency>
@@ -54,11 +55,6 @@
             <artifactId>lumify-geocoder-bing</artifactId>
             <version>${project.version}</version>
         </dependency>
-        <dependency>
-            <groupId>io.lumify</groupId>
-            <artifactId>lumify-google-analytics</artifactId>
-            <version>${project.version}</version>
-        </dependency>
     </dependencies>
 
     <build>
@@ -69,5 +65,4 @@
             </plugin>
         </plugins>
     </build>
-
 </project>
