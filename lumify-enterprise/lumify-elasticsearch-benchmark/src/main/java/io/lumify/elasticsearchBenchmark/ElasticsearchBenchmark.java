@@ -24,6 +24,7 @@ import java.util.*;
 
 public class ElasticsearchBenchmark {
     private static final Logger LOGGER = LoggerFactory.getLogger(ElasticsearchBenchmark.class);
+    private static final Logger RESULTS_LOGGER = LoggerFactory.getLogger("io.lumify.lumify-elasticsearch-benchmark-RESULTS");
     private static final String ELEMENT_TYPE = "benchmarkItem";
     private static final Random RANDOM = new Random(1000);
 
@@ -131,7 +132,8 @@ public class ElasticsearchBenchmark {
         LOGGER.info(String.format("             documents: %,d", count));
         LOGGER.info(String.format("  documents per second: %,.2f", rate));
         LOGGER.info(String.format("avg bytes per document: %,.2f", ((double) numberOfBytesInserted) / ((double) count)));
-        LOGGER.info(formatResults(args, rate));
+
+        RESULTS_LOGGER.info(formatResults(args, rate));
 
         client.close();
     }
