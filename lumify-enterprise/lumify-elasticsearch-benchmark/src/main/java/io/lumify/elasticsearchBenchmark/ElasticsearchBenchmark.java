@@ -118,7 +118,7 @@ public class ElasticsearchBenchmark {
                 } else {
                     rate = ((double) (currentCount - lastReportingCount)) / ((double) duration) * 1000;
                 }
-                LOGGER.info(String.format("inserting %d/%d (%.2f docs/s)", currentCount, count, rate));
+                LOGGER.debug(String.format("inserting %d/%d (%.2f docs/s)", currentCount, count, rate));
                 lastReportingCount = currentCount;
                 nextReportingCount += 1000;
                 lastReportingTime = System.currentTimeMillis();
@@ -130,9 +130,40 @@ public class ElasticsearchBenchmark {
         LOGGER.info("Complete");
         LOGGER.info(String.format("             documents: %,d", count));
         LOGGER.info(String.format("  documents per second: %,.2f", rate));
-        LOGGER.info(String.format("    bytes per document: %,.2f", ((double) numberOfBytesInserted) / ((double) count)));
+        LOGGER.info(String.format("avg bytes per document: %,.2f", ((double) numberOfBytesInserted) / ((double) count)));
+        LOGGER.info(formatResults(args, rate));
 
         client.close();
+    }
+
+    // TODO: add cluster info
+    private String formatResults(String[] args, double rate) {
+        List<Object> settings = new ArrayList<Object>();
+        settings.add(count);
+        settings.add(bulkCount);
+        settings.add(bulkSize);
+        settings.add(nodeApi);
+        settings.add(storeSourceData);
+        settings.add(documentSize);
+
+        StringBuilder settingsSb = new StringBuilder("\"");
+        for (int i = 0; i < settings.size(); i++) {
+            if (i != 0) {
+                settingsSb.append("\", \"");
+            }
+            settingsSb.append(settings.get(i));
+        }
+        settingsSb.append("\"");
+
+        StringBuilder argsSb = new StringBuilder();
+        for (int i = 0; i < args.length; i++) {
+            if (i != 0) {
+                argsSb.append(' ');
+            }
+            argsSb.append(args[i]);
+        }
+
+        return String.format("RESULTS %s, \"%,.2f\", \"%s\"", settingsSb.toString(), rate, argsSb.toString());
     }
 
     private void startCreateDocumentTextsThread() {
