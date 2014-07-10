@@ -128,18 +128,19 @@ public class ElasticsearchBenchmark {
         }
         long endTime = System.currentTimeMillis();
         rate = ((double) count) / ((double) (endTime - startTime)) * 1000;
+        double avgBytesPerDocument = ((double) numberOfBytesInserted) / ((double) count);
         LOGGER.info("Complete");
         LOGGER.info(String.format("             documents: %,d", count));
         LOGGER.info(String.format("  documents per second: %,.2f", rate));
-        LOGGER.info(String.format("avg bytes per document: %,.2f", ((double) numberOfBytesInserted) / ((double) count)));
+        LOGGER.info(String.format("avg bytes per document: %,.2f", avgBytesPerDocument));
 
-        RESULTS_LOGGER.info(formatResults(args, rate));
+        RESULTS_LOGGER.info(formatResults(args, rate, avgBytesPerDocument));
 
         client.close();
     }
 
     // TODO: add cluster info
-    private String formatResults(String[] args, double rate) {
+    private String formatResults(String[] args, double rate, double avgBytesPerDocument) {
         List<Object> settings = new ArrayList<Object>();
         settings.add(count);
         settings.add(bulkCount);
@@ -165,7 +166,7 @@ public class ElasticsearchBenchmark {
             argsSb.append(args[i]);
         }
 
-        return String.format("RESULTS %s, \"%,.2f\", \"%s\"", settingsSb.toString(), rate, argsSb.toString());
+        return String.format("RESULTS %s, \"%.2f\", \"%.2f\", \"%s\"", settingsSb.toString(), rate, avgBytesPerDocument, argsSb.toString());
     }
 
     private void startCreateDocumentTextsThread() {
@@ -174,12 +175,12 @@ public class ElasticsearchBenchmark {
             public void run() {
                 try {
                     while (true) {
-                        if (documentTexts.size() < 1000) {
+                        if (documentTexts.size() < 2000) {
                             synchronized (documentTexts) {
                                 documentTexts.add(getRandomText());
                             }
                         } else {
-                            Thread.sleep(10);
+                            Thread.sleep(2);
                         }
                     }
                 } catch (Exception ex) {
