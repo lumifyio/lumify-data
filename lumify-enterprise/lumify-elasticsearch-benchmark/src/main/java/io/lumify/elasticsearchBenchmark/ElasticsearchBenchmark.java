@@ -2,6 +2,9 @@ package io.lumify.elasticsearchBenchmark;
 
 import com.beust.jcommander.JCommander;
 import com.beust.jcommander.Parameter;
+import org.elasticsearch.action.admin.cluster.stats.ClusterStatsNodes;
+import org.elasticsearch.action.admin.cluster.stats.ClusterStatsRequest;
+import org.elasticsearch.action.admin.cluster.stats.ClusterStatsResponse;
 import org.elasticsearch.action.bulk.BulkRequest;
 import org.elasticsearch.action.index.IndexRequest;
 import org.elasticsearch.client.Client;
@@ -21,6 +24,7 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.net.InetAddress;
 import java.util.*;
+import java.util.concurrent.ExecutionException;
 
 public class ElasticsearchBenchmark {
     private static final Logger LOGGER = LoggerFactory.getLogger(ElasticsearchBenchmark.class);
@@ -134,13 +138,12 @@ public class ElasticsearchBenchmark {
         LOGGER.info(String.format("  documents per second: %,.2f", rate));
         LOGGER.info(String.format("avg bytes per document: %,.2f", avgBytesPerDocument));
 
-        RESULTS_LOGGER.info(formatResults(args, rate, avgBytesPerDocument));
+        RESULTS_LOGGER.info(formatResults(args, client, rate, avgBytesPerDocument));
 
         client.close();
     }
 
-    // TODO: add cluster info
-    private String formatResults(String[] args, double rate, double avgBytesPerDocument) {
+    private String formatResults(String[] args, Client client, double rate, double avgBytesPerDocument) throws ExecutionException, InterruptedException {
         List<Object> settings = new ArrayList<Object>();
         settings.add(count);
         settings.add(bulkCount);
@@ -149,24 +152,41 @@ public class ElasticsearchBenchmark {
         settings.add(storeSourceData);
         settings.add(documentSize);
 
-        StringBuilder settingsSb = new StringBuilder("\"");
-        for (int i = 0; i < settings.size(); i++) {
-            if (i != 0) {
-                settingsSb.append("\", \"");
-            }
-            settingsSb.append(settings.get(i));
-        }
-        settingsSb.append("\"");
+        ClusterStatsRequest req = new ClusterStatsRequest();
+        ClusterStatsResponse clusterStatsResponse = client.admin().cluster().clusterStats(req).get();
+        ClusterStatsNodes.Counts counts = clusterStatsResponse.getNodesStats().getCounts();
 
-        StringBuilder argsSb = new StringBuilder();
-        for (int i = 0; i < args.length; i++) {
-            if (i != 0) {
-                argsSb.append(' ');
-            }
-            argsSb.append(args[i]);
-        }
+        // TODO: add more cluster info
+        List<Object> clusterInfo = new ArrayList<Object>();
+        clusterInfo.add(counts.getMasterOnly());
+        clusterInfo.add(counts.getDataOnly());
+        clusterInfo.add(counts.getMasterData());
+        clusterInfo.add(counts.getClient());
 
-        return String.format("RESULTS %s, \"%.2f\", \"%.2f\", \"%s\"", settingsSb.toString(), rate, avgBytesPerDocument, argsSb.toString());
+        return String.format("RESULTS %s, %s, \"%.2f\", \"%.2f\", \"%s\"", toCsvString(settings), toCsvString(clusterInfo), rate, avgBytesPerDocument, toArgsString(args));
+    }
+
+    private String toCsvString(List<Object> list) {
+        StringBuilder sb = new StringBuilder("\"");
+        for (int i = 0; i < list.size(); i++) {
+            if (i != 0) {
+                sb.append("\", \"");
+            }
+            sb.append(list.get(i));
+        }
+        sb.append("\"");
+        return sb.toString();
+    }
+
+    private String toArgsString(String[] array) {
+        StringBuilder sb = new StringBuilder();
+        for (int i = 0; i < array.length; i++) {
+            if (i != 0) {
+                sb.append(" ");
+            }
+            sb.append(array[i]);
+        }
+        return sb.toString();
     }
 
     private void startCreateDocumentTextsThread() {
