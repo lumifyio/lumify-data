@@ -2,6 +2,9 @@ package io.lumify.elasticsearchBenchmark;
 
 import com.beust.jcommander.JCommander;
 import com.beust.jcommander.Parameter;
+import org.elasticsearch.action.admin.cluster.stats.ClusterStatsNodes;
+import org.elasticsearch.action.admin.cluster.stats.ClusterStatsRequest;
+import org.elasticsearch.action.admin.cluster.stats.ClusterStatsResponse;
 import org.elasticsearch.action.bulk.BulkRequest;
 import org.elasticsearch.action.index.IndexRequest;
 import org.elasticsearch.client.Client;
@@ -21,9 +24,11 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.net.InetAddress;
 import java.util.*;
+import java.util.concurrent.ExecutionException;
 
 public class ElasticsearchBenchmark {
     private static final Logger LOGGER = LoggerFactory.getLogger(ElasticsearchBenchmark.class);
+    private static final Logger RESULTS_LOGGER = LoggerFactory.getLogger("io.lumify.lumify-elasticsearch-benchmark-RESULTS");
     private static final String ELEMENT_TYPE = "benchmarkItem";
     private static final Random RANDOM = new Random(1000);
 
@@ -118,7 +123,7 @@ public class ElasticsearchBenchmark {
                 } else {
                     rate = ((double) (currentCount - lastReportingCount)) / ((double) duration) * 1000;
                 }
-                LOGGER.info(String.format("inserting %d/%d (%.2f docs/s)", currentCount, count, rate));
+                LOGGER.debug(String.format("inserting %d/%d (%.2f docs/s)", currentCount, count, rate));
                 lastReportingCount = currentCount;
                 nextReportingCount += 1000;
                 lastReportingTime = System.currentTimeMillis();
@@ -127,12 +132,61 @@ public class ElasticsearchBenchmark {
         }
         long endTime = System.currentTimeMillis();
         rate = ((double) count) / ((double) (endTime - startTime)) * 1000;
+        double avgBytesPerDocument = ((double) numberOfBytesInserted) / ((double) count);
         LOGGER.info("Complete");
         LOGGER.info(String.format("             documents: %,d", count));
         LOGGER.info(String.format("  documents per second: %,.2f", rate));
-        LOGGER.info(String.format("    bytes per document: %,.2f", ((double) numberOfBytesInserted) / ((double) count)));
+        LOGGER.info(String.format("avg bytes per document: %,.2f", avgBytesPerDocument));
+
+        RESULTS_LOGGER.info(formatResults(args, client, rate, avgBytesPerDocument));
 
         client.close();
+    }
+
+    private String formatResults(String[] args, Client client, double rate, double avgBytesPerDocument) throws ExecutionException, InterruptedException {
+        List<Object> settings = new ArrayList<Object>();
+        settings.add(count);
+        settings.add(bulkCount);
+        settings.add(bulkSize);
+        settings.add(nodeApi);
+        settings.add(storeSourceData);
+        settings.add(documentSize);
+
+        ClusterStatsRequest req = new ClusterStatsRequest();
+        ClusterStatsResponse clusterStatsResponse = client.admin().cluster().clusterStats(req).get();
+        ClusterStatsNodes.Counts counts = clusterStatsResponse.getNodesStats().getCounts();
+
+        // TODO: add more cluster info
+        List<Object> clusterInfo = new ArrayList<Object>();
+        clusterInfo.add(counts.getMasterOnly());
+        clusterInfo.add(counts.getDataOnly());
+        clusterInfo.add(counts.getMasterData());
+        clusterInfo.add(counts.getClient());
+
+        return String.format("RESULTS %s, %s, \"%.2f\", \"%.2f\", \"%s\"", toCsvString(settings), toCsvString(clusterInfo), rate, avgBytesPerDocument, toArgsString(args));
+    }
+
+    private String toCsvString(List<Object> list) {
+        StringBuilder sb = new StringBuilder("\"");
+        for (int i = 0; i < list.size(); i++) {
+            if (i != 0) {
+                sb.append("\", \"");
+            }
+            sb.append(list.get(i));
+        }
+        sb.append("\"");
+        return sb.toString();
+    }
+
+    private String toArgsString(String[] array) {
+        StringBuilder sb = new StringBuilder();
+        for (int i = 0; i < array.length; i++) {
+            if (i != 0) {
+                sb.append(" ");
+            }
+            sb.append(array[i]);
+        }
+        return sb.toString();
     }
 
     private void startCreateDocumentTextsThread() {
@@ -141,12 +195,12 @@ public class ElasticsearchBenchmark {
             public void run() {
                 try {
                     while (true) {
-                        if (documentTexts.size() < 1000) {
+                        if (documentTexts.size() < 2000) {
                             synchronized (documentTexts) {
                                 documentTexts.add(getRandomText());
                             }
                         } else {
-                            Thread.sleep(10);
+                            Thread.sleep(2);
                         }
                     }
                 } catch (Exception ex) {
