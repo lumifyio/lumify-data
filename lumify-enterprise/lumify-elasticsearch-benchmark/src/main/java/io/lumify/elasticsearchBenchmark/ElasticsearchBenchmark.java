@@ -5,6 +5,10 @@ import com.beust.jcommander.Parameter;
 import org.elasticsearch.action.admin.cluster.stats.ClusterStatsNodes;
 import org.elasticsearch.action.admin.cluster.stats.ClusterStatsRequest;
 import org.elasticsearch.action.admin.cluster.stats.ClusterStatsResponse;
+import org.elasticsearch.action.admin.indices.flush.FlushRequest;
+import org.elasticsearch.action.admin.indices.settings.get.GetSettingsRequest;
+import org.elasticsearch.action.admin.indices.settings.get.GetSettingsResponse;
+import org.elasticsearch.action.admin.indices.settings.put.UpdateSettingsRequest;
 import org.elasticsearch.action.admin.indices.stats.IndexStats;
 import org.elasticsearch.action.admin.indices.stats.IndicesStatsRequest;
 import org.elasticsearch.action.admin.indices.stats.IndicesStatsResponse;
@@ -76,6 +80,9 @@ public class ElasticsearchBenchmark {
     @Parameter(names = "--documentqueuecheckinterval", description = "how long to wait before checking if we need to create more documents (ms)")
     private int documentQueueCheckInterval = 10;
 
+    @Parameter(names = "--indexrefreshinterval", description = "http://www.elasticsearch.org/guide/en/elasticsearch/reference/current/indices-update-settings.html#bulk")
+    private String indexRefreshInterval;
+
     private ArrayList<String> words;
     private long numberOfBytesInserted;
     private final Queue<String> documentTexts = new LinkedList<String>();
@@ -118,6 +125,16 @@ public class ElasticsearchBenchmark {
 
         Client client = createClient(settings);
         ensureIndexIsCreated(client);
+
+        if (indexRefreshInterval != null) {
+            LOGGER.info("setting refresh_interval to {} for index {}...", indexRefreshInterval, indexName);
+            ImmutableSettings.Builder indexSettings = ImmutableSettings.settingsBuilder();
+            indexSettings.put("refresh_interval", indexRefreshInterval);
+            UpdateSettingsRequest updateSettingsRequest = new UpdateSettingsRequest(indexName);
+            updateSettingsRequest.settings(indexSettings);
+            client.admin().indices().updateSettings(updateSettingsRequest).actionGet();
+        }
+
         long lastReportingTime = System.currentTimeMillis();
         int nextReportingCount = 0;
         int lastReportingCount = 0;
@@ -164,16 +181,20 @@ public class ElasticsearchBenchmark {
 
         ClusterStatsResponse clusterStatsResponse = client.admin().cluster().clusterStats(new ClusterStatsRequest()).get();
         ClusterStatsNodes.Counts nodeCounts = clusterStatsResponse.getNodesStats().getCounts();
-
-        IndicesStatsResponse indicesStatsResponse = client.admin().indices().stats(new IndicesStatsRequest()).get();
-        IndexStats indexStats = indicesStatsResponse.getIndex(indexName);
-
         map.put("cluster master-only nodes", nodeCounts.getMasterOnly());
         map.put("cluster data-only nodes", nodeCounts.getDataOnly());
         map.put("cluster master/data nodes", nodeCounts.getMasterData());
         map.put("cluster client nodes", nodeCounts.getClient());
+
+        client.admin().indices().flush(new FlushRequest()).actionGet();
+        IndicesStatsResponse indicesStatsResponse = client.admin().indices().stats(new IndicesStatsRequest()).get();
+        IndexStats indexStats = indicesStatsResponse.getIndex(indexName);
         map.put("index document count", indexStats.getPrimaries().getDocs().getCount());
         map.put("index size (bytes)", indexStats.getPrimaries().getStore().getSizeInBytes());
+
+        GetSettingsResponse getSettingsResponse = client.admin().indices().getSettings(new GetSettingsRequest()).get();
+        String indexRefreshIntervalSetting = getSettingsResponse.getSetting(indexName, "index.refresh_interval");
+        map.put("index.refresh_interval", indexRefreshIntervalSetting != null ? indexRefreshIntervalSetting : "default");
 
         map.put("index rate", rate);
         map.put("avg bytes/doc", avgBytesPerDocument);
