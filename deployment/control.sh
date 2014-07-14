@@ -17,6 +17,9 @@ function _secondarynamenode {
 function _nodes {
   _localhost && echo 'localhost' || awk '/node[0-9]+/ {print $1}' ${HOSTS_FILE}
 }
+function _esnodes {
+  _localhost && echo 'localhost' || awk '/es[0-9]+/ {print $1}' ${HOSTS_FILE}
+}
 function _zk_servers {
   _localhost && echo 'localhost' || awk '/zk[0-9]+/ {print $1}' ${HOSTS_FILE}
 }
@@ -218,19 +221,19 @@ function _accumulo_rmlogs {
 }
 
 function _elasticsearch_start {
-  for node in $(_nodes); do
+  for node in $(_esnodes); do
     _run_at ${node} initctl start elasticsearch
   done
 }
 
 function _elasticsearch_stop {
-  for node in $(_nodes); do
+  for node in $(_esnodes); do
     _run_at ${node} initctl stop elasticsearch
   done
 }
 
 function _elasticsearch_status {
-  for node in $(_nodes); do
+  for node in $(_esnodes); do
     _run_at ${node} initctl status elasticsearch 2>&1 | _color_status
   done
 }
@@ -238,7 +241,7 @@ function _elasticsearch_status {
 function _elasticsearch_rmlogs {
   cmd='rm -f /var/log/elasticsearch/*'
 
-  for node in $(_nodes); do
+  for node in $(_esnodes); do
     _run_at_v ${node} ${cmd}
   done
 }
