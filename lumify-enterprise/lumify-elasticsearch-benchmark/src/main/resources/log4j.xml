@@ -14,8 +14,20 @@
         </layout>
     </appender>
 
-    <logger name="io.lumify" additivity="false">
+    <appender name="results" class="org.apache.log4j.RollingFileAppender">
+        <param name="File" value="&logDir;/lumify-elasticsearch-benchmark-RESULTS.log" />
+        <layout class="org.apache.log4j.PatternLayout">
+        <param name="ConversionPattern" value="&pattern;" />
+        </layout>
+    </appender>
+
+    <logger name="io.lumify.lumify-elasticsearch-benchmark-RESULTS" additivity="false">
         <level value="INFO" />
+        <appender-ref ref="results" />
+        <appender-ref ref="console" />
+    </logger>
+    <logger name="io.lumify" additivity="false">
+        <level value="DEBUG" />
         <appender-ref ref="console" />
     </logger>
     <root>
