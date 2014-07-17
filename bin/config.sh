@@ -38,14 +38,6 @@ function _enterprise {
   "
 }
 
-function _account {
-  _cp_files "
-	  lumify-account-web/docs/account.properties
-	  lumify-account-web/docs/account-PASSWORDS.properties
-  "
-}
-
-
 mkdir -p /opt/lumify/config
 
 if [ "$1" ]; then
@@ -53,5 +45,4 @@ if [ "$1" ]; then
 else
   _public
   _enterprise
-  _account
 fi
