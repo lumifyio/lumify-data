@@ -45,7 +45,7 @@
             </dependency>
             <dependency>
                 <groupId>io.lumify</groupId>
-                <artifactId>lumify-sql</artifactId>
+                <artifactId>lumify-model-sql</artifactId>
                 <version>${lumify.public.version}</version>
             </dependency>
             <dependency>
