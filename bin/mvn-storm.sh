@@ -14,7 +14,6 @@ else
   FILTER='.'
   OTHER_MODULES='
     lumify-public/storm/storm
-    lumify-public/examples/ontology-dev
   '
 fi
 
