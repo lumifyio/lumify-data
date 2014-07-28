@@ -77,7 +77,7 @@ graph.tableNamePrefix=lumify_securegraph
 graph.zookeeperServers=<%= @zookeeper_nodes.values.collect {|node| node.split(':')[0]}.join(',') %>
 graph.serializer=org.securegraph.accumulo.serializer.JavaValueSerializer
 graph.idgenerator=org.securegraph.id.UUIDIdGenerator
-graph.search=org.securegraph.elasticsearch.ElasticSearchSearchIndex
+graph.search=org.securegraph.elasticsearch.ElasticSearchParentChildSearchIndex
 graph.search.locations=<%= @elasticsearch_locations.join(',') %>
 graph.search.indexName=securegraph
 graph.hdfs.rootDir=hdfs://<%= @hadoop_masters[0] %>
