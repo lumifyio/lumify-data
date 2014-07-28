@@ -1,8 +1,11 @@
-class rabbitmq::fw::ui {
+class rabbitmq::fw::ui (
+  $srcnet = "0.0.0.0/0"
+){
   firewall { '505 allow rabbitmq ui' :
     port   => [15672],
     proto  => tcp,
     action => accept,
+    source => "${srcnet}",
   }
 }
 
@@ -13,7 +16,7 @@ class rabbitmq::fw::amqp (
     port   => [5672],
     proto  => tcp,
     action => accept,
-    source => "${srcnet}"
+    source => "${srcnet}",
   }
 }
 
@@ -24,6 +27,6 @@ class rabbitmq::fw::clustering ( # http://www.rabbitmq.com/clustering.html#firew
     port   => [4369, 25672],
     proto  => tcp,
     action => accept,
-    source => "${srcnet}"
+    source => "${srcnet}",
   }
 }
