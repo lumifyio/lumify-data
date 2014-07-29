@@ -1,4 +1,6 @@
-class tomcat::fw::http {
+class tomcat::fw::http (
+  $srcnet = "0.0.0.0/0"
+){
   $tomcat_http_port=hiera("tomcat_http_port",8080)
   firewall { '450 allow tomcat standard' :
     port   => [$tomcat_http_port],
@@ -7,7 +9,9 @@ class tomcat::fw::http {
   }
 }
 
-class tomcat::fw::https {
+class tomcat::fw::https (
+  $srcnet = "0.0.0.0/0"
+){
   $tomcat_https_port=hiera("tomcat_https_port",8443)
   firewall { '451 allow tomcat ssl' :
     port   => [$tomcat_https_port],
@@ -16,17 +20,20 @@ class tomcat::fw::https {
   }
 }
 
-class tomcat::fw::ajp {
+class tomcat::fw::ajp (
+  $srcnet = "0.0.0.0/0"
+){
   $mod_jk_workers = hiera_hash("mod_jk_workers")
   $worker_defaults = {
-    port => 8009
+    port   => 8009,
+    srcnet => "${srcnet}",
   }
 
   create_resources(apply_ajp_fw_rule, $mod_jk_workers, $worker_defaults)
 
 }
 
-define apply_ajp_fw_rule ($host, $port) {
+define apply_ajp_fw_rule ($host, $port, $srcnet) {
   notice "${name}: ${host}, ${port}"
   if $interfaces =~ /eth1/ {
     $worker_ip = $ipaddress_eth1
@@ -41,6 +48,7 @@ define apply_ajp_fw_rule ($host, $port) {
       port   => [$port],
       proto  => tcp,
       action => accept,
+      source => "${srcnet}",
     }
   }
 }

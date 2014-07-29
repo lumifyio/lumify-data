@@ -124,8 +124,13 @@ Vagrant.configure('2') do |config|
   #
   config.vm.provider :virtualbox do |vb|
     ensure_private_network
-    vb.customize ['modifyvm', :id, '--memory', '4096']
-    vb.customize ['modifyvm', :id, '--cpus', '2']
+    if ENV['VM_LARGE']
+      vb.customize ['modifyvm', :id, '--memory', '8192']
+      vb.customize ['modifyvm', :id, '--cpus', '4']
+    else
+      vb.customize ['modifyvm', :id, '--memory', '4096']
+      vb.customize ['modifyvm', :id, '--cpus', '2']
+    end
   end
   #
   # View the documentation for the provider you're using for more

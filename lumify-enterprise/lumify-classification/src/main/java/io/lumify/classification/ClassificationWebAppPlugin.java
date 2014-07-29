@@ -11,5 +11,6 @@ public class ClassificationWebAppPlugin implements WebAppPlugin {
     public void init(WebApp app, ServletConfig config, Handler authenticationHandler) {
         app.registerCss("/io/lumify/classification/classification-plugin.css");
         app.registerJavaScript("/io/lumify/classification/classification-plugin.js");
+        app.registerResourceBundle("/io/lumify/classification/messages.properties");
     }
 }
