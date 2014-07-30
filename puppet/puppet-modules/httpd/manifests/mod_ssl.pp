@@ -1,4 +1,4 @@
-class httpd::mod_ssl($httpdVersion='2.2.15', $tmpdir="/usr/local/src") {
+class httpd::mod_ssl($httpdVersion='2.2.15', $tmpdir="/usr/local/src", $clientAuth="require") {
 	require buildtools
   include macro
   require devel
