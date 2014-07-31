@@ -16,7 +16,6 @@ Or copy the following files to `/opt/lumify/config`
 
 - lumify-public/docs/log4j.xml
 - lumify-public/docs/lumify.properties
-- docs/lumify-enterprise.properties
 - docs/lumify-clavin.properties
 
 In either case modify the values for your environment.
