@@ -82,7 +82,6 @@ class env::common::config(
   config_file { [
       'log4j.xml',
       $main_properties_filename,
-      'lumify-enterprise.properties',
       'lumify-clavin.properties'
     ] :
     require => File['/opt/lumify/config'],
