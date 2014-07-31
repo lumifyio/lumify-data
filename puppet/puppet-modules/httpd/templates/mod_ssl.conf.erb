@@ -31,7 +31,7 @@ LoadModule ssl_module modules/mod_ssl.so
 
         <% if @httpd_ssl_ca_certificate_file != '' -%>
         SSLCACertificateFile "<%= @httpd_ssl_ca_certificate_file %>"
-        SSLVerifyClient require
+        SSLVerifyClient <%= @clientAuth %>
         RequestHeader set SSL_CLIENT_S_DN "%{SSL_CLIENT_S_DN}s"
         RequestHeader set SSL_CLIENT_CERT "%{SSL_CLIENT_CERT}s"
         <% else -%>

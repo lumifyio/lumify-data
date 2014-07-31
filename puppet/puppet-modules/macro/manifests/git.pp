@@ -6,29 +6,30 @@ class macro::git {
   $hiera_proxy_url = hiera('proxy_url', nil)
   if ($hiera_proxy_url != nil) {
     exec { "git configure http.proxy as ${hiera_proxy_url}" :
-      command => "/usr/bin/git config --global --replace-all http.proxy ${hiera_proxy_url}",
+      command     => "/usr/bin/git config --global --replace-all http.proxy ${hiera_proxy_url}",
+      unless      => "/usr/bin/git config --global http.proxy | grep -q ${hiera_proxy_url}",
       environment => 'HOME=/root',
-      require => Package['git'],
-      logoutput => true,
+      require     => Package['git'],
+      logoutput   => true,
     }
   } else {
-    exec { "git unconfigure http.proxy" :
-      command => "/usr/bin/git config --global --unset-all http.proxy",
+    exec { 'git unconfigure http.proxy' :
+      command     => '/usr/bin/git config --global --unset-all http.proxy',
       environment => 'HOME=/root',
-      require => Package['git'],
-      returns => [ 0, 5 ],
-      logoutput => on_failure,
+      require     => Package['git'],
+      returns     => [ 0, 5 ],
+      logoutput   => on_failure,
     }
   }
 
   define clone ($url = $title, $path, $options = "", $timeout = 300) {
     exec { "git clone ${options} ${url}" :
-      command => "/bin/rm -rf ${path} && /usr/bin/git clone ${options} ${url} ${path} && /bin/touch ${path}/.done",
+      command     => "/bin/rm -rf ${path} && /usr/bin/git clone ${options} ${url} ${path} && /bin/touch ${path}/.done",
       environment => [ 'HOME=/root', 'GIT_CURL_VERBOSE=1' ],
-      timeout => $timeout,
-      creates => "${path}/.done",
-      require => Package['git'],
-      logoutput => on_failure,
+      timeout     => $timeout,
+      creates     => "${path}/.done",
+      require     => Package['git'],
+      logoutput   => on_failure,
     }
   }
 
