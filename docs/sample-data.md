@@ -39,7 +39,6 @@
 
 
 ### GEO-Int Data
-[GEO-Int Readme](https://github.com/altamiracorp/lumify-enterprise/blob/develop/docs/geo-int-demo.md)
 [GEO-Int Download](https://s3.amazonaws.com/RedDawn/DataSets/TerroristColombia.zip)
 
 - A dataset of items used for testing at GEO-Int and during the promo videos.  There is a more in-depth explanation of the contents of the dataset.
@@ -124,7 +123,6 @@
 
 
 ### Testing Data Set
-[Testing Readme](https://github.com/altamiracorp/lumify-enterprise/blob/develop/docs/testing-README.md)
 [Testing Download](https://s3.amazonaws.com/RedDawn/DataSets/testing.zip)
 
 - A dataset of unrelated items used for the extensive regression testing.  There is a more in-depth explanation of the contents of the dataset.
