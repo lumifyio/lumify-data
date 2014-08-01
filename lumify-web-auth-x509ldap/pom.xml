@@ -16,11 +16,12 @@
     </scm>
 
     <properties>
-        <!-- Dependency Versions -->
         <unboundid.ldapsdk.version>2.3.6</unboundid.ldapsdk.version>
         <javax.servlet.api.version>3.0.1</javax.servlet.api.version>
         <commons.codec.version>1.8</commons.codec.version>
         <commons.lang.version>2.5</commons.lang.version>
+
+        <junit.version>4.11</junit.version>
     </properties>
 
     <dependencies>
@@ -50,6 +51,13 @@
             <artifactId>javax.servlet-api</artifactId>
             <scope>provided</scope>
             <version>${javax.servlet.api.version}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>junit</groupId>
+            <artifactId>junit</artifactId>
+            <version>${junit.version}</version>
+            <scope>test</scope>
         </dependency>
     </dependencies>
 
