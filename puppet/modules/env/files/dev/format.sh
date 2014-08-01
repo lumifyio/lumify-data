@@ -26,11 +26,11 @@ sudo -u hdfs hdfs dfsadmin -safemode wait
 sudo -u accumulo /usr/lib/accumulo/bin/accumulo init --instance-name lumify --password password --clear-instance-name
 
 sudo -u hdfs hadoop fs -mkdir /lumify/config/opennlp
-sudo -u hdfs hadoop fs -put /vagrant/config/opennlp/* /lumify/config/opennlp
+sudo -u hdfs hadoop fs -put /vagrant/lumify-public/config/opennlp/* /lumify/config/opennlp
 sudo -u hdfs hadoop fs -mkdir /lumify/config/knownEntities
-sudo -u hdfs hadoop fs -put /vagrant/config/knownEntities/* /lumify/config/knownEntities
+sudo -u hdfs hadoop fs -put /vagrant/lumify-public/config/knownEntities/* /lumify/config/knownEntities
 sudo -u hdfs hadoop fs -mkdir /lumify/config/opencv
-sudo -u hdfs hadoop fs -put /vagrant/config/opencv/* /lumify/config/opencv
+sudo -u hdfs hadoop fs -put /vagrant/lumify-public/config/opencv/* /lumify/config/opencv
 sudo -u hdfs hadoop fs -mkdir /lumify/libcache
 
 /vagrant/deployment/control.sh localhost start elasticsearch
