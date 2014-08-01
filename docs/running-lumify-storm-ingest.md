@@ -3,16 +3,16 @@
 
 ## Development Ontology
 
-    bin/080_Ontology.sh
+    lumify-public/bin/owlImport.sh lumify-public/examples/ontology-dev/
 
 ## Ingest Data
 
 To ingest data from lumify-all/data/import:
 
-    bin/importData.sh
+    lumify-public/bin/importData.sh
 
 ## Storm Topologies
 
 Run the Storm topology:
 
-    bin/stormLocal.sh
+    lumify-public/bin/stormLocal.sh

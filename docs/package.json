@@ -1,9 +1,0 @@
-{
-  "name": "perspective-docs",
-  "version": "0.0.1",
-  "dependencies": {
-    "flight-doc": "~0.0.1",
-    "bigtable-erd-generator": "~0.0.1"
-  },
-  "license": "BSD"
-}
