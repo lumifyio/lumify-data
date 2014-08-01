@@ -33,7 +33,6 @@ function _public {
 
 function _enterprise {
   _cp_files "
-	  docs/lumify-enterprise.properties
 	  docs/lumify-clavin.properties
   "
 }

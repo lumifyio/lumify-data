@@ -83,7 +83,7 @@ function bundle_puppet {
 }
 
 function bundle_config {
-  local config_tgz=$(git_archive config .. 'config/opencv config/opennlp')
+  local config_tgz=$(git_archive config ../lumify-public 'config/opencv config/opennlp')
 
   FILE_LIST="${FILE_LIST} setup_config.sh ${config_tgz}"
 }

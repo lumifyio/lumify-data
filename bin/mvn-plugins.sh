@@ -17,7 +17,6 @@ DIR="$(cd -P "$(dirname "$SOURCE")" && pwd)"
   MODULES=$(echo ${PLUGINS} | sed -e 's/ /,/g')
 
   set -x
-  mvn install -pl lumify-root -am -DskipTests -Dsource.skip=true
   mvn package -pl ${MODULES} -am -DskipTests -Dsource.skip=true
   set +x
 )
