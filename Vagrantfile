@@ -172,8 +172,6 @@ Vagrant.configure('2') do |config|
     ql.vm.provision :puppet do |puppet|
       configure_puppet(puppet, 'ql_vm.pp', ENV['PROXY_URL'])
     end
-    ql.vm.provision :shell, :path => 'demo-vm/set-property.sh', :args => 'objectdetection.opencv.disabled=true'
-    ql.vm.provision :shell, :path => 'demo-vm/set-property.sh', :args => 'clavin.disabled=true'
   end
 
   # used for automated integration testing
@@ -188,31 +186,16 @@ Vagrant.configure('2') do |config|
     test.vm.provision :shell, :path => 'bin/test/ingest.sh', :args => '/tmp/lumify-all', :privileged => false
   end
 
-  # used to create the downloadable open source demo VM
-  config.vm.define 'demo-opensource' do |demo|
+  # used to create the downloadable demo VM
+  config.vm.define 'demo' do |demo|
     configure_network(demo)
     provision_proxy(demo, ENV['PROXY_URL'])
     demo.vm.provision :shell, :inline => 'set -x; mkdir -p /data0'
+    install_puppet_modules(demo, ['puppetlabs-stdlib'])
     demo.vm.provision :puppet do |puppet|
-      configure_puppet(puppet, 'demo_opensource_vm.pp', ENV['PROXY_URL'])
+      configure_puppet(puppet, 'demo_vm.pp', ENV['PROXY_URL'])
     end
-    demo.vm.provision :shell, :path => 'demo-vm/set-property.sh', :args => 'objectdetection.opencv.disabled=true'
-    demo.vm.provision :shell, :path => 'demo-vm/set-property.sh', :args => 'clavin.disabled=true'
     demo.vm.provision :shell, :path => 'demo-vm/ingest.sh', :args => 'demo-vm/data/sample-data-html.tgz', :privileged => false
-    demo.vm.provision :shell, :path => 'demo-vm/configure-vm.sh'
-    demo.vm.provision :shell, :path => 'demo-vm/clean-vm.sh'
-  end
-
-  # used to create an enterprise demo VM
-  config.vm.define 'demo-enterprise' do |demo|
-    configure_network(demo)
-    provision_proxy(demo, ENV['PROXY_URL'])
-    demo.vm.provision :shell, :inline => 'set -x; mkdir -p /data0'
-    demo.vm.provision :puppet do |puppet|
-      configure_puppet(puppet, 'demo_enterprise_vm.pp', ENV['PROXY_URL'])
-    end
-    demo.vm.provision :shell, :path => 'demo-vm/set-property.sh', :args => 'clavin.disabled=true'
-    demo.vm.provision :shell, :path => 'demo-vm/ingest.sh', :args => 'demo-vm/data/chechen-terrorists.tgz', :privileged => false
     demo.vm.provision :shell, :path => 'demo-vm/configure-vm.sh'
     demo.vm.provision :shell, :path => 'demo-vm/clean-vm.sh'
   end
