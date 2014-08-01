@@ -3,7 +3,7 @@
 
 ## Development Ontology
 
-    lumify-public/bin/owlImport.sh -i lumify-public/examples/ontology-dev/
+    lumify-public/bin/owlImport.sh -i lumify-public/examples/ontology-dev/ -iri http://lumify.io/dev
 
 ## Ingest Data
 
