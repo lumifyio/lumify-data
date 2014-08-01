@@ -126,6 +126,5 @@
         <module>lumify-igw</module>
         <module>lumify-classification</module>
         <module>lumify-elasticsearch-benchmark</module>
-        <!--<module>lumify-gtd</module>-->
     </modules>
 </project>
