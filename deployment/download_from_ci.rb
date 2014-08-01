@@ -5,7 +5,6 @@ io/lumify/lumify-ontology-dev                     with-dependencies.jar
 io/lumify/lumify-ccextractor                      with-dependencies.jar
 io/lumify/lumify-clavin                           with-dependencies.jar
 io/lumify/lumify-email-extractor                  with-dependencies.jar
-io/lumify/lumify-enterprise-tools                 with-dependencies.jar
 io/lumify/lumify-java-code-ingest                 with-dependencies.jar
 io/lumify/lumify-known-entity-extractor           with-dependencies.jar
 io/lumify/lumify-mapped-ingest                    with-dependencies.jar
@@ -29,7 +28,6 @@ io/lumify/lumify-opennlp-dictionary-extractor-web with-dependencies.jar
 io/lumify/lumify-web-war                          .war lumify.war
 #org/securegraph/securegraph-tools                 with-dependencies.jar
 #com/altamiracorp/bigtable/bigtable-ui-war         .war bigtable.war
-#com/altamiracorp/jmxui/jmx-ui-webapp              .war jmx.war
 """
 
 def download(module_name, artifact_name, local_filename)

@@ -12,6 +12,10 @@
     <artifactId>lumify-igw</artifactId>
     <name>Lumify: IGW</name>
 
+    <properties>
+        <javax.servlet.api.version>3.0.1</javax.servlet.api.version>
+    </properties>
+
     <dependencies>
         <dependency>
             <groupId>io.lumify</groupId>
@@ -22,6 +26,7 @@
             <groupId>javax.servlet</groupId>
             <artifactId>javax.servlet-api</artifactId>
             <scope>provided</scope>
+            <version>${javax.servlet.api.version}</version>
         </dependency>
     </dependencies>
 

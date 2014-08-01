@@ -7,7 +7,6 @@ including the following:
 Open Source components:
 
 - [lumify-public](https://github.com/altamiracorp/lumify)
-- [lumify-root](https://github.com/altamiracorp/lumify-root)
 
 Closed Source components:
 

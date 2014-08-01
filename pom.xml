@@ -18,7 +18,6 @@
     </scm>
 
     <modules>
-        <module>lumify-root</module>
         <module>lumify-public</module>
         <module>lumify-enterprise</module>
         <module>lumify-web-auth-x509ldap</module>

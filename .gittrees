@@ -2,10 +2,6 @@
 	url = git@github.com:lumifyio/lumify.git
 	path = lumify-public
 	branch = master
-[subtree "lumify-root"]
-	url = git@github.com:lumifyio/lumify-root.git
-	path = lumify-root
-	branch = master
 [subtree "lumify-enterprise"]
 	url = git@github.com:altamiracorp/lumify-enterprise.git
 	path = lumify-enterprise
