@@ -2,10 +2,6 @@
 	url = git@github.com:lumifyio/lumify.git
 	path = lumify-public
 	branch = master
-[subtree "lumify-enterprise"]
-	url = git@github.com:altamiracorp/lumify-enterprise.git
-	path = lumify-enterprise
-	branch = develop
 [subtree "puppet/puppet-modules"]
 	url = git@github.com:altamiracorp/puppet-modules.git
 	path = puppet/puppet-modules

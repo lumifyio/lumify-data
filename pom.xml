@@ -19,9 +19,11 @@
 
     <modules>
         <module>lumify-public</module>
-        <module>lumify-enterprise</module>
         <module>lumify-web-auth-x509ldap</module>
         <module>lumify-tomcat-server-with-auth</module>
+        <module>lumify-igw</module>
+        <module>lumify-classification</module>
+        <module>lumify-elasticsearch-benchmark</module>
     </modules>
 </project>
 

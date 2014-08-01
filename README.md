@@ -8,10 +8,6 @@ Open Source components:
 
 - [lumify-public](https://github.com/altamiracorp/lumify)
 
-Closed Source components:
-
-- [lumify-enterprise](https://github.com/altamiracorp/lumify-enterprise)
-
 Shared components:
 
 - [lumify-rpms](https://github.com/altamiracorp/lumify-rpms)
