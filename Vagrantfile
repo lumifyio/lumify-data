@@ -174,18 +174,6 @@ Vagrant.configure('2') do |config|
     end
   end
 
-  # used for automated integration testing
-  config.vm.define 'test' do |test|
-    configure_network(test)
-    provision_proxy(test, ENV['PROXY_URL'])
-    test.vm.provision :shell, :inline => 'set -x; mkdir -p /data0'
-    test.vm.provision :puppet do |puppet|
-      configure_puppet(puppet, 'dev_vm.pp', ENV['PROXY_URL'])
-    end
-    test.vm.provision :shell, :path => 'bin/test/clone.sh', :args => '/tmp/lumify-all', :privileged => false
-    test.vm.provision :shell, :path => 'bin/test/ingest.sh', :args => '/tmp/lumify-all', :privileged => false
-  end
-
   # used to create the downloadable demo VM
   config.vm.define 'demo' do |demo|
     configure_network(demo)
