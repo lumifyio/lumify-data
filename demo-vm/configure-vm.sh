@@ -4,7 +4,7 @@ LUMIFY_USERNAME=lumify
 LUMIFY_PASSWORD=lumify
 
 id -u ${LUMIFY_USERNAME} > /dev/null \
-    || useradd ${LUMIFY_USERNAME}
+    || useradd -g lumify ${LUMIFY_USERNAME}
 
 id -Gn ${LUMIFY_USERNAME} | grep -q wheel \
     || usermod -a -G wheel ${LUMIFY_USERNAME}

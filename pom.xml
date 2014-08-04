@@ -6,7 +6,7 @@
 
     <groupId>lumify-all</groupId>
     <artifactId>lumify-all</artifactId>
-    <version>0.2.0-SNAPSHOT</version>
+    <version>0.4.0-SNAPSHOT</version>
     <packaging>pom</packaging>
 
     <name>All Lumify</name>
@@ -18,11 +18,12 @@
     </scm>
 
     <modules>
-        <module>lumify-root</module>
         <module>lumify-public</module>
-        <module>lumify-enterprise</module>
         <module>lumify-web-auth-x509ldap</module>
         <module>lumify-tomcat-server-with-auth</module>
+        <module>lumify-igw</module>
+        <module>lumify-classification</module>
+        <module>lumify-elasticsearch-benchmark</module>
     </modules>
 </project>
 

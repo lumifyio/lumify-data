@@ -24,7 +24,6 @@ fi
   MODULES=$(echo ${STORM_MODULES} ${OTHER_MODULES} | sed -e 's/ /,/g')
 
   set -x
-  mvn install -pl lumify-root -am -DskipTests -Dsource.skip=true
   mvn package -pl ${MODULES} -am -DskipTests -Dsource.skip=true
   set +x
 
