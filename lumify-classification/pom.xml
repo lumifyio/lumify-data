@@ -6,7 +6,7 @@
     <artifactId>lumify-classification</artifactId>
     <name>Lumify: Classification</name>
     <groupId>io.lumify</groupId>
-    <version>0.2.0-SNAPSHOT</version>
+    <version>0.3.0</version>
 
     <properties>
         <javax.servlet.api.version>3.0.1</javax.servlet.api.version>

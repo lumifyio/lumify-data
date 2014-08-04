@@ -5,7 +5,7 @@
 
     <artifactId>lumify-web-auth-x509ldap</artifactId>
     <groupId>io.lumify</groupId>
-    <version>0.2.0-SNAPSHOT</version>
+    <version>0.3.0</version>
     <name>Lumify: x509/LDAP Authentication</name>
     <packaging>jar</packaging>
 
