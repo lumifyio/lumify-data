@@ -33,4 +33,9 @@ class env::cluster::puppetmaster {
   }
 
   include tinyproxy
+
+  tidy { '/var/lib/puppet/reports' :
+    recurse => true,
+    age => '3d',
+  }
 }

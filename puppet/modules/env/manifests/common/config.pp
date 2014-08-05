@@ -44,6 +44,10 @@ class env::common::config(
     require => [ File['/opt/lumify'], Group['lumify'] ],
   }
 
+  tidy {'/opt/lumify/logs' :
+    age => '3d',
+  }
+
   define hdfslibcache_dir {
     ensure_resource('file', "${name}", {ensure => directory})
 

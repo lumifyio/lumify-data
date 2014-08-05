@@ -8,6 +8,10 @@
     <groupId>io.lumify</groupId>
     <version>0.4.0-SNAPSHOT</version>
 
+    <properties>
+        <plugin.maven.assembly.version>2.4</plugin.maven.assembly.version>
+    </properties>
+
     <dependencies>
         <dependency>
             <groupId>org.elasticsearch</groupId>
@@ -31,6 +35,7 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-assembly-plugin</artifactId>
+                <version>${plugin.maven.assembly.version}</version>
                 <configuration>
                     <descriptor>src/main/assembly/descriptor.xml</descriptor>
                     <archive>
