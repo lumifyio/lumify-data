@@ -15,16 +15,10 @@ class postgres::standalone_common inherits postgres {
   }  
   
   exec { "create_default_user" :
-    command => "/usr/bin/psql -c \"create user ${default_db_user} with password '${default_db_pw}'\"",
+    command => "/usr/bin/psql -c \"create user ${default_db_user} with password '${default_db_pw}'; grant all privileges on database ${database_name} to ${default_db_user};\"",
     unless  => "/usr/bin/psql -c \"select usename from pg_catalog.pg_user where usename = '${default_db_user}'\" | grep -q ${default_db_user}",
     user    => 'postgres',
-    require => Postgres::Service['postgresql-service'],
-  }
-  
-  exec { "grantuser" :
-    command => "/usr/bin/psql -c \"grant all privileges on database ${database_name} to ${default_db_user}\"",
-    user => 'postgres',
-    require => [Exec["create_db"], Exec["create_default_user"]]
+    require => Exec['create_db'],
   }
   
   postgres::service { 'postgresql-service':
