@@ -8,14 +8,19 @@ while [ -h "$SOURCE" ]; do
 done
 DIR="$(cd -P "$(dirname "$SOURCE")" && pwd)"
 
+GIT_URL=git@github.com:lumifyio/lumify.git
+HTTPS_URL=https://github.com/lumifyio/lumify.git
+
 cd ${DIR}/..
 
 if [ -d "lumify-public" ]; then
     cd lumify-public
     git pull
 else
-    git clone git@github.com:lumifyio/lumify.git lumify-public
+    echo Cloning ${GIT_URL}
+    git clone ${GIT_URL} lumify-public
     if [ $? -ne 0 ]; then
-        git clone https://github.com/lumifyio/lumify.git lumify-public
+        echo Failed to clone using git url, falling back to ${HTTPS_URL}
+        git clone ${HTTPS_URL} lumify-public
     fi
 fi
