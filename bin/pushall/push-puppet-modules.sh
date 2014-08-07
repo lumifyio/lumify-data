@@ -1,5 +1,4 @@
 #!/bin/bash
-# require: push-public.sh
 
 SOURCE="${BASH_SOURCE[0]}"
 while [ -h "$SOURCE" ]; do

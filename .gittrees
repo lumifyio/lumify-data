@@ -1,7 +1,3 @@
-[subtree "lumify-public"]
-	url = git@github.com:lumifyio/lumify.git
-	path = lumify-public
-	branch = master
 [subtree "puppet/puppet-modules"]
 	url = git@github.com:altamiracorp/puppet-modules.git
 	path = puppet/puppet-modules
