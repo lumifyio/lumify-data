@@ -1,4 +1,5 @@
 /data/
+/lumify-public/
 target/
 .idea
 *.iml
