@@ -15,4 +15,7 @@ if [ -d "lumify-public" ]; then
     git pull
 else
     git clone git@github.com:lumifyio/lumify.git lumify-public
+    if [ $? -ne 0 ]; then
+        git clone https://github.com/lumifyio/lumify.git lumify-public
+    fi
 fi
