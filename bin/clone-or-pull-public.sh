@@ -14,10 +14,11 @@ HTTPS_URL=https://github.com/lumifyio/lumify.git
 cd ${DIR}/..
 
 if [ -d "lumify-public" ]; then
+    echo lumify-public found git pulling
     cd lumify-public
     git pull
 else
-    echo Cloning ${GIT_URL}
+    echo cloning ${GIT_URL}
     git clone ${GIT_URL} lumify-public
     if [ $? -ne 0 ]; then
         echo Failed to clone using git url, falling back to ${HTTPS_URL}
