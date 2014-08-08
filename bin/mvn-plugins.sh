@@ -13,7 +13,7 @@ DIR="$(cd -P "$(dirname "$SOURCE")" && pwd)"
 (
   cd ${DIR}/..
 
-  PLUGINS=$(find lumify-public/web/plugins -mindepth 1 -maxdepth 1 -type d | grep ${FILTER})
+  PLUGINS=$(find lumify-public/web/plugins lumify-public/core/plugins -mindepth 1 -maxdepth 1 -type d | grep ${FILTER})
   MODULES=$(echo ${PLUGINS} | sed -e 's/ /,/g')
 
   set -x
