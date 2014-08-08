@@ -20,3 +20,15 @@ DIR="$(cd -P "$(dirname "$SOURCE")" && pwd)"
   echo "updated from ${bundle_filename}"
   git log -n 1 > ../${bundle_filename}.txt
 )
+
+(
+  cd ${DIR}/../..
+  bundle_filename=$(ls lumify-public.*.bundle | tail -1)
+  unlink lumify-public.bundle
+  ln -s ${bundle_filename} lumify-public.bundle
+
+  cd ${DIR}/../lumify-public
+  git pull
+  echo "updated from ${bundle_filename}"
+  git log -n 1 > ../../${bundle_filename}.txt
+)
