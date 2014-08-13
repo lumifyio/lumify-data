@@ -15,8 +15,25 @@ class { 'env::common::config' :
 }
 
 include httpd
-include httpd::mod_jk
 include httpd::mod_ssl
+
+$lumify_httpd_conf = "
+<Location /balancer-manager>
+  SetHandler balancer-manager
+</Location>
+<Proxy balancer://tomcat>
+  BalancerMember ajp://localhost:8009 loadfactor=1
+</Proxy>
+ProxyPass /lumify balancer://tomcat/lumify
+"
+file { '/etc/httpd/conf.d/lumify.conf' :
+  ensure => file,
+  content => "$lumify_httpd_conf",
+  owner => 'root',
+  group => 'root',
+  mode => 'u=rw,go=r',
+  require => Package['httpd'],
+}
 
 file { '/opt/lumify/config/lumify-vm.lumify.io.cert.pem' :
   ensure => file,
