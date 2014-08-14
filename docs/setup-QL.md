@@ -17,14 +17,16 @@
 
 1. build and install the model-sql, x509ldap, and classification plugins
 
+        sudo mkdir -p /opt/lumify/lib
+
         mvn package -pl lumify-public/core/plugins/model-sql -am
-        cp lumify-public/core/plugins/model-sql/target/lumify-model-sql-*-jar-with-dependencies.jar /opt/lumify/lib
+        sudo cp lumify-public/core/plugins/model-sql/target/lumify-model-sql-*-jar-with-dependencies.jar /opt/lumify/lib
 
         mvn package -pl lumify-web-auth-x509ldap -am
-        cp lumify-web-auth-x509ldap/target/lumify-web-auth-x509ldap-*-jar-with-dependencies.jar /opt/lumify/lib
+        sudo cp lumify-web-auth-x509ldap/target/lumify-web-auth-x509ldap-*-jar-with-dependencies.jar /opt/lumify/lib
 
         mvn package -pl lumify-classification -am
-        cp lumify-classification/target/lumify-classification-*.jar /opt/lumify/lib
+        sudo cp lumify-classification/target/lumify-classification-*.jar /opt/lumify/lib
 
 1. configure Lumify via `/opt/lumify/config/lumify.properties`
 
@@ -55,9 +57,14 @@
         # all users have read-only access
         newuser.privileges=READ
 
-1. configure Hibernate
+1. configure Hibernate, the ontology, and LDAP
 
-        cp lumify-public/core/plugins/model-sql/config/hibernate.cfg.xml /opt/lumify/config
+        sudo cp lumify-public/core/plugins/model-sql/config/hibernate.cfg.xml /opt/lumify/config
+
+        sudo mkdir -p /opt/lumify/ontology
+        sudo ln -s lumify-public/examples/ontology-dev /opt/lumify/ontology/dev
+
+        sudo cp lumify-web-auth-x509ldap/config/ldap.properties /opt/lumify/config
 
 1. install one or more user certficates in your browser by importing `.pkcs12` files from the `config/ssl/users` directory
 
