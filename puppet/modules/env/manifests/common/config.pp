@@ -48,21 +48,6 @@ class env::common::config(
     age => '3d',
   }
 
-  define hdfslibcache_dir {
-    ensure_resource('file', "${name}", {ensure => directory})
-
-    file { "${name}/hdfslibcache" :
-      ensure  => directory,
-      group   => 'lumify',
-      mode    => 'u=rwx,g=rwxs,o=rx',
-      require => [ File[$name], Group['lumify'] ],
-    }
-  }
-
-  $data_dir_list = split($data_directories, ',')
-
-  hdfslibcache_dir { $data_dir_list : }
-
   $syslog_server = hiera('syslog_server', '')
   $syslog_facility = 'local3'
   $syslog_threshold = hiera('syslog_threshold', 'ERROR')
