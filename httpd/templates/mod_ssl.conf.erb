@@ -48,6 +48,7 @@ LoadModule ssl_module modules/mod_ssl.so
 
         <IfModule jk_module>
             JkMountFile conf/extra/uriworkermap.properties
+            SSLOptions +ExportCertData
         </IfModule>
 
         BrowserMatch ".*MSIE.*" \
