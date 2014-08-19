@@ -1,5 +1,6 @@
 /data/
 /lumify-public/
+/lumify-copyleft/
 target/
 .idea
 *.iml
