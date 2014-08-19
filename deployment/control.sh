@@ -144,6 +144,17 @@ function _hadoop_rmlogs {
   done
 }
 
+function _hadoop_delete {
+  while [ "${DELETE}" != 'DELETE' ]; do
+    echo "then type 'DELETE' and press return"
+    read DELETE
+  done
+
+  cmd='hadoop fs -rm -f -r /lumify/secureGraph'
+
+  _run_at_m $(_namenode) ${cmd}
+}
+
 function _zookeeper_start {
   for zk in $(_zk_servers); do
     _run_at_m ${zk} service zookeeper-server start
@@ -220,6 +231,17 @@ function _accumulo_rmlogs {
   done
 }
 
+function _accumulo_delete {
+  while [ "${DELETE}" != 'DELETE' ]; do
+    echo "then type 'DELETE' and press return"
+    read DELETE
+  done
+
+  cmd='/usr/lib/accumulo/bin/accumulo shell -u root -p password -e "droptable -f -p lumify_.*"'
+
+  _run_at_m $(_accumulomaster) ${cmd}
+}
+
 function _elasticsearch_start {
   for node in $(_esnodes); do
     _run_at ${node} initctl start elasticsearch
@@ -244,6 +266,19 @@ function _elasticsearch_rmlogs {
   for node in $(_esnodes); do
     _run_at_v ${node} ${cmd}
   done
+}
+
+function _elasticsearch_delete {
+  while [ "${DELETE}" != 'DELETE' ]; do
+    echo "then type 'DELETE' and press return"
+    read DELETE
+  done
+
+  cmd="curl -XDELETE http://$(_esnodes | head -1):9200/_all"
+
+  echo ${cmd}
+  ${cmd}
+  echo
 }
 
 function _jetty_start {
@@ -417,6 +452,12 @@ function _all_rmlogs {
   _storm_rmlogs
 }
 
+function _all_delete {
+  _accumulo_delete
+  _elasticsearch_delete
+  _hadoop_delete
+}
+
 function _run {
   local pattern=$1
   local command_and_args="${@:2}"
@@ -485,6 +526,13 @@ case "$2" in
       _$3_rmlogs
     else
       _all_rmlogs
+    fi
+    ;;
+  delete)
+    if [ "$3" ]; then
+      _$3_delete
+    else
+      _all_delete
     fi
     ;;
   run)
