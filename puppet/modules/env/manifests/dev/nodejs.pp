@@ -1,5 +1,5 @@
 class env::dev::nodejs {
-  package { [ 'nodejs', 'npm' ] :
+  package { 'npm' :
     ensure => present,
   }
 
