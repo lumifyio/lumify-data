@@ -34,7 +34,7 @@ Or if you are on the #361 network in McLean (_or have your own caching proxy ser
         PROXY_URL=http://10.0.1.243:3128 vagrant up dev
         vagrant ssh dev
         
-- the first time you run `vagrant up` it will download a base CentOS 6.4 image and then provision the VM via Puppet taking several minutes and displaying tons of progress messages
+- the first time you run `vagrant up` it will download a base CentOS 6.5 image and then provision the VM via Puppet taking several minutes and displaying tons of progress messages
 - subsequent times you run `vagrant up` will take less time and will skip Puppet provisioning unless you include the `--provision` option
 - after `vagrant ssh` you will be inside the VM as the `vagrant` user who has `sudo` privileges
 - the `/vagrant` directory inside the VM is mapped to the root directory on your host where you have cloned this repo
