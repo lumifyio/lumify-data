@@ -152,6 +152,7 @@ function _hadoop_delete {
 
   cmd='hadoop fs -rm -f -r /lumify/secureGraph'
 
+  echo ${cmd}
   _run_at_m $(_namenode) ${cmd}
 }
 
@@ -237,10 +238,10 @@ function _accumulo_delete {
     read DELETE
   done
 
-  cmd='/usr/lib/accumulo/bin/accumulo shell -u root -p password -e "droptable -f -p lumify_.*"'
+  cmd="/usr/lib/accumulo/bin/accumulo shell -u root -p password -e 'droptable -f -p lumify_.*'"
 
   echo ${cmd}
-  _run_at_m $(_accumulomaster) ${cmd}
+  echo "${cmd}" | _run_at_m $(_accumulomaster) bash -s
 }
 
 function _elasticsearch_start {
