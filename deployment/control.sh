@@ -137,7 +137,7 @@ function _hadoop_status {
 }
 
 function _hadoop_rmlogs {
-  cmd='rm -f /var/log/hadoop-0.20-mapreduce/*.{log,out}* /var/log/hadoop-hdfs/*.{log,out}*'
+  cmd='rm -f /var/log/hadoop-0.20-mapreduce/*.{log,out}* /var/log/hadoop-hdfs/*.{log,out}* /opt/lumify/lumify-mapred-*.log'
 
   for node in $(echo $(_namenode) $(_secondarynamenode) $(_nodes) | tr ' ' '\n' | sort -t . -k 4 -n -u); do
     _run_at_v ${node} ${cmd}
@@ -301,7 +301,7 @@ function _jetty_status {
 }
 
 function _jetty_rmlogs {
-  cmd='rm -rf /opt/jetty/logs/*'
+  cmd='rm -rf /opt/jetty/logs/* /opt/lumify/logs/lumify-jetty-*.log'
 
   for webserver in $(_webservers); do
     _run_at_v ${webserver} ${cmd}
@@ -365,7 +365,7 @@ function _storm_status {
 }
 
 function _storm_rmlogs {
-  cmd="rm -f /opt/storm/logs/*"
+  cmd="rm -f /opt/storm/logs/* /opt/lumify/logs/lumify-storm-*.log"
 
   for node in $(echo $(_stormmaster) $(_nodes) | tr ' ' '\n' | sort -t . -k 4 -n -u); do
     _run_at_v ${node} ${cmd}
