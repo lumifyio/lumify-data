@@ -239,6 +239,7 @@ function _accumulo_delete {
 
   cmd='/usr/lib/accumulo/bin/accumulo shell -u root -p password -e "droptable -f -p lumify_.*"'
 
+  echo ${cmd}
   _run_at_m $(_accumulomaster) ${cmd}
 }
 
