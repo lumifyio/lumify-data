@@ -14,7 +14,11 @@ input {
     path => '/opt/storm/logs/*'
     start_position => 'beginning'
   }
-  # TODO: /var/log/elasticsearch
+  file {
+    type => 'elasticsearch'
+    path => '/var/log/elasticsearch/*'
+    start_position => 'beginning'
+  }
   # TODO: /var/log/hadoop-0.20-mapreduce
   # TODO: /var/log/hadoop-hdfs
   # TODO: /var/log/zookeeper
@@ -52,6 +56,17 @@ filter {
     }
     date {
       match => [ "timestamp", "YYYY-MM-dd HH:mm:ss" ]
+    }
+  }
+
+  if [type] == 'elasticsearch' {
+    # [2014-08-27 12:38:07,728][INFO ][discovery                ] [ip-10-0-3-131] starting
+    grok {
+      match => [ "message", "\[%{DATA:timestamp}\]\[%{LOGLEVEL:severity}\s*\]\[%{DATA:category}\s*\]\s*\[.*?\]\s*%{GREEDYDATA:message}" ]
+      overwrite => [ "message" ]
+    }
+    date {
+      match => [ "timestamp", "YYYY-MM-dd HH:mm:ss,SSS" ]
     }
   }
 
