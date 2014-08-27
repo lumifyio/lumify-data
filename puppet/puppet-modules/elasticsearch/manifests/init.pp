@@ -5,7 +5,9 @@ class elasticsearch(
   $installdir = "/usr/lib",
   $logdir = "/var/log/elasticsearch",
   $tmpdir = '/tmp',
-  $elasticsearch_locations = hiera_array('elasticsearch_locations')
+  $elasticsearch_locations = hiera_array('elasticsearch_locations'),
+  $index_shards = hiera('elasticsearch_index_shards', 2),
+  $heapsize = hiera('elasticsearch_heapsize', 1024)
 ) {
   include macro
   include macro::git
