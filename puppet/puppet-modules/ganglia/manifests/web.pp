@@ -1,5 +1,7 @@
 class ganglia::web inherits ganglia {
 
+  ensure_resource('package', 'httpd', {'ensure' => 'present' })
+
   package { 'ganglia-web':
     ensure => present,
     require => Package['httpd'],
