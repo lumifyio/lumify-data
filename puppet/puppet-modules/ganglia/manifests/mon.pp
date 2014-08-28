@@ -23,7 +23,7 @@ class ganglia::mon(
     ],
   }
 
-  class { 'mon_diskstat' :
+  class { 'ganglia::mon::diskstat' :
     require => Package['ganglia-gmond-python'],
   }
 }
