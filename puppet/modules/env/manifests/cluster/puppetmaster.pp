@@ -31,8 +31,14 @@ class env::cluster::puppetmaster {
   class { 'ntpd::fw' :
     stage => 'first',
   }
+  class { 'ganglia::fw' :
+    stage => 'first',
+  }
 
   include tinyproxy
+  include ganglia::meta
+  include ganglia::mon
+  include ganglia::web
 
   tidy { '/var/lib/puppet/reports' :
     recurse => true,
