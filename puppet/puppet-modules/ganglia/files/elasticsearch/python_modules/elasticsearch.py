@@ -192,10 +192,7 @@ def metric_init(params):
     
     m = re.match('(?P<major>\d+)\.(?P<minor>(\d+(\.\d+)*))', version)
      
-    if m and m.group('major') == '0':
-        url_cluster = '{0}_cluster/nodes/_local/stats?all=true'.format(host)
-    else:
-        url_cluster = '{0}_cluster/state/nodes'.format(host)
+    url_cluster = '{0}_nodes/_local/stats?all=true'.format(host)
 
     # First iteration - Grab statistics
     logging.debug('[elasticsearch] Fetching ' + url_cluster)

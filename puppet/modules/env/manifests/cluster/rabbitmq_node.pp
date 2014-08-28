@@ -11,4 +11,8 @@ class env::cluster::rabbitmq_node inherits env::cluster::base {
   }
 
   include role::rabbitmq::node
+
+  class { 'ganglia::mon::rabbitmq' :
+    require => Package['ganglia-gmond-python'],
+  }
 }
