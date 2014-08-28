@@ -22,4 +22,8 @@ class ganglia::mon(
       File['gmond-conf'],
     ],
   }
+
+  class { 'mon_diskstat' :
+    require => Package['ganglia-gmond-python'],
+  }
 }
