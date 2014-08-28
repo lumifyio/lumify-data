@@ -1,4 +1,6 @@
 class ganglia {
+  require buildtools::epel
+
   group { 'ganglia' :
     ensure => present,
   }
@@ -6,7 +8,6 @@ class ganglia {
   user { 'ganglia' :
     ensure  => present,
     gid     => 'ganglia',
-    home    => '/opt/ganglia',
     require => Group['ganglia'],
   }
 }
