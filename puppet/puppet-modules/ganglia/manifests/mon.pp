@@ -3,7 +3,7 @@ class ganglia::mon(
   $cluster_service_ip=hiera('ganglia_cluster_service_ip'),
 ) inherits ganglia {
 
-  package { 'ganglia-gmond':
+  package { [ 'ganglia-gmond', 'ganglia-gmond-python' ] :
     ensure => present,
   }
 
