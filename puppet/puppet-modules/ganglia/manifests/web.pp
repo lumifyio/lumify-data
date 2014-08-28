@@ -14,4 +14,7 @@ class ganglia::web inherits ganglia {
     require => Package['ganglia-web'],
   }
 
+  class { 'ganglia::web::diskstat' :
+    require => Package['ganglia-gmond-python'],
+  }
 }
