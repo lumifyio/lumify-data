@@ -1,4 +1,5 @@
 class ganglia::web::diskstat {
+  File['/usr/share/ganglia'] -> Class['ganglia::web::diskstat']
 
   file { "/usr/share/ganglia/graph.d/diskstat_disktime_report.php":
     ensure  => file,
