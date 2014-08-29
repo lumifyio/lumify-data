@@ -10,7 +10,5 @@ class env::cluster::elasticsearch_node inherits env::cluster::base {
   include logstash::client
   ensure_resource('logstash::client::group_membership', 'elasticsearch_node', {group => 'hadoop'})
 
-  class { 'ganglia::mon::elasticsearch' :
-    require => Package['ganglia-gmond-python'],
-  }
+  include ganglia::mon::elasticsearch
 }

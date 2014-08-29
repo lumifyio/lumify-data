@@ -1,14 +1,13 @@
 class ganglia::mon(
-  $cluster_name=hiera('ganglia_cluster_name'),
-  $cluster_service_ip=hiera('ganglia_cluster_service_ip'),
+  $ganglia_cluster_name = hiera('ganglia_cluster_name'),
+  $ganglia_server_ip = hiera('ganglia_server_ip'),
 ) inherits ganglia {
 
   package { [ 'ganglia-gmond', 'ganglia-gmond-python' ] :
     ensure => present,
   }
 
-  file { "gmond-conf":
-    path    => "/etc/ganglia/gmond.conf",
+  file { "/etc/ganglia/gmond.conf":
     ensure  => file,
     content => template("ganglia/gmond.conf.erb"),
     require => Package['ganglia-gmond'],
@@ -23,7 +22,5 @@ class ganglia::mon(
     ],
   }
 
-  class { 'ganglia::mon::diskstat' :
-    require => Package['ganglia-gmond-python'],
-  }
+  include ganglia::mon::diskstat
 }

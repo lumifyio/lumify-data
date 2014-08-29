@@ -63,7 +63,7 @@ hiera['elasticsearch_index_shards'] = hiera['elasticsearch_locations'].count * 5
 hiera['elasticsearch_heapsize'] = 4096
 
 hiera['ganglia_cluster_name'] = 'lumify.io'
-hiera['ganglia_cluster_service_ip'] = get(cluster, /puppet/, :ip)
+hiera['ganglia_server_ip'] = get(cluster, /puppet/, :ip)
 
 hiera['rabbitmq_nodes'] = get(cluster, /rabbitmq\d{2}/, :name)
 hiera['rabbitmq_erlang_cookie'] = "#{File.basename(__FILE__)}/#{Time.now.strftime('%Y%m%dT%H%M%S')}/#{SecureRandom.hex(16)}"

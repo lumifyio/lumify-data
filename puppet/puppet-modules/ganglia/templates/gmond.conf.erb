@@ -20,7 +20,7 @@ globals {
  * tag that will wrap all hosts collected by this instance.
  */
 cluster {
-  name = "<%= @cluster_name %>"
+  name = "<%= @ganglia_cluster_name %>"
   owner = "unspecified"
   latlong = "unspecified"
   url = "unspecified"
@@ -41,7 +41,7 @@ udp_send_channel {
                        # interface and the DNS names associated with
                        # those IPs will be used to create the RRDs.
   #mcast_join = 239.2.11.71
-  host = <%= @cluster_service_ip %>
+  host = <%= @ganglia_server_ip %>
   port = 8649
   ttl = 10
 }

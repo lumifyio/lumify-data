@@ -4,5 +4,4 @@ class ganglia::web::elasticsearch {
     ensure  => file,
     source => "puppet:///modules/ganglia/elasticsearch/graph.d/es_report.json",
   }
-
 }

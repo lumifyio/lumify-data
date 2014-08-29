@@ -1,4 +1,5 @@
 class ganglia::web::diskstat {
+
   file { "/usr/share/ganglia/graph.d/diskstat_disktime_report.php":
     ensure  => file,
     source => "puppet:///modules/ganglia/diskstat/graph.d/diskstat_disktime_report.php",
