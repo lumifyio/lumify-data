@@ -7,7 +7,7 @@ class ganglia::mon(
     ensure => present,
   }
 
-  file { "/etc/ganglia/gmond.conf":
+  file { '/etc/ganglia/gmond.conf' :
     ensure  => file,
     content => template("ganglia/gmond.conf.erb"),
     require => Package['ganglia-gmond'],
@@ -18,7 +18,7 @@ class ganglia::mon(
     ensure  => running,
     require => [
       Package['ganglia-gmond'],
-      File['gmond-conf'],
+      File['/etc/ganglia/gmond.conf'],
     ],
   }
 

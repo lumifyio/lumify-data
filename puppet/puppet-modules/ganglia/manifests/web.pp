@@ -7,9 +7,9 @@ class ganglia::web inherits ganglia {
     require => Package['httpd'],
   }
 
-  file { "/etc/httpd/conf.d/ganglia.conf" :
+  file { '/etc/httpd/conf.d/ganglia.conf' :
     ensure  => file,
-    content => template("ganglia/httpd-ganglia.conf.erb"),
+    content => template('ganglia/httpd-ganglia.conf.erb'),
     require => Package['ganglia-web'],
   }
 

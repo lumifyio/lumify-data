@@ -7,9 +7,9 @@ class ganglia::meta(
     ensure => present,
   }
 
-  file { "/etc/ganglia/gmetad.conf" :
+  file { '/etc/ganglia/gmetad.conf' :
     ensure  => file,
-    content => template("ganglia/gmetad.conf.erb"),
+    content => template('ganglia/gmetad.conf.erb'),
     require => Package['ganglia-gmetad'],
   }
 
@@ -18,7 +18,7 @@ class ganglia::meta(
     ensure  => running,
     require => [
       Package['ganglia-gmetad'],
-      File['gmetad-conf'],
+      File['/etc/ganglia/gmetad.conf'],
     ],
   }
 }
