@@ -1,5 +1,4 @@
 class ganglia {
-  require buildtools::epel
 
   group { 'ganglia' :
     ensure => present,

@@ -2,9 +2,11 @@ class ganglia::mon(
   $ganglia_cluster_name = hiera('ganglia_cluster_name'),
   $ganglia_server_ip = hiera('ganglia_server_ip'),
 ) inherits ganglia {
+  require buildtools::epel
 
   package { [ 'ganglia-gmond', 'ganglia-gmond-python' ] :
     ensure => present,
+    require => Exec['epel'],
   }
 
   file { '/etc/ganglia/gmond.conf' :
