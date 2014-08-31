@@ -77,9 +77,14 @@ function bundle_puppet {
   local modules_tgz=$(git_archive modules .. puppet)
   local puppet_modules_tgz=$(git_archive puppet-modules ../puppet/puppet-modules)
   ./site_from_hosts.rb ${HOSTS_FILE} > /tmp/site-${DATETIME}.pp
-  ./hiera_from_hosts.rb ${HOSTS_FILE} > /tmp/hiera-${DATETIME}.yaml
+  ./hiera_from_hosts.rb ${HOSTS_FILE} > /tmp/hiera-cluster-${DATETIME}.yaml
 
-  FILE_LIST="${FILE_LIST} ${modules_tgz} ${puppet_modules_tgz} /tmp/site-${DATETIME}.pp /tmp/hiera-${DATETIME}.yaml"
+  FILE_LIST="${FILE_LIST} ${modules_tgz} ${puppet_modules_tgz} /tmp/site-${DATETIME}.pp /tmp/hiera-cluster-${DATETIME}.yaml"
+
+  if [ "${SECRETS}" = 'enabled' ]; then
+    ./hiera_from_hosts.rb ${HOSTS_FILE} --secrets > /tmp/hiera-secrets-${DATETIME}.yaml
+    FILE_LIST="${FILE_LIST} /tmp/hiera-secrets-${DATETIME}.yaml"
+  fi
 }
 
 function bundle_config {
@@ -124,6 +129,7 @@ case ${component} in
     bundle_config
     ;;
   everything)
+    SECRETS='enabled'
     bundle_init
     bundle_puppet
     bundle_config
