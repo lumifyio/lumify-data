@@ -4,6 +4,8 @@ class ganglia::web(
   include macro
 
   ensure_resource('package', 'httpd', {'ensure' => 'present' })
+  ensure_resource('package', 'php', {'ensure' => 'present' })
+  ensure_resource('package', 'php-gd', {'ensure' => 'present' })
 
   $ganglia_web_tgz_file = "/tmp/ganglia-web-${ganglia_web_version}.tar.gz"
   $ganglia_web_dir = "/usr/share/ganglia-web-${ganglia_web_version}"
@@ -15,9 +17,9 @@ class ganglia::web(
   } -> file { '/usr/share/ganglia' :
     ensure => link,
     target => $ganglia_web_dir,
-  } -> file { '/usr/share/ganglia/conf.php' :
-    ensure => link,
-    target => '/etc/ganglia/conf.php',
+  } -> exec { '/usr/bin/make' :
+    cwd     => $ganglia_web_dir,
+    creates => "$ganglia_web_dir/conf_default.php"
   }
 
   file { [ '/var/lib/ganglia-web',
@@ -37,8 +39,14 @@ class ganglia::web(
     content => template('ganglia/httpd-ganglia.conf.erb'),
     require => [
       File['/usr/share/ganglia'],
-      Package['httpd']
+      Package['httpd'],
+      Package['php'],
+      Package['php-gd']
     ],
+  }
+
+  exec { '/usr/sbin/setsebool -P httpd_can_network_connect 1' :
+    unless => "/usr/sbin/getsebool httpd_can_network_connect | /bin/grep -q -- '--> on'",
   }
 
   include ganglia::web::diskstat
