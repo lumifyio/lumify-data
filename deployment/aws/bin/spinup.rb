@@ -66,6 +66,12 @@ def log(msg)
   @log.flush
 end
 
+def err(msg)
+  @err ||= File.open(File.basename($0, '.rb') + '.err', 'w')
+  @err.puts msg
+  @err.flush
+end
+
 def run(cmd)
   puts cmd
   log(cmd)
@@ -231,6 +237,81 @@ rescue LoadError => e
   nil
 end
 
+def process_line(prefix, line)
+  puts
+  log("\n" + '# ' + Time.now.strftime('%Y-%m-%d %H:%M:%S'))
+  log('# ' + line)
+
+  instance_type, storage, ip, name, field5, field6 = line.split(/\s+/)
+  if field6
+    aliases = field5.split(/,/)
+    placement_group = field6.match(/\[(.*)\]/).captures[0]
+  elsif field5
+    if field5.match(/\[(.*)\]/)
+      placement_group = $1
+    else
+      aliases = field5.split(/,/)
+    end
+  end
+
+  ebs, instance_storage = storage.split(',')
+  label_prefix = name.match(/-(\d+)$/).captures[0]
+
+  if ebs == '0'
+    volume_ids = []
+  else
+    volume_ids = ebs_volumes(name, ebs)
+    volume_ids.each do |volume_id|
+      tag(volume_id, {:Project => prefix})
+    end
+  end
+
+  cloud_config = """
+    #cloud-config
+    cloud_type: auto
+    disable_root: false
+    ssh_import_id: root
+    cloud_config_modules:
+    - ssh-import-id
+    - ssh
+  """.gsub(/^\n|^ +|\n$/, '')
+  script = """
+    #!/bin/bash
+    sed -i'' -e 's/^PermitRootLogin.*$/PermitRootLogin without-password/' /etc/ssh/sshd_config
+    service sshd restart
+  """.gsub(/^\n|^ +|\n$/, '')
+  user_data = mime_multipart('text/cloud-config' => cloud_config, 'text/x-shellscript' => script)
+
+  instance_id = run_instance(instance_type, ip, name,
+                             :instance_store_volume_count => instance_storage ? instance_storage.match(/^(\d+)i/).captures[0].to_i : nil,
+                             :user_data => user_data,
+                             :placement_group => placement_group
+                            )
+
+  # TODO: poll for ready?
+  sleep(5)
+
+  tag(instance_id, {:Project => prefix})
+  tag(instance_id, {:aliases => aliases.join(',')}) if aliases
+
+  volume_id = get_volume_id(instance_id)
+  tag(volume_id, {:Name => "#{name}_vol0", :Project => prefix})
+
+  # TODO: poll for ready?
+  sleep(10)
+
+  device_prefix = '/dev/sd'
+  device_letters = EBS_VOLUME_DEVICE_LETTERS.clone
+  volume_ids.each do |volume_id|
+    attach_volume(volume_id, instance_id, device_prefix + device_letters.shift)
+  end
+
+  [ip, name, aliases ? aliases.join(' ') : nil, instance_id]
+rescue Exception => e
+  err("# ERROR: #{e}")
+  err(line)
+  nil
+end
 
 config_file = ARGV.first.match(/\.yml$/) ? ARGV.shift : 'spinup.yml' # TODO: search up if not in the current dir
 check_env || exit
@@ -249,75 +330,8 @@ ARGV.each do |filename|
     file.each_line do |line|
       break if line.match(/^\s*#STOP\s*$/)
       next if line.match(/^\s*#|^\s*$/)
-      puts
-      log("\n" + '# ' + Time.now.strftime('%Y-%m-%d %H:%M:%S'))
-      log('# ' + line)
-
-      instance_type, storage, ip, name, field5, field6 = line.split(/\s+/)
-      if field6
-        aliases = field5.split(/,/)
-        placement_group = field6.match(/\[(.*)\]/).captures[0]
-      elsif field5
-        if field5.match(/\[(.*)\]/)
-          placement_group = $1
-        else
-          aliases = field5.split(/,/)
-        end
-      end
-
-      ebs, instance_storage = storage.split(',')
-      label_prefix = name.match(/-(\d+)$/).captures[0]
-
-      if ebs == '0'
-        volume_ids = []
-      else
-        volume_ids = ebs_volumes(name, ebs)
-        volume_ids.each do |volume_id|
-          tag(volume_id, {:Project => prefix})
-        end
-      end
-
-      cloud_config = """
-        #cloud-config
-        cloud_type: auto
-        disable_root: false
-        ssh_import_id: root
-        cloud_config_modules:
-        - ssh-import-id
-        - ssh
-      """.gsub(/^\n|^ +|\n$/, '')
-      script = """
-        #!/bin/bash
-        sed -i'' -e 's/^PermitRootLogin.*$/PermitRootLogin without-password/' /etc/ssh/sshd_config
-        service sshd restart
-      """.gsub(/^\n|^ +|\n$/, '')
-      user_data = mime_multipart('text/cloud-config' => cloud_config, 'text/x-shellscript' => script)
-
-      instance_id = run_instance(instance_type, ip, name,
-                                 :instance_store_volume_count => instance_storage ? instance_storage.match(/^(\d+)i/).captures[0].to_i : nil,
-                                 :user_data => user_data,
-                                 :placement_group => placement_group
-                                )
-
-      # TODO: poll for ready?
-      sleep(5)
-
-      tag(instance_id, {:Project => prefix})
-      tag(instance_id, {:aliases => aliases.join(',')}) if aliases
-
-      volume_id = get_volume_id(instance_id)
-      tag(volume_id, {:Name => "#{name}_vol0", :Project => prefix})
-
-      # TODO: poll for ready?
-      sleep(10)
-
-      device_prefix = '/dev/sd'
-      device_letters = EBS_VOLUME_DEVICE_LETTERS.clone
-      volume_ids.each do |volume_id|
-        attach_volume(volume_id, instance_id, device_prefix + device_letters.shift)
-      end
-
-      host_entries << [ip, name, aliases ? aliases.join(' ') : nil, instance_id]
+      host_entry << process_line(prefix, line)
+      host_entries << host_entry if host_entry != nil
     end # line
 
     if host_entries.size > 0
@@ -332,3 +346,4 @@ ARGV.each do |filename|
 end
 
 @log.close if @log
+@err.close if @err
