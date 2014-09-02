@@ -46,9 +46,9 @@ setup
           && service jetty start \
           && tail -f /opt/jetty/logs/* /opt/lumify/logs/lumify-jetty-*
 
-1. web browse to https://demo.lumify.io/admin/uploadOntology.html and upload `dev-ontology.zip`
+1. web browse to https://demo.lumify.io/#admin=ontology:upload and upload `dev-ontology.zip`
 
-1. **(OPTIONAL)** [Import Wikipedia data with Map Reduce](../lumify-wikipedia/README.md)
+1. **(OPTIONAL)** [Import Wikipedia data with Map Reduce](https://github.com/lumifyio/lumify/blob/master/datasets/wikipedia/README.md)
 
 1. ssh from the puppet server to the storm nimbus server and run:
 
