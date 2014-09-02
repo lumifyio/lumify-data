@@ -27,6 +27,9 @@ latest_hiera_secrets=$(ls ~/hiera-secrets-*.yaml | tail -1)
   unlink cluster.yaml || true
   ln -s $(basename ${latest_hiera_cluster}) cluster.yaml
 
+  unlink common.yaml || true
+  ln -s ../$(basename ${latest_modules} .tgz)/puppet/hiera/common.yaml
+
   if [ ! -L secrets.yaml ]; then
     cp ${latest_hiera_secrets} .
     ln -s $(basename ${latest_hiera_secrets}) secrets.yaml
