@@ -3,9 +3,11 @@ class ganglia::web(
 ) inherits ganglia {
   include macro
 
-  ensure_resource('package', 'httpd', {'ensure' => 'present' })
-  ensure_resource('package', 'php', {'ensure' => 'present' })
-  ensure_resource('package', 'php-gd', {'ensure' => 'present' })
+  ensure_resource('package', 'httpd', {'ensure' => 'present'})
+  ensure_resource('package', 'php', {'ensure' => 'present'})
+  ensure_resource('package', 'php-gd', {'ensure' => 'present'})
+
+  ensure_resource('service', 'httpd', {'ensure' => 'running', 'enable' => 'true'})
 
   $ganglia_web_tgz_file = "/tmp/ganglia-web-${ganglia_web_version}.tar.gz"
   $ganglia_web_dir = "/usr/share/ganglia-web-${ganglia_web_version}"
