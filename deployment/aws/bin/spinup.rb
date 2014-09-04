@@ -308,6 +308,8 @@ def process_line(prefix, line)
 
   [ip, name, aliases ? aliases.join(' ') : nil, instance_id]
 rescue Exception => e
+  @err_count ||= 0
+  @err_count += 1
   err("# ERROR: #{e}")
   err(line)
   nil
@@ -344,6 +346,8 @@ ARGV.each do |filename|
     end
   end # file
 end
+
+puts "\nWARNING: spinup of #{@err_count} instance#{'s' if @err_count > 1} failed, see #{@err.path}" if @err_count
 
 @log.close if @log
 @err.close if @err
