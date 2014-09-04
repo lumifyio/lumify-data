@@ -330,7 +330,7 @@ ARGV.each do |filename|
     file.each_line do |line|
       break if line.match(/^\s*#STOP\s*$/)
       next if line.match(/^\s*#|^\s*$/)
-      host_entry << process_line(prefix, line)
+      host_entry = process_line(prefix, line)
       host_entries << host_entry if host_entry != nil
     end # line
 

@@ -4,3 +4,4 @@ setenv.sh
 *_instances.txt
 *_hosts
 *.log
+*.err
