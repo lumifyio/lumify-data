@@ -86,9 +86,6 @@ public class LdapX509AuthenticationHandler extends X509AuthenticationHandler {
                     LOGGER.warn("LDAP attribute [" + requiredAttribute + "] not found");
                     return null;
                 }
-            } else {
-                // TODO: move this to the config?
-                throw new LumifyException("required attribute without required attribute values!");
             }
         }
 

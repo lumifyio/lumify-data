@@ -1,6 +1,7 @@
 package io.lumify.web.auth;
 
 import io.lumify.core.config.Configurable;
+import io.lumify.core.config.PostConfigurationValidator;
 
 import java.util.Arrays;
 import java.util.List;
@@ -47,6 +48,11 @@ public class LdapX509AuthenticationConfiguration {
     @Configurable(name = "displayNameAttribute", required = false)
     public void setDisplayNameAttribute(String displayNameAttribute) {
         this.displayNameAttribute = displayNameAttribute;
+    }
+
+    @PostConfigurationValidator(description = "requiredAttributeValues must be set if requiredAttribute is set")
+    public boolean validate() {
+        return requiredAttribute == null || requiredAttributeValues != null;
     }
 
     public String getClientCertHeader() {

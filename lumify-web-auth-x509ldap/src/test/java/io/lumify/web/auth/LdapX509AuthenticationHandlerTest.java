@@ -70,7 +70,7 @@ public class LdapX509AuthenticationHandlerTest {
         LdapSearchService ldapSearchService = new LdapSearchServiceImpl(LdapSearchServiceTest.getServerConfig(ldapServer), getSearchConfigWithExtraUserAttribute("role"));
         Configuration configuration = getConfigurationWithRequiredAttribute("role", "lumify_administrator");
         AuthenticationHandler authenticationHandler = new LdapX509AuthenticationHandler(userRepository, graph, ldapSearchService, configuration);
-        
+
         X509Certificate cert = LdapSearchServiceTest.getPersonCertificate("alice");
         when(request.getAttribute(X509AuthenticationHandler.CERTIFICATE_REQUEST_ATTRIBUTE)).thenReturn(new X509Certificate[]{cert});
         when(userRepository.findOrAddUser((String)notNull(), (String)notNull(), (String)isNull(), (String)notNull(), (String[])notNull())).thenReturn(user);
