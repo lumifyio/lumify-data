@@ -118,13 +118,13 @@ public class LdapSearchServiceImpl implements LdapSearchService {
                     ldapSearchConfiguration.getGroupSearchBase(),
                     ldapSearchConfiguration.getGroupSearchScope(),
                     filter,
-                    ldapSearchConfiguration.getGroupRoleAttribute()
+                    ldapSearchConfiguration.getGroupNameAttribute()
             );
 
             Set<String> groupNames = new HashSet<String>();
             for (SearchResultEntry entry : results.getSearchEntries()) {
-                if (entry.hasAttribute(ldapSearchConfiguration.getGroupRoleAttribute())) {
-                    groupNames.add(entry.getAttributeValue(ldapSearchConfiguration.getGroupRoleAttribute()));
+                if (entry.hasAttribute(ldapSearchConfiguration.getGroupNameAttribute())) {
+                    groupNames.add(entry.getAttributeValue(ldapSearchConfiguration.getGroupNameAttribute()));
                 }
             }
 

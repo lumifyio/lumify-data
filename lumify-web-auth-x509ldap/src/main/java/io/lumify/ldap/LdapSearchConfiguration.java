@@ -12,11 +12,11 @@ public class LdapSearchConfiguration {
     private String userSearchBase;
     private SearchScope userSearchScope;
     private List<String> userAttributes;
+    private String userSearchFilter;
     private String userCertificateAttribute;
     private String groupSearchBase;
     private SearchScope groupSearchScope;
-    private String userSearchFilter;
-    private String groupRoleAttribute;
+    private String groupNameAttribute;
     private String groupSearchFilter;
 
     @Configurable(name = "userSearchBase")
@@ -54,9 +54,9 @@ public class LdapSearchConfiguration {
         this.groupSearchScope = toSearchScope(groupSearchScope);
     }
 
-    @Configurable(name = "groupRoleAttribute", defaultValue = "cn")
-    public void setGroupRoleAttribute(String groupRoleAttribute) {
-        this.groupRoleAttribute = groupRoleAttribute;
+    @Configurable(name = "groupNameAttribute", defaultValue = "cn")
+    public void setGroupNameAttribute(String groupNameAttribute) {
+        this.groupNameAttribute = groupNameAttribute;
     }
 
     @Configurable(name = "groupSearchFilter", defaultValue = "(uniqueMember=${dn})")
@@ -92,8 +92,8 @@ public class LdapSearchConfiguration {
         return userSearchFilter;
     }
 
-    public String getGroupRoleAttribute() {
-        return groupRoleAttribute;
+    public String getGroupNameAttribute() {
+        return groupNameAttribute;
     }
 
     public String getGroupSearchFilter() {

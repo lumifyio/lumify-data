@@ -8,6 +8,8 @@ displayname: Alice Smith-Y-
 employeenumber: 3
 givenname: Alice
 sn: Smith
+role: lumify_user
+role: lumify_administrator
 usercertificate;binary:: MIIDXDCCAkSgAwIBAgIBAzANBgkqhkiG9w0BAQUFADBWMQswCQYDVQQGEwJVUzER
  MA8GA1UECBMIVmlyZ2luaWExDzANBgNVBAoTBkx1bWlmeTEjMCEGA1UEAxQaIzM2
  MSBDZXJ0aWZpY2F0ZSBBdXRob3JpdHkwHhcNMTQwNDExMTg1MDQ1WhcNMTYwNDEw

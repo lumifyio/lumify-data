@@ -10,9 +10,9 @@ import io.lumify.core.util.LumifyLogger;
 import io.lumify.core.util.LumifyLoggerFactory;
 import io.lumify.ldap.LdapSearchService;
 import io.lumify.web.X509AuthenticationHandler;
-import org.apache.accumulo.core.util.StringUtil;
 import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.lang.ArrayUtils;
+import org.apache.commons.lang.StringUtils;
 import org.securegraph.Graph;
 
 import javax.servlet.http.HttpServletRequest;
@@ -24,6 +24,7 @@ import java.security.cert.CertificateException;
 import java.security.cert.CertificateFactory;
 import java.security.cert.X509Certificate;
 import java.util.Arrays;
+import java.util.List;
 import java.util.Set;
 
 public class LdapX509AuthenticationHandler extends X509AuthenticationHandler {
@@ -67,8 +68,43 @@ public class LdapX509AuthenticationHandler extends X509AuthenticationHandler {
         SearchResultEntry searchResultEntry = ldapSearchService.searchPeople(cert);
         LOGGER.debug("searchResultEntry is\n" + searchResultEntry.toLDIFString());
 
+        // required role(s)
+        String requiredAttribute = ldapX509AuthenticationConfiguration.getRequiredAttribute();
+        if (requiredAttribute != null) {
+            List<String> requiredAttributeValues = ldapX509AuthenticationConfiguration.getRequiredAttributeValues();
+            if (requiredAttributeValues != null) {
+                String[] valueArray = searchResultEntry.getAttributeValues(requiredAttribute);
+                if (valueArray != null) {
+                    List<String> valueList = Arrays.asList(valueArray);
+                    for (String requiredValue : requiredAttributeValues) {
+                        if (!valueList.contains(requiredValue)) {
+                            LOGGER.warn("LDAP attribute [" + requiredAttribute + "] does not include required value: " + requiredValue);
+                            return null;
+                        }
+                    }
+                } else {
+                    LOGGER.warn("LDAP attribute [" + requiredAttribute + "] not found");
+                    return null;
+                }
+            } else {
+                // TODO: move this to the config?
+                throw new LumifyException("required attribute without required attribute values!");
+            }
+        }
+
         Set<String> groups = ldapSearchService.searchGroups(searchResultEntry);
         LOGGER.debug("retrieved groups %s for user dn %s", groups, searchResultEntry.getDN());
+
+        // required group(s)
+        List<String> requiredGroups = ldapX509AuthenticationConfiguration.getRequiredGroups();
+        if (requiredGroups != null) {
+            for (String group : requiredGroups) {
+                if (!groups.contains(group)) {
+                    LOGGER.warn("LDAP entry is not a member of required group: " + group);
+                    return null;
+                }
+            }
+        }
 
         String username = getAttributeValue(
                 searchResultEntry, ldapX509AuthenticationConfiguration.getUsernameAttribute(), super.getUsername(cert));
@@ -98,7 +134,7 @@ public class LdapX509AuthenticationHandler extends X509AuthenticationHandler {
             dnComponents = dnComponents.substring("/".length());
         }
         ArrayUtils.reverse(dnComponents.split("/"));
-        return StringUtil.join(Arrays.asList(dnComponents), ",");
+        return StringUtils.join(Arrays.asList(dnComponents), ",");
     }
 
     private X509Certificate getHeaderClientCert(HttpServletRequest request) throws NoSuchAlgorithmException, CertificateException {

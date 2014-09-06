@@ -33,6 +33,11 @@ public class LdapSearchServiceTest {
 
     @BeforeClass
     public static void setUp() throws Exception {
+        ldapServer = configureInMemoryDirectoryServer();
+        ldapServer.startListening();
+    }
+
+    public static InMemoryDirectoryServer configureInMemoryDirectoryServer() throws Exception {
         KeyStoreKeyManager ksManager = new KeyStoreKeyManager(classpathResource("/keystore.jks"), "password".toCharArray());
         TrustStoreTrustManager tsManager = new TrustStoreTrustManager(classpathResource("/truststore.jks"));
         SSLUtil serverSslUtil = new SSLUtil(ksManager, tsManager);
@@ -48,8 +53,9 @@ public class LdapSearchServiceTest {
         InMemoryDirectoryServerConfig ldapConfig = new InMemoryDirectoryServerConfig("dc=lumify,dc=io");
         ldapConfig.addAdditionalBindCredentials(BIND_DN, BIND_PASSWORD);
         ldapConfig.setListenerConfigs(sslConfig);
+        ldapConfig.setSchema(null);
 
-        ldapServer = new InMemoryDirectoryServer(ldapConfig);
+        InMemoryDirectoryServer ldapServer = new InMemoryDirectoryServer(ldapConfig);
 
         ldapServer.importFromLDIF(false, classpathResource("/init.ldif"));
         ldapServer.importFromLDIF(false, classpathResource("/people.ldif"));
@@ -60,7 +66,7 @@ public class LdapSearchServiceTest {
         ldapServer.importFromLDIF(false, classpathResource("/groups-admins.ldif"));
         ldapServer.importFromLDIF(false, classpathResource("/groups-managers.ldif"));
 
-        ldapServer.startListening();
+        return ldapServer;
     }
 
     @AfterClass
@@ -70,7 +76,7 @@ public class LdapSearchServiceTest {
 
     @Test
     public void searchForAliceWithMatchingCert() throws Exception {
-        LdapSearchService service = new LdapSearchServiceImpl(getServerConfig(), getSearchConfig());
+        LdapSearchService service = new LdapSearchServiceImpl(getServerConfig(ldapServer), getSearchConfig());
         SearchResultEntry result = service.searchPeople(getPersonCertificate("alice"));
 
         assertNotNull(result);
@@ -91,7 +97,7 @@ public class LdapSearchServiceTest {
 
     @Test
     public void searchForBob() throws Exception {
-        LdapSearchService service = new LdapSearchServiceImpl(getServerConfig(), getSearchConfig());
+        LdapSearchService service = new LdapSearchServiceImpl(getServerConfig(ldapServer), getSearchConfig());
         SearchResultEntry result = service.searchPeople(getPersonCertificate("bob"));
 
         assertNotNull(result);
@@ -110,7 +116,7 @@ public class LdapSearchServiceTest {
 
     @Test(expected = LumifyException.class)
     public void searchForNonExistentPerson() throws Exception {
-        LdapSearchService service = new LdapSearchServiceImpl(getServerConfig(), getSearchConfig());
+        LdapSearchService service = new LdapSearchServiceImpl(getServerConfig(ldapServer), getSearchConfig());
         service.searchPeople(getPersonCertificate("diane"));
     }
 
@@ -118,7 +124,7 @@ public class LdapSearchServiceTest {
         return LdapSearchServiceTest.class.getResource(name).getPath();
     }
 
-    private LdapServerConfiguration getServerConfig() throws LDAPException {
+    public static LdapServerConfiguration getServerConfig(InMemoryDirectoryServer ldapServer) throws LDAPException {
         LdapServerConfiguration serverConfig = new LdapServerConfiguration();
         serverConfig.setPrimaryLdapServerHostname(ldapServer.getConnection().getConnectedAddress());
         serverConfig.setPrimaryLdapServerPort(ldapServer.getListenPort("LDAPS"));
@@ -130,7 +136,7 @@ public class LdapSearchServiceTest {
         return serverConfig;
     }
 
-    private LdapSearchConfiguration getSearchConfig() {
+    public static LdapSearchConfiguration getSearchConfig() {
         LdapSearchConfiguration searchConfig = new LdapSearchConfiguration();
         searchConfig.setUserSearchBase("dc=lumify,dc=io");
         searchConfig.setUserSearchScope("sub");
@@ -139,14 +145,14 @@ public class LdapSearchServiceTest {
         searchConfig.setGroupSearchBase("dc=lumify,dc=io");
         searchConfig.setGroupSearchScope("sub");
         searchConfig.setUserSearchFilter("(cn=${cn})");
-        searchConfig.setGroupRoleAttribute("cn");
+        searchConfig.setGroupNameAttribute("cn");
         searchConfig.setGroupSearchBase("ou=groups,dc=lumify,dc=io");
         searchConfig.setGroupSearchFilter("(uniqueMember=${dn})");
         searchConfig.setGroupSearchScope("sub");
         return searchConfig;
     }
 
-    private X509Certificate getPersonCertificate(String personName) throws IOException, LDIFException, CertificateException {
+    public static X509Certificate getPersonCertificate(String personName) throws IOException, LDIFException, CertificateException {
         LDIFReader reader = new LDIFReader(classpathResource("/people-" + personName + ".ldif"));
         Attribute certAttr = reader.readEntry().getAttribute(getSearchConfig().getUserCertificateAttribute());
         CertificateFactory certificateFactory = CertificateFactory.getInstance("X.509");

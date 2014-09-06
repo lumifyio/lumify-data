@@ -8,6 +8,7 @@ displayname: Bob Maluga-Y-
 employeenumber: 4
 givenname: Bob
 sn: Maluga
+role: lumify_user
 usercertificate;binary:: MIIDWjCCAkKgAwIBAgIBBDANBgkqhkiG9w0BAQUFADBWMQswCQYDVQQGEwJVUzER
  MA8GA1UECBMIVmlyZ2luaWExDzANBgNVBAoTBkx1bWlmeTEjMCEGA1UEAxQaIzM2
  MSBDZXJ0aWZpY2F0ZSBBdXRob3JpdHkwHhcNMTQwNDExMTg1NDMwWhcNMTYwNDEw
