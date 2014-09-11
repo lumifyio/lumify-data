@@ -1,6 +1,10 @@
 class env::demo {
   require buildtools
-  require java
+
+  $java_version = hiera('java_version')
+  class { 'java' :
+    version => $java_version,
+  }
 
   include env::common::config
   include repo::cloudera::cdh4

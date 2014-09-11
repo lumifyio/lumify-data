@@ -10,4 +10,9 @@ class env::cluster::base {
   class { '::ntp' :
     servers => [ 'puppet' ],
   }
+
+  $java_version = hiera('java_version')
+  class { 'java' :
+    version => $java_version,
+  }
 }
