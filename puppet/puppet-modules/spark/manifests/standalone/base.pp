@@ -40,7 +40,7 @@ class spark::standalone::base (
 
   $namenode_hostname = hiera('namenode_hostname', 'namenode')
   $spark_master = hiera('spark_master', 'sparkmaster')
-  $spark_master_url = "spark://${spark_master_hostname}:7077"
+  $spark_master_url = "spark://${spark_master}:7077"
   $spark_driver_memory = hiera('spark_driver_memory', '5g')
   $spark_worker_port = hiera('spark_worker_port', '7078')
   $spark_workers = hiera_array('spark_workers')
