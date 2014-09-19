@@ -3,6 +3,7 @@ class env::cluster::node {
   include accumulo_node
   include clavin
   include storm_supervisor
+  include spark_worker
 
   file { '/etc/yum.repos.d/lumify.repo' :
     source => 'puppet:///modules/env/dev/lumify.repo',

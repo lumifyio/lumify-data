@@ -83,6 +83,10 @@ else
   hiera['storm_supervisor_jmx_objects_ports'] = storm_slots_per_supervisor.times.reduce([]){|m,i| m.push(('2'+(storn_base_supervisor_slot_port+i).to_s).to_i)}
   hiera['storm_ui_port'] = 8081
 
+  hiera['spark_master_hostname'] = get(cluster, 'sparkmaster', :name)
+  hiera['spark_worker_hostnames'] = get(cluster, /node\d{2}/, :name)
+  hiera['spark_driver_memory'] = '1g'
+
   hiera['jetty_confidential_port'] = 443
   hiera['jetty_key_store_path'] = '/opt/lumify/config/jetty.jks'
   hiera['jetty_key_store_password'] = 'OBF:1v2j1uum1xtv1zej1zer1xtn1uvk1v1v'

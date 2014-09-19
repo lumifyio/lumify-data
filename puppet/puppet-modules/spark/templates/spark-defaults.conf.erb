@@ -1,0 +1,6 @@
+spark.master                     <%= @spark_master %>
+spark.eventLog.enabled           true
+spark.eventLog.dir               hdfs://<%= @namenode_hostname %>:8021/directory
+spark.serializer                 org.apache.spark.serializer.KryoSerializer
+spark.driver.memory              <%= @spark_driver_memory %>
+# spark.executor.extraJavaOptions  -XX:+PrintGCDetails -Dkey=value -Dnumbers="one two three"
