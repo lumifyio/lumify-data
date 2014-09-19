@@ -83,8 +83,8 @@ else
   hiera['storm_supervisor_jmx_objects_ports'] = storm_slots_per_supervisor.times.reduce([]){|m,i| m.push(('2'+(storn_base_supervisor_slot_port+i).to_s).to_i)}
   hiera['storm_ui_port'] = 8081
 
-  hiera['spark_master_hostname'] = get(cluster, 'sparkmaster', :name)
-  hiera['spark_worker_hostnames'] = get(cluster, /node\d{2}/, :name)
+  hiera['spark_master'] = get(cluster, 'sparkmaster', :ip)
+  hiera['spark_workers'] = get(cluster, /node\d{2}/, :ip)
   hiera['spark_driver_memory'] = '1g'
 
   hiera['jetty_confidential_port'] = 443

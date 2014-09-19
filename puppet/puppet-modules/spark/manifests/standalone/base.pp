@@ -1,6 +1,6 @@
 # https://spark.apache.org/docs/latest/spark-standalone.html
 
-class spark::standalone (
+class spark::standalone::base (
   $major_version = 'spark-1.1.0',
   $version = 'spark-1.1.0-bin-cdh4',
   $install_dir = '/opt',
@@ -38,29 +38,35 @@ class spark::standalone (
     require => [ User[$user], Group[$group] ],
   }
 
-  $spark_master = "spark://${spark_master_hostname}:7077"
+  $namenode_hostname = hiera('namenode_hostname', 'namenode')
+  $spark_master = hiera('spark_master', 'sparkmaster')
+  $spark_master_url = "spark://${spark_master_hostname}:7077"
   $spark_driver_memory = hiera('spark_driver_memory', '5g')
   $spark_worker_port = hiera('spark_worker_port', '7078')
+  $spark_workers = hiera_array('spark_workers')
 
-  file { "${install_dir}/spark/config/slaves" :
+  file { "${install_dir}/spark/conf/slaves" :
+    ensure => file,
     content => template('spark/slaves.erb'),
     owner => $user,
     group => $group,
     require => [ File["${install_dir}/spark"], User[$user], Group[$group] ],
   }
 
-  file { "${install_dir}/spark/config/spark-defaults.conf" :
+  file { "${install_dir}/spark/conf/spark-defaults.conf" :
+    ensure => file,
     content => template('spark/spark-defaults.conf.erb'),
     owner => $user,
     group => $group,
     require => [ File["${install_dir}/spark"], User[$user], Group[$group] ],
   }
 
-  file { "${install_dir}/spark/config/spark-env.sh" :
+  file { "${install_dir}/spark/conf/spark-env.sh" :
+    ensure => file,
     content => template('spark/spark-env.sh.erb'),
     owner => $user,
     group => $group,
-    mode => 'ug+x',
+    mode => 'a+x',
     require => [ File["${install_dir}/spark"], User[$user], Group[$group] ],
   }
 }

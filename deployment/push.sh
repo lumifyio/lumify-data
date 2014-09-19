@@ -7,6 +7,7 @@ HOSTS_FILE=$2
 
 DATETIME=$(date +"%Y%m%dT%H%M")
 MAVEN_STATUS=unknown
+SECRETS='disabled'
 
 function test_ssh {
   local user_at_host=$1

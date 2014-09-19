@@ -1,4 +1,4 @@
-spark.master                     <%= @spark_master %>
+spark.master                     <%= @spark_master_url %>
 spark.eventLog.enabled           true
 spark.eventLog.dir               hdfs://<%= @namenode_hostname %>:8021/directory
 spark.serializer                 org.apache.spark.serializer.KryoSerializer
