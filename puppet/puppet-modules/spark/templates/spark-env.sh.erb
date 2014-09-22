@@ -17,6 +17,8 @@
 # - SPARK_LOCAL_DIRS, storage directories to use on this node for shuffle and RDD data
 # - MESOS_NATIVE_LIBRARY, to point to your libmesos.so if you use Mesos
 
+SPARK_LOCAL_DIRS=<%= (@data_directories || '').split(',').map{|d| "#{d}/spark/local"}.join(',') %>
+
 # Options read in YARN client mode
 # - HADOOP_CONF_DIR, to point Spark towards Hadoop configuration files
 # - SPARK_EXECUTOR_INSTANCES, Number of workers to start (Default: 2)
@@ -44,3 +46,4 @@
 
 SPARK_MASTER_IP=<%= @spark_master %>
 SPARK_WORKER_PORT=<%= @spark_worker_port %>
+SPARK_WORKER_MEMORY=<%= @spark_driver_memory %>

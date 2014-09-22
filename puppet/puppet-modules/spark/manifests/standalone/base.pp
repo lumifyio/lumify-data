@@ -38,6 +38,24 @@ class spark::standalone::base (
     require => [ User[$user], Group[$group] ],
   }
 
+  define setup_data_directory (
+    $user = 'spark',
+    $group = 'hadoop'
+  ) {
+    ensure_resource('file', $name, {'ensure' => 'directory'})
+
+    file { [ "${name}/spark", "${name}/spark/local" ] :
+      ensure  => directory,
+      owner   => $user,
+      group   => $group,
+      mode    => 'ug=rwx,o=',
+      require =>  [ File["${name}"], User[$user], Group[$group] ],
+    }
+  }
+
+  $data_dir_list = split($data_directories, ',')
+  setup_data_directory { $data_dir_list : }
+
   $namenode_hostname = hiera('namenode_hostname', 'namenode')
   $spark_master = hiera('spark_master', 'sparkmaster')
   $spark_master_url = "spark://${spark_master}:7077"
