@@ -24,14 +24,14 @@ class macro {
     }
 
     if ($creates == '') {
-      exec { "extract-${file}" :
+      exec { "extract-${file}-to-${path}" :
         cwd     => $path,
         command => "${cmd} ${file}",
         user    => $user,
         group   => $group,
       }
     } else {
-      exec { "extract-${file}" :
+      exec { "extract-${file}-to-${path}" :
         cwd     => $path,
         command => "${cmd} ${file}",
         creates => $creates,

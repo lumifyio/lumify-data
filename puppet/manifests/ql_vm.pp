@@ -22,9 +22,13 @@ $lumify_httpd_conf = "
   SetHandler balancer-manager
 </Location>
 <Proxy balancer://tomcat>
-  BalancerMember ajp://localhost:8009 loadfactor=1
+  BalancerMember http://localhost:8080 route=tomcat-a
+  BalancerMember http://localhost:8081 route=tomcat-b
+  ProxySet stickysession=JSESSIONID
 </Proxy>
-ProxyPass /lumify balancer://tomcat/lumify
+<Location /lumify>
+  ProxyPass balancer://tomcat/lumify stickysession=JSESSIONID scolonpathdelim=On
+</Location>
 "
 file { '/etc/httpd/conf.d/lumify.conf' :
   ensure => file,
@@ -77,7 +81,19 @@ class { 'java::tar' :
 
 # http://docs.puppetlabs.com/puppet/latest/reference/lang_classes.html#inheritance
 $tomcat_java_home = '/opt/jdk1.7.0_51'
-include tomcat::worker
+
+include tomcat::standalone
+
+tomcat::standalone::tomcat_server { 'tomcat-a' :
+  tomcat_shutdown_port => 8005,
+  tomcat_http_port => 8080,
+  tomcat_https_port => 8443,
+}
+tomcat::standalone::tomcat_server { 'tomcat-b' :
+  tomcat_shutdown_port => 8006,
+  tomcat_http_port => 8081,
+  tomcat_https_port => 8444,
+}
 
 $mysql_databases = {
   'lumify' => {

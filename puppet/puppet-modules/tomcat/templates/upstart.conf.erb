@@ -19,10 +19,16 @@ respawn
 respawn limit 5 10
 
 env JAVA_HOME="<%= @tomcat_java_home %>"
-env CATALINA_HOME="<%= @home %>"
+env CATALINA_HOME="<%= @catalina_home %>"
 env JAVA_OPTS="<%= @tomcat_java_opts %>"
 
-exec su -s /bin/sh -c 'exec "$0" "$@"' <%= @user %> -- $CATALINA_HOME/bin/catalina.sh run
+script
+# UNCOMMENT THE FOLLOWING TO HELP DEBUG
+#  exec >> $CATALINA_HOME/logs/upstart.log 2>&1
+#  set -x
+
+  exec su -s /bin/sh -c 'exec "$0" "$@"' <%= @user %> -- $CATALINA_HOME/bin/catalina.sh run
+end script
 
 post-stop script
   rm -rf $CATALINA_HOME/temp/*
