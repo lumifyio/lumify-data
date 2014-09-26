@@ -73,6 +73,13 @@ service { 'httpd' :
              ],
 }
 
+exec { 'create tomcat keystore' :
+  command => '/usr/java/default/bin/keytool -genkeypair -keysize 2048 -keyalg RSA -keystore /opt/lumify/config/tomcat.jks -keypass password -storepass password -dname CN=demo.lumify.io',
+  creates => '/opt/lumify/config/tomcat.jks',
+  require => [ File['/opt/lumify/config'], Class[java] ],
+  logoutput => true,
+}
+
 class { 'java::tar' :
   version => '7u51',
   dir     => '/opt',

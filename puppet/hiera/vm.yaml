@@ -33,9 +33,9 @@ httpd_ssl_listen_port: 443
 httpd_ssl_certificate_file: /opt/lumify/config/lumify-vm.lumify.io.cert.pem
 httpd_ssl_certificate_key_file: /opt/lumify/config/lumify-vm.lumify.io.key.pem
 httpd_ssl_ca_certificate_file: /opt/lumify/config/lumify-ca.cert.pem
-tomcat_keystore_path: /opt/lumify/config/jetty.jks
+tomcat_keystore_path: /opt/lumify/config/tomcat.jks
 tomcat_keystore_password: password
-tomcat_truststore_path: /opt/lumify/config/jetty.jks
+tomcat_truststore_path: /opt/lumify/config/tomcat.jks
 tomcat_truststore_password: password
 mod_jk_workers:
   lumify1:
