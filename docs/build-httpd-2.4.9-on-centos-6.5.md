@@ -29,7 +29,8 @@ http://configure.systems/centos-6-5-building-apache-2-4-9-from-source/
 1. install `apr`
 
         sudo yum erase apr apr-devel
-        sudo rpm -ivh ~/rpmbuild/RPMS/x86_64/apr-1.5.1-1.x86_64.rpm ~/rpmbuild/RPMS/x86_64/apr-devel-1.5.1-1.x86_64.rpm
+        sudo rpm -ivh ~/rpmbuild/RPMS/x86_64/apr-1.5.1-1.x86_64.rpm \
+                      ~/rpmbuild/RPMS/x86_64/apr-devel-1.5.1-1.x86_64.rpm
 
 1. download `apr-util` and try building
 
