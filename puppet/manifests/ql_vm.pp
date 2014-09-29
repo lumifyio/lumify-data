@@ -21,13 +21,21 @@ $lumify_httpd_conf = "
 <Location /balancer-manager>
   SetHandler balancer-manager
 </Location>
-<Proxy balancer://tomcat>
+<Proxy balancer://lumify>
   BalancerMember http://localhost:8080 route=tomcat-a
   BalancerMember http://localhost:8081 route=tomcat-b
   ProxySet stickysession=JSESSIONID
 </Proxy>
+<Proxy balancer://lumify-messaging>
+  BalancerMember ws://localhost:8080 route=tomcat-a
+  BalancerMember ws://localhost:8081 route=tomcat-b
+  ProxySet stickysession=JSESSIONID
+</Proxy>
 <Location /lumify>
-  ProxyPass balancer://tomcat/lumify stickysession=JSESSIONID scolonpathdelim=On
+  ProxyPass balancer://lumify/lumify stickysession=JSESSIONID scolonpathdelim=On
+</Location>
+<Location /lumify/messaging>
+  ProxyPass balancer://lumify-messaging/lumify/messaging stickysession=JSESSIONID scolonpathdelim=On
 </Location>
 "
 file { '/etc/httpd/conf.d/lumify.conf' :
