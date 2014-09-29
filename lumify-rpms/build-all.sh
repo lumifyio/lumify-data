@@ -46,3 +46,5 @@ _build_and_install kafka
 
 _build_and_install sphinxbase
 _build_and_install pocketsphinx
+
+${DIR}/build-httpd.sh
