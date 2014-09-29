@@ -34,7 +34,7 @@ else
 fi
 if [ ! -f /opt/${jdk_rpm_filename} ]; then
   mkdir -p /opt
-  curl "https://s3.amazonaws.com/RedDawn/${jdk_rpm_filename}" -s -L --fail -o /opt/${jdk_rpm_filename}
+  curl "https://s3.amazonaws.com/RedDawn/puppet-repo/java/${jdk_rpm_filename}" -s -L --fail -o /opt/${jdk_rpm_filename}
 fi
 
 rpm -q jdk-1.6.0_45-fcs > /dev/null \
@@ -68,9 +68,12 @@ makerpm' | passwd makerpm 2> /dev/null
 # allow makerpm to use sudo to run rpm
 grep -q ^makerpm /etc/sudoers
 if [ $? -ne 0 ]; then
-  echo "makerpm ALL=NOPASSWD:/bin/rpm" >> /etc/sudoers
+  echo "makerpm ALL = NOPASSWD:/bin/rpm, NOPASSWD:/usr/bin/yum" >> /etc/sudoers
   echo "Defaults:makerpm !requiretty" >> /etc/sudoers
 fi
+
+rpm -q createrepo > /dev/null \
+  || yum -y install createrepo
 
 su - makerpm -c "mkdir -p /home/makerpm/repo/RPMS/{i386,x86_64} /home/makerpm/repo/{SRPMS,source}"
 su - makerpm -c "createrepo /home/makerpm/repo"
