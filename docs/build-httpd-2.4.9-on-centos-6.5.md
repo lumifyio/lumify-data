@@ -19,7 +19,7 @@ http://configure.systems/centos-6-5-building-apache-2-4-9-from-source/
         rpmbuild -tb apr-1.5.1.tar.bz2
 
         # rpmbuild will fail and list missing dependencies
-        
+
 1. install dependencied for `apr` and try again
 
         sudo yum -y install doxygen
@@ -70,3 +70,8 @@ http://configure.systems/centos-6-5-building-apache-2-4-9-from-source/
         sudo yum -y install pcre-devel lua-devel libxml2-devel
 
         rpmbuild -tb httpd-2.4.9.tar.bz2
+
+1. install `httpd` and `mod_ssl` module
+
+        sudo rpm -ivh ~/rpmbuild/RPMS/x86_64/httpd-2.4.9-1.x86_64.rpm \
+                      ~/rpmbuild/RPMS/x86_64/mod_ssl-2.4.9-1.x86_64.rpm
