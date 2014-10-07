@@ -14,11 +14,24 @@ class { 'env::common::config' :
   main_properties_filename => 'lumify-ql.properties',
 }
 
-include httpd
-include httpd::mod_ssl
+file { '/etc/yum.repos.d/lumify.repo' :
+  source => 'puppet:///modules/env/dev/lumify.repo',
+  owner => 'vagrant',
+  mode => 'u=rw,g=r,o=r',
+}
+
+class { 'httpd' :
+  httpdVersion => '2.4.9-1',
+  require => File['/etc/yum.repos.d/lumify.repo'],
+}
+class { 'httpd::mod_ssl' :
+  httpdVersion => '2.4.9-1',
+  require => [ Class['httpd'], File['/etc/yum.repos.d/lumify.repo'] ],
+}
 
 $lumify_httpd_conf = "
 <Location /balancer-manager>
+  Allow from all
   SetHandler balancer-manager
 </Location>
 <Proxy balancer://lumify>
@@ -32,9 +45,11 @@ $lumify_httpd_conf = "
   ProxySet stickysession=JSESSIONID
 </Proxy>
 <Location /lumify>
+  Allow from all
   ProxyPass balancer://lumify/lumify stickysession=JSESSIONID scolonpathdelim=On
 </Location>
 <Location /lumify/messaging>
+  Allow from all
   ProxyPass balancer://lumify-messaging/lumify/messaging stickysession=JSESSIONID scolonpathdelim=On
 </Location>
 "
