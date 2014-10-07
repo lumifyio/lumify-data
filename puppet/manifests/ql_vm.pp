@@ -31,25 +31,24 @@ class { 'httpd::mod_ssl' :
 
 $lumify_httpd_conf = "
 <Location /balancer-manager>
-  Allow from all
   SetHandler balancer-manager
 </Location>
 <Proxy balancer://lumify>
   BalancerMember http://localhost:8080 route=tomcat-a
   BalancerMember http://localhost:8081 route=tomcat-b
   ProxySet stickysession=JSESSIONID
+  ProxySet scolonpathdelim=On
 </Proxy>
 <Proxy balancer://lumify-messaging>
   BalancerMember ws://localhost:8080 route=tomcat-a
   BalancerMember ws://localhost:8081 route=tomcat-b
   ProxySet stickysession=JSESSIONID
+  ProxySet scolonpathdelim=On
 </Proxy>
 <Location /lumify>
-  Allow from all
   ProxyPass balancer://lumify/lumify stickysession=JSESSIONID scolonpathdelim=On
 </Location>
 <Location /lumify/messaging>
-  Allow from all
   ProxyPass balancer://lumify-messaging/lumify/messaging stickysession=JSESSIONID scolonpathdelim=On
 </Location>
 "

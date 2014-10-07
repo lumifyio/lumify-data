@@ -62,8 +62,10 @@ class httpd::mod_ssl($httpdVersion='2.2.15', $tmpdir="/usr/local/src", $clientAu
   $httpd_ssl_cgibin_root = hiera('httpd_ssl_cgibin_root', '/var/www/cgi-bin')
 
   case $httpdVersion {
-    /^2.4/:  { $mod_ssl_conf_template = 'mod_ssl.conf.2.4.erb' }
-    /^2.2/:  { $mod_ssl_conf_template = 'mod_ssl.conf.2.2.erb' }
+    /^2.4/:  { $mod_ssl_conf_template = 'mod_ssl.conf.2.4.erb'
+               $mod_ssl_conf_requre = Package['mod_ssl'] }
+    /^2.2/:  { $mod_ssl_conf_template = 'mod_ssl.conf.2.2.erb'
+               $mod_ssl_conf_requre = File['/etc/httpd/modules/mod_ssl.so'] }
     default: { fail "unsupported HTTPd version: ${httpdVersion}" }
   }
 
@@ -73,7 +75,6 @@ class httpd::mod_ssl($httpdVersion='2.2.15', $tmpdir="/usr/local/src", $clientAu
     owner   => 'root',
     group   => 'root',
     mode    => 'u=rw,go=r',
-    # TODO require => File['/etc/httpd/modules/mod_ssl.so'],
-    require => Package['mod_ssl'],
+    require => $mod_ssl_conf_requre,
   }
 }

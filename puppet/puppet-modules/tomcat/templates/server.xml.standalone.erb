@@ -93,6 +93,9 @@
       <!--For clustering, please take a look at documentation at:
           /docs/cluster-howto.html  (simple how to)
           /docs/config/cluster.html (reference documentation) -->
+      <% if true -%>
+      <Cluster className="org.apache.catalina.ha.tcp.SimpleTcpCluster"/>
+      <% end -%>
 
       <!-- Use the LockOutRealm to prevent attempts to guess user passwords
            via a brute-force attack -->
