@@ -26,8 +26,8 @@ function _cp_files {
 
 function _public {
   _cp_files "
-	  lumify-public/docs/lumify.properties
-	  lumify-public/docs/log4j.xml
+	  lumify-public/config/lumify.properties
+	  lumify-public/config/log4j.xml
   "
 }
 
