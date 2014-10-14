@@ -63,7 +63,4 @@ Additional documentation is available for the following platforms:
 
 ## Sample Data
 
-- [Sample Data Sets](sample-data.md)
-- [GEOINT Data](sample-data-geoint.md)
-- [Regression Test Data](sample-data-testing.md)
 - videos with closed captioning transcripts - http://ncam.wgbh.org/invent_build/web_multimedia/mobile-devices/sample-clips
