@@ -33,6 +33,7 @@ repository.workQueue=io.lumify.model.rabbitmq.RabbitMQWorkQueueRepository
 <% @rabbitmq_nodes.each_with_index do |hostname, i| -%>
 rabbitmq.addr.<%= i %>.host=<%= hostname %>
 <% end -%>
+repository.systemNotification=io.lumify.bigtable.model.systemNotification.BigTableSystemNotificationRepository
 
 # Ontology
 ontology.iri.image=http://lumify.io/dev#image
