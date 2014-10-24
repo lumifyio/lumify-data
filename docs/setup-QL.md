@@ -33,6 +33,7 @@
         # use MySQL for user and workspace data
         repository.user=io.lumify.sql.model.user.SqlUserRepository
         repository.workspace=io.lumify.sql.model.workspace.SqlWorkspaceRepository
+        repository.longRunningProcess=io.lumify.sql.model.workspace.SqlLongRunningProcessRepository
 
         # read the ontology from disk
         repository.ontology=io.lumify.core.model.ontology.ReadOnlyInMemoryOntologyRepository
