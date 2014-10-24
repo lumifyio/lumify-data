@@ -24,7 +24,7 @@ Other dependencies will be installed via the [HomeBrew](http://brew.sh) package 
 ## OpenCV
 
     brew tap homebrew/science
-    JAVA_HOME=$(/usr/libexec/java_home -v 1.6) brew install opencv
+    brew install opencv --with-java
 
 
 ## Tesseract
