@@ -26,6 +26,11 @@
             <artifactId>lumify-web-auth-x509ldap</artifactId> <!-- change authentication here -->
             <version>${project.version}</version>
         </dependency>
+        <dependency>
+            <groupId>io.lumify</groupId>
+            <artifactId>lumify-model-sql</artifactId>
+            <version>${project.version}</version>
+        </dependency>
     </dependencies>
 
     <build>

@@ -33,24 +33,30 @@ $lumify_httpd_conf = "
 <Location /balancer-manager>
   SetHandler balancer-manager
 </Location>
+
 <Proxy balancer://lumify>
   BalancerMember http://localhost:8080 route=tomcat-a
   BalancerMember http://localhost:8081 route=tomcat-b
   ProxySet stickysession=JSESSIONID
   ProxySet scolonpathdelim=On
 </Proxy>
+
 <Proxy balancer://lumify-messaging>
   BalancerMember ws://localhost:8080 route=tomcat-a
   BalancerMember ws://localhost:8081 route=tomcat-b
   ProxySet stickysession=JSESSIONID
   ProxySet scolonpathdelim=On
 </Proxy>
-<Location /lumify>
-  ProxyPass balancer://lumify/lumify stickysession=JSESSIONID scolonpathdelim=On
-</Location>
-<Location /lumify/messaging>
-  ProxyPass balancer://lumify-messaging/lumify/messaging stickysession=JSESSIONID scolonpathdelim=On
-</Location>
+
+RewriteEngine On
+RewriteCond %{HTTPS} off
+RewriteRule (.*) https://%{HTTP_HOST}%{REQUEST_URI}
+
+ProxyPass /lumify/messaging balancer://lumify-messaging/lumify/messaging stickysession=JSESSIONID scolonpathdelim=On
+ProxyPassReverse /lumify/messaging balancer://lumify-messaging/lumify/messaging
+
+ProxyPass /lumify balancer://lumify/lumify stickysession=JSESSIONID scolonpathdelim=On
+ProxyPassReverse /lumify balancer://lumify/lumify
 "
 file { '/etc/httpd/conf.d/lumify.conf' :
   ensure => file,
