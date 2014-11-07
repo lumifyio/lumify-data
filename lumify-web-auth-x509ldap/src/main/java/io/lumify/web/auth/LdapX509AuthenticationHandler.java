@@ -17,9 +17,7 @@ import org.securegraph.Graph;
 
 import javax.servlet.http.HttpServletRequest;
 import java.io.ByteArrayInputStream;
-import java.math.BigInteger;
 import java.security.NoSuchAlgorithmException;
-import java.security.SecureRandom;
 import java.security.cert.CertificateException;
 import java.security.cert.CertificateFactory;
 import java.security.cert.X509Certificate;
@@ -109,7 +107,7 @@ public class LdapX509AuthenticationHandler extends X509AuthenticationHandler {
         String displayName = getAttributeValue(
                 searchResultEntry, ldapX509AuthenticationConfiguration.getDisplayNameAttribute(), username);
 
-        String randomPassword = new BigInteger(120, new SecureRandom()).toString(32);
+        String randomPassword = UserRepository.createRandomPassword();
         User user = getUserRepository().findOrAddUser(
                 username,
                 displayName,
