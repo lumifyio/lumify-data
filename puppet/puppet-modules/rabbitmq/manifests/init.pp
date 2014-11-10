@@ -103,7 +103,9 @@ class rabbitmq (
     exec { "add-policy-${name}" :
       command => "/usr/bin/curl -u ${user}:${password} -H 'content-type:application/json' -X PUT ${url} -d '${json}'",
       unless  => "/usr/bin/curl -s -u ${user}:${password} ${url} -w '%{http_code}\n' -o /dev/null | /bin/grep -q 200",
-      require => Service['rabbitmq-server'],
+      require => [ Service['rabbitmq-server'],
+                   Exec[$plugins]
+                 ],
     }
   }
 
