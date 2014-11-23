@@ -95,7 +95,8 @@ class rabbitmq (
     $pattern,
     $apply_to = 'all',
     $definition,
-    $priority = 0
+    $priority = 0,
+    $plugins
   ) {
     $url = "http://localhost:15672/api/policies/${vhost}/${name}"
     $json = "{\"pattern\":\"${pattern}\", \"apply-to\":\"${apply_to}\", \"definition\":${definition}, \"priority\":${priority}}"
@@ -114,5 +115,6 @@ class rabbitmq (
     user       => $mgmt_user,
     password   => $mgmt_user_pw,
     definition => '{"ha-mode":"all", "ha-sync-mode":"automatic"}',
+    plugins => $plugins
   }
 }
