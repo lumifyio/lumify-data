@@ -6,7 +6,7 @@
 
     <groupId>lumify-all</groupId>
     <artifactId>lumify-all</artifactId>
-    <version>0.4.0-SNAPSHOT</version>
+    <version>0.4.0.20141124</version>
     <packaging>pom</packaging>
 
     <name>All Lumify</name>
