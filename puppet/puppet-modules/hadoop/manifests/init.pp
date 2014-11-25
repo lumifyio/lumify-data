@@ -1,5 +1,5 @@
 class hadoop {
-  include repo::cloudera::cdh4
+  include repo::cloudera::cdh5
   require java
 
   case $architecture {
@@ -28,7 +28,7 @@ class hadoop {
 
   package { $pkg :
     ensure  => installed,
-    require => Class['java', 'repo::cloudera::cdh4'],
+    require => Class['java', 'repo::cloudera::cdh5'],
   }
 
 /*
