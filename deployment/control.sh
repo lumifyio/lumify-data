@@ -92,6 +92,7 @@ function _hadoop_start {
 
   _run_at $(_namenode) service hadoop-hdfs-namenode start
   _run_at $(_secondarynamenode) service hadoop-hdfs-secondarynamenode start
+  _run_at ${_namenode} service hadoop-yarn-resourcemanager start
 
   for node in $(_nodes); do
     if [ "${FORMAT_HDFS}" = 'true' ]; then
@@ -105,21 +106,23 @@ function _hadoop_start {
         __run_at ${node} chown -R mapred:hadoop ${data}/mapred
       done
     fi
+
     _run_at ${node} service hadoop-hdfs-datanode start
-    _run_at ${node} service hadoop-0.20-mapreduce-tasktracker start
+    _run_at ${node} service hadoop-yarn-nodemanager start
+    _run_at ${node} service hadoop-mapreduce-historyserver start
   done
 
-  _run_at $(_namenode) service hadoop-0.20-mapreduce-jobtracker start
 }
 
 function _hadoop_stop {
-  _run_at $(_namenode) service hadoop-0.20-mapreduce-jobtracker stop
+  _run_at $(_namenode) service hadoop-yarn-resourcemanager stop
 
   _run_at $(_namenode) service hadoop-hdfs-namenode stop
   _run_at $(_secondarynamenode) service hadoop-hdfs-secondarynamenode stop
 
   for node in $(_nodes); do
-    _run_at ${node} service hadoop-0.20-mapreduce-tasktracker stop
+    _run_at ${node} service hadoop-mapreduce-historyserver stop
+    _run_at ${node} service hadoop-yarn-nodemanager stop
     _run_at ${node} service hadoop-hdfs-datanode stop
   done
 }
@@ -130,14 +133,15 @@ function _hadoop_status {
 
   for node in $(_nodes); do
     _run_at ${node} service hadoop-hdfs-datanode status 2>&1 | _color_status
-    _run_at ${node} service hadoop-0.20-mapreduce-tasktracker status 2>&1 | _color_status
+    _run_at ${node} service hadoop-yarn-nodemanager status 2>&1 | _color_status
+    _run_at ${node} service hadoop-mapreduce-historyserver status 2>&1 | _color_status
   done
 
-  _run_at $(_namenode) service hadoop-0.20-mapreduce-jobtracker status 2>&1 | _color_status
+  _run_at $(_namenode) service hadoop-yarn-resourcemanager status 2>&1 | _color_status
 }
 
 function _hadoop_rmlogs {
-  cmd='rm -f /var/log/hadoop-0.20-mapreduce/*.{log,out}* /var/log/hadoop-hdfs/*.{log,out}* /opt/lumify/lumify-mapred-*.log'
+  cmd='rm -f /var/log/hadoop-yarn/*.{log,out}* /var/log/hadoop-hdfs/*.{log,out}* /opt/lumify/lumify-mapred-*.log'
 
   for node in $(echo $(_namenode) $(_secondarynamenode) $(_nodes) | tr ' ' '\n' | sort -t . -k 4 -n -u); do
     _run_at_v ${node} ${cmd}

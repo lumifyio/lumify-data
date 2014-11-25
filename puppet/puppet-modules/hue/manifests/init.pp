@@ -41,7 +41,7 @@ class hue(
   
   group { $group :
     ensure => present,
-    require => Package[$hadoop::pkg],
+    require => Package[$cloudera::cdh5::hadoop::base::pkg],
   }
 
   user { $user :

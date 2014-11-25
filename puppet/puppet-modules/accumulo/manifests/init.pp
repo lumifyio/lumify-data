@@ -8,7 +8,7 @@ class accumulo(
   $tmpdir = '/tmp'
 ) {
   include macro
-  require hadoop
+  require cloudera::cdh5::hadoop::base
 
   $accumulo_masters = hiera_array('accumulo_masters')
   $accumulo_slaves = hiera_array('accumulo_slaves')
@@ -34,7 +34,7 @@ class accumulo(
     ensure  => "present",
     gid     => $group,
     home    => $configlink,
-    require => Package[$hadoop::pkg],
+    require => Package[$cloudera::cdh5::hadoop::base::pkg],
   }
 
   macro::download { "http://archive.apache.org/dist/accumulo/${version}/${downloadfile}":

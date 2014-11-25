@@ -3,8 +3,36 @@
 
 <configuration>
   <property>
-    <name>mapred.job.tracker</name>
-    <value><%= @namenode_hostname %>:8021</value>
+    <name>mapreduce.framework.name</name>
+    <value>yarn</value>
+  </property>
+
+  <property>
+    <name>mapreduce.jobhistory.address</name>
+    <value><%= @jobhistory_hostname %>:10020</value>
+  </property>
+
+  <property>
+    <name>mapreduce.jobhistory.webapp.address</name>
+    <value><%= @jobhistory_hostname %>:19888</value>
+  </property>
+
+  <property>
+    <name>hadoop.proxyuser.mapred.groups</name>
+    <value>*</value>
+  </property>
+
+  <property>
+    <name>yarn.app.mapreduce.am.staging-dir</name>
+    <value>/user</value>
+  </property>
+
+
+
+<!--
+  <property>
+    <name>yarn.resourcemanager.hostname</name>
+    <value><%= @resourcemanager_hostname %></value>
     <final>true</final>
   </property>
 
@@ -18,7 +46,7 @@
     <value><%= (@data_directories || '').split(',').map{|d| d + '/mapred/local'}.join(',') %></value>
     <final>true</final>
   </property>
-
+-->
   <property>
      <name>mapred.child.env</name>
      <value>PATH=/usr/local/sbin:/usr/local/bin:/sbin:/bin:/usr/sbin:/usr/bin,LD_LIBRARY_PATH=/usr/local/lib:/usr/local/share/OpenCV/java</value>
@@ -31,15 +59,4 @@
      <final>true</final>
   </property>
 
-  <!-- Enable Hue plugins -->
-  <property>
-    <name>mapred.jobtracker.plugins</name>
-    <value>org.apache.hadoop.thriftfs.ThriftJobTrackerPlugin</value>
-    <description>Comma-separated list of jobtracker plug-ins to be activated.
-    </description>
-  </property>
-  <property>
-    <name>jobtracker.thrift.address</name>
-    <value>0.0.0.0:9290</value>
-  </property>
 </configuration>

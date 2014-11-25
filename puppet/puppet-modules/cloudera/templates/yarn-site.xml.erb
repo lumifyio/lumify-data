@@ -1,0 +1,24 @@
+<?xml version="1.0"?>
+<?xml-stylesheet type="text/xsl" href="configuration.xsl"?>
+
+<configuration>
+  <property>
+    <name>yarn.resourcemanager.hostname</name>
+    <value><%= @namenode_hostname %></value>
+  </property>
+
+  <property>
+    <name>yarn.nodemanager.local-dirs</name>
+    <value><%= (@data_directories || '').split(',').map{|d| d + '/yarn/local'}.join(',') %></value>
+  </property>
+
+  <property>
+    <name>yarn.nodemanager.log-dirs</name>
+    <value><%= (@data_directories || '').split(',').map{|d| d + '/yarn/logs'}.join(',') %></value>
+  </property>
+
+  <property>
+    <name>yarn.nodemanager.remote-app-log-dir</name>
+    <value>hdfs:/var/log/hadoop-yarn/apps</value>
+  </property>
+</configuration>

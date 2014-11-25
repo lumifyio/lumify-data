@@ -1,4 +1,4 @@
 class role::hadoop::slave {
-  include ::hadoop::tasktracker
-  include ::hadoop::datanode
+  include ::cloudera::cdh5::hadoop::yarn::nodemanager
+  include ::cloudera::cdh5::hadoop::datanode
 }

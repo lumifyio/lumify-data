@@ -1,5 +1,5 @@
-class hadoop {
-  include repo::cloudera::cdh5
+class cloudera::cdh5::hadoop::base {
+  include cloudera::cdh5::repo
   require java
 
   case $architecture {
@@ -15,6 +15,19 @@ class hadoop {
   $datanode_ipc_address = hiera("datanode_ipc_address","0.0.0.0:50020")
   $hadoop_masters = hiera_array('hadoop_masters')
   $hadoop_slaves = hiera_array('hadoop_slaves')
+  $historyserver_hostname = hiera("historyserver_hostname")
+
+  $hadoop_ha_enabled = hiera("hadoop_ha_enabled","false")
+
+  if ($hadoop_ha_enabled == true) {
+    $hadoop_ha_cluster_name = hiera("hadoop_ha_cluster_name")
+    $hadoop_namenodes = hiera_array("hadoop_namenodes")
+    $hadoop_namenode_rpc_port = hiera("hadoop_namenode_rpc_port","8020")
+    $hadoop_namenode_http_port = hiera("hadoop_namenode_http_port","50070")
+    $hadoop_ha_journalnodes = hiera_array("hadoop_ha_journalnodes")
+    $hadoop_ha_journalnode_edits_dir = hiera("hadoop_ha_journalnode_edits_dir")
+    $zookeeper_nodes = hiera("zookeeper_nodes")
+  }
 
   group { 'hadoop' :
     ensure => present,
@@ -26,21 +39,24 @@ class hadoop {
     require => Group['hadoop'],
   }
 
-  package { $pkg :
-    ensure  => installed,
-    require => Class['java', 'repo::cloudera::cdh5'],
+  group { 'yarn' :
+    ensure => present,
   }
 
-/*
-  package { 'hadoop-0.20-native':
-    ensure  => installed,
-    require => Package['hadoop-0.20'],
+  user { 'yarn' :
+    ensure => present,
+    gid => 'yarn',
+    require => Group['yarn'],
   }
-*/
+
+  package { $pkg :
+    ensure  => installed,
+    require => Class['java', 'cloudera::cdh5::repo'],
+  }
 
   file { "/etc/hadoop/conf/core-site.xml":
     ensure  => file,
-    content => template("hadoop/core-site.xml.erb"),
+    content => template("cloudera/core-site.xml.erb"),
     owner   => "root",
     group   => "root",
     mode    => "u=rw,go=r",
@@ -49,7 +65,7 @@ class hadoop {
 
   file { "/etc/hadoop/conf/hdfs-site.xml":
     ensure  => file,
-    content => template("hadoop/hdfs-site.xml.erb"),
+    content => template("cloudera/hdfs-site.xml.erb"),
     owner   => "root",
     group   => "root",
     mode    => "u=rw,go=r",
@@ -58,16 +74,16 @@ class hadoop {
 
   file { "/etc/hadoop/conf/mapred-site.xml":
     ensure  => file,
-    content => template("hadoop/mapred-site.xml.erb"),
+    source  => "puppet:///modules/cloudera/mapred-site.xml",
     owner   => "root",
     group   => "root",
     mode    => "u=rw,go=r",
-    require => [ Package[$pkg], File['/data0/mapred'] ],
+    require => [ Package[$pkg], File['/data0/yarn'] ],
   }
 
   file { "/etc/hadoop/conf/log4j.properties":
     ensure  => file,
-    source  => "puppet:///modules/hadoop/log4j.properties",
+    source  => "puppet:///modules/cloudera/log4j.properties",
     owner   => "root",
     group   => "root",
     mode    => "u=rw,go=r",
@@ -76,7 +92,7 @@ class hadoop {
 
   file { "/etc/hadoop/conf/masters":
     ensure  => file,
-    content => template("hadoop/masters.erb"),
+    content => template("cloudera/masters.erb"),
     owner   => "root",
     group   => "root",
     mode    => "u=rw,go=r",
@@ -85,7 +101,7 @@ class hadoop {
 
   file { "/etc/hadoop/conf/slaves":
     ensure  => file,
-    content => template("hadoop/slaves.erb"),
+    content => template("cloudera/slaves.erb"),
     owner   => "root",
     group   => "root",
     mode    => "u=rw,go=r",
@@ -124,12 +140,12 @@ class hadoop {
       require =>  [ File["${name}"], Package[$pkg], User['hdfs'] ],
     }
 
-    file { [ "${name}/mapred", "${name}/mapred/local" ] :
+    file { [ "${name}/yarn", "${name}/yarn/local", "${name}/yarn/logs" ] :
       ensure  => directory,
-      owner   => 'mapred',
-      group   => 'hadoop',
+      owner   => 'yarn',
+      group   => 'yarn',
       mode    => 'u=rwx,g=rx,o=',
-      require =>  [ File["${name}"], Package[$pkg], User['mapred'] ],
+      require =>  [ File["${name}"], Package[$pkg], User['yarn'] ],
     }
   }
 

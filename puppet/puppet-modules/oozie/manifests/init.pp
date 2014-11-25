@@ -1,5 +1,5 @@
 class oozie($prefix = "/usr/lib/oozie") {
-  require hadoop
+  require cloudera::cdh5::hadoop::base
   include macro
 
   $downloadpath = "/usr/local/src/ext-2.2.zip"

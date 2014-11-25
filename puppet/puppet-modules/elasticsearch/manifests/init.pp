@@ -11,7 +11,7 @@ class elasticsearch(
 ) {
   include macro
   include macro::git
-  require hadoop
+  require cloudera::cdh5::hadoop::base
 
   $homedir = "${installdir}/elasticsearch-${version}"
   $homelink = "${installdir}/elasticsearch"
