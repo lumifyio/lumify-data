@@ -7,7 +7,7 @@ class env::demo {
   }
 
   include env::common::config
-  include repo::cloudera::cdh4
+  include cloudera::cdh5::repo
   include ::zookeeper
   include role::hadoop::pseudo
   include role::accumulo::pseudo

@@ -1,3 +1,3 @@
 class role::hadoop::secondarynamenode {
-  include ::hadoop::secondarynamenode
+  include ::cloudera::cdh5::hadoop::secondarynamenode
 }

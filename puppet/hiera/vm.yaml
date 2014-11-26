@@ -40,3 +40,4 @@ tomcat_truststore_password: password
 mod_jk_workers:
   lumify1:
     host: %{ipaddress_eth1}
+historyserver_hostname: lumify-vm.lumify.io
