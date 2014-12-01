@@ -50,12 +50,9 @@ setup
 
 1. **(OPTIONAL)** [Import Wikipedia data with Map Reduce](https://github.com/lumifyio/lumify/blob/master/datasets/wikipedia/README.md)
 
-1. ssh from the puppet server to the storm nimbus server and run:
+1. ssh from the puppet server to the hadoop resource manager:
 
-        n=5
-
-        /opt/storm/bin/storm jar lumify-storm.jar \
-          io.lumify.storm.StormRunner -tpb $((${n} * 8)) -w $((${n} * 2)) -ph $((${n} * 4))
+        /opt/hadoop/bin/hadoop jar lumify-graph-property-worker.jar
 
 turning it off
 ==============

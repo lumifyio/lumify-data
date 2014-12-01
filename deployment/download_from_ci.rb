@@ -22,7 +22,7 @@ io/lumify/lumify-youtube-transcript               with-dependencies.jar
 io/lumify/lumify-zipcode-extractor                with-dependencies.jar
 io/lumify/lumify-wikipedia-mr                     with-dependencies.jar
 io/lumify/lumify-import                           with-dependencies.jar
-io/lumify/lumify-storm                            with-dependencies.jar
+io/lumify/lumify-graph-property-worker            with-dependencies.jar
 io/lumify/lumify-web-dev-tools                    .jar
 io/lumify/lumify-opennlp-dictionary-extractor-web with-dependencies.jar
 io/lumify/lumify-web-war                          .war lumify.war

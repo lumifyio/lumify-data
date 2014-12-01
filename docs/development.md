@@ -56,7 +56,6 @@ Additional documentation is available for the following platforms:
 ## Running Lumify
 
 - [Common Setup and the Web UI](running-lumify.md)
-- [Storm Ingest](running-lumify-storm-ingest.md)
 
 
 ## Sample Data

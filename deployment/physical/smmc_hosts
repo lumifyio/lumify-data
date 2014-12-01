@@ -1,6 +1,6 @@
 10.0.1.200  puppet
 10.0.1.201  smmc01  osm maptileserver
-10.0.1.202  smmc02  namenode jobtracker stormmaster
+10.0.1.202  smmc02  namenode jobtracker
 10.0.1.203  smmc03  secondarynamenode accumulomaster
 10.0.1.204  smmc04  node04 zk04
 10.0.1.205  smmc05  node05 zk05

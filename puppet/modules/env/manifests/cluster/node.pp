@@ -2,7 +2,6 @@ class env::cluster::node {
   include hadoop_slave
   include accumulo_node
   include clavin
-  include storm_supervisor
   include spark_worker
 
   file { '/etc/yum.repos.d/lumify.repo' :

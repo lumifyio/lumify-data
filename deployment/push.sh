@@ -58,7 +58,7 @@ function run_maven {
     echo 'maven ok.' >&2
   else
     echo 'running maven...' >&2
-    local mvn_output="$(cd ..; mvn clean install -P tools-jar,storm-jar,web-war -DskipTests=true)"
+    local mvn_output="$(cd ..; mvn clean install -P tools-jar,web-war -DskipTests=true)"
     local mvn_exit=$?
     if [ ${mvn_exit} -ne 0 ]; then
       echo "${mvn_output}" >&2
@@ -101,13 +101,6 @@ function bundle_war {
   FILE_LIST="${FILE_LIST} lumify.xml ${war_files}"
 }
 
-function bundle_storm {
-  run_maven
-  local jar_files=$(find .. -name '*-jar-with-dependencies.jar')
-
-  FILE_LIST="${FILE_LIST} ${jar_files}"
-}
-
 
 [ "${elastic_ip}" != '-' ] && test_ssh root@${elastic_ip}
 
@@ -123,9 +116,6 @@ case ${component} in
   www | war)
     bundle_war
     ;;
-  storm)
-    bundle_storm
-    ;;
   config)
     bundle_config
     ;;
@@ -138,7 +128,6 @@ case ${component} in
     FILE_LIST="${FILE_LIST} setup_libcache.sh"
     FILE_LIST="${FILE_LIST} setup_import.sh"
     #bundle_war
-    #bundle_storm
     ;;
   *)
     echo "invalid component: ${component}"

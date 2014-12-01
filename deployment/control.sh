@@ -32,14 +32,11 @@ function _webservers {
 function _rabbitmq_servers {
   _localhost && echo 'localhost' || awk '/rabbitmq[0-9]+/ {print $1}' ${HOSTS_FILE}
 }
-function _stormmaster {
-  _localhost && echo 'localhost' || awk '/ +stormmaster/ {print $1}' ${HOSTS_FILE}
-}
 function _logstash {
   _localhost && echo 'localhost' || awk '/ +logstash/ {print $1}' ${HOSTS_FILE}
 }
 function _logstash_clients {
-  echo $(_namenode) $(_secondarynamenode) $(_nodes) $(_zk_servers) $(_accumulomaster) $(_webservers) $(_stormmaster) \
+  echo $(_namenode) $(_secondarynamenode) $(_nodes) $(_zk_servers) $(_accumulomaster) $(_webservers) \
     | tr ' ' '\n' | sort -t . -k 4 -n -u
 }
 
@@ -339,44 +336,6 @@ function _rabbitmq_rmlogs {
   done
 }
 
-function _storm_start {
-  _run_at $(_stormmaster) initctl start storm-nimbus
-  _run_at $(_stormmaster) initctl start storm-ui
-
-  for node in $(_nodes); do
-    _run_at ${node} initctl start storm-supervisor
-    _run_at ${node} initctl start storm-logviewer
-  done
-}
-
-function _storm_stop {
-  for node in $(_nodes); do
-    _run_at ${node} initctl stop storm-supervisor
-    _run_at ${node} initctl stop storm-logviewer
-  done
-
-  _run_at $(_stormmaster) initctl stop storm-ui
-  _run_at $(_stormmaster) initctl stop storm-nimbus
-}
-
-function _storm_status {
-  _run_at $(_stormmaster) initctl status storm-ui 2>&1 | _color_status
-  _run_at $(_stormmaster) initctl status storm-nimbus 2>&1 | _color_status
-
-  for node in $(_nodes); do
-    _run_at ${node} initctl status storm-supervisor 2>&1 | _color_status
-    _run_at ${node} initctl status storm-logviewer 2>&1 | _color_status
-  done
-}
-
-function _storm_rmlogs {
-  cmd="rm -f /opt/storm/logs/* /opt/lumify/logs/lumify-storm-*.log"
-
-  for node in $(echo $(_stormmaster) $(_nodes) | tr ' ' '\n' | sort -t . -k 4 -n -u); do
-    _run_at_v ${node} ${cmd}
-  done
-}
-
 function _logstash_start {
   _run_at $(_logstash) initctl start elasticsearch
   _run_at $(_logstash) service logstash-ui start
@@ -422,11 +381,9 @@ function _all_start {
   _elasticsearch_start
   _rabbitmq_start
   _jetty_start
-  _storm_start
 }
 
 function _all_stop {
-  _storm_stop
   _jetty_stop
   _rabbitmq_stop
   _elasticsearch_stop
@@ -444,7 +401,6 @@ function _all_status {
   _elasticsearch_status
   _rabbitmq_status
   _jetty_status
-  _storm_status
 }
 
 function _all_rmlogs {
@@ -455,7 +411,6 @@ function _all_rmlogs {
   _elasticsearch_rmlogs
   _rabbitmq_rmlogs
   _jetty_rmlogs
-  _storm_rmlogs
 }
 
 function _all_delete {

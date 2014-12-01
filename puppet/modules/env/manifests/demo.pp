@@ -13,8 +13,6 @@ class env::demo {
   include role::accumulo::pseudo
   include role::elasticsearch::pseudo
   include role::rabbitmq::node
-  include role::storm::master
-  include role::storm::supervisor
 
   # no firewall for local vms
   service { 'iptables' :
@@ -32,9 +30,7 @@ class env::demo {
 
   install_script { [
     'format.sh',
-    'shell.sh',
-    'storm-run.sh',
-    'storm-kill.sh'
+    'shell.sh'
   ] : }
 
   file { '/etc/sysctl.conf' :
@@ -55,12 +51,6 @@ class env::demo {
   host { 'localhost' :
     ip => '127.0.0.1',
     host_aliases => ['localhost.localdomain', 'localhost4', 'localhost4.localdomain4'],
-  }
-
-  file { '/opt/storm/lib/imageio-1.1.jar' :
-    source => 'puppet:///modules/env/common/imageio-1.1.jar',
-    owner => 'storm',
-    mode => 'u=r,g=r,o=r',
   }
 
   package { 'zip' :

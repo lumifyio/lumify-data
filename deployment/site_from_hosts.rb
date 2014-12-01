@@ -6,7 +6,6 @@ MAP = {
   /^namenode/         => ['include env::cluster::hadoop_master'],
   'secondarynamenode' => ['include env::cluster::hadoop_secondary'],
   'accumulomaster'    => ['include env::cluster::accumulo_master'],
-  'stormmaster'       => ['include env::cluster::storm_master'],
   'sparkmaster'       => ['include env::cluster::spark_master'],
   /rabbitmq\d{2}/     => ['include env::cluster::rabbitmq_node'],
   'logstash'          => ['include env::cluster::logstash'],

@@ -74,15 +74,6 @@ else
 
   hiera['rabbitmq_nodes'] = get(cluster, /rabbitmq\d{2}/, :name)
 
-  hiera['storm_nimbus_host'] = get(cluster, /stormmaster/, :ip)
-  hiera['storm_nimbus_thrift_port'] = 6627
-  storm_slots_per_supervisor = 4
-  storn_base_supervisor_slot_port = 6700
-  hiera['storm_supervisor_slots_ports'] = storm_slots_per_supervisor.times.reduce([]){|m,i| m.push(storn_base_supervisor_slot_port+i)}
-  hiera['storm_supervisor_jmx_registry_ports'] = storm_slots_per_supervisor.times.reduce([]){|m,i| m.push(('1'+(storn_base_supervisor_slot_port+i).to_s).to_i)}
-  hiera['storm_supervisor_jmx_objects_ports'] = storm_slots_per_supervisor.times.reduce([]){|m,i| m.push(('2'+(storn_base_supervisor_slot_port+i).to_s).to_i)}
-  hiera['storm_ui_port'] = 8081
-
   hiera['spark_master'] = get(cluster, 'sparkmaster', :ip)
   hiera['spark_workers'] = get(cluster, /node\d{2}/, :ip)
   hiera['spark_driver_memory'] = '1g'

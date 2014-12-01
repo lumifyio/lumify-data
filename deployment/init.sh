@@ -86,14 +86,6 @@ function stage_www {
   done
 }
 
-function stage_stormmaster {
-  heading 'stage artifacts on the storm nimbus server'
-  local stormmaster_host=$(awk '/stormmaster/ {print $1}' ${HOSTS_FILE})
-  scp ${SSH_OPTS} *.jar \
-                  setup_libcache.sh \
-                  ${stormmaster_host}:
-}
-
 function setup_remote {
   local other_host=$1
 
@@ -156,22 +148,17 @@ case ${mode_or_ip} in
   jt)
     stage_jobtracker
     ;;
-  storm)
-    stage_stormmaster
-    ;;
   www)
     stage_www
     ;;
   everything)
     setup_local
     stage_jobtracker
-    stage_stormmaster
     stage_www
     setup_other
     ;;
   stage)
     stage_jobtracker
-    stage_stormmaster
     stage_www
     ;;
   other)

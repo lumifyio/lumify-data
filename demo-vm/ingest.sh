@@ -18,10 +18,6 @@ cat /vagrant/${tgz_file} | tar -C /vagrant/data -xzf - 2>&1 | tee /vagrant/impor
 echo 'loading ontology...'
 /vagrant/lumify-public/bin/owlImport.sh -i /vagrant/lumify-public/examples/ontology-dev/dev.owl --iri http://lumify.io/dev 2>&1 | tee /vagrant/owlImport.out
 
-echo 'running storm in the background'
-/vagrant/lumify-public/bin/stormLocal.sh 2>&1 > /vagrant/stormLocal.out &
-echo $! > /vagrant/stormLocal.pid
-
 echo 'restarting jetty...'
 sudo cp /vagrant/deployment/lumify.xml /opt/jetty/contexts
 sudo cp /vagrant/lumify-public/web/war/target/lumify-web-war-*.war /opt/jetty/webapps/lumify.war
