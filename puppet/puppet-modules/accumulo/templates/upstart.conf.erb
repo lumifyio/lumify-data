@@ -32,7 +32,7 @@ pre-start script
     . $ACCUMULO_HOME/conf/accumulo-env.sh
   fi
 
-  exec su -s /bin/sh -c 'exec "$0" "$@"' <%= @user %> -- ${ACCUMULO_HOME}/bin/accumulo org.apache.accumulo.server.master.state.SetGoalState NORMAL
+  exec su -s /bin/sh -c 'exec "$0" "$@"' <%= @user %> -- ${ACCUMULO_HOME}/bin/accumulo org.apache.accumulo.master.state.SetGoalState NORMAL
 end script
 <% end %>
 

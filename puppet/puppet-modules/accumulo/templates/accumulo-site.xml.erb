@@ -18,37 +18,13 @@
 <?xml-stylesheet type="text/xsl" href="configuration.xsl"?>
 
 <configuration>
-  <!-- Put your site-specific accumulo configurations here. The available configuration values along with their defaults are documented in docs/config.html Unless 
+  <!-- Put your site-specific accumulo configurations here. The available configuration values along with their defaults are documented in docs/config.html Unless
     you are simply testing at your workstation, you will most definitely need to change the three entries below. -->
-
-  <property>
-    <name>instance.dfs.uri</name>
-    <value>hdfs://<%= @namenode_hostname %>:8020</value>
-  </property>
-
-  <property>
-    <name>logger.sort.buffer.size</name>
-    <value>50M</value>
-    <description>TODO: why did we set this?</description>
-  </property>
-
-  <property>
-    <name>tserver.walog.max.size</name>
-    <value>100M</value>
-    <description>TODO: why did we set this?</description>
-  </property>
 
   <property>
     <name>instance.zookeeper.host</name>
     <value><%= @zookeeper_nodes.values.join(',') %></value>
     <description>comma separated list of zookeeper servers</description>
-  </property>
-
-  <property>
-    <name>logger.dir.walog</name>
-    <value><%= (@data_directories || '').split(',').map{|d| "#{d}/accumulo/walog"}.join(',') %></value>
-    <description>The directory used to store write-ahead logs on the local filesystem. It is possible to specify a comma-separated list of directories.
-    </description>
   </property>
 
   <property>
@@ -63,7 +39,12 @@
 
   <property>
     <name>tserver.memory.maps.max</name>
-    <value><%= @architecture == 'i386' ? '512M' : '1G' %></value>
+    <value><%= @architecture == 'i386' || @memorysize_mb.to_f < 4000 ? '512M' : '1G' %></value>
+  </property>
+
+  <property>
+    <name>tserver.memory.maps.native.enabled</name>
+    <value>false</value>
   </property>
 
   <property>
@@ -89,34 +70,44 @@
 
   <property>
     <name>general.classpaths</name>
-    <!--
-       Add the following for hadoop-2.0
-       $HADOOP_PREFIX/share/hadoop/common/.*.jar,
-       $HADOOP_PREFIX/share/hadoop/common/lib/.*.jar,
-       $HADOOP_PREFIX/share/hadoop/hdfs/.*.jar,
-       $HADOOP_PREFIX/share/hadoop/mapreduce/.*.jar,
-       $HADOOP_PREFIX/share/hadoop/yarn/.*.jar,
-    -->
+
     <value>
-      $ACCUMULO_HOME/server/target/classes/,
+      <!-- Accumulo requirements -->
       $ACCUMULO_HOME/lib/accumulo-server.jar,
-      $ACCUMULO_HOME/core/target/classes/,
       $ACCUMULO_HOME/lib/accumulo-core.jar,
-      $ACCUMULO_HOME/start/target/classes/,
       $ACCUMULO_HOME/lib/accumulo-start.jar,
-      $ACCUMULO_HOME/fate/target/classes/,
       $ACCUMULO_HOME/lib/accumulo-fate.jar,
-      $ACCUMULO_HOME/proxy/target/classes/,
       $ACCUMULO_HOME/lib/accumulo-proxy.jar,
       $ACCUMULO_HOME/lib/[^.].*.jar,
+      <!-- End Accumulo requirements -->
+
+      <!-- ZooKeeper requirements -->
       $ZOOKEEPER_HOME/zookeeper[^.].*.jar,
+      <!-- End ZooKeeper requirements -->
+
+      <!-- Common Hadoop requirements -->
       $HADOOP_CONF_DIR,
+      <!-- End Common Hadoop requirements -->
+
+      <!-- Hadoop 2 requirements -->
+      $HADOOP_PREFIX/share/hadoop/common/[^.].*.jar,
+      $HADOOP_PREFIX/share/hadoop/common/lib/(?!slf4j)[^.].*.jar,
+      $HADOOP_PREFIX/share/hadoop/hdfs/[^.].*.jar,
+      $HADOOP_PREFIX/share/hadoop/mapreduce/[^.].*.jar,
+      $HADOOP_PREFIX/share/hadoop/yarn/[^.].*.jar,
+      /usr/lib/hadoop/[^.].*.jar,
+      /usr/lib/hadoop/lib/[^.].*.jar,
+      /usr/lib/hadoop-hdfs/[^.].*.jar,
+      /usr/lib/hadoop-mapreduce/[^.].*.jar,
+      /usr/lib/hadoop-yarn/[^.].*.jar,
+      <!-- End Hadoop 2 requirements -->
+
+      <!-- Hadoop 1 requirements -->
       $HADOOP_PREFIX/[^.].*.jar,
-      $HADOOP_PREFIX/lib/[^.].*.jar,
-      $HADOOP_PREFIX-hdfs/[^.].*.jar,
+      $HADOOP_PREFIX/lib/(?!slf4j)[^.].*.jar,
+      <!-- End Hadoop 1 requirements -->
+
     </value>
-    <description>Classpaths that accumulo checks for updates and class files.
-      When using the Security Manager, please remove the ".../target/classes/" values.
-    </description>
+    <description>Classpaths that accumulo checks for updates and class files.</description>
   </property>
 </configuration>

@@ -190,7 +190,7 @@ function _accumulo_start {
   if [ "${INIT_ACCUMULO}" = 'true' ]; then
     local ready='no'
     while [ "${ready}" != 'yes' ]; do
-      echo "ssh to $(_accumulomaster) and as the accumulo user run: /usr/lib/accumulo/bin/accumulo init"
+      echo "ssh to $(_accumulomaster) and as the accumulo user run: /opt/accumulo/bin/accumulo init"
       echo "then type 'yes' and press return"
       read ready
     done
@@ -242,7 +242,7 @@ function _accumulo_delete {
     read DELETE
   done
 
-  cmd="/usr/lib/accumulo/bin/accumulo shell -u root -p password -e 'droptable -f -p lumify_.*'"
+  cmd="/opt/accumulo/bin/accumulo shell -u root -p password -e 'droptable -f -p lumify_.*'"
 
   echo ${cmd}
   echo "${cmd}" | _run_at_m $(_accumulomaster) bash -s
