@@ -7,7 +7,7 @@
 
 m1.medium  10G          10.0.3.10   ip-10-0-3-10   puppet,proxy,syslog
 
-m3.xlarge  50G          10.0.3.50   ip-10-0-3-50   namenode,jobtracker
+m3.xlarge  50G          10.0.3.50   ip-10-0-3-50   namenode,resourcemanager
 m3.xlarge  50G          10.0.3.51   ip-10-0-3-51   secondarynamenode,accumulomaster
 
 m1.xlarge  50G,4i*420G  10.0.3.101  ip-10-0-3-101  node01  [demo]
