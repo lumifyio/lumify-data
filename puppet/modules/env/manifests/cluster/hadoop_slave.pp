@@ -1,9 +1,9 @@
 class env::cluster::hadoop_slave inherits hadoop_base {
   include my_fw
-  class { 'hadoop::fw::datanode' :
+  class { 'cloudera::cdh5::hadoop::fw::datanode' :
     stage => 'first',
   }
-  class { 'hadoop::fw::tasktracker' :
+  class { 'cloudera::cdh5::hadoop::fw::nodemanager' :
     stage => 'first',
   }
 
