@@ -1,40 +1,54 @@
+# Application-wide
+base.url=https://192.168.33.10/lumify
+zookeeper.serverNames=192.168.33.10
+
 lib-directory=/opt/lumify/lib
 
-http.transportGuarantee=NONE
+newuser.privileges=READ
 
 web.cacheServletFilter.maxAge=3600
 
+# "CONFIDENTIAL" to require HTTPS to access the web application (default)
+# we will be using a proxy server that will terminate the SSL connection
+http.transportGuarantee=NONE
+
 # Map component
-map.provider=googlev3
-map.apiKey=
-map.tileServer.hostName=localhost
-map.tileServer.port=9999
+web.ui.map.provider=google
+#web.ui.map.provider=osm
+#web.ui.map.provider.osm.url=https://a.tile.openstreetmap.org/${z}/${x}/${y}.png,https://b.tile.openstreetmap.org/${z}/${x}/${y}.png,https://c.tile.openstreetmap.org/${z}/${x}/${y}.png
 
 # Providers
 model.provider=io.lumify.sql.model.SqlModelSession
-authentication.provider=io.lumify.web.LdapX509AuthenticationProvider
-fs.provider=io.lumify.fs.hdfs.HdfsSession
 
 # Repository
 repository.user=io.lumify.sql.model.user.SqlUserRepository
-repository.longRunningProcess=io.lumify.sql.model.user.SqlLongRunningProcessRepository
 repository.workspace=io.lumify.sql.model.workspace.SqlWorkspaceRepository
+repository.longRunningProcess=io.lumify.sql.model.longRunningProcess.SqlLongRunningProcessRepository
 repository.authorization=io.lumify.core.model.user.NoOpAuthorizationRepository
+repository.ontology=io.lumify.core.model.ontology.ReadOnlyInMemoryOntologyRepository
+repository.ontology.owl.1.iri=http://lumify.io/dev
+repository.ontology.owl.1.dir=/opt/lumify/ontology/dev
 repository.audit=io.lumify.core.model.audit.NoOpAuditRepository
 repository.termMention=io.lumify.core.model.termMention.NoOpTermMentionRepository
 repository.artifactThumbnail=io.lumify.core.model.artifactThumbnails.NoOpArtifactThumbnailRepository
 repository.workQueue=io.lumify.model.rabbitmq.RabbitMQWorkQueueRepository
 rabbitmq.addr.0.host=192.168.33.10
 repository.systemNotification=io.lumify.sql.model.systemNotification.SqlSystemNotificationRepository
-repository.ontology=io.lumify.core.model.ontology.ReadOnlyInMemoryOntologyRepository
-repository.ontology.owl.1.iri=http://lumify.io/dev
-repository.ontology.owl.1.dir=/opt/lumify/ontology/dev
+
+# Configurable path prefix for lock repository
+#lockRepository.pathPrefix=/lumify/locks
+
+# Ontology
 ontology.iri.entityImage=http://lumify.io/dev#image
+ontology.iri.artifactHasEntity=http://lumify.io/dev#rawHasEntity
+ontology.iri.entityHasImage=http://lumify.io/dev#entityHasImageRaw
+ontology.iri.artifactContainsImage=http://lumify.io/dev#rawContainsImageOfEntity
+ontology.iri.artifactContainsImageOfEntity=http://lumify.io/dev#rawContainsImageOfEntity
 
-# Graph
-graph=org.securegraph.inmemory.InMemoryGraph
-graph.search=org.securegraph.search.DefaultSearchIndex
-
-# Visibiliy Plugin
+# Visibility Plugin
 security.visibilityTranslator=io.lumify.core.security.DirectVisibilityTranslator
 audit.visibilityLabel=audit
+
+# Secure Graph
+graph=org.securegraph.inmemory.InMemoryGraph
+graph.search=org.securegraph.search.DefaultSearchIndex

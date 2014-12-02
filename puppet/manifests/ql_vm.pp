@@ -3,6 +3,7 @@ require java
 include macro::git
 include env::dev::nodejs
 include role::rabbitmq::node
+include ::zookeeper
 
 # no firewall for local vms
 service { 'iptables' :
