@@ -250,19 +250,19 @@ function _accumulo_delete {
 
 function _elasticsearch_start {
   for node in $(_esnodes); do
-    _run_at ${node} initctl start elasticsearch
+    _run_at ${node} service elasticsearch start
   done
 }
 
 function _elasticsearch_stop {
   for node in $(_esnodes); do
-    _run_at ${node} initctl stop elasticsearch
+    _run_at ${node} service elasticsearch stop
   done
 }
 
 function _elasticsearch_status {
   for node in $(_esnodes); do
-    _run_at ${node} initctl status elasticsearch 2>&1 | _color_status
+    _run_at ${node} service elasticsearch status 2>&1 | _color_status
   done
 }
 
@@ -378,7 +378,7 @@ function _storm_rmlogs {
 }
 
 function _logstash_start {
-  _run_at $(_logstash) initctl start elasticsearch
+  _run_at $(_logstash) service elasticsearch start
   _run_at $(_logstash) service logstash-ui start
 
   for node in $(_logstash_clients); do
@@ -392,11 +392,11 @@ function _logstash_stop {
   done
 
   _run_at $(_logstash) service logstash-ui stop
-  _run_at $(_logstash) initctl stop elasticsearch
+  _run_at $(_logstash) service elasticsearch stop
 }
 
 function _logstash_status {
-  _run_at $(_logstash) initctl status elasticsearch 2>&1 | _color_status
+  _run_at $(_logstash) service elasticsearch status 2>&1 | _color_status
   _run_at $(_logstash) service logstash-ui status 2>&1 | _color_status
 
   for node in $(_logstash_clients); do
