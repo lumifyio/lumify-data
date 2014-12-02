@@ -75,7 +75,7 @@ class rabbitmq (
 
   exec { 'rabbitmq_management' :
     command     => "/usr/sbin/rabbitmq-plugins enable rabbitmq_management",
-    onlyif      => "/usr/sbin/rabbitmq-plugins list -E rabbitmq_management | grep -q rabbitmq_management",
+    unless      => "/usr/sbin/rabbitmq-plugins list -E rabbitmq_management | grep -q rabbitmq_management",
     user        => "root",
     group       => "root",
     environment => ["HOME=/root"],
