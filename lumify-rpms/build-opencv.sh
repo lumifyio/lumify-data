@@ -12,7 +12,7 @@ source ${DIR}/setenv.sh
 source ${DIR}/functions.sh
 
 name="lumify-opencv"
-version="2.4.5"
+version="2.4.9"
 release="dist"
 
 _download \
