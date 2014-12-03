@@ -5,7 +5,7 @@ zookeeper.serverNames=<%= @zookeeper_nodes.values.collect {|node| node.split(':'
 hdfsLibcache.sourceDirectory=hdfs://<%= @hadoop_masters[0] %>/lumify/libcache
 lib-directory=/opt/lumify/lib
 
-newuser.privileges=READ,EDIT,PUBLISH,ADMIN
+newuser.privileges=READ,COMMENT,EDIT,PUBLISH,ADMIN
 
 web.cacheServletFilter.maxAge=3600
 
@@ -19,7 +19,6 @@ web.ui.map.provider=google
 
 # Providers
 model.provider=com.altamiracorp.bigtable.model.accumulo.AccumuloSession
-fs.provider=io.lumify.fs.hdfs.HdfsSession
 
 # Repository
 repository.user=io.lumify.securegraph.model.user.SecureGraphUserRepository
@@ -35,6 +34,9 @@ repository.workQueue=io.lumify.model.rabbitmq.RabbitMQWorkQueueRepository
 rabbitmq.addr.<%= i %>.host=<%= hostname %>
 <% end -%>
 repository.systemNotification=io.lumify.bigtable.model.systemNotification.BigTableSystemNotificationRepository
+
+# Configurable path prefix for lock repository
+#lockRepository.pathPrefix=/lumify/locks
 
 # Ontology
 ontology.iri.image=http://lumify.io/dev#image
@@ -56,8 +58,6 @@ ontology.iri.entityHasImage=http://lumify.io/dev#entityHasImageRaw
 ontology.iri.artifactContainsImage=http://lumify.io/dev#rawContainsImageOfEntity
 ontology.iri.artifactContainsImageOfEntity=http://lumify.io/dev#rawContainsImageOfEntity
 ontology.iri.geoLocation=http://lumify.io/dev#geolocation
-ontology.iri.audioDuration=http://lumify.io/dev#duration
-ontology.iri.videoDuration=http://lumify.io/dev#duration
 
 ontology.iri.face=http://lumify.io/dev#person
 
@@ -74,10 +74,14 @@ ontology.iri.media.duration=http://lumify.io/dev#duration
 ontology.iri.media.fileSize=http://lumify.io/media#fileSize
 ontology.iri.media.metadata=http://lumify.io/media#metadata
 
+ontology.iri.sentiment=http://lumify.io/dev#sentiment
 
 # Visibility Plugin
 security.visibilityTranslator=io.lumify.core.security.DirectVisibilityTranslator
 audit.visibilityLabel=audit
+
+# Default Search Result Count
+#search.defaultResultCount
 
 # Big Table: Accumulo specific
 bigtable.accumulo.instanceName=lumify
