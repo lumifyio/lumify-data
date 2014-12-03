@@ -1,8 +1,9 @@
 class jetty(
-  $version='8.1.14.v20131031'
+  $version='9.2.5.v20141112'
 ){
   require java
 
+  $jetty_insecure_port = hiera('jetty_insecure_port', '8080')
   $jetty_confidential_port = hiera('jetty_confidential_port')
   $jetty_key_store_path = hiera('jetty_key_store_path')
   $jetty_key_store_password = hiera('jetty_key_store_password')
@@ -72,15 +73,27 @@ class jetty(
     require => File['/opt/jetty/webapps-DISABLED'],
   }
 
-  file { '/opt/jetty/etc/jetty.xml' :
+  file { '/opt/jetty/etc/jetty-http.xml' :
     ensure  => file,
-    content => template('jetty/jetty.xml.erb'),
+    content => template('jetty/jetty-http.xml.erb'),
+    require => File['/opt/jetty'],
+  }
+
+  file { '/opt/jetty/etc/jetty-https.xml' :
+    ensure  => file,
+    content => template('jetty/jetty-https.xml.erb'),
+    require => File['/opt/jetty'],
+  }
+
+  file { '/opt/jetty/etc/jetty-ssl.xml' :
+    ensure  => file,
+    content => template('jetty/jetty-ssl.xml.erb'),
     require => File['/opt/jetty'],
   }
 
   file { '/etc/default/jetty' :
     ensure  => file,
-    content => 'JETTY_USER=jetty',
+    content => 'JETTY_HOME=/opt/jetty; JETTY_USER=jetty',
   }
 
   service { 'jetty' :
@@ -88,7 +101,9 @@ class jetty(
     ensure  => running,
     require => [ File['/etc/init.d/jetty'],
                  File['/etc/default/jetty'],
-                 File['/opt/jetty/etc/jetty.xml'],
+                 File['/opt/jetty/etc/jetty-http.xml'],
+                 File['/opt/jetty/etc/jetty-https.xml'],
+                 File['/opt/jetty/etc/jetty-ssl.xml'],
                  Exec['jetty-disable-contexts'],
                  Exec['jetty-disable-webapps']
                ],
