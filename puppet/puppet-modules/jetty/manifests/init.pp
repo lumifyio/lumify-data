@@ -3,8 +3,9 @@ class jetty(
 ){
   require java
 
-  $jetty_insecure_port = hiera('jetty_insecure_port', '8080')
-  $jetty_confidential_port = hiera('jetty_confidential_port')
+  $jetty_insecure_listen_port = hiera('jetty_insecure_listen_port', 8080)
+  $jetty_confidential_listen_port = hiera('jetty_confidential_listen_port', 8443)
+  $jetty_confidential_redirect_port = hiera('jetty_confidential_redirect_port', 443)
   $jetty_key_store_path = hiera('jetty_key_store_path')
   $jetty_key_store_password = hiera('jetty_key_store_password')
   $jetty_trust_store_path = hiera('jetty_trust_store_path')
@@ -73,6 +74,12 @@ class jetty(
     require => File['/opt/jetty/webapps-DISABLED'],
   }
 
+  file { '/opt/jetty/etc/jetty.xml' :
+    ensure  => file,
+    content => template('jetty/jetty.xml.erb'),
+    require => File['/opt/jetty'],
+  }
+
   file { '/opt/jetty/etc/jetty-http.xml' :
     ensure  => file,
     content => template('jetty/jetty-http.xml.erb'),
@@ -101,6 +108,7 @@ class jetty(
     ensure  => running,
     require => [ File['/etc/init.d/jetty'],
                  File['/etc/default/jetty'],
+                 File['/opt/jetty/etc/jetty.xml'],
                  File['/opt/jetty/etc/jetty-http.xml'],
                  File['/opt/jetty/etc/jetty-https.xml'],
                  File['/opt/jetty/etc/jetty-ssl.xml'],

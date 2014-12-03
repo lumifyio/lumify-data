@@ -34,8 +34,7 @@
           </Array>
         </Arg>
         <Set name="host"><Property name="jetty.host" /></Set>
-        <Set name="port"><%= @jetty_insecure_port %></Set>
-        <Set name="confidentialPort"><%= @jetty_confidential_port %></Set>
+        <Set name="port"><%= @jetty_insecure_listen_port %></Set>
         <Set name="idleTimeout"><Property name="http.timeout" default="30000"/></Set>
         <Set name="soLingerTime"><Property name="http.soLingerTime" default="-1"/></Set>
         <Set name="acceptorPriorityDelta"><Property name="http.acceptorPriorityDelta" default="0"/></Set>
