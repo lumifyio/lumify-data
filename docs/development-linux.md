@@ -36,19 +36,19 @@ Then configure qt-faststart:
     tar xzf apache-ant-1.9.2-bin.tar.gz
 
     cd /tmp
-    curl -O http://superb-dca3.dl.sourceforge.net/project/opencvlibrary/opencv-unix/2.4.5/opencv-2.4.5.tar.gz
-    tar xzf opencv-2.4.5.tar.gz
+    curl -O http://superb-dca3.dl.sourceforge.net/project/opencvlibrary/opencv-unix/2.4.9/opencv-2.4.9.tar.gz
+    tar xzf opencv-2.4.9.tar.gz
 
-    cd /tmp/opencv-2.4.5
+    cd /tmp/opencv-2.4.9
     sed -i 's/JNI_FOUND/1/g' modules/java/CMakeLists.txt
 
-    mkdir /tmp/opencv-2.4.5/build
-    cd /tmp/opencv-2.4.5/build
+    mkdir /tmp/opencv-2.4.9/build
+    cd /tmp/opencv-2.4.9/build
     ANT_DIR=/tmp/apache-ant-1.9.2 cmake -DBUILD_PERF_TESTS=OFF -DBUILD_TESTS=OFF ..
     make
     sudo make install
 
-    sudo ln -s /usr/local/share/OpenCV/java/libopencv_java245.so /usr/local/lib/libopencv_java245.so
+    sudo ln -s /usr/local/share/OpenCV/java/libopencv_java249.so /usr/local/lib/libopencv_java249.so
     sudo ldconfig
 
 
