@@ -47,7 +47,7 @@ else
 
   hiera['hadoop_masters'] = Array(cluster['namenode'][:ip])
   hiera['hadoop_slaves'] = get(cluster, /node\d{2}/, :ip)
-  hiara['historyserver_hostname'] = Array(cluster['namenode'][:name])
+  hiera['historyserver_hostname'] = Array(cluster['namenode'][:name])
 
   hiera['accumulo_example_config'] = '3GB/native-standalone'
   hiera['accumulo_masters'] = Array(cluster['accumulomaster'][:name])
