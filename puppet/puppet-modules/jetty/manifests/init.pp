@@ -57,6 +57,18 @@ class jetty(
     require => File['/opt/jetty'],
   }
 
+  file { '/opt/jetty/start.ini' :
+    ensure  => file,
+    source => 'puppet:///modules/jetty/start.ini',
+    require => File['/opt/jetty'],
+  }
+
+  file { '/opt/jetty/resources/jetty-logging.properties' :
+    ensure  => file,
+    source => 'puppet:///modules/jetty/jetty-logging.properties',
+    require => File['/opt/jetty'],
+  }
+
   file { '/opt/jetty/etc/jetty.xml' :
     ensure  => file,
     content => template('jetty/jetty.xml.erb'),
