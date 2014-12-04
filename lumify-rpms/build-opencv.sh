@@ -17,8 +17,8 @@ release="dist"
 
 _download \
     ${name} \
-    http://downloads.sourceforge.net/project/opencvlibrary/opencv-unix/${version}/opencv-${version}.tar.gz \
-    opencv-${version}.tar.gz
+    http://downloads.sourceforge.net/project/opencvlibrary/opencv-unix/${version}/opencv-${version}.zip \
+    opencv-${version}.zip
 
 if [ -d ${SOURCE_DIR}/opencv-${version} ]; then
   mv ${SOURCE_DIR}/opencv-${version} ${SOURCE_DIR}/${name}

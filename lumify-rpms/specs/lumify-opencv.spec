@@ -32,7 +32,6 @@ rm -rf %{buildroot}
 
 %files
 %defattr(-,root,root,-)
-%doc README
 /usr/local/bin/opencv_createsamples
 /usr/local/bin/opencv_haartraining
 /usr/local/bin/opencv_performance
@@ -84,15 +83,16 @@ rm -rf %{buildroot}
 /usr/local/lib/libopencv_superres.so
 /usr/local/lib/libopencv_superres.so.2.4
 /usr/local/lib/libopencv_superres.so.2.4.9
-/usr/local/lib/libopencv_ts.so
-/usr/local/lib/libopencv_ts.so.2.4
-/usr/local/lib/libopencv_ts.so.2.4.9
 /usr/local/lib/libopencv_video.so
 /usr/local/lib/libopencv_video.so.2.4
 /usr/local/lib/libopencv_video.so.2.4.9
 /usr/local/lib/libopencv_videostab.so
 /usr/local/lib/libopencv_videostab.so.2.4
 /usr/local/lib/libopencv_videostab.so.2.4.9
+/usr/local/lib/libopencv_ocl.so
+/usr/local/lib/libopencv_ocl.so.2.4
+/usr/local/lib/libopencv_ocl.so.2.4.9
+/usr/local/lib/libopencv_ts.a
 /usr/local/lib/pkgconfig/opencv.pc
 /usr/local/share/OpenCV/*
 
