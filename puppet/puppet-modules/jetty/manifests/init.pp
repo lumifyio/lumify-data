@@ -52,26 +52,9 @@ class jetty(
     require => File['/opt/jetty'],
   }
 
-  file { '/opt/jetty/contexts-DISABLED' :
+  file { '/opt/jetty/contexts' :
     ensure  => directory,
     require => File['/opt/jetty'],
-  }
-
-  file { '/opt/jetty/webapps-DISABLED' :
-    ensure  => directory,
-    require => File['/opt/jetty'],
-  }
-
-  exec { 'jetty-disable-contexts' :
-    command => '/bin/mv /opt/jetty/contexts/* /opt/jetty/contexts-DISABLED',
-    unless  => '/usr/bin/test -f /opt/jetty/contexts-DISABLED/test.xml',
-    require => File['/opt/jetty/contexts-DISABLED'],
-  }
-
-  exec { 'jetty-disable-webapps' :
-    command => '/bin/mv /opt/jetty/webapps/* /opt/jetty/webapps-DISABLED',
-    unless  => '/usr/bin/test -f /opt/jetty/webapps-DISABLED/test.war',
-    require => File['/opt/jetty/webapps-DISABLED'],
   }
 
   file { '/opt/jetty/etc/jetty.xml' :
