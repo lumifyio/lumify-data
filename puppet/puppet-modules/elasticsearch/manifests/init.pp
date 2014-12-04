@@ -1,5 +1,7 @@
 class elasticsearch(
   $version = "1.4.1",
+  $rpm_version = "1.4.1-1",
+  $securegraph_elasticsearch_plugin_version = "0.8.0",
   $user = "elasticsearch",
   $group = "hadoop",
   $installdir = "/usr/share",
@@ -10,8 +12,8 @@ class elasticsearch(
 ) {
   require repo::elasticsearch
 
-  package { 'elasticsearch':
-    ensure  => installed,
+  package { 'elasticsearch' :
+    ensure  => $rpm_version,
   }
 
   $homedir = "${installdir}/elasticsearch"
@@ -25,35 +27,42 @@ class elasticsearch(
     $es_node_ip = $ipaddress_eth0
   }
 
-  file { "elasticsearch-env-config":
-    path    => "${configdir}/elasticsearch.yml",
+  file { "${configdir}/elasticsearch.yml" :
     ensure  => file,
     content => template("elasticsearch/elasticsearch-${version}.yml.erb"),
     require => Package["elasticsearch"],
   }
 
-  file { "elasticsearch-logging-config":
-    path    => "${configdir}/logging.yml",
+  file { "${configdir}/logging.yml" :
     ensure  => file,
     content => template("elasticsearch/logging-${version}.yml.erb"),
     require => Package["elasticsearch"],
   }
 
-  macro::download { "https://oss.sonatype.org/service/local/repositories/releases/content/org/securegraph/securegraph-elasticsearch-plugin/0.6.0/securegraph-elasticsearch-plugin-0.6.0.zip":
-    path    => "${tmpdir}/securegraph-elasticsearch-plugin-0.6.0.zip",
+  macro::download { "https://oss.sonatype.org/service/local/repositories/releases/content/org/securegraph/securegraph-elasticsearch-plugin/${securegraph_elasticsearch_plugin_version}/securegraph-elasticsearch-plugin-${securegraph_elasticsearch_plugin_version}.zip" :
+    path    => "${tmpdir}/securegraph-elasticsearch-plugin-${securegraph_elasticsearch_plugin_version}.zip",
   } -> exec { "securegraph-install" :
-    command => "${homedir}/bin/plugin --url file://${tmpdir}/securegraph-elasticsearch-plugin-0.6.0.zip --install securegraph",
+    command => "${homedir}/bin/plugin --url file://${tmpdir}/securegraph-elasticsearch-plugin-${securegraph_elasticsearch_plugin_version}.zip --install securegraph",
     cwd     => "${homedir}",
     creates => "${homedir}/plugins/securegraph",
     require => Package['elasticsearch'],
   }
 
-  macro::download { "https://github.com/mobz/elasticsearch-head/archive/master.zip":
+  macro::download { "https://github.com/mobz/elasticsearch-head/archive/master.zip" :
     path    => "${tmpdir}/head-plugin.zip",
   } -> exec { "head-install" :
     command => "${homedir}/bin/plugin --url file://${tmpdir}/head-plugin.zip --install head",
     cwd     => "${homedir}",
     creates => "${homedir}/plugins/head",
+    require => Package['elasticsearch'],
+  }
+
+  macro::download { "https://github.com/royrusso/elasticsearch-HQ/zipball/master" :
+    path    => "${tmpdir}/HQ-plugin.zip",
+  } -> exec { "HQ-install" :
+    command => "${homedir}/bin/plugin --url file://${tmpdir}/HQ-plugin.zip --install HQ",
+    cwd     => "${homedir}",
+    creates => "${homedir}/plugins/HQ",
     require => Package['elasticsearch'],
   }
 
