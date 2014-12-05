@@ -52,11 +52,6 @@ class jetty(
     require => File['/opt/jetty'],
   }
 
-  file { '/opt/jetty/contexts' :
-    ensure  => directory,
-    require => File['/opt/jetty'],
-  }
-
   file { '/opt/jetty/start.ini' :
     ensure  => file,
     source => 'puppet:///modules/jetty/start.ini',
@@ -106,9 +101,7 @@ class jetty(
                  File['/opt/jetty/etc/jetty.xml'],
                  File['/opt/jetty/etc/jetty-http.xml'],
                  File['/opt/jetty/etc/jetty-https.xml'],
-                 File['/opt/jetty/etc/jetty-ssl.xml'],
-                 Exec['jetty-disable-contexts'],
-                 Exec['jetty-disable-webapps']
+                 File['/opt/jetty/etc/jetty-ssl.xml']
                ],
   }
 
