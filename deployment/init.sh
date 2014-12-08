@@ -68,13 +68,13 @@ EO_PUPPET_CONF
   service puppet start
 }
 
-function stage_jobtracker {
-  heading 'stage artifacts on the jobtracker'
-  local jobtracker_host=$(awk '/jobtracker/ {print $1}' ${HOSTS_FILE})
+function stage_resourcemanager {
+  heading 'stage artifacts on the resourcemanager'
+  local resourcemanager_host=$(awk '/resourcemanager/ {print $1}' ${HOSTS_FILE})
   scp ${SSH_OPTS} config-*.tgz \
                   setup_config.sh \
                   setup_import.sh \
-                  ${jobtracker_host}:
+                  ${resourcemanager_host}:
 }
 
 function stage_www {
@@ -146,19 +146,19 @@ case ${mode_or_ip} in
     setup_local
     ;;
   jt)
-    stage_jobtracker
+    stage_resourcemanager
     ;;
   www)
     stage_www
     ;;
   everything)
     setup_local
-    stage_jobtracker
+    stage_resourcemanager
     stage_www
     setup_other
     ;;
   stage)
-    stage_jobtracker
+    stage_resourcemanager
     stage_www
     ;;
   other)

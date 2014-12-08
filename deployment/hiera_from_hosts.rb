@@ -47,6 +47,7 @@ else
 
   hiera['hadoop_masters'] = Array(cluster['namenode'][:ip])
   hiera['hadoop_slaves'] = get(cluster, /node\d{2}/, :ip)
+  hiera['historyserver_hostname'] = Array(cluster['namenode'][:name])
 
   hiera['accumulo_example_config'] = '3GB/native-standalone'
   hiera['accumulo_masters'] = Array(cluster['accumulomaster'][:name])
@@ -78,7 +79,7 @@ else
   hiera['spark_workers'] = get(cluster, /node\d{2}/, :ip)
   hiera['spark_driver_memory'] = '1g'
 
-  hiera['jetty_confidential_port'] = 443
+  hiera['jetty_confidential_redirect_port'] = 443
   hiera['jetty_key_store_path'] = '/opt/lumify/config/jetty.jks'
   hiera['jetty_key_store_password'] = 'OBF:1v2j1uum1xtv1zej1zer1xtn1uvk1v1v'
   hiera['jetty_trust_store_path'] = '/opt/lumify/config/jetty.jks'

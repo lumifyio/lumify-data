@@ -1,10 +1,9 @@
 #!/bin/bash
 
 JETTY_HOME=/opt/jetty
-CONTEXTS_DIR=${JETTY_HOME}/contexts
 WEBAPPS_DIR=${JETTY_HOME}/webapps
 
-mv -v *.xml ${CONTEXTS_DIR}
+mv -v *.xml ${WEBAPPS_DIR}
 
 for war in $(ls *.war); do
   simple_war_name=$(echo ${war} | sed -e 's/-.*\.war/.war/')

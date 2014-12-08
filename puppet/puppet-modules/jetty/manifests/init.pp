@@ -1,9 +1,11 @@
 class jetty(
-  $version='8.1.14.v20131031'
+  $version='9.2.5.v20141112'
 ){
   require java
 
-  $jetty_confidential_port = hiera('jetty_confidential_port')
+  $jetty_insecure_listen_port = hiera('jetty_insecure_listen_port', 8080)
+  $jetty_confidential_listen_port = hiera('jetty_confidential_listen_port', 8443)
+  $jetty_confidential_redirect_port = hiera('jetty_confidential_redirect_port', 443)
   $jetty_key_store_path = hiera('jetty_key_store_path')
   $jetty_key_store_password = hiera('jetty_key_store_password')
   $jetty_trust_store_path = hiera('jetty_trust_store_path')
@@ -50,26 +52,16 @@ class jetty(
     require => File['/opt/jetty'],
   }
 
-  file { '/opt/jetty/contexts-DISABLED' :
-    ensure  => directory,
+  file { '/opt/jetty/start.ini' :
+    ensure  => file,
+    source => 'puppet:///modules/jetty/start.ini',
     require => File['/opt/jetty'],
   }
 
-  file { '/opt/jetty/webapps-DISABLED' :
-    ensure  => directory,
+  file { '/opt/jetty/resources/jetty-logging.properties' :
+    ensure  => file,
+    source => 'puppet:///modules/jetty/jetty-logging.properties',
     require => File['/opt/jetty'],
-  }
-
-  exec { 'jetty-disable-contexts' :
-    command => '/bin/mv /opt/jetty/contexts/* /opt/jetty/contexts-DISABLED',
-    unless  => '/usr/bin/test -f /opt/jetty/contexts-DISABLED/test.xml',
-    require => File['/opt/jetty/contexts-DISABLED'],
-  }
-
-  exec { 'jetty-disable-webapps' :
-    command => '/bin/mv /opt/jetty/webapps/* /opt/jetty/webapps-DISABLED',
-    unless  => '/usr/bin/test -f /opt/jetty/webapps-DISABLED/test.war',
-    require => File['/opt/jetty/webapps-DISABLED'],
   }
 
   file { '/opt/jetty/etc/jetty.xml' :
@@ -78,9 +70,27 @@ class jetty(
     require => File['/opt/jetty'],
   }
 
+  file { '/opt/jetty/etc/jetty-http.xml' :
+    ensure  => file,
+    content => template('jetty/jetty-http.xml.erb'),
+    require => File['/opt/jetty'],
+  }
+
+  file { '/opt/jetty/etc/jetty-https.xml' :
+    ensure  => file,
+    content => template('jetty/jetty-https.xml.erb'),
+    require => File['/opt/jetty'],
+  }
+
+  file { '/opt/jetty/etc/jetty-ssl.xml' :
+    ensure  => file,
+    content => template('jetty/jetty-ssl.xml.erb'),
+    require => File['/opt/jetty'],
+  }
+
   file { '/etc/default/jetty' :
     ensure  => file,
-    content => 'JETTY_USER=jetty',
+    content => 'JETTY_HOME=/opt/jetty; JETTY_USER=jetty',
   }
 
   service { 'jetty' :
@@ -89,8 +99,9 @@ class jetty(
     require => [ File['/etc/init.d/jetty'],
                  File['/etc/default/jetty'],
                  File['/opt/jetty/etc/jetty.xml'],
-                 Exec['jetty-disable-contexts'],
-                 Exec['jetty-disable-webapps']
+                 File['/opt/jetty/etc/jetty-http.xml'],
+                 File['/opt/jetty/etc/jetty-https.xml'],
+                 File['/opt/jetty/etc/jetty-ssl.xml']
                ],
   }
 

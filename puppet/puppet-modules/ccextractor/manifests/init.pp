@@ -1,5 +1,5 @@
 class ccextractor (
-  $version="0.66",
+  $version="0.74",
   $tmpdir="/usr/local/src",
   $installdir="/usr/local/bin"
 ) {

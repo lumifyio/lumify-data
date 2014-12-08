@@ -6,12 +6,10 @@ class rabbitmq (
   require erlang
   include macro
 
-  $rabbitMQVersion = "3.2.3"
+  $rabbitMQVersion = "3.4.2"
   $mgmt_user = hiera('rabbitmq_mgmt_user','guest')
   $mgmt_user_pw = hiera('rabbitmq_mgmt_user_pw','guest')
   $mgmt_user_tags = join(hiera_array('rabbitmq_mgmt_user_tags',['administrator'])," ")
-
-  $plugins = ["rabbitmq_management"]
 
   macro::download { "http://www.rabbitmq.com/releases/rabbitmq-server/v${rabbitMQVersion}/rabbitmq-server-${rabbitMQVersion}-1.noarch.rpm" :
     path     => "/tmp/rabbitmq-server-${rabbitMQVersion}-1.noarch.rpm",
@@ -43,7 +41,7 @@ class rabbitmq (
   service { 'rabbitmq-server' :
     ensure  => running,
     enable  => true,
-    require => Exec[$plugins],
+    require => Package["rabbitmq-server"],
   }
 
   exec { "create_mgmt_user" :
@@ -75,18 +73,14 @@ class rabbitmq (
     }
   }
 
-  define enablePlugin {
-    exec { "${title}" :
-      command     => "/usr/sbin/rabbitmq-plugins enable ${title}",
-      onlyif      => "/usr/sbin/rabbitmq-plugins list -E ${title} | grep -q ${title}",
-      user        => "root",
-      group       => "root",
-      environment => ["HOME=/root"],
-      require     => Package['rabbitmq-server'],
-    }
+  exec { 'rabbitmq_management' :
+    command     => "/usr/sbin/rabbitmq-plugins enable rabbitmq_management",
+    unless      => "/usr/sbin/rabbitmq-plugins list -E rabbitmq_management | grep -q rabbitmq_management",
+    user        => "root",
+    group       => "root",
+    environment => ["HOME=/root"],
+    require     => Service['rabbitmq-server'],
   }
-
-  enablePlugin { "${plugins}" : }
 
   define policy (
     $vhost = '%2f', # /
@@ -95,8 +89,7 @@ class rabbitmq (
     $pattern,
     $apply_to = 'all',
     $definition,
-    $priority = 0,
-    $plugins
+    $priority = 0
   ) {
     $url = "http://localhost:15672/api/policies/${vhost}/${name}"
     $json = "{\"pattern\":\"${pattern}\", \"apply-to\":\"${apply_to}\", \"definition\":${definition}, \"priority\":${priority}}"
@@ -105,7 +98,7 @@ class rabbitmq (
       command => "/usr/bin/curl -u ${user}:${password} -H 'content-type:application/json' -X PUT ${url} -d '${json}'",
       unless  => "/usr/bin/curl -s -u ${user}:${password} ${url} -w '%{http_code}\n' -o /dev/null | /bin/grep -q 200",
       require => [ Service['rabbitmq-server'],
-                   Exec[$plugins]
+                   Exec['rabbitmq_management']
                  ],
     }
   }
@@ -115,6 +108,5 @@ class rabbitmq (
     user       => $mgmt_user,
     password   => $mgmt_user_pw,
     definition => '{"ha-mode":"all", "ha-sync-mode":"automatic"}',
-    plugins => $plugins
   }
 }

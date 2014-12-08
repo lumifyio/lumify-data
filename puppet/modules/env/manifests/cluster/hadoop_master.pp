@@ -1,9 +1,9 @@
 class env::cluster::hadoop_master inherits hadoop_base {
   include my_fw
-  class { 'hadoop::fw::namenode' :
+  class { 'cloudera::cdh5::hadoop::fw::namenode' :
     stage => 'first',
   }
-  class { 'hadoop::fw::jobtracker' :
+  class { 'cloudera::cdh5::hadoop::fw::resourcemanager' :
     stage => 'first',
   }
 

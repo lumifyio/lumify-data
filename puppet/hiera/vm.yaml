@@ -22,7 +22,7 @@ jetty_key_store_path: /opt/lumify/config/jetty.jks
 jetty_key_store_password: OBF:1v2j1uum1xtv1zej1zer1xtn1uvk1v1v
 jetty_trust_store_path: /opt/lumify/config/jetty.jks
 jetty_trust_store_password: OBF:1v2j1uum1xtv1zej1zer1xtn1uvk1v1v
-jetty_confidential_port: 8443
+jetty_confidential_redirect_port: 8443
 jetty_client_auth: false
 logstash_server: 192.168.33.10
 httpd_ssl_listen_port: 443

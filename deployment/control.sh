@@ -89,7 +89,9 @@ function _hadoop_start {
 
   _run_at $(_namenode) service hadoop-hdfs-namenode start
   _run_at $(_secondarynamenode) service hadoop-hdfs-secondarynamenode start
-  _run_at ${_namenode} service hadoop-yarn-resourcemanager start
+
+  _run_at $(_namenode) service hadoop-yarn-resourcemanager start
+  _run_at $(_namenode) service hadoop-mapreduce-historyserver start
 
   for node in $(_nodes); do
     if [ "${FORMAT_HDFS}" = 'true' ]; then
@@ -106,19 +108,17 @@ function _hadoop_start {
 
     _run_at ${node} service hadoop-hdfs-datanode start
     _run_at ${node} service hadoop-yarn-nodemanager start
-    _run_at ${node} service hadoop-mapreduce-historyserver start
   done
-
 }
 
 function _hadoop_stop {
   _run_at $(_namenode) service hadoop-yarn-resourcemanager stop
+  _run_at $(_namenode) service hadoop-mapreduce-historyserver stop
 
   _run_at $(_namenode) service hadoop-hdfs-namenode stop
   _run_at $(_secondarynamenode) service hadoop-hdfs-secondarynamenode stop
 
   for node in $(_nodes); do
-    _run_at ${node} service hadoop-mapreduce-historyserver stop
     _run_at ${node} service hadoop-yarn-nodemanager stop
     _run_at ${node} service hadoop-hdfs-datanode stop
   done
@@ -131,10 +131,10 @@ function _hadoop_status {
   for node in $(_nodes); do
     _run_at ${node} service hadoop-hdfs-datanode status 2>&1 | _color_status
     _run_at ${node} service hadoop-yarn-nodemanager status 2>&1 | _color_status
-    _run_at ${node} service hadoop-mapreduce-historyserver status 2>&1 | _color_status
   done
 
   _run_at $(_namenode) service hadoop-yarn-resourcemanager status 2>&1 | _color_status
+  _run_at $(_namenode) service hadoop-mapreduce-historyserver status 2>&1 | _color_status
 }
 
 function _hadoop_rmlogs {
@@ -187,7 +187,7 @@ function _accumulo_start {
   if [ "${INIT_ACCUMULO}" = 'true' ]; then
     local ready='no'
     while [ "${ready}" != 'yes' ]; do
-      echo "ssh to $(_accumulomaster) and as the accumulo user run: /usr/lib/accumulo/bin/accumulo init"
+      echo "ssh to $(_accumulomaster) and as the accumulo user run: /opt/accumulo/bin/accumulo init"
       echo "then type 'yes' and press return"
       read ready
     done
@@ -239,7 +239,7 @@ function _accumulo_delete {
     read DELETE
   done
 
-  cmd="/usr/lib/accumulo/bin/accumulo shell -u root -p password -e 'droptable -f -p lumify_.*'"
+  cmd="/opt/accumulo/bin/accumulo shell -u root -p password -e 'droptable -f -p lumify_.*'"
 
   echo ${cmd}
   echo "${cmd}" | _run_at_m $(_accumulomaster) bash -s
@@ -247,19 +247,19 @@ function _accumulo_delete {
 
 function _elasticsearch_start {
   for node in $(_esnodes); do
-    _run_at ${node} initctl start elasticsearch
+    _run_at ${node} service elasticsearch start
   done
 }
 
 function _elasticsearch_stop {
   for node in $(_esnodes); do
-    _run_at ${node} initctl stop elasticsearch
+    _run_at ${node} service elasticsearch stop
   done
 }
 
 function _elasticsearch_status {
   for node in $(_esnodes); do
-    _run_at ${node} initctl status elasticsearch 2>&1 | _color_status
+    _run_at ${node} service elasticsearch status 2>&1 | _color_status
   done
 }
 
@@ -337,7 +337,7 @@ function _rabbitmq_rmlogs {
 }
 
 function _logstash_start {
-  _run_at $(_logstash) initctl start elasticsearch
+  _run_at $(_logstash) service elasticsearch start
   _run_at $(_logstash) service logstash-ui start
 
   for node in $(_logstash_clients); do
@@ -351,11 +351,11 @@ function _logstash_stop {
   done
 
   _run_at $(_logstash) service logstash-ui stop
-  _run_at $(_logstash) initctl stop elasticsearch
+  _run_at $(_logstash) service elasticsearch stop
 }
 
 function _logstash_status {
-  _run_at $(_logstash) initctl status elasticsearch 2>&1 | _color_status
+  _run_at $(_logstash) service elasticsearch status 2>&1 | _color_status
   _run_at $(_logstash) service logstash-ui status 2>&1 | _color_status
 
   for node in $(_logstash_clients); do

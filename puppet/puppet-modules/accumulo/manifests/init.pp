@@ -1,10 +1,10 @@
 class accumulo(
-  $version = "1.5.1",
+  $version = "1.6.1",
   $user = "accumulo",
   $group = "hadoop",
-  $installdir = "/usr/lib",
-  $bindir = "/usr/lib/accumulo/bin",
-  $logdir = "/var/log/accumulo",
+  $installdir = "/opt",
+  $bindir = "/opt/accumulo/bin",
+  $logdir = "/opt/accumulo/logs",
   $tmpdir = '/tmp'
 ) {
   include macro
@@ -19,8 +19,8 @@ class accumulo(
 
   $homedir = "${installdir}/accumulo-${version}"
   $homelink = "${installdir}/accumulo"
-  $configdir = "/etc/accumulo-${version}"
-  $configlink = "/etc/accumulo"
+  $configdir = "/opt/accumulo-${version}/conf"
+  $configlink = "/opt/accumulo/conf"
   $downloadfile = "accumulo-${version}-bin.tar.gz"
   $downloadpath = "${tmpdir}/${downloadfile}"
 
@@ -52,46 +52,10 @@ class accumulo(
     require => Macro::Extract[$downloadpath],
   }
 
-  file { $configdir:
-    ensure => directory,
-  }
-
-  file { $configlink:
-    ensure => link,
-    target => $configdir,
-    require => File[$configdir],
-  }
-
   exec { "copy-example-accumulo-config" :
     command => "/bin/cp ${homedir}/conf/examples/${accumulo_example_config}/* ${configdir}",
     unless  => "/usr/bin/test -f ${configdir}/accumulo-env.sh",
-    require => [Macro::Extract[$downloadpath], File[$configdir]],
-  }
-
-  file { "${homedir}/conf":
-    ensure  => link,
-    target  => $configdir,
-    force   => true,
-    require => Exec["copy-example-accumulo-config"],
-  }
-
-  define setup_walog_directory ($user, $group) {
-    # /data[0-9] should be created by our hadoop dependency
-
-    file { [ "${name}/accumulo", "${name}/accumulo/walog" ] :
-      ensure  => directory,
-      owner   => $user,
-      group   => $group,
-      mode    => 'u=rwx,g=rx,o=',
-      require =>  [ File[$name], User[$user], Group[$group] ],
-    }
-  }
-
-  $data_dir_list = split($data_directories, ',')
-
-  setup_walog_directory { $data_dir_list :
-    user => $user,
-    group => $group,
+    require => [Macro::Extract[$downloadpath]],
   }
 
   define templated_config_file ($configdir) {
@@ -133,19 +97,6 @@ class accumulo(
     ] :
     configdir => $configdir,
     require => Exec["copy-example-accumulo-config"],
-  }
-
-  file { $logdir:
-    ensure => directory,
-    owner  => $user,
-    group  => $group,
-  }
-
-  file { "${homedir}/logs":
-    ensure  => link,
-    target  => $logdir,
-    force   => true,
-    require => [Macro::Extract[$downloadpath], File[$logdir]],
   }
 
   exec { "vm.swappiness=10 online" :

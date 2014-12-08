@@ -7,7 +7,7 @@ done
 
 case "${tool}" in
   accumulo)
-    sudo -u accumulo bash -c "/usr/lib/accumulo/bin/accumulo shell -u root -p password ${params}"
+    sudo -u accumulo bash -c "/opt/accumulo/bin/accumulo shell -u root -p password ${params}"
     ;;
   blur)
     sudo -u blur bash -c "/usr/lib/apache-blur/bin/blur shell ${params}"
