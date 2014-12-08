@@ -12,6 +12,7 @@ class cloudera::cdh5::hadoop::yarn::base {
               }
     default:  { fail "unsupported architecture: ${architecture}" }
   }
+  $namenode_hostname = $cloudera::cdh5::hadoop::base::namenode_hostname
 
   package { [$yarn_pkg, $mapred_pkg]:
     ensure  => installed,
