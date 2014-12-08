@@ -28,8 +28,8 @@ fi
   set +x
 
   for module in $(echo ${MODULES} | sed -e 's/,/ /g'); do
-    if [ -f ${module}/target/*-jar-with-dependencies.jar ]; then
-      file=$(ls ${module}/target/*-jar-with-dependencies.jar)
+    if [ -f ${module}/target/*-with-dependencies.jar ]; then
+      file=$(ls ${module}/target/*-with-dependencies.jar)
       files="${files} ${DIR}/../${file}"
     else
       warnings="${warnings} ${module}"
