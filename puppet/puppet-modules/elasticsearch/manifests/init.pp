@@ -68,6 +68,7 @@ class elasticsearch(
 
   define setup_data_directory ($user, $group) {
     ensure_resource('file', "${name}", {ensure => directory})
+    ensure_resource('group', "${group}", {ensure => present})
 
     file { [ "${name}/elasticsearch", "${name}/elasticsearch/data", "${name}/elasticsearch/work" ] :
       ensure  => directory,
