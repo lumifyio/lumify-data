@@ -38,6 +38,8 @@ rm -rf %{buildroot}
 %{_libdir}/libopus.so.0.4.0
 %{_libdir}/pkgconfig/opus.pc
 /usr/share/aclocal/opus.m4
+/usr/local/share/doc/opus/*
+/usr/share/man/man3/opus_*
 
 %changelog
 

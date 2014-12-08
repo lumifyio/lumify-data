@@ -51,7 +51,7 @@ set +x
 
 _banner "[$(basename ${SOURCE})] - building apr-util"
 set -x
-sudo yum -y install libuuid-devel postgresql-devel mysql-devel freetds-devel unixODBC-devel nss-devel expat-devel db4-devel openldap-devel
+sudo yum -y install libuuid-devel postgresql-devel sqlite-devel mysql-devel freetds-devel unixODBC-devel nss-devel expat-devel db4-devel openldap-devel
 rpmbuild -tb ${SOURCE_DIR}/apr-util-${apr_util_version}.tar.bz2
 sudo rpm -ivh --force ${RPMBUILD_DIR}/RPMS/$(arch)/apr-util-${apr_util_version}-1.$(arch).rpm
 sudo rpm -ivh --force ${RPMBUILD_DIR}/RPMS/$(arch)/apr-util-devel-${apr_util_version}-1.$(arch).rpm
