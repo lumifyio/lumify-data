@@ -168,7 +168,7 @@ function _hadoop_status {
 }
 
 function _hdfs_rmlogs {
-  cmd='rm -f /var/log/hadoop-yarn/*.{log,out}*'
+  cmd='rm -f /var/log/hadoop-hdfs/*.{log,out}*'
 
   for node in $(echo $(_namenode) $(_secondarynamenode) $(_nodes) | tr ' ' '\n' | sort -t . -k 4 -n -u); do
     _run_at_v ${node} ${cmd}
@@ -176,7 +176,7 @@ function _hdfs_rmlogs {
 }
 
 function _yarn_rmlogs {
-  cmd='rm -f /var/log/hadoop-hdfs/*.{log,out}*'
+  cmd='rm -f /var/log/hadoop-yarn/*.{log,out}*'
 
   for node in $(echo $(_namenode) $(_secondarynamenode) $(_nodes) | tr ' ' '\n' | sort -t . -k 4 -n -u); do
     _run_at_v ${node} ${cmd}
