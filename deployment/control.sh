@@ -77,7 +77,7 @@ function _color_status {
     | GREP_COLORS='mt=01;31' grep --color=always -E 'not running|Unknown|stop|stopped|'
 }
 
-function _hadoop_start {
+function _hdfs_start {
   if [ "${FORMAT_HDFS}" = 'true' ]; then
     local ready='no'
     while [ "${ready}" != 'yes' ]; do
@@ -89,9 +89,6 @@ function _hadoop_start {
 
   _run_at $(_namenode) service hadoop-hdfs-namenode start
   _run_at $(_secondarynamenode) service hadoop-hdfs-secondarynamenode start
-
-  _run_at $(_namenode) service hadoop-yarn-resourcemanager start
-  _run_at $(_namenode) service hadoop-mapreduce-historyserver start
 
   for node in $(_nodes); do
     if [ "${FORMAT_HDFS}" = 'true' ]; then
@@ -107,42 +104,88 @@ function _hadoop_start {
     fi
 
     _run_at ${node} service hadoop-hdfs-datanode start
+  done
+}
+
+function _yarn_start {
+  _run_at $(_namenode) service hadoop-yarn-resourcemanager start
+  _run_at $(_namenode) service hadoop-mapreduce-historyserver start
+
+  for node in $(_nodes); do
     _run_at ${node} service hadoop-yarn-nodemanager start
   done
 }
 
-function _hadoop_stop {
-  _run_at $(_namenode) service hadoop-yarn-resourcemanager stop
-  _run_at $(_namenode) service hadoop-mapreduce-historyserver stop
+function _hadoop_start {
+  _hdfs_start
+  _yarn_start
+}
 
+function _hdfs_stop {
   _run_at $(_namenode) service hadoop-hdfs-namenode stop
   _run_at $(_secondarynamenode) service hadoop-hdfs-secondarynamenode stop
 
   for node in $(_nodes); do
-    _run_at ${node} service hadoop-yarn-nodemanager stop
     _run_at ${node} service hadoop-hdfs-datanode stop
   done
 }
 
-function _hadoop_status {
+function _yarn_stop {
+  _run_at $(_namenode) service hadoop-yarn-resourcemanager stop
+  _run_at $(_namenode) service hadoop-mapreduce-historyserver stop
+
+  for node in $(_nodes); do
+    _run_at ${node} service hadoop-yarn-nodemanager stop
+  done
+}
+
+function _hadoop_stop {
+  _yarn_stop
+  _hdfs_stop
+}
+
+function _hdfs_status {
   _run_at $(_namenode) service hadoop-hdfs-namenode status 2>&1 | _color_status
   _run_at $(_secondarynamenode) service hadoop-hdfs-secondarynamenode status 2>&1 | _color_status
 
   for node in $(_nodes); do
     _run_at ${node} service hadoop-hdfs-datanode status 2>&1 | _color_status
-    _run_at ${node} service hadoop-yarn-nodemanager status 2>&1 | _color_status
   done
-
-  _run_at $(_namenode) service hadoop-yarn-resourcemanager status 2>&1 | _color_status
-  _run_at $(_namenode) service hadoop-mapreduce-historyserver status 2>&1 | _color_status
 }
 
-function _hadoop_rmlogs {
-  cmd='rm -f /var/log/hadoop-yarn/*.{log,out}* /var/log/hadoop-hdfs/*.{log,out}* /opt/lumify/lumify-mapred-*.log'
+function _yarn_status {
+  _run_at $(_namenode) service hadoop-yarn-resourcemanager status 2>&1 | _color_status
+  _run_at $(_namenode) service hadoop-mapreduce-historyserver status 2>&1 | _color_status
+
+  for node in $(_nodes); do
+    _run_at ${node} service hadoop-yarn-nodemanager status 2>&1 | _color_status
+  done
+}
+
+function _hadoop_status {
+  _hdfs_status
+  _yarn_status
+}
+
+function _hdfs_rmlogs {
+  cmd='rm -f /var/log/hadoop-yarn/*.{log,out}*'
 
   for node in $(echo $(_namenode) $(_secondarynamenode) $(_nodes) | tr ' ' '\n' | sort -t . -k 4 -n -u); do
     _run_at_v ${node} ${cmd}
   done
+}
+
+function _yarn_rmlogs {
+  cmd='rm -f /var/log/hadoop-hdfs/*.{log,out}*'
+
+  for node in $(echo $(_namenode) $(_secondarynamenode) $(_nodes) | tr ' ' '\n' | sort -t . -k 4 -n -u); do
+    _run_at_v ${node} ${cmd}
+  done
+}
+
+function _hadoop_rmlogs {
+  _hdfs_rmlogs
+  _yarn_rmlogs
 }
 
 function _hadoop_delete {
