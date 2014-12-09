@@ -27,6 +27,7 @@ class env::common::config(
       'tomcat',
       'hdfs',
       'mapred',
+      'yarn',
       'logstash'
     ] :
     group => 'lumify',

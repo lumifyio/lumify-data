@@ -46,6 +46,7 @@ class cloudera::cdh5::hadoop::base {
   user { 'yarn' :
     ensure => present,
     gid => 'yarn',
+    home => '/var/lib/hadoop-yarn',
     require => Group['yarn'],
   }
 
