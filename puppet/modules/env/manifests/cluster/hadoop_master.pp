@@ -6,6 +6,9 @@ class env::cluster::hadoop_master inherits hadoop_base {
   class { 'cloudera::cdh5::hadoop::fw::resourcemanager' :
     stage => 'first',
   }
+  class { 'cloudera::cdh5::hadoop::fw::historyserver' :
+    stage => 'first',
+  }
 
-  include role::hadoop::master # includes namenode and jobtracker
+  include role::hadoop::master
 }

@@ -46,7 +46,7 @@ class cloudera::cdh5::hadoop::fw::historyserver (
   $srcnet = "0.0.0.0/0"
 ){
   firewall { '084 allow hadoop mapred historyserver' :
-    port   => [10020, 19888],
+    port   => [10020, 10033, 19888],
     proto  => tcp,
     action => accept,
     source => "${srcnet}",
