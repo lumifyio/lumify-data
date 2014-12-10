@@ -4,7 +4,7 @@
 <configuration>
   <property>
     <name>yarn.nodemanager.resource.memory-mb</name>
-    <value><%= @memorysize_mb.to_i %></value>
+    <value><%= (@memorysize_mb.to_i * 0.8).to_i %></value>
   </property>
 
   <property>
@@ -28,7 +28,7 @@
   </property>
 
   <property>
-    <name>yarn.nodemanager.remote-app-log-dir</name>
-    <value>hdfs:/var/log/hadoop-yarn/apps</value>
+    <name>yarn.log-aggregation-enable</name>
+    <value>true</value>
   </property>
 </configuration>
