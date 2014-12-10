@@ -68,7 +68,7 @@ class cloudera::cdh5::hadoop::fw::nodemanager (
   $srcnet = "0.0.0.0/0"
 ){
   firewall { '086 allow hadoop yarn nodemanager' :
-    port   => [8040, 8042, 13562],
+    port   => [8040, 8042, 13562, 48314],
     proto  => tcp,
     action => accept,
     source => "${srcnet}",
