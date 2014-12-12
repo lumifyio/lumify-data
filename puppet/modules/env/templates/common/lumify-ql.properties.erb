@@ -12,10 +12,8 @@ web.cacheServletFilter.maxAge=3600
 # we will be using a proxy server that will terminate the SSL connection
 http.transportGuarantee=NONE
 
-# Map component
-web.ui.map.provider=google
-#web.ui.map.provider=osm
-#web.ui.map.provider.osm.url=https://a.tile.openstreetmap.org/${z}/${x}/${y}.png,https://b.tile.openstreetmap.org/${z}/${x}/${y}.png,https://c.tile.openstreetmap.org/${z}/${x}/${y}.png
+# web.ui defaults defined in web/war/src/main/webapp/js/data/web-worker/services/config.js
+web.ui.search.disableWildcardSearch=true
 
 # Providers
 model.provider=io.lumify.sql.model.SqlModelSession
