@@ -6,7 +6,7 @@ elastic_ip=$1
 HOSTS_FILE=$2
 
 DATETIME=$(date +"%Y%m%dT%H%M")
-MAVEN_STATUS=unknown
+MAVEN_STATUS='unknown'
 SECRETS='disabled'
 
 function test_ssh {
@@ -102,12 +102,16 @@ function bundle_war {
 }
 
 
-[ "${elastic_ip}" != '-' ] && test_ssh root@${elastic_ip}
+set +u
+[ "${SSH_USER}" ] && ssh_user=${SSH_USER} || ssh_user='root'
+set -u
+
+[ "${elastic_ip}" != '-' ] && test_ssh ${ssh_user}@${elastic_ip}
 
 FILE_LIST=${HOSTS_FILE}
 
 set +u
-[ "$3" ] && component=$3 || component=everything
+[ "$3" ] && component=$3 || component='everything'
 set -u
 case ${component} in
   puppet)
@@ -136,7 +140,7 @@ case ${component} in
 esac
 
 if [ "${elastic_ip}" != '-' ]; then
-  scp ${SSH_OPTS} ${FILE_LIST} root@${elastic_ip}:
+  scp ${SSH_OPTS} ${FILE_LIST} ${ssh_user}@${elastic_ip}:
 else
   cp ${FILE_LIST} ~root
 fi
