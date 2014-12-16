@@ -13,3 +13,4 @@ include env::demo
 #include logstash::ui
 
 include clavin
+include env::common::webserver
