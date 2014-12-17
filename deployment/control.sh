@@ -473,6 +473,17 @@ function _run {
   done
 }
 
+function _run_parallel {
+  local pattern=$1
+  local command_and_args="${@:2}"
+
+  echo ${command_and_args}
+
+  for host in $(awk "/${pattern}/ {print \$1}" ${HOSTS_FILE}); do
+    echo "${command_and_args}" | _run_at_m ${host} bash -s &
+  done
+}
+
 function _usage {
   echo "$0 <hosts file|localhost> first|start|stop|restart|status|rmlogs [component name]"
   local z=$(echo "$0" | tr '[:print:]' ' ')
@@ -546,6 +557,15 @@ case "$2" in
       exit -3
     else
       _run $3 "${@:4}"
+    fi
+    ;;
+  parallel)
+    if [ $# -lt 4 ]; then
+      echo "ERROR: the 'parallel' action requires a pattern and the desired command and args"
+      _usage
+      exit -3
+    else
+        _run_parallel $3 "${@:4}"
     fi
     ;;
   *)
