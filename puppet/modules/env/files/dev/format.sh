@@ -25,18 +25,22 @@ sudo -u hdfs hdfs dfsadmin -safemode wait
 
 sudo -u accumulo /opt/accumulo/bin/accumulo init --instance-name lumify --password password --clear-instance-name
 
+# This section should match what's done in setup_hdfs.sh
 sudo -u hdfs hadoop fs -mkdir -p /user/history
 sudo -u hdfs hadoop fs -chmod -R 1777 /user/history
 sudo -u hdfs hadoop fs -chown mapred:hadoop /user/history
 sudo -u hdfs hadoop fs -mkdir -p /var/log/hadoop-yarn
 sudo -u hdfs hadoop fs -chown yarn:mapred /var/log/hadoop-yarn
 
+# This should be similar to what happens in setup_config.sh
 sudo -u hdfs hadoop fs -mkdir -p /lumify/config/opennlp
 sudo -u hdfs hadoop fs -put /vagrant/lumify-public/config/opennlp/* /lumify/config/opennlp
 sudo -u hdfs hadoop fs -mkdir -p /lumify/config/knownEntities
 sudo -u hdfs hadoop fs -put /vagrant/lumify-public/config/knownEntities/* /lumify/config/knownEntities
 sudo -u hdfs hadoop fs -mkdir -p /lumify/config/opencv
 sudo -u hdfs hadoop fs -put /vagrant/lumify-public/config/opencv/* /lumify/config/opencv
+
+# This should match what's done in setup_libcache.sh
 sudo -u hdfs hadoop fs -mkdir -p /lumify/libcache
 
 /vagrant/deployment/control.sh localhost start elasticsearch

@@ -29,27 +29,6 @@ class cloudera::cdh5::hadoop::base {
     $zookeeper_nodes = hiera("zookeeper_nodes")
   }
 
-  group { 'hadoop' :
-    ensure => present,
-  }
-
-  user { [ 'hdfs', 'mapred' ] :
-    ensure => present,
-    gid => 'hadoop',
-    require => Group['hadoop'],
-  }
-
-  group { 'yarn' :
-    ensure => present,
-  }
-
-  user { 'yarn' :
-    ensure => present,
-    gid => 'yarn',
-    home => '/var/lib/hadoop-yarn',
-    require => Group['yarn'],
-  }
-
   package { $pkg :
     ensure  => installed,
     require => Class['java', 'cloudera::cdh5::repo'],
@@ -130,7 +109,7 @@ class cloudera::cdh5::hadoop::base {
       owner   => 'hdfs',
       group   => 'hadoop',
       mode    => 'u=rwx,g=rwx,o=',
-      require =>  [ File["${name}"], Package[$pkg], User['hdfs'] ],
+      require =>  [ File["${name}"], Package[$pkg] ],
     }
 
     file { [ "${name}/hdfs", "${name}/hdfs/name", "${name}/hdfs/data" ] :
@@ -138,15 +117,15 @@ class cloudera::cdh5::hadoop::base {
       owner   => 'hdfs',
       group   => 'hadoop',
       mode    => 'u=rwx,g=rx,o=',
-      require =>  [ File["${name}"], Package[$pkg], User['hdfs'] ],
+      require =>  [ File["${name}"], Package[$pkg] ],
     }
 
     file { [ "${name}/yarn", "${name}/yarn/local", "${name}/yarn/logs" ] :
       ensure  => directory,
       owner   => 'yarn',
       group   => 'yarn',
-      mode    => 'u=rwx,g=rx,o=',
-      require =>  [ File["${name}"], Package[$pkg], User['yarn'] ],
+      mode    => 'u=rwx,g=rx,o=rx',
+      require =>  [ File["${name}"], Package[$pkg] ],
     }
   }
 

@@ -36,6 +36,7 @@ setup
 
 1. ssh from the puppet server to the namenode and run:
 
+        /root/setup_hdfs.sh
         /root/setup_config.sh
         /root/setup_libcache.sh
 
