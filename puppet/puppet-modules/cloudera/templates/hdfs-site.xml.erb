@@ -15,6 +15,13 @@
      <value>true</value>
   </property>
 
+  <!-- TODO: ?
+  <property>
+     <name>dfs.permissions.superusergroup</name>
+     <value>lumify</value>
+  </property>
+  -->
+
   <% if @hadoop_slaves.count == 1 %>
   <!-- Immediately exit safemode as soon as one DataNode checks in.
        On a multi-node cluster, these configurations must be removed.  -->

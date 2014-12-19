@@ -36,4 +36,19 @@
     <name>yarn.nodemanager.address</name>
     <value>${yarn.nodemanager.hostname}:48314</value>
   </property>
+
+  <property>
+    <name>yarn.app.mapreduce.am.job.client.port-range</name>
+    <value>50100-50200</value>
+  </property>
+
+  <property>
+    <name>yarn.nodemanager.aux-services</name>
+    <value>mapreduce_shuffle</value>
+  </property>
+
+  <property>
+    <name>yarn.nodemanager.aux-services.mapreduce_shuffle.class</name>
+    <value>org.apache.hadoop.mapred.ShuffleHandler</value>
+  </property>
 </configuration>

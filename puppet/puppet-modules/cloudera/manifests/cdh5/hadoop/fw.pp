@@ -73,4 +73,10 @@ class cloudera::cdh5::hadoop::fw::nodemanager (
     action => accept,
     source => "${srcnet}",
   }
+  firewall { '087 allow hadoop yarn MapReduce AM' :
+    port   => [50100-50200],
+    proto  => tcp,
+    action => accept,
+    source => "${srcnet}",
+  }
 }
