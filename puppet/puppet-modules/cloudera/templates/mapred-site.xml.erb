@@ -39,7 +39,17 @@
 
   <property>
     <name>mapreduce.application.classpath</name>
-    <value>$HADOOP_MAPRED_HOME/share/hadoop/mapreduce/*, $HADOOP_MAPRED_HOME/share/hadoop/mapreduce/lib/*, /usr/lib/hadoop/etc/hadoop/</value>
+    <value>
+      /usr/lib/hadoop/*,
+      /usr/lib/hadoop/lib/*,
+      /usr/lib/hadoop-hdfs/*,
+      /usr/lib/hadoop-hdfs/lib/*,
+      /usr/lib/hadoop-mapreduce/*,
+      /usr/lib/hadoop-mapreduce/lib/*,
+      /usr/lib/hadoop-yarn/*,
+      /usr/lib/hadoop-yarn/lib/*,
+      /usr/lib/etc/hadoop/
+    </value>
   </property>
 
 
