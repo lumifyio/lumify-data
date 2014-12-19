@@ -9,12 +9,22 @@
 
   <property>
     <name>mapreduce.jobhistory.address</name>
-    <value><%= @jobhistory_hostname %>:10020</value>
+    <value><%= @historyserver_hostname %>:10020</value>
   </property>
 
   <property>
     <name>mapreduce.jobhistory.webapp.address</name>
-    <value><%= @jobhistory_hostname %>:19888</value>
+    <value><%= @historyserver_hostname %>:19888</value>
+  </property>
+
+  <property>
+    <name>hadoop.proxyuser.mapred.groups</name>
+    <value>*</value>
+  </property>
+
+  <property>
+    <name>hadoop.proxyuser.mapred.hosts</name>
+    <value>*</value>
   </property>
 
   <property>
@@ -27,6 +37,10 @@
     <value>/user</value>
   </property>
 
+  <property>
+    <name>mapreduce.application.classpath</name>
+    <value>$HADOOP_MAPRED_HOME/share/hadoop/mapreduce/*, $HADOOP_MAPRED_HOME/share/hadoop/mapreduce/lib/*, /usr/lib/hadoop/etc/hadoop/</value>
+  </property>
 
 
 <!--

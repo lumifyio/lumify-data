@@ -75,7 +75,7 @@ class cloudera::cdh5::hadoop::base {
 
   file { "/etc/hadoop/conf/mapred-site.xml":
     ensure  => file,
-    source  => "puppet:///modules/cloudera/mapred-site.xml",
+    content => template("cloudera/mapred-site.xml.erb"),
     owner   => "root",
     group   => "root",
     mode    => "u=rw,go=r",
