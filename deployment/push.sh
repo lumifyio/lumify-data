@@ -129,6 +129,7 @@ case ${component} in
     bundle_puppet
     bundle_config
     FILE_LIST="${FILE_LIST} download_from_ci.rb"
+    FILE_LIST="${FILE_LIST} setup_hdfs.sh"
     FILE_LIST="${FILE_LIST} setup_libcache.sh"
     FILE_LIST="${FILE_LIST} setup_import.sh"
     #bundle_war

@@ -73,7 +73,9 @@ function stage_resourcemanager {
   local resourcemanager_host=$(awk '/resourcemanager/ {print $1}' ${HOSTS_FILE})
   scp ${SSH_OPTS} config-*.tgz \
                   setup_config.sh \
+                  setup_hdfs.sh \
                   setup_import.sh \
+                  setup_libcache.sh \
                   ${resourcemanager_host}:
 }
 
