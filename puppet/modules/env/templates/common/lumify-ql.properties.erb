@@ -34,7 +34,8 @@ repository.termMention=io.lumify.core.model.termMention.NoOpTermMentionRepositor
 repository.artifactThumbnail=io.lumify.core.model.artifactThumbnails.NoOpArtifactThumbnailRepository
 repository.workQueue=io.lumify.model.rabbitmq.RabbitMQWorkQueueRepository
 rabbitmq.addr.0.host=192.168.33.10
-repository.systemNotification=io.lumify.sql.model.systemNotification.SqlSystemNotificationRepository
+repository.systemNotification=io.lumify.sql.model.notification.SqlSystemNotificationRepository
+repository.userNotification=io.lumify.sql.model.notification.SqlUserNotificationRepository
 
 # Configurable path prefix for lock repository
 #lockRepository.pathPrefix=/lumify/locks

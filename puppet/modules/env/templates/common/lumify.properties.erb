@@ -36,7 +36,8 @@ repository.workQueue=io.lumify.model.rabbitmq.RabbitMQWorkQueueRepository
 <% @rabbitmq_nodes.each_with_index do |hostname, i| -%>
 rabbitmq.addr.<%= i %>.host=<%= hostname %>
 <% end -%>
-repository.systemNotification=io.lumify.bigtable.model.systemNotification.BigTableSystemNotificationRepository
+repository.systemNotification=io.lumify.bigtable.model.notification.BigTableSystemNotificationRepository
+repository.userNotification=io.lumify.bigtable.model.notification.BigTableUserNotificationRepository
 
 # Configurable path prefix for lock repository
 #lockRepository.pathPrefix=/lumify/locks
