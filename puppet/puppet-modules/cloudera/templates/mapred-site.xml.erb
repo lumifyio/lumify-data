@@ -28,11 +28,6 @@
   </property>
 
   <property>
-    <name>hadoop.proxyuser.mapred.groups</name>
-    <value>*</value>
-  </property>
-
-  <property>
     <name>yarn.app.mapreduce.am.staging-dir</name>
     <value>/user</value>
   </property>
@@ -52,25 +47,6 @@
     </value>
   </property>
 
-
-<!--
-  <property>
-    <name>yarn.resourcemanager.hostname</name>
-    <value><%= @resourcemanager_hostname %></value>
-    <final>true</final>
-  </property>
-
-  <property>
-    <name>mapred.system.dir</name>
-    <value>/mapred/system</value>
-  </property>
-
-  <property>
-    <name>mapred.local.dir</name>
-    <value><%= (@data_directories || '').split(',').map{|d| d + '/mapred/local'}.join(',') %></value>
-    <final>true</final>
-  </property>
--->
   <property>
      <name>mapred.child.env</name>
      <value>PATH=/usr/local/sbin:/usr/local/bin:/sbin:/bin:/usr/sbin:/usr/bin,LD_LIBRARY_PATH=/usr/local/lib:/usr/local/share/OpenCV/java</value>
