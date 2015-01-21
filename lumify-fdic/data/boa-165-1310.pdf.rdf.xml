@@ -19,6 +19,7 @@
         <fdic:financial-institution-name>Bank of America Corporation</fdic:financial-institution-name>
         <lumify:fileName>boa-165-1310.pdf</lumify:fileName>
         <lumify:raw>streamingValue:{"fileName": "boa-165-1310.pdf"}</lumify:raw>
+
         <fdic:declares-material-entity rdf:resource="&fdic;FI_Bank_of_America_Corporation"/>
         <fdic:declares-material-entity rdf:resource="&fdic;FI_Bank_of_America_National_Association"/>
         <fdic:declares-material-entity rdf:resource="&fdic;FI_Bank_of_America_NA_London_Branch"/>
@@ -40,6 +41,10 @@
         <fdic:declares-material-entity rdf:resource="&fdic;FI_BA_Continuum_India_Private_Limited"/>
         <fdic:declares-material-entity rdf:resource="&fdic;FI_Financial_Data_Services_Inc"/>
         <fdic:declares-material-entity rdf:resource="&fdic;FI_Managed_Account_Advisors_LLC"/>
+
+        <fdic:declares-balance-sheet rdf:resource="&fdic;RP_boa-165-1310-BS_BAC"/>
+        <fdic:declares-balance-sheet rdf:resource="&fdic;RP_boa-165-1310-BS_BANA"/>
+        <fdic:declares-balance-sheet rdf:resource="&fdic;RP_boa-165-1310-BS_FIA"/>
     </rdf:Description>
 
     <rdf:Description rdf:about="&fdic;FI_Bank_of_America_Corporation">
@@ -89,6 +94,10 @@
         <fdic:material-entity-declaration-in rdf:resource="&fdic;FI_BA_Continuum_India_Private_Limited_ME"/>
         <fdic:material-entity-declaration-in rdf:resource="&fdic;FI_Financial_Data_Services_Inc_ME"/>
         <fdic:material-entity-declaration-in rdf:resource="&fdic;FI_Managed_Account_Advisors_LLC_ME"/>
+
+        <fdic:has-balance-sheet rdf:resource="&fdic;RP_boa-165-1310-BS_BAC"/>
+        <fdic:has-balance-sheet rdf:resource="&fdic;RP_boa-165-1310-BS_BANA"/>
+        <fdic:has-balance-sheet rdf:resource="&fdic;RP_boa-165-1310-BS_FIA"/>
     </rdf:Description>
 
     <rdf:Description rdf:about="&fdic;FI_Bank_of_America_National_Association">
@@ -309,5 +318,29 @@
         <rdf:type rdf:resource="&fdic;material-entity-declaration"/>
         <lumify:title>Managed Account Advisors LLC - Material Entity Details</lumify:title>
         <fdic:material-entity-declaration-out rdf:resource="&fdic;FI_Managed_Account_Advisors_LLC"/>
+    </rdf:Description>
+
+    <rdf:Description rdf:about="&fdic;RP_boa-165-1310-BS_BAC">
+        <rdf:type rdf:resource="&fdic;financial-institution"/>
+        <fdic:financial-institution-name>Bank of America Corporation</fdic:financial-institution-name>
+        <lumify:publishedDate>2013-06-30</lumify:publishedDate>
+        <fdic:asset-total>2123320000000</fdic:asset-total>
+        <fdic:liability-total>1892288000000</fdic:liability-total>
+    </rdf:Description>
+
+    <rdf:Description rdf:about="&fdic;RP_boa-165-1310-BS_BANA">
+        <rdf:type rdf:resource="&fdic;financial-institution"/>
+        <fdic:financial-institution-name>Bank of America, National Association</fdic:financial-institution-name>
+        <lumify:publishedDate>2013-06-30</lumify:publishedDate>
+        <fdic:asset-total>1427640000000</fdic:asset-total>
+        <fdic:liability-total>1249968000000</fdic:liability-total>
+    </rdf:Description>
+
+    <rdf:Description rdf:about="&fdic;RP_boa-165-1310-BS_FIA">
+        <rdf:type rdf:resource="&fdic;financial-institution"/>
+        <fdic:financial-institution-name>FIA Card Services, National Association</fdic:financial-institution-name>
+        <lumify:publishedDate>2013-06-30</lumify:publishedDate>
+        <fdic:asset-total>158078000000</fdic:asset-total>
+        <fdic:liability-total>138685000000</fdic:liability-total>
     </rdf:Description>
 </rdf:RDF>

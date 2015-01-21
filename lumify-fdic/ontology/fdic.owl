@@ -54,6 +54,14 @@
     
 
 
+    <!-- http://lumify.io/fdic#declares-balance-sheet -->
+
+    <owl:ObjectProperty rdf:about="http://lumify.io/fdic#declares-balance-sheet">
+        <rdfs:label xml:lang="en">Declares</rdfs:label>
+    </owl:ObjectProperty>
+    
+
+
     <!-- http://lumify.io/fdic#declares-financial-market-utility -->
 
     <owl:ObjectProperty rdf:about="http://lumify.io/fdic#declares-financial-market-utility">
@@ -223,6 +231,17 @@
     
 
 
+    <!-- http://lumify.io/fdic#asset-total -->
+
+    <owl:DatatypeProperty rdf:about="http://lumify.io/fdic#asset-total">
+        <rdfs:label xml:lang="en">Total</rdfs:label>
+        <lumify:propertyGroup xml:lang="en">Assets</lumify:propertyGroup>
+        <rdfs:range rdf:resource="&lumify;currency"/>
+        <rdfs:domain rdf:resource="http://lumify.io/fdic#balance-sheet"/>
+    </owl:DatatypeProperty>
+    
+
+
     <!-- http://lumify.io/fdic#end-date -->
 
     <owl:DatatypeProperty rdf:about="http://lumify.io/fdic#end-date">
@@ -237,9 +256,21 @@
 
     <owl:DatatypeProperty rdf:about="http://lumify.io/fdic#financial-institution-name">
         <rdfs:label xml:lang="en">Name</rdfs:label>
+        <rdfs:domain rdf:resource="http://lumify.io/fdic#balance-sheet"/>
         <rdfs:domain rdf:resource="http://lumify.io/fdic#financial-institution"/>
         <rdfs:domain rdf:resource="http://lumify.io/fdic#resolution-plan"/>
         <rdfs:range rdf:resource="&xsd;string"/>
+    </owl:DatatypeProperty>
+    
+
+
+    <!-- http://lumify.io/fdic#liability-total -->
+
+    <owl:DatatypeProperty rdf:about="http://lumify.io/fdic#liability-total">
+        <rdfs:label xml:lang="en">Total</rdfs:label>
+        <lumify:propertyGroup xml:lang="en">Liabilities</lumify:propertyGroup>
+        <rdfs:range rdf:resource="&lumify;currency"/>
+        <rdfs:domain rdf:resource="http://lumify.io/fdic#balance-sheet"/>
     </owl:DatatypeProperty>
     
 
@@ -286,6 +317,7 @@
     <owl:Class rdf:about="http://lumify.io/fdic#balance-sheet">
         <rdfs:label xml:lang="en">Balance Sheet</rdfs:label>
         <rdfs:subClassOf rdf:resource="http://lumify.io/fdic#document"/>
+        <lumify:titleFormula>(prop(&apos;http://lumify.io/fdic#financial-institution-name&apos;) || &apos;&apos;) + &quot; Balance Sheet &quot; + (prop(&apos;http://lumify.io#publishedDate&apos;) || &apos;&apos;)</lumify:titleFormula>
     </owl:Class>
     
 
@@ -395,7 +427,7 @@
     <owl:Class rdf:about="http://lumify.io/fdic#resolution-plan">
         <rdfs:label xml:lang="en">Resolution Plan</rdfs:label>
         <rdfs:subClassOf rdf:resource="http://lumify.io/fdic#document"/>
-        <lumify:titleFormula>(prop(&apos;http://lumify.io/fdic#financial-institution-name&apos;) || &apos;&apos;) + &quot;Resolution Plan &quot; + (prop(&apos;http://lumify.io#publishedDate&apos;) || &apos;&apos;)</lumify:titleFormula>
+        <lumify:titleFormula>(prop(&apos;http://lumify.io/fdic#financial-institution-name&apos;) || &apos;&apos;) + &quot; Resolution Plan &quot; + (prop(&apos;http://lumify.io#publishedDate&apos;) || &apos;&apos;)</lumify:titleFormula>
     </owl:Class>
 </rdf:RDF>
 

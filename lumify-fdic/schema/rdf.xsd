@@ -13,21 +13,31 @@
     <xs:complexType>
       <xs:sequence>
         <xs:element ref="rdf:type"/>
-        <xs:element minOccurs="0" ref="lumify:title"/>
-        <xs:element minOccurs="0" ref="fdic:material-entity-declaration-out"/>
-        <xs:element minOccurs="0" ref="fdic:alias"/>
+        <xs:choice minOccurs="0" maxOccurs="unbounded">
+          <xs:element ref="lumify:publishedDate"/>
+          <xs:element ref="fdic:financial-institution-name"/>
+        </xs:choice>
         <xs:choice minOccurs="0">
           <xs:sequence>
-            <xs:element ref="lumify:publishedDate"/>
-            <xs:element ref="fdic:financial-institution-name"/>
+            <xs:element ref="fdic:asset-total"/>
+            <xs:element ref="fdic:liability-total"/>
+          </xs:sequence>
+          <xs:sequence>
             <xs:element ref="lumify:fileName"/>
             <xs:element ref="lumify:raw"/>
             <xs:element maxOccurs="unbounded" ref="fdic:declares-material-entity"/>
+            <xs:element maxOccurs="unbounded" ref="fdic:declares-balance-sheet"/>
           </xs:sequence>
+        </xs:choice>
+        <xs:element minOccurs="0" ref="lumify:title"/>
+        <xs:element minOccurs="0" ref="fdic:alias"/>
+        <xs:choice minOccurs="0">
+          <xs:element ref="fdic:material-entity-declaration-out"/>
           <xs:sequence>
             <xs:element ref="fdic:has-resolution-plan"/>
             <xs:element maxOccurs="unbounded" ref="fdic:has-material-entity"/>
             <xs:element maxOccurs="unbounded" ref="fdic:material-entity-declaration-in"/>
+            <xs:element maxOccurs="unbounded" ref="fdic:has-balance-sheet"/>
           </xs:sequence>
         </xs:choice>
       </xs:sequence>

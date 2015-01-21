@@ -2,8 +2,8 @@
 <xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" elementFormDefault="qualified" targetNamespace="http://lumify.io#" xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#" xmlns:fdic="http://lumify.io/fdic#" xmlns:lumify="http://lumify.io#">
   <xs:import namespace="http://lumify.io/fdic#" schemaLocation="fdic.xsd"/>
   <xs:import namespace="http://www.w3.org/1999/02/22-rdf-syntax-ns#" schemaLocation="rdf.xsd"/>
-  <xs:element name="title" type="xs:string"/>
   <xs:element name="publishedDate" type="xs:NMTOKEN"/>
   <xs:element name="fileName" type="xs:NCName"/>
   <xs:element name="raw" type="xs:string"/>
+  <xs:element name="title" type="xs:string"/>
 </xs:schema>
