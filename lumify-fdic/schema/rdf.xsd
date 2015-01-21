@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" elementFormDefault="qualified" targetNamespace="http://www.w3.org/1999/02/22-rdf-syntax-ns#" xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#" xmlns:fdic="http://lumify.io/fdic#" xmlns:lumify="http://lumify.io#">
+  <xs:import namespace="http://lumify.io#" schemaLocation="lumify.xsd"/>
+  <xs:import namespace="http://lumify.io/fdic#" schemaLocation="fdic.xsd"/>
+  <xs:element name="RDF">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element maxOccurs="unbounded" ref="rdf:Description"/>
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="Description">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element ref="rdf:type"/>
+        <xs:element minOccurs="0" ref="lumify:title"/>
+        <xs:element minOccurs="0" ref="fdic:material-entity-declaration-out"/>
+        <xs:element minOccurs="0" ref="fdic:alias"/>
+        <xs:choice minOccurs="0">
+          <xs:sequence>
+            <xs:element ref="lumify:publishedDate"/>
+            <xs:element ref="fdic:financial-institution-name"/>
+            <xs:element ref="lumify:fileName"/>
+            <xs:element ref="lumify:raw"/>
+            <xs:element maxOccurs="unbounded" ref="fdic:declares-material-entity"/>
+          </xs:sequence>
+          <xs:sequence>
+            <xs:element ref="fdic:has-resolution-plan"/>
+            <xs:element maxOccurs="unbounded" ref="fdic:has-material-entity"/>
+            <xs:element maxOccurs="unbounded" ref="fdic:material-entity-declaration-in"/>
+          </xs:sequence>
+        </xs:choice>
+      </xs:sequence>
+      <xs:attribute name="about" use="required" form="qualified" type="xs:anyURI"/>
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="type">
+    <xs:complexType>
+      <xs:attribute ref="rdf:resource" />
+    </xs:complexType>
+  </xs:element>
+  <xs:attribute name="resource" type="xs:anyURI"/>
+</xs:schema>

@@ -19,11 +19,295 @@
         <fdic:financial-institution-name>Bank of America Corporation</fdic:financial-institution-name>
         <lumify:fileName>boa-165-1310.pdf</lumify:fileName>
         <lumify:raw>streamingValue:{"fileName": "boa-165-1310.pdf"}</lumify:raw>
+        <fdic:declares-material-entity rdf:resource="&fdic;FI_Bank_of_America_Corporation"/>
+        <fdic:declares-material-entity rdf:resource="&fdic;FI_Bank_of_America_National_Association"/>
+        <fdic:declares-material-entity rdf:resource="&fdic;FI_Bank_of_America_NA_London_Branch"/>
+        <fdic:declares-material-entity rdf:resource="&fdic;FI_Bank_of_America_NA_Frankfurt_Branch"/>
+        <fdic:declares-material-entity rdf:resource="&fdic;FI_FIA_Card_Services_National_Association"/>
+        <fdic:declares-material-entity rdf:resource="&fdic;FI_Bank_of_America_California_National_Association"/>
+        <fdic:declares-material-entity rdf:resource="&fdic;FI_Countrywide_Financial_Corporation"/>
+        <fdic:declares-material-entity rdf:resource="&fdic;FI_Countrywide_Home_Loans_Inc"/>
+        <fdic:declares-material-entity rdf:resource="&fdic;FI_Merrill_Lynch_Co_Inc"/>
+        <fdic:declares-material-entity rdf:resource="&fdic;FI_Merrill_Lynch_Pierce_Fenner_Smith_Incorporated"/>
+        <fdic:declares-material-entity rdf:resource="&fdic;FI_Merrill_Lynch_Professional_Clearing_Corp"/>
+        <fdic:declares-material-entity rdf:resource="&fdic;FI_Merrill_Lynch_Capital_Services_Inc"/>
+        <fdic:declares-material-entity rdf:resource="&fdic;FI_Merrill_Lynch_Commodities_Inc"/>
+        <fdic:declares-material-entity rdf:resource="&fdic;FI_Merrill_Lynch_International"/>
+        <fdic:declares-material-entity rdf:resource="&fdic;FI_Merrill_Lynch_Commodities_Europe_Limited"/>
+        <fdic:declares-material-entity rdf:resource="&fdic;FI_Merrill_Lynch_International_Bank_Limited"/>
+        <fdic:declares-material-entity rdf:resource="&fdic;FI_Merrill_Lynch_Japan_Securities_Co_Ltd"/>
+        <fdic:declares-material-entity rdf:resource="&fdic;FI_Merrill_Lynch_Global_Services_Pte_Ltd"/>
+        <fdic:declares-material-entity rdf:resource="&fdic;FI_BA_Continuum_India_Private_Limited"/>
+        <fdic:declares-material-entity rdf:resource="&fdic;FI_Financial_Data_Services_Inc"/>
+        <fdic:declares-material-entity rdf:resource="&fdic;FI_Managed_Account_Advisors_LLC"/>
     </rdf:Description>
 
     <rdf:Description rdf:about="&fdic;FI_Bank_of_America_Corporation">
         <rdf:type rdf:resource="&fdic;financial-institution"/>
         <lumify:title>Bank of America Corporation</lumify:title>
+        <fdic:alias>BAC</fdic:alias>
         <fdic:has-resolution-plan rdf:resource="&fdic;RP_boa-165-1310"/>
+
+        <fdic:has-material-entity rdf:resource="&fdic;FI_Bank_of_America_National_Association"/>
+        <fdic:has-material-entity rdf:resource="&fdic;FI_Bank_of_America_NA_London_Branch"/>
+        <fdic:has-material-entity rdf:resource="&fdic;FI_Bank_of_America_NA_Frankfurt_Branch"/>
+        <fdic:has-material-entity rdf:resource="&fdic;FI_FIA_Card_Services_National_Association"/>
+        <fdic:has-material-entity rdf:resource="&fdic;FI_Bank_of_America_California_National_Association"/>
+        <fdic:has-material-entity rdf:resource="&fdic;FI_Countrywide_Financial_Corporation"/>
+        <fdic:has-material-entity rdf:resource="&fdic;FI_Countrywide_Home_Loans_Inc"/>
+        <fdic:has-material-entity rdf:resource="&fdic;FI_Merrill_Lynch_Co_Inc"/>
+        <fdic:has-material-entity rdf:resource="&fdic;FI_Merrill_Lynch_Pierce_Fenner_Smith_Incorporated"/>
+        <fdic:has-material-entity rdf:resource="&fdic;FI_Merrill_Lynch_Professional_Clearing_Corp"/>
+        <fdic:has-material-entity rdf:resource="&fdic;FI_Merrill_Lynch_Capital_Services_Inc"/>
+        <fdic:has-material-entity rdf:resource="&fdic;FI_Merrill_Lynch_Commodities_Inc"/>
+        <fdic:has-material-entity rdf:resource="&fdic;FI_Merrill_Lynch_International"/>
+        <fdic:has-material-entity rdf:resource="&fdic;FI_Merrill_Lynch_Commodities_Europe_Limited"/>
+        <fdic:has-material-entity rdf:resource="&fdic;FI_Merrill_Lynch_International_Bank_Limited"/>
+        <fdic:has-material-entity rdf:resource="&fdic;FI_Merrill_Lynch_Japan_Securities_Co_Ltd"/>
+        <fdic:has-material-entity rdf:resource="&fdic;FI_Merrill_Lynch_Global_Services_Pte_Ltd"/>
+        <fdic:has-material-entity rdf:resource="&fdic;FI_BA_Continuum_India_Private_Limited"/>
+        <fdic:has-material-entity rdf:resource="&fdic;FI_Financial_Data_Services_Inc"/>
+        <fdic:has-material-entity rdf:resource="&fdic;FI_Managed_Account_Advisors_LLC"/>
+
+        <fdic:material-entity-declaration-in rdf:resource="&fdic;FI_Bank_of_America_National_Association_ME"/>
+        <fdic:material-entity-declaration-in rdf:resource="&fdic;FI_Bank_of_America_NA_London_Branch_ME"/>
+        <fdic:material-entity-declaration-in rdf:resource="&fdic;FI_Bank_of_America_NA_Frankfurt_Branch_ME"/>
+        <fdic:material-entity-declaration-in rdf:resource="&fdic;FI_FIA_Card_Services_National_Association_ME"/>
+        <fdic:material-entity-declaration-in rdf:resource="&fdic;FI_Bank_of_America_California_National_Association_ME"/>
+        <fdic:material-entity-declaration-in rdf:resource="&fdic;FI_Countrywide_Financial_Corporation_ME"/>
+        <fdic:material-entity-declaration-in rdf:resource="&fdic;FI_Countrywide_Home_Loans_Inc_ME"/>
+        <fdic:material-entity-declaration-in rdf:resource="&fdic;FI_Merrill_Lynch_Co_Inc_ME"/>
+        <fdic:material-entity-declaration-in rdf:resource="&fdic;FI_Merrill_Lynch_Pierce_Fenner_Smith_Incorporated_ME"/>
+        <fdic:material-entity-declaration-in rdf:resource="&fdic;FI_Merrill_Lynch_Professional_Clearing_Corp_ME"/>
+        <fdic:material-entity-declaration-in rdf:resource="&fdic;FI_Merrill_Lynch_Capital_Services_Inc_ME"/>
+        <fdic:material-entity-declaration-in rdf:resource="&fdic;FI_Merrill_Lynch_Commodities_Inc_ME"/>
+        <fdic:material-entity-declaration-in rdf:resource="&fdic;FI_Merrill_Lynch_International_ME"/>
+        <fdic:material-entity-declaration-in rdf:resource="&fdic;FI_Merrill_Lynch_Commodities_Europe_Limited_ME"/>
+        <fdic:material-entity-declaration-in rdf:resource="&fdic;FI_Merrill_Lynch_International_Bank_Limited_ME"/>
+        <fdic:material-entity-declaration-in rdf:resource="&fdic;FI_Merrill_Lynch_Japan_Securities_Co_Ltd_ME"/>
+        <fdic:material-entity-declaration-in rdf:resource="&fdic;FI_Merrill_Lynch_Global_Services_Pte_Ltd_ME"/>
+        <fdic:material-entity-declaration-in rdf:resource="&fdic;FI_BA_Continuum_India_Private_Limited_ME"/>
+        <fdic:material-entity-declaration-in rdf:resource="&fdic;FI_Financial_Data_Services_Inc_ME"/>
+        <fdic:material-entity-declaration-in rdf:resource="&fdic;FI_Managed_Account_Advisors_LLC_ME"/>
+    </rdf:Description>
+
+    <rdf:Description rdf:about="&fdic;FI_Bank_of_America_National_Association">
+        <rdf:type rdf:resource="&fdic;financial-institution"/>
+        <lumify:title>Bank of America, National Association</lumify:title>
+        <fdic:alias>BANA</fdic:alias>
+    </rdf:Description>
+    <rdf:Description rdf:about="&fdic;FI_Bank_of_America_National_Association_ME">
+        <rdf:type rdf:resource="&fdic;material-entity-declaration"/>
+        <lumify:title>Bank of America, National Association - Material Entity Details</lumify:title>
+        <fdic:material-entity-declaration-out rdf:resource="&fdic;FI_Bank_of_America_National_Association"/>
+    </rdf:Description>
+
+    <rdf:Description rdf:about="&fdic;FI_Bank_of_America_NA_London_Branch">
+        <rdf:type rdf:resource="&fdic;financial-institution"/>
+        <lumify:title>Bank of America, N.A. - London Branch</lumify:title>
+        <fdic:alias>BANA - London</fdic:alias>
+    </rdf:Description>
+    <rdf:Description rdf:about="&fdic;FI_Bank_of_America_NA_London_Branch_ME">
+        <rdf:type rdf:resource="&fdic;material-entity-declaration"/>
+        <lumify:title>Bank of America, N.A. - London Branch - Material Entity Details</lumify:title>
+        <fdic:material-entity-declaration-out rdf:resource="&fdic;FI_Bank_of_America_NA_London_Branch"/>
+    </rdf:Description>
+
+    <rdf:Description rdf:about="&fdic;FI_Bank_of_America_NA_Frankfurt_Branch">
+        <rdf:type rdf:resource="&fdic;financial-institution"/>
+        <lumify:title>Bank of America, N.A. - Frankfurt Branch</lumify:title>
+        <fdic:alias>BANA - Frankfurt</fdic:alias>
+    </rdf:Description>
+    <rdf:Description rdf:about="&fdic;FI_Bank_of_America_NA_Frankfurt_Branch_ME">
+        <rdf:type rdf:resource="&fdic;material-entity-declaration"/>
+        <lumify:title>Bank of America, N.A. - Frankfurt Branch - Material Entity Details</lumify:title>
+        <fdic:material-entity-declaration-out rdf:resource="&fdic;FI_Bank_of_America_NA_Frankfurt_Branch"/>
+    </rdf:Description>
+
+    <rdf:Description rdf:about="&fdic;FI_FIA_Card_Services_National_Association">
+        <rdf:type rdf:resource="&fdic;financial-institution"/>
+        <lumify:title>FIA Card Services, National Association</lumify:title>
+        <fdic:alias>FIA</fdic:alias>
+    </rdf:Description>
+    <rdf:Description rdf:about="&fdic;FI_FIA_Card_Services_National_Association_ME">
+        <rdf:type rdf:resource="&fdic;material-entity-declaration"/>
+        <lumify:title>FIA Card Services, National Association - Material Entity Details</lumify:title>
+        <fdic:material-entity-declaration-out rdf:resource="&fdic;FI_FIA_Card_Services_National_Association"/>
+    </rdf:Description>
+
+    <rdf:Description rdf:about="&fdic;FI_Bank_of_America_California_National_Association">
+        <rdf:type rdf:resource="&fdic;financial-institution"/>
+        <lumify:title>Bank of America California, National Association</lumify:title>
+        <fdic:alias>BACANA</fdic:alias>
+    </rdf:Description>
+    <rdf:Description rdf:about="&fdic;FI_Bank_of_America_California_National_Association_ME">
+        <rdf:type rdf:resource="&fdic;material-entity-declaration"/>
+        <lumify:title>Bank of America California, National Association - Material Entity Details</lumify:title>
+        <fdic:material-entity-declaration-out rdf:resource="&fdic;FI_Bank_of_America_California_National_Association"/>
+    </rdf:Description>
+
+    <rdf:Description rdf:about="&fdic;FI_Countrywide_Financial_Corporation">
+        <rdf:type rdf:resource="&fdic;financial-institution"/>
+        <lumify:title>Countrywide Financial Corporation</lumify:title>
+        <fdic:alias>CFC</fdic:alias>
+    </rdf:Description>
+    <rdf:Description rdf:about="&fdic;FI_Countrywide_Financial_Corporation_ME">
+        <rdf:type rdf:resource="&fdic;material-entity-declaration"/>
+        <lumify:title>Countrywide Financial Corporation - Material Entity Details</lumify:title>
+        <fdic:material-entity-declaration-out rdf:resource="&fdic;FI_Countrywide_Financial_Corporation"/>
+    </rdf:Description>
+
+    <rdf:Description rdf:about="&fdic;FI_Countrywide_Home_Loans_Inc">
+        <rdf:type rdf:resource="&fdic;financial-institution"/>
+        <lumify:title>Countrywide Home Loans, Inc.</lumify:title>
+        <fdic:alias>CHL</fdic:alias>
+    </rdf:Description>
+    <rdf:Description rdf:about="&fdic;FI_Countrywide_Home_Loans_Inc_ME">
+        <rdf:type rdf:resource="&fdic;material-entity-declaration"/>
+        <lumify:title>Countrywide Home Loans, Inc. - Material Entity Details</lumify:title>
+        <fdic:material-entity-declaration-out rdf:resource="&fdic;FI_Countrywide_Home_Loans_Inc"/>
+    </rdf:Description>
+
+    <rdf:Description rdf:about="&fdic;FI_Merrill_Lynch_Co_Inc">
+        <rdf:type rdf:resource="&fdic;financial-institution"/>
+        <lumify:title>Merrill Lynch &amp; Co., Inc.</lumify:title>
+        <fdic:alias>MLCO</fdic:alias>
+    </rdf:Description>
+    <rdf:Description rdf:about="&fdic;FI_Merrill_Lynch_Co_Inc_ME">
+        <rdf:type rdf:resource="&fdic;material-entity-declaration"/>
+        <lumify:title>Merrill Lynch &amp; Co., Inc. - Material Entity Details</lumify:title>
+        <fdic:material-entity-declaration-out rdf:resource="&fdic;FI_Merrill_Lynch_Co_Inc"/>
+    </rdf:Description>
+
+    <rdf:Description rdf:about="&fdic;FI_Merrill_Lynch_Pierce_Fenner_Smith_Incorporated">
+        <rdf:type rdf:resource="&fdic;financial-institution"/>
+        <lumify:title>Merrill Lynch, Pierce, Fenner &amp; Smith, Incorporated</lumify:title>
+        <fdic:alias>MLFPS</fdic:alias>
+    </rdf:Description>
+    <rdf:Description rdf:about="&fdic;FI_Merrill_Lynch_Pierce_Fenner_Smith_Incorporated_ME">
+        <rdf:type rdf:resource="&fdic;material-entity-declaration"/>
+        <lumify:title>Merrill Lynch, Pierce, Fenner &amp; Smith, Incorporated - Material Entity Details</lumify:title>
+        <fdic:material-entity-declaration-out rdf:resource="&fdic;FI_Merrill_Lynch_Pierce_Fenner_Smith_Incorporated"/>
+    </rdf:Description>
+
+    <rdf:Description rdf:about="&fdic;FI_Merrill_Lynch_Professional_Clearing_Corp">
+        <rdf:type rdf:resource="&fdic;financial-institution"/>
+        <lumify:title>Merrill Lynch Professional Clearing Corp.</lumify:title>
+        <fdic:alias>MLPRO</fdic:alias>
+    </rdf:Description>
+    <rdf:Description rdf:about="&fdic;FI_Merrill_Lynch_Professional_Clearing_Corp_ME">
+        <rdf:type rdf:resource="&fdic;material-entity-declaration"/>
+        <lumify:title>Merrill Lynch Professional Clearing Corp. - Material Entity Details</lumify:title>
+        <fdic:material-entity-declaration-out rdf:resource="&fdic;FI_Merrill_Lynch_Professional_Clearing_Corp"/>
+    </rdf:Description>
+
+    <rdf:Description rdf:about="&fdic;FI_Merrill_Lynch_Capital_Services_Inc">
+        <rdf:type rdf:resource="&fdic;financial-institution"/>
+        <lumify:title>Merrill Lynch Capital Services, Inc.</lumify:title>
+        <fdic:alias>MLCS</fdic:alias>
+    </rdf:Description>
+    <rdf:Description rdf:about="&fdic;FI_Merrill_Lynch_Capital_Services_Inc_ME">
+        <rdf:type rdf:resource="&fdic;material-entity-declaration"/>
+        <lumify:title>Merrill Lynch Capital Services, Inc. - Material Entity Details</lumify:title>
+        <fdic:material-entity-declaration-out rdf:resource="&fdic;FI_Merrill_Lynch_Capital_Services_Inc"/>
+    </rdf:Description>
+
+    <rdf:Description rdf:about="&fdic;FI_Merrill_Lynch_Commodities_Inc">
+        <rdf:type rdf:resource="&fdic;financial-institution"/>
+        <lumify:title>Merrill Lynch Commodities, Inc.</lumify:title>
+        <fdic:alias>MLCI</fdic:alias>
+    </rdf:Description>
+    <rdf:Description rdf:about="&fdic;FI_Merrill_Lynch_Commodities_Inc_ME">
+        <rdf:type rdf:resource="&fdic;material-entity-declaration"/>
+        <lumify:title>Merrill Lynch Commodities, Inc. - Material Entity Details</lumify:title>
+        <fdic:material-entity-declaration-out rdf:resource="&fdic;FI_Merrill_Lynch_Commodities_Inc"/>
+    </rdf:Description>
+
+    <rdf:Description rdf:about="&fdic;FI_Merrill_Lynch_International">
+        <rdf:type rdf:resource="&fdic;financial-institution"/>
+        <lumify:title>Merrill Lynch International</lumify:title>
+        <fdic:alias>MLI</fdic:alias>
+    </rdf:Description>
+    <rdf:Description rdf:about="&fdic;FI_Merrill_Lynch_International_ME">
+        <rdf:type rdf:resource="&fdic;material-entity-declaration"/>
+        <lumify:title>Merrill Lynch International - Material Entity Details</lumify:title>
+        <fdic:material-entity-declaration-out rdf:resource="&fdic;FI_Merrill_Lynch_International"/>
+    </rdf:Description>
+
+    <rdf:Description rdf:about="&fdic;FI_Merrill_Lynch_Commodities_Europe_Limited">
+        <rdf:type rdf:resource="&fdic;financial-institution"/>
+        <lumify:title>Merrill Lynch Commodities (Europe) Limited</lumify:title>
+        <fdic:alias>MLCE</fdic:alias>
+    </rdf:Description>
+    <rdf:Description rdf:about="&fdic;FI_Merrill_Lynch_Commodities_Europe_Limited_ME">
+        <rdf:type rdf:resource="&fdic;material-entity-declaration"/>
+        <lumify:title>Merrill Lynch Commodities (Europe) Limited - Material Entity Details</lumify:title>
+        <fdic:material-entity-declaration-out rdf:resource="&fdic;FI_Merrill_Lynch_Commodities_Europe_Limited"/>
+    </rdf:Description>
+
+    <rdf:Description rdf:about="&fdic;FI_Merrill_Lynch_International_Bank_Limited">
+        <rdf:type rdf:resource="&fdic;financial-institution"/>
+        <lumify:title>Merrill Lynch International Bank Limited</lumify:title>
+        <fdic:alias>MLIB</fdic:alias>
+    </rdf:Description>
+    <rdf:Description rdf:about="&fdic;FI_Merrill_Lynch_International_Bank_Limited_ME">
+        <rdf:type rdf:resource="&fdic;material-entity-declaration"/>
+        <lumify:title>Merrill Lynch International Bank Limited - Material Entity Details</lumify:title>
+        <fdic:material-entity-declaration-out rdf:resource="&fdic;FI_Merrill_Lynch_International_Bank_Limited"/>
+    </rdf:Description>
+
+    <rdf:Description rdf:about="&fdic;FI_Merrill_Lynch_Japan_Securities_Co_Ltd">
+        <rdf:type rdf:resource="&fdic;financial-institution"/>
+        <lumify:title>Merrill Lynch Japan Securities Co., Ltd.</lumify:title>
+        <fdic:alias>MLJS</fdic:alias>
+    </rdf:Description>
+    <rdf:Description rdf:about="&fdic;FI_Merrill_Lynch_Japan_Securities_Co_Ltd_ME">
+        <rdf:type rdf:resource="&fdic;material-entity-declaration"/>
+        <lumify:title>Merrill Lynch Japan Securities Co., Ltd. - Material Entity Details</lumify:title>
+        <fdic:material-entity-declaration-out rdf:resource="&fdic;FI_Merrill_Lynch_Japan_Securities_Co_Ltd"/>
+    </rdf:Description>
+
+    <rdf:Description rdf:about="&fdic;FI_Merrill_Lynch_Global_Services_Pte_Ltd">
+        <rdf:type rdf:resource="&fdic;financial-institution"/>
+        <lumify:title>Merrill Lynch Global Services Pte. Ltd.</lumify:title>
+        <fdic:alias>MLGS</fdic:alias>
+    </rdf:Description>
+    <rdf:Description rdf:about="&fdic;FI_Merrill_Lynch_Global_Services_Pte_Ltd_ME">
+        <rdf:type rdf:resource="&fdic;material-entity-declaration"/>
+        <lumify:title>Merrill Lynch Global Services Pte. Ltd. - Material Entity Details</lumify:title>
+        <fdic:material-entity-declaration-out rdf:resource="&fdic;FI_Merrill_Lynch_Global_Services_Pte_Ltd"/>
+    </rdf:Description>
+
+    <rdf:Description rdf:about="&fdic;FI_BA_Continuum_India_Private_Limited">
+        <rdf:type rdf:resource="&fdic;financial-institution"/>
+        <lumify:title>BA Continuum India Private Limited</lumify:title>
+        <fdic:alias>BACI</fdic:alias>
+    </rdf:Description>
+    <rdf:Description rdf:about="&fdic;FI_BA_Continuum_India_Private_Limited_ME">
+        <rdf:type rdf:resource="&fdic;material-entity-declaration"/>
+        <lumify:title>BA Continuum India Private Limited - Material Entity Details</lumify:title>
+        <fdic:material-entity-declaration-out rdf:resource="&fdic;FI_BA_Continuum_India_Private_Limited"/>
+    </rdf:Description>
+
+    <rdf:Description rdf:about="&fdic;FI_Financial_Data_Services_Inc">
+        <rdf:type rdf:resource="&fdic;financial-institution"/>
+        <lumify:title>Financial Data Services, Inc.</lumify:title>
+        <fdic:alias>FDS</fdic:alias>
+    </rdf:Description>
+    <rdf:Description rdf:about="&fdic;FI_Financial_Data_Services_Inc_ME">
+        <rdf:type rdf:resource="&fdic;material-entity-declaration"/>
+        <lumify:title>Financial Data Services, Inc. - Material Entity Details</lumify:title>
+        <fdic:material-entity-declaration-out rdf:resource="&fdic;FI_Financial_Data_Services_Inc"/>
+    </rdf:Description>
+
+    <rdf:Description rdf:about="&fdic;FI_Managed_Account_Advisors_LLC">
+        <rdf:type rdf:resource="&fdic;financial-institution"/>
+        <lumify:title>Managed Account Advisors LLC</lumify:title>
+        <fdic:alias>MAA</fdic:alias>
+    </rdf:Description>
+    <rdf:Description rdf:about="&fdic;FI_Managed_Account_Advisors_LLC_ME">
+        <rdf:type rdf:resource="&fdic;material-entity-declaration"/>
+        <lumify:title>Managed Account Advisors LLC - Material Entity Details</lumify:title>
+        <fdic:material-entity-declaration-out rdf:resource="&fdic;FI_Managed_Account_Advisors_LLC"/>
     </rdf:Description>
 </rdf:RDF>

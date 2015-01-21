@@ -213,6 +213,26 @@
     
 
 
+    <!-- http://lumify.io/fdic#alias -->
+
+    <owl:DatatypeProperty rdf:about="http://lumify.io/fdic#alias">
+        <rdfs:label xml:lang="en">Alias</rdfs:label>
+        <rdfs:domain rdf:resource="http://lumify.io/fdic#financial-institution"/>
+        <rdfs:range rdf:resource="&xsd;string"/>
+    </owl:DatatypeProperty>
+    
+
+
+    <!-- http://lumify.io/fdic#end-date -->
+
+    <owl:DatatypeProperty rdf:about="http://lumify.io/fdic#end-date">
+        <rdfs:label xml:lang="en">End Date</rdfs:label>
+        <rdfs:domain rdf:resource="http://lumify.io/fdic#material-entity-declaration"/>
+        <rdfs:range rdf:resource="&xsd;dateTime"/>
+    </owl:DatatypeProperty>
+    
+
+
     <!-- http://lumify.io/fdic#financial-institution-name -->
 
     <owl:DatatypeProperty rdf:about="http://lumify.io/fdic#financial-institution-name">
@@ -220,6 +240,16 @@
         <rdfs:domain rdf:resource="http://lumify.io/fdic#financial-institution"/>
         <rdfs:domain rdf:resource="http://lumify.io/fdic#resolution-plan"/>
         <rdfs:range rdf:resource="&xsd;string"/>
+    </owl:DatatypeProperty>
+    
+
+
+    <!-- http://lumify.io/fdic#start-date -->
+
+    <owl:DatatypeProperty rdf:about="http://lumify.io/fdic#start-date">
+        <rdfs:label xml:lang="en">Start Date</rdfs:label>
+        <rdfs:domain rdf:resource="http://lumify.io/fdic#material-entity-declaration"/>
+        <rdfs:range rdf:resource="&xsd;dateTime"/>
     </owl:DatatypeProperty>
     
 
