@@ -68,6 +68,18 @@
         <fdic:declares-financial-market-utility rdf:resource="&fdic;FI_Options_Clearing_Corporation"/>
         <fdic:declares-financial-market-utility rdf:resource="&fdic;FI_The_Society_for_Worldwide_Interbank_Financial_Telecommunication"/>
         <fdic:declares-financial-market-utility rdf:resource="&fdic;FI_The_TransEuropean_Automated_Realtime_Gross_settlement_Express_Transfer_system"/>
+
+        <fdic:declares-principal-officer rdf:resource="&fdic;PERSON_Brian_T_Moynihan"/>
+        <fdic:declares-principal-officer rdf:resource="&fdic;PERSON_Christine_Katziff"/>
+        <fdic:declares-principal-officer rdf:resource="&fdic;PERSON_Andrea_Smith"/>
+        <fdic:declares-principal-officer rdf:resource="&fdic;PERSON_David_C_Darnell"/>
+        <fdic:declares-principal-officer rdf:resource="&fdic;PERSON_Terry_P_Laughlin"/>
+        <fdic:declares-principal-officer rdf:resource="&fdic;PERSON_Ron_Sturzenegger"/>
+        <fdic:declares-principal-officer rdf:resource="&fdic;PERSON_Catherine_P_Bessant"/>
+        <fdic:declares-principal-officer rdf:resource="&fdic;PERSON_Gary_G_Lynch"/>
+        <fdic:declares-principal-officer rdf:resource="&fdic;PERSON_Bruce_R_Thompson"/>
+        <fdic:declares-principal-officer rdf:resource="&fdic;PERSON_Anne_Finucane"/>
+        <fdic:declares-principal-officer rdf:resource="&fdic;PERSON_Thomas_K_Montag"/>
     </rdf:Description>
 
     <rdf:Description rdf:about="&fdic;FI_Bank_of_America_Corporation">
@@ -165,13 +177,54 @@
         <fdic:financial-market-utility-membership-in rdf:resource="&fdic;FI_Options_Clearing_Corporation_FMU"/>
         <fdic:financial-market-utility-membership-in rdf:resource="&fdic;FI_The_Society_for_Worldwide_Interbank_Financial_Telecommunication_FMU"/>
         <fdic:financial-market-utility-membership-in rdf:resource="&fdic;FI_The_TransEuropean_Automated_Realtime_Gross_settlement_Express_Transfer_system_FMU"/>
+
+        <fdic:has-principal-officer rdf:resource="&fdic;PERSON_Brian_T_Moynihan"/>
+        <fdic:has-principal-officer rdf:resource="&fdic;PERSON_Christine_Katziff"/>
+        <fdic:has-principal-officer rdf:resource="&fdic;PERSON_Andrea_Smith"/>
+        <fdic:has-principal-officer rdf:resource="&fdic;PERSON_David_C_Darnell"/>
+        <fdic:has-principal-officer rdf:resource="&fdic;PERSON_Terry_P_Laughlin"/>
+        <fdic:has-principal-officer rdf:resource="&fdic;PERSON_Ron_Sturzenegger"/>
+        <fdic:has-principal-officer rdf:resource="&fdic;PERSON_Catherine_P_Bessant"/>
+        <fdic:has-principal-officer rdf:resource="&fdic;PERSON_Gary_G_Lynch"/>
+        <fdic:has-principal-officer rdf:resource="&fdic;PERSON_Bruce_R_Thompson"/>
+        <fdic:has-principal-officer rdf:resource="&fdic;PERSON_Anne_Finucane"/>
+        <fdic:has-principal-officer rdf:resource="&fdic;PERSON_Thomas_K_Montag"/>
+
+        <fdic:principal-officer-assignment-in rdf:resource="&fdic;PERSON_Brian_T_Moynihan_POA_BAC"/>
+        <fdic:principal-officer-assignment-in rdf:resource="&fdic;PERSON_Christine_Katziff_POA_BAC"/>
+        <fdic:principal-officer-assignment-in rdf:resource="&fdic;PERSON_Andrea_Smith_POA_BAC"/>
+        <fdic:principal-officer-assignment-in rdf:resource="&fdic;PERSON_David_C_Darnell_POA_BAC"/>
+        <fdic:principal-officer-assignment-in rdf:resource="&fdic;PERSON_Terry_P_Laughlin_POA_BAC"/>
+        <fdic:principal-officer-assignment-in rdf:resource="&fdic;PERSON_Ron_Sturzenegger_POA_BAC"/>
+        <fdic:principal-officer-assignment-in rdf:resource="&fdic;PERSON_Catherine_P_Bessant_POA_BAC"/>
+        <fdic:principal-officer-assignment-in rdf:resource="&fdic;PERSON_Gary_G_Lynch_POA_BAC"/>
+        <fdic:principal-officer-assignment-in rdf:resource="&fdic;PERSON_Bruce_R_Thompson_POA_BAC"/>
+        <fdic:principal-officer-assignment-in rdf:resource="&fdic;PERSON_Anne_Finucane_POA_BAC"/>
+        <fdic:principal-officer-assignment-in rdf:resource="&fdic;PERSON_Thomas_K_Montag_POA_BAC"/>
     </rdf:Description>
 
     <rdf:Description rdf:about="&fdic;FI_Bank_of_America_National_Association">
         <rdf:type rdf:resource="&fdic;financial-institution"/>
         <fdic:financial-institution-name>Bank of America, National Association</fdic:financial-institution-name>
         <fdic:alias>BANA</fdic:alias>
+
         <fdic:has-balance-sheet rdf:resource="&fdic;RP_boa-165-1310-BS_BANA"/>
+
+        <fdic:has-principal-officer rdf:resource="&fdic;PERSON_Brian_T_Moynihan"/>
+        <fdic:has-principal-officer rdf:resource="&fdic;PERSON_Terry_P_Laughlin"/>
+        <fdic:has-principal-officer rdf:resource="&fdic;PERSON_Thomas_K_Montag"/>
+        <fdic:has-principal-officer rdf:resource="&fdic;PERSON_David_C_Darnell"/>
+        <fdic:has-principal-officer rdf:resource="&fdic;PERSON_Gary_G_Lynch"/>
+        <fdic:has-principal-officer rdf:resource="&fdic;PERSON_Bruce_R_Thompson"/>
+        <fdic:has-principal-officer rdf:resource="&fdic;PERSON_Neil_A_Cotty"/>
+
+        <fdic:principal-officer-assignment-in rdf:resource="&fdic;PERSON_Brian_T_Moynihan_POA_BANA"/>
+        <fdic:principal-officer-assignment-in rdf:resource="&fdic;PERSON_Terry_P_Laughlin_POA_BANA"/>
+        <fdic:principal-officer-assignment-in rdf:resource="&fdic;PERSON_Thomas_K_Montag_POA_BANA"/>
+        <fdic:principal-officer-assignment-in rdf:resource="&fdic;PERSON_David_C_Darnell_POA_BANA"/>
+        <fdic:principal-officer-assignment-in rdf:resource="&fdic;PERSON_Gary_G_Lynch_POA_BANA"/>
+        <fdic:principal-officer-assignment-in rdf:resource="&fdic;PERSON_Bruce_R_Thompson_POA_BANA"/>
+        <fdic:principal-officer-assignment-in rdf:resource="&fdic;PERSON_Neil_A_Cotty_POA_BANA"/>
     </rdf:Description>
     <rdf:Description rdf:about="&fdic;FI_Bank_of_America_National_Association_ME">
         <rdf:type rdf:resource="&fdic;material-entity-declaration"/>
@@ -205,7 +258,20 @@
         <rdf:type rdf:resource="&fdic;financial-institution"/>
         <fdic:financial-institution-name>FIA Card Services, National Association</fdic:financial-institution-name>
         <fdic:alias>FIA</fdic:alias>
+
         <fdic:has-balance-sheet rdf:resource="&fdic;RP_boa-165-1310-BS_FIA"/>
+
+        <fdic:has-principal-officer rdf:resource="&fdic;PERSON_Brian_T_Moynihan"/>
+        <fdic:has-principal-officer rdf:resource="&fdic;PERSON_Terry_P_Laughlin"/>
+        <fdic:has-principal-officer rdf:resource="&fdic;PERSON_Bruce_R_Thompson"/>
+        <fdic:has-principal-officer rdf:resource="&fdic;PERSON_Gregory_Hackworth"/>
+        <fdic:has-principal-officer rdf:resource="&fdic;PERSON_Gary_G_Lynch"/>
+
+        <fdic:principal-officer-assignment-in rdf:resource="&fdic;PERSON_Brian_T_Moynihan_POA_FIA"/>
+        <fdic:principal-officer-assignment-in rdf:resource="&fdic;PERSON_Terry_P_Laughlin_POA_FIA"/>
+        <fdic:principal-officer-assignment-in rdf:resource="&fdic;PERSON_Bruce_R_Thompson_POA_FIA"/>
+        <fdic:principal-officer-assignment-in rdf:resource="&fdic;PERSON_Gregory_Hackworth_POA_FIA"/>
+        <fdic:principal-officer-assignment-in rdf:resource="&fdic;PERSON_Gary_G_Lynch_POA_FIA"/>
     </rdf:Description>
     <rdf:Description rdf:about="&fdic;FI_FIA_Card_Services_National_Association_ME">
         <rdf:type rdf:resource="&fdic;material-entity-declaration"/>
@@ -642,5 +708,219 @@
         <rdf:type rdf:resource="&fdic;financial-market-utility-membership"/>
         <fdic:financial-institution-name>The Trans-European Automated Real-time Gross settlement Express Transfer system</fdic:financial-institution-name>
         <fdic:financial-market-utility-membership-out rdf:resource="&fdic;FI_The_TransEuropean_Automated_Realtime_Gross_settlement_Express_Transfer_system"/>
+    </rdf:Description>
+
+    <rdf:Description rdf:about="&fdic;PERSON_Brian_T_Moynihan">
+        <rdf:type rdf:resource="&fdic;person"/>
+        <lumify:title>Brian T. Moynihan</lumify:title>
+    </rdf:Description>
+    <rdf:Description rdf:about="&fdic;PERSON_Brian_T_Moynihan_POA_BAC">
+        <rdf:type rdf:resource="&fdic;principal-officer-assignment"/>
+        <lumify:title>Brian T. Moynihan</lumify:title>
+        <fdic:position>Chief Executive Officer</fdic:position>
+        <fdic:position>President</fdic:position>
+        <fdic:principal-officer-assignment-out rdf:resource="&fdic;PERSON_Brian_T_Moynihan"/>
+    </rdf:Description>
+    <rdf:Description rdf:about="&fdic;PERSON_Brian_T_Moynihan_POA_BANA">
+        <rdf:type rdf:resource="&fdic;principal-officer-assignment"/>
+        <lumify:title>Brian T. Moynihan</lumify:title>
+        <fdic:position>Chief Executive Officer</fdic:position>
+        <fdic:position>President</fdic:position>
+        <fdic:principal-officer-assignment-out rdf:resource="&fdic;PERSON_Brian_T_Moynihan"/>
+    </rdf:Description>
+    <rdf:Description rdf:about="&fdic;PERSON_Brian_T_Moynihan_POA_FIA">
+        <rdf:type rdf:resource="&fdic;principal-officer-assignment"/>
+        <lumify:title>Brian T. Moynihan</lumify:title>
+        <fdic:position>Chief Executive Officer</fdic:position>
+        <fdic:position>President</fdic:position>
+        <fdic:principal-officer-assignment-out rdf:resource="&fdic;PERSON_Brian_T_Moynihan"/>
+    </rdf:Description>
+
+    <rdf:Description rdf:about="&fdic;PERSON_Christine_Katziff">
+        <rdf:type rdf:resource="&fdic;person"/>
+        <lumify:title>Christine Katziff</lumify:title>
+    </rdf:Description>
+    <rdf:Description rdf:about="&fdic;PERSON_Christine_Katziff_POA_BAC">
+        <rdf:type rdf:resource="&fdic;principal-officer-assignment"/>
+        <lumify:title>Christine Katziff</lumify:title>
+        <fdic:position>Corporate General Auditor</fdic:position>
+        <fdic:principal-officer-assignment-out rdf:resource="&fdic;PERSON_Christine_Katziff"/>
+    </rdf:Description>
+
+    <rdf:Description rdf:about="&fdic;PERSON_Andrea_Smith">
+        <rdf:type rdf:resource="&fdic;person"/>
+        <lumify:title>Andrea Smith</lumify:title>
+    </rdf:Description>
+    <rdf:Description rdf:about="&fdic;PERSON_Andrea_Smith_POA_BAC">
+        <rdf:type rdf:resource="&fdic;principal-officer-assignment"/>
+        <lumify:title>Andrea Smith</lumify:title>
+        <fdic:position>Global Head of Human Resources</fdic:position>
+        <fdic:principal-officer-assignment-out rdf:resource="&fdic;PERSON_Andrea_Smith"/>
+    </rdf:Description>
+
+    <rdf:Description rdf:about="&fdic;PERSON_David_C_Darnell">
+        <rdf:type rdf:resource="&fdic;person"/>
+        <lumify:title>David C. Darnell</lumify:title>
+    </rdf:Description>
+    <rdf:Description rdf:about="&fdic;PERSON_David_C_Darnell_POA_BAC">
+        <rdf:type rdf:resource="&fdic;principal-officer-assignment"/>
+        <lumify:title>David C. Darnell</lumify:title>
+        <fdic:position>Co-Chief Operating Officer</fdic:position>
+        <fdic:principal-officer-assignment-out rdf:resource="&fdic;PERSON_David_C_Darnell"/>
+    </rdf:Description>
+    <rdf:Description rdf:about="&fdic;PERSON_David_C_Darnell_POA_BANA">
+        <rdf:type rdf:resource="&fdic;principal-officer-assignment"/>
+        <lumify:title>David C. Darnell</lumify:title>
+        <fdic:position>Co-Chief Operating Officer</fdic:position>
+        <fdic:principal-officer-assignment-out rdf:resource="&fdic;PERSON_David_C_Darnell"/>
+    </rdf:Description>
+
+    <rdf:Description rdf:about="&fdic;PERSON_Terry_P_Laughlin">
+        <rdf:type rdf:resource="&fdic;person"/>
+        <lumify:title>Terry P. Laughlin</lumify:title>
+    </rdf:Description>
+    <rdf:Description rdf:about="&fdic;PERSON_Terry_P_Laughlin_POA_BAC">
+        <rdf:type rdf:resource="&fdic;principal-officer-assignment"/>
+        <lumify:title>Terry P. Laughlin</lumify:title>
+        <fdic:position>Chief Risk Officer</fdic:position>
+        <fdic:principal-officer-assignment-out rdf:resource="&fdic;PERSON_Terry_P_Laughlin"/>
+    </rdf:Description>
+    <rdf:Description rdf:about="&fdic;PERSON_Terry_P_Laughlin_POA_BANA">
+        <rdf:type rdf:resource="&fdic;principal-officer-assignment"/>
+        <lumify:title>Terry P. Laughlin</lumify:title>
+        <fdic:position>Chief Risk Officer</fdic:position>
+        <fdic:principal-officer-assignment-out rdf:resource="&fdic;PERSON_Terry_P_Laughlin"/>
+    </rdf:Description>
+    <rdf:Description rdf:about="&fdic;PERSON_Terry_P_Laughlin_POA_FIA">
+        <rdf:type rdf:resource="&fdic;principal-officer-assignment"/>
+        <lumify:title>Terry P. Laughlin</lumify:title>
+        <fdic:position>Chief Risk Officer</fdic:position>
+        <fdic:principal-officer-assignment-out rdf:resource="&fdic;PERSON_Terry_P_Laughlin"/>
+    </rdf:Description>
+
+    <rdf:Description rdf:about="&fdic;PERSON_Ron_Sturzenegger">
+        <rdf:type rdf:resource="&fdic;person"/>
+        <lumify:title>Ron Sturzenegger</lumify:title>
+    </rdf:Description>
+    <rdf:Description rdf:about="&fdic;PERSON_Ron_Sturzenegger_POA_BAC">
+        <rdf:type rdf:resource="&fdic;principal-officer-assignment"/>
+        <lumify:title>Ron Sturzenegger</lumify:title>
+        <fdic:position>Legacy Asset Servicing Executive</fdic:position>
+        <fdic:principal-officer-assignment-out rdf:resource="&fdic;PERSON_Ron_Sturzenegger"/>
+    </rdf:Description>
+
+    <rdf:Description rdf:about="&fdic;PERSON_Catherine_P_Bessant">
+        <rdf:type rdf:resource="&fdic;person"/>
+        <lumify:title>Catherine P. Bessant</lumify:title>
+    </rdf:Description>
+    <rdf:Description rdf:about="&fdic;PERSON_Catherine_P_Bessant_POA_BAC">
+        <rdf:type rdf:resource="&fdic;principal-officer-assignment"/>
+        <lumify:title>Catherine P. Bessant</lumify:title>
+        <fdic:position>Global Technology</fdic:position>
+        <fdic:position>Operations Executive</fdic:position>
+        <fdic:principal-officer-assignment-out rdf:resource="&fdic;PERSON_Catherine_P_Bessant"/>
+    </rdf:Description>
+
+    <rdf:Description rdf:about="&fdic;PERSON_Gary_G_Lynch">
+        <rdf:type rdf:resource="&fdic;person"/>
+        <lumify:title>Gary G. Lynch</lumify:title>
+    </rdf:Description>
+    <rdf:Description rdf:about="&fdic;PERSON_Gary_G_Lynch_POA_BAC">
+        <rdf:type rdf:resource="&fdic;principal-officer-assignment"/>
+        <lumify:title>Gary G. Lynch</lumify:title>
+        <fdic:position>Global General Counsel</fdic:position>
+        <fdic:position>Head of Compliance</fdic:position>
+        <fdic:position>Regulatory Relations</fdic:position>
+        <fdic:principal-officer-assignment-out rdf:resource="&fdic;PERSON_Gary_G_Lynch"/>
+    </rdf:Description>
+    <rdf:Description rdf:about="&fdic;PERSON_Gary_G_Lynch_POA_BANA">
+        <rdf:type rdf:resource="&fdic;principal-officer-assignment"/>
+        <lumify:title>Gary G. Lynch</lumify:title>
+        <fdic:position>Global General Counsel</fdic:position>
+        <fdic:position>Head of Compliance</fdic:position>
+        <fdic:position>Regulatory Relations</fdic:position>
+        <fdic:principal-officer-assignment-out rdf:resource="&fdic;PERSON_Gary_G_Lynch"/>
+    </rdf:Description>
+    <rdf:Description rdf:about="&fdic;PERSON_Gary_G_Lynch_POA_FIA">
+        <rdf:type rdf:resource="&fdic;principal-officer-assignment"/>
+        <lumify:title>Gary G. Lynch</lumify:title>
+        <fdic:position>Global General Counsel</fdic:position>
+        <fdic:position>Head of Compliance</fdic:position>
+        <fdic:position>Regulatory Relations</fdic:position>
+        <fdic:principal-officer-assignment-out rdf:resource="&fdic;PERSON_Gary_G_Lynch"/>
+    </rdf:Description>
+
+    <rdf:Description rdf:about="&fdic;PERSON_Bruce_R_Thompson">
+        <rdf:type rdf:resource="&fdic;person"/>
+        <lumify:title>Bruce R. Thompson</lumify:title>
+    </rdf:Description>
+    <rdf:Description rdf:about="&fdic;PERSON_Bruce_R_Thompson_POA_BAC">
+        <rdf:type rdf:resource="&fdic;principal-officer-assignment"/>
+        <lumify:title>Bruce R. Thompson</lumify:title>
+        <fdic:position>Chief Financial Officer</fdic:position>
+        <fdic:principal-officer-assignment-out rdf:resource="&fdic;PERSON_Bruce_R_Thompson"/>
+    </rdf:Description>
+    <rdf:Description rdf:about="&fdic;PERSON_Bruce_R_Thompson_POA_BANA">
+        <rdf:type rdf:resource="&fdic;principal-officer-assignment"/>
+        <lumify:title>Bruce R. Thompson</lumify:title>
+        <fdic:position>Chief Financial Officer</fdic:position>
+        <fdic:principal-officer-assignment-out rdf:resource="&fdic;PERSON_Bruce_R_Thompson"/>
+    </rdf:Description>
+    <rdf:Description rdf:about="&fdic;PERSON_Bruce_R_Thompson_POA_FIA">
+        <rdf:type rdf:resource="&fdic;principal-officer-assignment"/>
+        <lumify:title>Bruce R. Thompson</lumify:title>
+        <fdic:position>Chief Financial Officer</fdic:position>
+        <fdic:principal-officer-assignment-out rdf:resource="&fdic;PERSON_Bruce_R_Thompson"/>
+    </rdf:Description>
+
+    <rdf:Description rdf:about="&fdic;PERSON_Anne_Finucane">
+        <rdf:type rdf:resource="&fdic;person"/>
+        <lumify:title>Anne Finucane</lumify:title>
+    </rdf:Description>
+    <rdf:Description rdf:about="&fdic;PERSON_Anne_Finucane_POA_BAC">
+        <rdf:type rdf:resource="&fdic;principal-officer-assignment"/>
+        <lumify:title>Anne Finucane</lumify:title>
+        <fdic:position>Global Strategy</fdic:position>
+        <fdic:position>Marketing Officer</fdic:position>
+        <fdic:principal-officer-assignment-out rdf:resource="&fdic;PERSON_Anne_Finucane"/>
+    </rdf:Description>
+
+    <rdf:Description rdf:about="&fdic;PERSON_Thomas_K_Montag">
+        <rdf:type rdf:resource="&fdic;person"/>
+        <lumify:title>Thomas K. Montag</lumify:title>
+    </rdf:Description>
+    <rdf:Description rdf:about="&fdic;PERSON_Thomas_K_Montag_POA_BAC">
+        <rdf:type rdf:resource="&fdic;principal-officer-assignment"/>
+        <lumify:title>Thomas K. Montag</lumify:title>
+        <fdic:position>Co-Chief Operating Officer</fdic:position>
+        <fdic:principal-officer-assignment-out rdf:resource="&fdic;PERSON_Thomas_K_Montag"/>
+    </rdf:Description>
+    <rdf:Description rdf:about="&fdic;PERSON_Thomas_K_Montag_POA_BANA">
+        <rdf:type rdf:resource="&fdic;principal-officer-assignment"/>
+        <lumify:title>Thomas K. Montag</lumify:title>
+        <fdic:position>Co-Chief Operating Officer</fdic:position>
+        <fdic:principal-officer-assignment-out rdf:resource="&fdic;PERSON_Thomas_K_Montag"/>
+    </rdf:Description>
+
+    <rdf:Description rdf:about="&fdic;PERSON_Neil_A_Cotty">
+        <rdf:type rdf:resource="&fdic;person"/>
+        <lumify:title>Neil A. Cotty</lumify:title>
+    </rdf:Description>
+    <rdf:Description rdf:about="&fdic;PERSON_Neil_A_Cotty_POA_BANA">
+        <rdf:type rdf:resource="&fdic;principal-officer-assignment"/>
+        <lumify:title>Neil A. Cotty</lumify:title>
+        <fdic:position>Chief Accounting Officer</fdic:position>
+        <fdic:principal-officer-assignment-out rdf:resource="&fdic;PERSON_Neil_A_Cotty"/>
+    </rdf:Description>
+
+    <rdf:Description rdf:about="&fdic;PERSON_Gregory_Hackworth">
+        <rdf:type rdf:resource="&fdic;person"/>
+        <lumify:title>Gregory Hackworth</lumify:title>
+    </rdf:Description>
+    <rdf:Description rdf:about="&fdic;PERSON_Gregory_Hackworth_POA_FIA">
+        <rdf:type rdf:resource="&fdic;principal-officer-assignment"/>
+        <lumify:title>Gregory Hackworth</lumify:title>
+        <fdic:position>Corporate Treasurer</fdic:position>
+        <fdic:principal-officer-assignment-out rdf:resource="&fdic;PERSON_Gregory_Hackworth"/>
     </rdf:Description>
 </rdf:RDF>

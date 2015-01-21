@@ -5,4 +5,5 @@
   <xs:element name="publishedDate" type="xs:NMTOKEN"/>
   <xs:element name="fileName" type="xs:NCName"/>
   <xs:element name="raw" type="xs:string"/>
+  <xs:element name="title" type="xs:string"/>
 </xs:schema>
