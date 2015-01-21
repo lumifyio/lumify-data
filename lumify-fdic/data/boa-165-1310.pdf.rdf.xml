@@ -119,8 +119,6 @@
         <fdic:material-entity-declaration-in rdf:resource="&fdic;FI_Managed_Account_Advisors_LLC_ME"/>
 
         <fdic:has-balance-sheet rdf:resource="&fdic;RP_boa-165-1310-BS_BAC"/>
-        <fdic:has-balance-sheet rdf:resource="&fdic;RP_boa-165-1310-BS_BANA"/>
-        <fdic:has-balance-sheet rdf:resource="&fdic;RP_boa-165-1310-BS_FIA"/>
 
         <fdic:has-financial-market-utility rdf:resource="&fdic;FI_Clearing_House_Automated_Payment_System"/>
         <fdic:has-financial-market-utility rdf:resource="&fdic;FI_Clearing_House_Interbank_Payments_System"/>
@@ -173,6 +171,7 @@
         <rdf:type rdf:resource="&fdic;financial-institution"/>
         <fdic:financial-institution-name>Bank of America, National Association</fdic:financial-institution-name>
         <fdic:alias>BANA</fdic:alias>
+        <fdic:has-balance-sheet rdf:resource="&fdic;RP_boa-165-1310-BS_BANA"/>
     </rdf:Description>
     <rdf:Description rdf:about="&fdic;FI_Bank_of_America_National_Association_ME">
         <rdf:type rdf:resource="&fdic;material-entity-declaration"/>
@@ -206,6 +205,7 @@
         <rdf:type rdf:resource="&fdic;financial-institution"/>
         <fdic:financial-institution-name>FIA Card Services, National Association</fdic:financial-institution-name>
         <fdic:alias>FIA</fdic:alias>
+        <fdic:has-balance-sheet rdf:resource="&fdic;RP_boa-165-1310-BS_FIA"/>
     </rdf:Description>
     <rdf:Description rdf:about="&fdic;FI_FIA_Card_Services_National_Association_ME">
         <rdf:type rdf:resource="&fdic;material-entity-declaration"/>
@@ -390,7 +390,7 @@
     </rdf:Description>
 
     <rdf:Description rdf:about="&fdic;RP_boa-165-1310-BS_BAC">
-        <rdf:type rdf:resource="&fdic;financial-institution"/>
+        <rdf:type rdf:resource="&fdic;balance-sheet"/>
         <fdic:financial-institution-name>Bank of America Corporation</fdic:financial-institution-name>
         <lumify:publishedDate>2013-06-30</lumify:publishedDate>
         <fdic:asset-total>2123320000000</fdic:asset-total>
@@ -398,7 +398,7 @@
     </rdf:Description>
 
     <rdf:Description rdf:about="&fdic;RP_boa-165-1310-BS_BANA">
-        <rdf:type rdf:resource="&fdic;financial-institution"/>
+        <rdf:type rdf:resource="&fdic;balance-sheet"/>
         <fdic:financial-institution-name>Bank of America, National Association</fdic:financial-institution-name>
         <lumify:publishedDate>2013-06-30</lumify:publishedDate>
         <fdic:asset-total>1427640000000</fdic:asset-total>
@@ -406,7 +406,7 @@
     </rdf:Description>
 
     <rdf:Description rdf:about="&fdic;RP_boa-165-1310-BS_FIA">
-        <rdf:type rdf:resource="&fdic;financial-institution"/>
+        <rdf:type rdf:resource="&fdic;balance-sheet"/>
         <fdic:financial-institution-name>FIA Card Services, National Association</fdic:financial-institution-name>
         <lumify:publishedDate>2013-06-30</lumify:publishedDate>
         <fdic:asset-total>158078000000</fdic:asset-total>

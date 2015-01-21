@@ -3,13 +3,33 @@
   <xs:import namespace="http://lumify.io#" schemaLocation="lumify.xsd"/>
   <xs:import namespace="http://www.w3.org/1999/02/22-rdf-syntax-ns#" schemaLocation="rdf.xsd"/>
   <xs:element name="financial-institution-name" type="xs:string"/>
-  <xs:element name="alias" type="xs:string"/>
-  <xs:element name="financial-market-utility-membership-out">
+  <xs:element name="material-entity-declaration-out">
     <xs:complexType>
       <xs:attribute ref="rdf:resource" use="required"/>
     </xs:complexType>
   </xs:element>
-  <xs:element name="material-entity-declaration-out">
+  <xs:element name="alias" type="xs:string"/>
+  <xs:element name="has-resolution-plan">
+    <xs:complexType>
+      <xs:attribute ref="rdf:resource" use="required"/>
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="has-material-entity">
+    <xs:complexType>
+      <xs:attribute ref="rdf:resource" use="required"/>
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="material-entity-declaration-in">
+    <xs:complexType>
+      <xs:attribute ref="rdf:resource" use="required"/>
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="has-balance-sheet">
+    <xs:complexType>
+      <xs:attribute ref="rdf:resource" use="required"/>
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="financial-market-utility-membership-out">
     <xs:complexType>
       <xs:attribute ref="rdf:resource" use="required"/>
     </xs:complexType>
@@ -31,26 +51,6 @@
   </xs:element>
   <xs:element name="asset-total" type="xs:integer"/>
   <xs:element name="liability-total" type="xs:integer"/>
-  <xs:element name="has-resolution-plan">
-    <xs:complexType>
-      <xs:attribute ref="rdf:resource" use="required"/>
-    </xs:complexType>
-  </xs:element>
-  <xs:element name="has-material-entity">
-    <xs:complexType>
-      <xs:attribute ref="rdf:resource" use="required"/>
-    </xs:complexType>
-  </xs:element>
-  <xs:element name="material-entity-declaration-in">
-    <xs:complexType>
-      <xs:attribute ref="rdf:resource" use="required"/>
-    </xs:complexType>
-  </xs:element>
-  <xs:element name="has-balance-sheet">
-    <xs:complexType>
-      <xs:attribute ref="rdf:resource" use="required"/>
-    </xs:complexType>
-  </xs:element>
   <xs:element name="has-financial-market-utility">
     <xs:complexType>
       <xs:attribute ref="rdf:resource" use="required"/>
