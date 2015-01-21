@@ -1,0 +1,308 @@
+<?xml version="1.0"?>
+
+
+<!DOCTYPE rdf:RDF [
+    <!ENTITY owl "http://www.w3.org/2002/07/owl#" >
+    <!ENTITY xsd "http://www.w3.org/2001/XMLSchema#" >
+    <!ENTITY rdfs "http://www.w3.org/2000/01/rdf-schema#" >
+    <!ENTITY rdf "http://www.w3.org/1999/02/22-rdf-syntax-ns#" >
+]>
+
+
+<rdf:RDF xmlns="http://lumify.io/fdic#"
+     xml:base="http://lumify.io/fdic"
+     xmlns:rdfs="http://www.w3.org/2000/01/rdf-schema#"
+     xmlns:owl="http://www.w3.org/2002/07/owl#"
+     xmlns:xsd="http://www.w3.org/2001/XMLSchema#"
+     xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#">
+    <owl:Ontology rdf:about="http://lumify.io/fdic">
+        <owl:imports rdf:resource="http://lumify.io"/>
+    </owl:Ontology>
+    
+
+
+    <!-- 
+    ///////////////////////////////////////////////////////////////////////////////////////
+    //
+    // Object Properties
+    //
+    ///////////////////////////////////////////////////////////////////////////////////////
+     -->
+
+    
+
+
+    <!-- http://lumify.io/fdic#declares-financial-market-utility -->
+
+    <owl:ObjectProperty rdf:about="http://lumify.io/fdic#declares-financial-market-utility">
+        <rdfs:label xml:lang="en">Declares FMU</rdfs:label>
+        <rdfs:range rdf:resource="http://lumify.io/fdic#financial-institution"/>
+        <rdfs:domain rdf:resource="http://lumify.io/fdic#resolution-plan"/>
+    </owl:ObjectProperty>
+    
+
+
+    <!-- http://lumify.io/fdic#declares-material-entity -->
+
+    <owl:ObjectProperty rdf:about="http://lumify.io/fdic#declares-material-entity">
+        <rdfs:label xml:lang="en">Declares Meterial Entity</rdfs:label>
+        <rdfs:range rdf:resource="http://lumify.io/fdic#financial-institution"/>
+        <rdfs:domain rdf:resource="http://lumify.io/fdic#resolution-plan"/>
+    </owl:ObjectProperty>
+    
+
+
+    <!-- http://lumify.io/fdic#declares-principal-officer -->
+
+    <owl:ObjectProperty rdf:about="http://lumify.io/fdic#declares-principal-officer">
+        <rdfs:label xml:lang="en">Declares Principal Officer</rdfs:label>
+        <rdfs:range rdf:resource="http://lumify.io/fdic#person"/>
+        <rdfs:domain rdf:resource="http://lumify.io/fdic#resolution-plan"/>
+    </owl:ObjectProperty>
+    
+
+
+    <!-- http://lumify.io/fdic#financial-market-utility-membership-in -->
+
+    <owl:ObjectProperty rdf:about="http://lumify.io/fdic#financial-market-utility-membership-in">
+        <rdfs:label xml:lang="en">Has</rdfs:label>
+        <rdfs:domain rdf:resource="http://lumify.io/fdic#financial-institution"/>
+        <rdfs:range rdf:resource="http://lumify.io/fdic#financial-market-utility-membership"/>
+    </owl:ObjectProperty>
+    
+
+
+    <!-- http://lumify.io/fdic#financial-market-utility-membership-out -->
+
+    <owl:ObjectProperty rdf:about="http://lumify.io/fdic#financial-market-utility-membership-out">
+        <rdfs:label xml:lang="en">Has</rdfs:label>
+    </owl:ObjectProperty>
+    
+
+
+    <!-- http://lumify.io/fdic#has-balance-sheet -->
+
+    <owl:ObjectProperty rdf:about="http://lumify.io/fdic#has-balance-sheet">
+        <rdfs:label xml:lang="en">Has Balance Sheet</rdfs:label>
+        <rdfs:range rdf:resource="http://lumify.io/fdic#balance-sheet"/>
+        <rdfs:domain rdf:resource="http://lumify.io/fdic#resolution-plan"/>
+    </owl:ObjectProperty>
+    
+
+
+    <!-- http://lumify.io/fdic#has-financial-market-utility -->
+
+    <owl:ObjectProperty rdf:about="http://lumify.io/fdic#has-financial-market-utility">
+        <rdfs:label xml:lang="en">Has FMU</rdfs:label>
+        <rdfs:domain rdf:resource="http://lumify.io/fdic#financial-institution"/>
+        <rdfs:range rdf:resource="http://lumify.io/fdic#financial-institution"/>
+    </owl:ObjectProperty>
+    
+
+
+    <!-- http://lumify.io/fdic#has-material-entity -->
+
+    <owl:ObjectProperty rdf:about="http://lumify.io/fdic#has-material-entity">
+        <rdfs:label xml:lang="en">Has Material Entity</rdfs:label>
+        <rdfs:range rdf:resource="http://lumify.io/fdic#financial-institution"/>
+        <rdfs:domain rdf:resource="http://lumify.io/fdic#financial-institution"/>
+    </owl:ObjectProperty>
+    
+
+
+    <!-- http://lumify.io/fdic#has-principal-officer -->
+
+    <owl:ObjectProperty rdf:about="http://lumify.io/fdic#has-principal-officer">
+        <rdfs:label xml:lang="en">Has Principal Officer</rdfs:label>
+        <rdfs:domain rdf:resource="http://lumify.io/fdic#financial-institution"/>
+        <rdfs:range rdf:resource="http://lumify.io/fdic#principal-officer-assignment"/>
+    </owl:ObjectProperty>
+    
+
+
+    <!-- http://lumify.io/fdic#material-entity-declaration-in -->
+
+    <owl:ObjectProperty rdf:about="http://lumify.io/fdic#material-entity-declaration-in">
+        <rdfs:label xml:lang="en">Has</rdfs:label>
+        <rdfs:domain rdf:resource="http://lumify.io/fdic#financial-institution"/>
+        <rdfs:range rdf:resource="http://lumify.io/fdic#material-entity-declaration"/>
+    </owl:ObjectProperty>
+    
+
+
+    <!-- http://lumify.io/fdic#material-entity-declaration-out -->
+
+    <owl:ObjectProperty rdf:about="http://lumify.io/fdic#material-entity-declaration-out">
+        <rdfs:label xml:lang="en">Has</rdfs:label>
+        <rdfs:range rdf:resource="http://lumify.io/fdic#financial-institution"/>
+        <rdfs:domain rdf:resource="http://lumify.io/fdic#material-entity-declaration"/>
+    </owl:ObjectProperty>
+    
+
+
+    <!-- http://lumify.io/fdic#principal-officer-assignment-in -->
+
+    <owl:ObjectProperty rdf:about="http://lumify.io/fdic#principal-officer-assignment-in">
+        <rdfs:label xml:lang="en">Has</rdfs:label>
+        <rdfs:domain rdf:resource="http://lumify.io/fdic#financial-institution"/>
+        <rdfs:range rdf:resource="http://lumify.io/fdic#principal-officer-assignment"/>
+    </owl:ObjectProperty>
+    
+
+
+    <!-- http://lumify.io/fdic#principal-officer-assignment-out -->
+
+    <owl:ObjectProperty rdf:about="http://lumify.io/fdic#principal-officer-assignment-out">
+        <rdfs:label xml:lang="en">Has</rdfs:label>
+        <rdfs:range rdf:resource="http://lumify.io/fdic#person"/>
+        <rdfs:domain rdf:resource="http://lumify.io/fdic#principal-officer-assignment"/>
+    </owl:ObjectProperty>
+    
+
+
+    <!-- 
+    ///////////////////////////////////////////////////////////////////////////////////////
+    //
+    // Classes
+    //
+    ///////////////////////////////////////////////////////////////////////////////////////
+     -->
+
+    
+
+
+    <!-- http://lumify.io/fdic#agent -->
+
+    <owl:Class rdf:about="http://lumify.io/fdic#agent">
+        <rdfs:label xml:lang="en">Agent</rdfs:label>
+    </owl:Class>
+    
+
+
+    <!-- http://lumify.io/fdic#artifact -->
+
+    <owl:Class rdf:about="http://lumify.io/fdic#artifact">
+        <rdfs:label xml:lang="en">Artifact</rdfs:label>
+    </owl:Class>
+    
+
+
+    <!-- http://lumify.io/fdic#balance-sheet -->
+
+    <owl:Class rdf:about="http://lumify.io/fdic#balance-sheet">
+        <rdfs:label xml:lang="en">Balance Sheet</rdfs:label>
+        <rdfs:subClassOf rdf:resource="http://lumify.io/fdic#document"/>
+    </owl:Class>
+    
+
+
+    <!-- http://lumify.io/fdic#company -->
+
+    <owl:Class rdf:about="http://lumify.io/fdic#company">
+        <rdfs:label xml:lang="en">Company</rdfs:label>
+        <rdfs:subClassOf rdf:resource="http://lumify.io/fdic#organization"/>
+    </owl:Class>
+    
+
+
+    <!-- http://lumify.io/fdic#document -->
+
+    <owl:Class rdf:about="http://lumify.io/fdic#document">
+        <rdfs:label xml:lang="en">Document</rdfs:label>
+        <rdfs:subClassOf rdf:resource="http://lumify.io/fdic#artifact"/>
+    </owl:Class>
+    
+
+
+    <!-- http://lumify.io/fdic#event -->
+
+    <owl:Class rdf:about="http://lumify.io/fdic#event">
+        <rdfs:label xml:lang="en">Event</rdfs:label>
+    </owl:Class>
+    
+
+
+    <!-- http://lumify.io/fdic#financial-institution -->
+
+    <owl:Class rdf:about="http://lumify.io/fdic#financial-institution">
+        <rdfs:label xml:lang="en">Financial Institution</rdfs:label>
+        <rdfs:subClassOf rdf:resource="http://lumify.io/fdic#company"/>
+    </owl:Class>
+    
+
+
+    <!-- http://lumify.io/fdic#financial-market-utility-membership -->
+
+    <owl:Class rdf:about="http://lumify.io/fdic#financial-market-utility-membership">
+        <rdfs:label xml:lang="en">Financial Market Utility Membership</rdfs:label>
+        <rdfs:subClassOf rdf:resource="http://lumify.io/fdic#event"/>
+    </owl:Class>
+    
+
+
+    <!-- http://lumify.io/fdic#image -->
+
+    <owl:Class rdf:about="http://lumify.io/fdic#image">
+        <rdfs:label xml:lang="en">Image</rdfs:label>
+        <rdfs:subClassOf rdf:resource="http://lumify.io/fdic#artifact"/>
+    </owl:Class>
+    
+
+
+    <!-- http://lumify.io/fdic#material-entity-declaration -->
+
+    <owl:Class rdf:about="http://lumify.io/fdic#material-entity-declaration">
+        <rdfs:label xml:lang="en">Material Entity Declaration</rdfs:label>
+        <rdfs:subClassOf rdf:resource="http://lumify.io/fdic#event"/>
+    </owl:Class>
+    
+
+
+    <!-- http://lumify.io/fdic#organization -->
+
+    <owl:Class rdf:about="http://lumify.io/fdic#organization">
+        <rdfs:label xml:lang="en">Organization</rdfs:label>
+        <rdfs:subClassOf rdf:resource="http://lumify.io/fdic#agent"/>
+    </owl:Class>
+    
+
+
+    <!-- http://lumify.io/fdic#person -->
+
+    <owl:Class rdf:about="http://lumify.io/fdic#person">
+        <rdfs:label xml:lang="en">Person</rdfs:label>
+        <rdfs:subClassOf rdf:resource="http://lumify.io/fdic#agent"/>
+    </owl:Class>
+    
+
+
+    <!-- http://lumify.io/fdic#principal-officer-assignment -->
+
+    <owl:Class rdf:about="http://lumify.io/fdic#principal-officer-assignment">
+        <rdfs:label xml:lang="en">Principal Officer Assignment</rdfs:label>
+        <rdfs:subClassOf rdf:resource="http://lumify.io/fdic#event"/>
+    </owl:Class>
+    
+
+
+    <!-- http://lumify.io/fdic#rdf -->
+
+    <owl:Class rdf:about="http://lumify.io/fdic#rdf">
+        <rdfs:label xml:lang="en">RDF</rdfs:label>
+        <rdfs:subClassOf rdf:resource="http://lumify.io/fdic#artifact"/>
+    </owl:Class>
+    
+
+
+    <!-- http://lumify.io/fdic#resolution-plan -->
+
+    <owl:Class rdf:about="http://lumify.io/fdic#resolution-plan">
+        <rdfs:label xml:lang="en">Resolution Plan</rdfs:label>
+        <rdfs:subClassOf rdf:resource="http://lumify.io/fdic#document"/>
+    </owl:Class>
+</rdf:RDF>
+
+
+
+<!-- Generated by the OWL API (version 3.5.0) http://owlapi.sourceforge.net -->
+
