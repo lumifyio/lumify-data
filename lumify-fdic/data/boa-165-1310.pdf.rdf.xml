@@ -45,11 +45,34 @@
         <fdic:declares-balance-sheet rdf:resource="&fdic;RP_boa-165-1310-BS_BAC"/>
         <fdic:declares-balance-sheet rdf:resource="&fdic;RP_boa-165-1310-BS_BANA"/>
         <fdic:declares-balance-sheet rdf:resource="&fdic;RP_boa-165-1310-BS_FIA"/>
+
+        <fdic:declares-financial-market-utility rdf:resource="&fdic;FI_Clearing_House_Automated_Payment_System"/>
+        <fdic:declares-financial-market-utility rdf:resource="&fdic;FI_Clearing_House_Interbank_Payments_System"/>
+        <fdic:declares-financial-market-utility rdf:resource="&fdic;FI_CLS_Bank_International"/>
+        <fdic:declares-financial-market-utility rdf:resource="&fdic;FI_CME_Group_Inc"/>
+        <fdic:declares-financial-market-utility rdf:resource="&fdic;FI_CREST"/>
+        <fdic:declares-financial-market-utility rdf:resource="&fdic;FI_The_Depository_Trust_Company"/>
+        <fdic:declares-financial-market-utility rdf:resource="&fdic;FI_Electronic_Payments_Network"/>
+        <fdic:declares-financial-market-utility rdf:resource="&fdic;FI_Eurex_Clearing_AG"/>
+        <fdic:declares-financial-market-utility rdf:resource="&fdic;FI_Euroclear_Bank"/>
+        <fdic:declares-financial-market-utility rdf:resource="&fdic;FI_European_Central_Counterparty_Limited"/>
+        <fdic:declares-financial-market-utility rdf:resource="&fdic;FI_FedACH_Services"/>
+        <fdic:declares-financial-market-utility rdf:resource="&fdic;FI_Fedwire_Funds_Service"/>
+        <fdic:declares-financial-market-utility rdf:resource="&fdic;FI_Fedwire_Securities_Service"/>
+        <fdic:declares-financial-market-utility rdf:resource="&fdic;FI_Fixed_Income_Clearing_Corporation"/>
+        <fdic:declares-financial-market-utility rdf:resource="&fdic;FI_Japan_Government_Bond_Clearing_Corporation"/>
+        <fdic:declares-financial-market-utility rdf:resource="&fdic;FI_ICE_Clear_Credit_LLC"/>
+        <fdic:declares-financial-market-utility rdf:resource="&fdic;FI_ICE_Clear_Europe"/>
+        <fdic:declares-financial-market-utility rdf:resource="&fdic;FI_LCH_Clearnet_Limited"/>
+        <fdic:declares-financial-market-utility rdf:resource="&fdic;FI_National_Securities_Clearing_Corporation"/>
+        <fdic:declares-financial-market-utility rdf:resource="&fdic;FI_Options_Clearing_Corporation"/>
+        <fdic:declares-financial-market-utility rdf:resource="&fdic;FI_The_Society_for_Worldwide_Interbank_Financial_Telecommunication"/>
+        <fdic:declares-financial-market-utility rdf:resource="&fdic;FI_The_TransEuropean_Automated_Realtime_Gross_settlement_Express_Transfer_system"/>
     </rdf:Description>
 
     <rdf:Description rdf:about="&fdic;FI_Bank_of_America_Corporation">
         <rdf:type rdf:resource="&fdic;financial-institution"/>
-        <lumify:title>Bank of America Corporation</lumify:title>
+        <fdic:financial-institution-name>Bank of America Corporation</fdic:financial-institution-name>
         <fdic:alias>BAC</fdic:alias>
         <fdic:has-resolution-plan rdf:resource="&fdic;RP_boa-165-1310"/>
 
@@ -98,225 +121,271 @@
         <fdic:has-balance-sheet rdf:resource="&fdic;RP_boa-165-1310-BS_BAC"/>
         <fdic:has-balance-sheet rdf:resource="&fdic;RP_boa-165-1310-BS_BANA"/>
         <fdic:has-balance-sheet rdf:resource="&fdic;RP_boa-165-1310-BS_FIA"/>
+
+        <fdic:has-financial-market-utility rdf:resource="&fdic;FI_Clearing_House_Automated_Payment_System"/>
+        <fdic:has-financial-market-utility rdf:resource="&fdic;FI_Clearing_House_Interbank_Payments_System"/>
+        <fdic:has-financial-market-utility rdf:resource="&fdic;FI_CLS_Bank_International"/>
+        <fdic:has-financial-market-utility rdf:resource="&fdic;FI_CME_Group_Inc"/>
+        <fdic:has-financial-market-utility rdf:resource="&fdic;FI_CREST"/>
+        <fdic:has-financial-market-utility rdf:resource="&fdic;FI_The_Depository_Trust_Company"/>
+        <fdic:has-financial-market-utility rdf:resource="&fdic;FI_Electronic_Payments_Network"/>
+        <fdic:has-financial-market-utility rdf:resource="&fdic;FI_Eurex_Clearing_AG"/>
+        <fdic:has-financial-market-utility rdf:resource="&fdic;FI_Euroclear_Bank"/>
+        <fdic:has-financial-market-utility rdf:resource="&fdic;FI_European_Central_Counterparty_Limited"/>
+        <fdic:has-financial-market-utility rdf:resource="&fdic;FI_FedACH_Services"/>
+        <fdic:has-financial-market-utility rdf:resource="&fdic;FI_Fedwire_Funds_Service"/>
+        <fdic:has-financial-market-utility rdf:resource="&fdic;FI_Fedwire_Securities_Service"/>
+        <fdic:has-financial-market-utility rdf:resource="&fdic;FI_Fixed_Income_Clearing_Corporation"/>
+        <fdic:has-financial-market-utility rdf:resource="&fdic;FI_Japan_Government_Bond_Clearing_Corporation"/>
+        <fdic:has-financial-market-utility rdf:resource="&fdic;FI_ICE_Clear_Credit_LLC"/>
+        <fdic:has-financial-market-utility rdf:resource="&fdic;FI_ICE_Clear_Europe"/>
+        <fdic:has-financial-market-utility rdf:resource="&fdic;FI_LCH_Clearnet_Limited"/>
+        <fdic:has-financial-market-utility rdf:resource="&fdic;FI_National_Securities_Clearing_Corporation"/>
+        <fdic:has-financial-market-utility rdf:resource="&fdic;FI_Options_Clearing_Corporation"/>
+        <fdic:has-financial-market-utility rdf:resource="&fdic;FI_The_Society_for_Worldwide_Interbank_Financial_Telecommunication"/>
+        <fdic:has-financial-market-utility rdf:resource="&fdic;FI_The_TransEuropean_Automated_Realtime_Gross_settlement_Express_Transfer_system"/>
+
+        <fdic:financial-market-utility-membership-in rdf:resource="&fdic;FI_Clearing_House_Automated_Payment_System_FMU"/>
+        <fdic:financial-market-utility-membership-in rdf:resource="&fdic;FI_Clearing_House_Interbank_Payments_System_FMU"/>
+        <fdic:financial-market-utility-membership-in rdf:resource="&fdic;FI_CLS_Bank_International_FMU"/>
+        <fdic:financial-market-utility-membership-in rdf:resource="&fdic;FI_CME_Group_Inc_FMU"/>
+        <fdic:financial-market-utility-membership-in rdf:resource="&fdic;FI_CREST_FMU"/>
+        <fdic:financial-market-utility-membership-in rdf:resource="&fdic;FI_The_Depository_Trust_Company_FMU"/>
+        <fdic:financial-market-utility-membership-in rdf:resource="&fdic;FI_Electronic_Payments_Network_FMU"/>
+        <fdic:financial-market-utility-membership-in rdf:resource="&fdic;FI_Eurex_Clearing_AG_FMU"/>
+        <fdic:financial-market-utility-membership-in rdf:resource="&fdic;FI_Euroclear_Bank_FMU"/>
+        <fdic:financial-market-utility-membership-in rdf:resource="&fdic;FI_European_Central_Counterparty_Limited_FMU"/>
+        <fdic:financial-market-utility-membership-in rdf:resource="&fdic;FI_FedACH_Services_FMU"/>
+        <fdic:financial-market-utility-membership-in rdf:resource="&fdic;FI_Fedwire_Funds_Service_FMU"/>
+        <fdic:financial-market-utility-membership-in rdf:resource="&fdic;FI_Fedwire_Securities_Service_FMU"/>
+        <fdic:financial-market-utility-membership-in rdf:resource="&fdic;FI_Fixed_Income_Clearing_Corporation_FMU"/>
+        <fdic:financial-market-utility-membership-in rdf:resource="&fdic;FI_Japan_Government_Bond_Clearing_Corporation_FMU"/>
+        <fdic:financial-market-utility-membership-in rdf:resource="&fdic;FI_ICE_Clear_Credit_LLC_FMU"/>
+        <fdic:financial-market-utility-membership-in rdf:resource="&fdic;FI_ICE_Clear_Europe_FMU"/>
+        <fdic:financial-market-utility-membership-in rdf:resource="&fdic;FI_LCH_Clearnet_Limited_FMU"/>
+        <fdic:financial-market-utility-membership-in rdf:resource="&fdic;FI_National_Securities_Clearing_Corporation_FMU"/>
+        <fdic:financial-market-utility-membership-in rdf:resource="&fdic;FI_Options_Clearing_Corporation_FMU"/>
+        <fdic:financial-market-utility-membership-in rdf:resource="&fdic;FI_The_Society_for_Worldwide_Interbank_Financial_Telecommunication_FMU"/>
+        <fdic:financial-market-utility-membership-in rdf:resource="&fdic;FI_The_TransEuropean_Automated_Realtime_Gross_settlement_Express_Transfer_system_FMU"/>
     </rdf:Description>
 
     <rdf:Description rdf:about="&fdic;FI_Bank_of_America_National_Association">
         <rdf:type rdf:resource="&fdic;financial-institution"/>
-        <lumify:title>Bank of America, National Association</lumify:title>
+        <fdic:financial-institution-name>Bank of America, National Association</fdic:financial-institution-name>
         <fdic:alias>BANA</fdic:alias>
     </rdf:Description>
     <rdf:Description rdf:about="&fdic;FI_Bank_of_America_National_Association_ME">
         <rdf:type rdf:resource="&fdic;material-entity-declaration"/>
-        <lumify:title>Bank of America, National Association - Material Entity Details</lumify:title>
+        <fdic:financial-institution-name>Bank of America, National Association</fdic:financial-institution-name>
         <fdic:material-entity-declaration-out rdf:resource="&fdic;FI_Bank_of_America_National_Association"/>
     </rdf:Description>
 
     <rdf:Description rdf:about="&fdic;FI_Bank_of_America_NA_London_Branch">
         <rdf:type rdf:resource="&fdic;financial-institution"/>
-        <lumify:title>Bank of America, N.A. - London Branch</lumify:title>
+        <fdic:financial-institution-name>Bank of America, N.A. - London Branch</fdic:financial-institution-name>
         <fdic:alias>BANA - London</fdic:alias>
     </rdf:Description>
     <rdf:Description rdf:about="&fdic;FI_Bank_of_America_NA_London_Branch_ME">
         <rdf:type rdf:resource="&fdic;material-entity-declaration"/>
-        <lumify:title>Bank of America, N.A. - London Branch - Material Entity Details</lumify:title>
+        <fdic:financial-institution-name>Bank of America, N.A. - London Branch</fdic:financial-institution-name>
         <fdic:material-entity-declaration-out rdf:resource="&fdic;FI_Bank_of_America_NA_London_Branch"/>
     </rdf:Description>
 
     <rdf:Description rdf:about="&fdic;FI_Bank_of_America_NA_Frankfurt_Branch">
         <rdf:type rdf:resource="&fdic;financial-institution"/>
-        <lumify:title>Bank of America, N.A. - Frankfurt Branch</lumify:title>
+        <fdic:financial-institution-name>Bank of America, N.A. - Frankfurt Branch</fdic:financial-institution-name>
         <fdic:alias>BANA - Frankfurt</fdic:alias>
     </rdf:Description>
     <rdf:Description rdf:about="&fdic;FI_Bank_of_America_NA_Frankfurt_Branch_ME">
         <rdf:type rdf:resource="&fdic;material-entity-declaration"/>
-        <lumify:title>Bank of America, N.A. - Frankfurt Branch - Material Entity Details</lumify:title>
+        <fdic:financial-institution-name>Bank of America, N.A. - Frankfurt Branch</fdic:financial-institution-name>
         <fdic:material-entity-declaration-out rdf:resource="&fdic;FI_Bank_of_America_NA_Frankfurt_Branch"/>
     </rdf:Description>
 
     <rdf:Description rdf:about="&fdic;FI_FIA_Card_Services_National_Association">
         <rdf:type rdf:resource="&fdic;financial-institution"/>
-        <lumify:title>FIA Card Services, National Association</lumify:title>
+        <fdic:financial-institution-name>FIA Card Services, National Association</fdic:financial-institution-name>
         <fdic:alias>FIA</fdic:alias>
     </rdf:Description>
     <rdf:Description rdf:about="&fdic;FI_FIA_Card_Services_National_Association_ME">
         <rdf:type rdf:resource="&fdic;material-entity-declaration"/>
-        <lumify:title>FIA Card Services, National Association - Material Entity Details</lumify:title>
+        <fdic:financial-institution-name>FIA Card Services, National Association</fdic:financial-institution-name>
         <fdic:material-entity-declaration-out rdf:resource="&fdic;FI_FIA_Card_Services_National_Association"/>
     </rdf:Description>
 
     <rdf:Description rdf:about="&fdic;FI_Bank_of_America_California_National_Association">
         <rdf:type rdf:resource="&fdic;financial-institution"/>
-        <lumify:title>Bank of America California, National Association</lumify:title>
+        <fdic:financial-institution-name>Bank of America California, National Association</fdic:financial-institution-name>
         <fdic:alias>BACANA</fdic:alias>
     </rdf:Description>
     <rdf:Description rdf:about="&fdic;FI_Bank_of_America_California_National_Association_ME">
         <rdf:type rdf:resource="&fdic;material-entity-declaration"/>
-        <lumify:title>Bank of America California, National Association - Material Entity Details</lumify:title>
+        <fdic:financial-institution-name>Bank of America California, National Association</fdic:financial-institution-name>
         <fdic:material-entity-declaration-out rdf:resource="&fdic;FI_Bank_of_America_California_National_Association"/>
     </rdf:Description>
 
     <rdf:Description rdf:about="&fdic;FI_Countrywide_Financial_Corporation">
         <rdf:type rdf:resource="&fdic;financial-institution"/>
-        <lumify:title>Countrywide Financial Corporation</lumify:title>
+        <fdic:financial-institution-name>Countrywide Financial Corporation</fdic:financial-institution-name>
         <fdic:alias>CFC</fdic:alias>
     </rdf:Description>
     <rdf:Description rdf:about="&fdic;FI_Countrywide_Financial_Corporation_ME">
         <rdf:type rdf:resource="&fdic;material-entity-declaration"/>
-        <lumify:title>Countrywide Financial Corporation - Material Entity Details</lumify:title>
+        <fdic:financial-institution-name>Countrywide Financial Corporation</fdic:financial-institution-name>
         <fdic:material-entity-declaration-out rdf:resource="&fdic;FI_Countrywide_Financial_Corporation"/>
     </rdf:Description>
 
     <rdf:Description rdf:about="&fdic;FI_Countrywide_Home_Loans_Inc">
         <rdf:type rdf:resource="&fdic;financial-institution"/>
-        <lumify:title>Countrywide Home Loans, Inc.</lumify:title>
+        <fdic:financial-institution-name>Countrywide Home Loans, Inc.</fdic:financial-institution-name>
         <fdic:alias>CHL</fdic:alias>
     </rdf:Description>
     <rdf:Description rdf:about="&fdic;FI_Countrywide_Home_Loans_Inc_ME">
         <rdf:type rdf:resource="&fdic;material-entity-declaration"/>
-        <lumify:title>Countrywide Home Loans, Inc. - Material Entity Details</lumify:title>
+        <fdic:financial-institution-name>Countrywide Home Loans, Inc.</fdic:financial-institution-name>
         <fdic:material-entity-declaration-out rdf:resource="&fdic;FI_Countrywide_Home_Loans_Inc"/>
     </rdf:Description>
 
     <rdf:Description rdf:about="&fdic;FI_Merrill_Lynch_Co_Inc">
         <rdf:type rdf:resource="&fdic;financial-institution"/>
-        <lumify:title>Merrill Lynch &amp; Co., Inc.</lumify:title>
+        <fdic:financial-institution-name>Merrill Lynch &amp; Co., Inc.</fdic:financial-institution-name>
         <fdic:alias>MLCO</fdic:alias>
     </rdf:Description>
     <rdf:Description rdf:about="&fdic;FI_Merrill_Lynch_Co_Inc_ME">
         <rdf:type rdf:resource="&fdic;material-entity-declaration"/>
-        <lumify:title>Merrill Lynch &amp; Co., Inc. - Material Entity Details</lumify:title>
+        <fdic:financial-institution-name>Merrill Lynch &amp; Co., Inc.</fdic:financial-institution-name>
         <fdic:material-entity-declaration-out rdf:resource="&fdic;FI_Merrill_Lynch_Co_Inc"/>
     </rdf:Description>
 
     <rdf:Description rdf:about="&fdic;FI_Merrill_Lynch_Pierce_Fenner_Smith_Incorporated">
         <rdf:type rdf:resource="&fdic;financial-institution"/>
-        <lumify:title>Merrill Lynch, Pierce, Fenner &amp; Smith, Incorporated</lumify:title>
+        <fdic:financial-institution-name>Merrill Lynch, Pierce, Fenner &amp; Smith, Incorporated</fdic:financial-institution-name>
         <fdic:alias>MLFPS</fdic:alias>
     </rdf:Description>
     <rdf:Description rdf:about="&fdic;FI_Merrill_Lynch_Pierce_Fenner_Smith_Incorporated_ME">
         <rdf:type rdf:resource="&fdic;material-entity-declaration"/>
-        <lumify:title>Merrill Lynch, Pierce, Fenner &amp; Smith, Incorporated - Material Entity Details</lumify:title>
+        <fdic:financial-institution-name>Merrill Lynch, Pierce, Fenner &amp; Smith, Incorporated</fdic:financial-institution-name>
         <fdic:material-entity-declaration-out rdf:resource="&fdic;FI_Merrill_Lynch_Pierce_Fenner_Smith_Incorporated"/>
     </rdf:Description>
 
     <rdf:Description rdf:about="&fdic;FI_Merrill_Lynch_Professional_Clearing_Corp">
         <rdf:type rdf:resource="&fdic;financial-institution"/>
-        <lumify:title>Merrill Lynch Professional Clearing Corp.</lumify:title>
+        <fdic:financial-institution-name>Merrill Lynch Professional Clearing Corp.</fdic:financial-institution-name>
         <fdic:alias>MLPRO</fdic:alias>
     </rdf:Description>
     <rdf:Description rdf:about="&fdic;FI_Merrill_Lynch_Professional_Clearing_Corp_ME">
         <rdf:type rdf:resource="&fdic;material-entity-declaration"/>
-        <lumify:title>Merrill Lynch Professional Clearing Corp. - Material Entity Details</lumify:title>
+        <fdic:financial-institution-name>Merrill Lynch Professional Clearing Corp.</fdic:financial-institution-name>
         <fdic:material-entity-declaration-out rdf:resource="&fdic;FI_Merrill_Lynch_Professional_Clearing_Corp"/>
     </rdf:Description>
 
     <rdf:Description rdf:about="&fdic;FI_Merrill_Lynch_Capital_Services_Inc">
         <rdf:type rdf:resource="&fdic;financial-institution"/>
-        <lumify:title>Merrill Lynch Capital Services, Inc.</lumify:title>
+        <fdic:financial-institution-name>Merrill Lynch Capital Services, Inc.</fdic:financial-institution-name>
         <fdic:alias>MLCS</fdic:alias>
     </rdf:Description>
     <rdf:Description rdf:about="&fdic;FI_Merrill_Lynch_Capital_Services_Inc_ME">
         <rdf:type rdf:resource="&fdic;material-entity-declaration"/>
-        <lumify:title>Merrill Lynch Capital Services, Inc. - Material Entity Details</lumify:title>
+        <fdic:financial-institution-name>Merrill Lynch Capital Services, Inc.</fdic:financial-institution-name>
         <fdic:material-entity-declaration-out rdf:resource="&fdic;FI_Merrill_Lynch_Capital_Services_Inc"/>
     </rdf:Description>
 
     <rdf:Description rdf:about="&fdic;FI_Merrill_Lynch_Commodities_Inc">
         <rdf:type rdf:resource="&fdic;financial-institution"/>
-        <lumify:title>Merrill Lynch Commodities, Inc.</lumify:title>
+        <fdic:financial-institution-name>Merrill Lynch Commodities, Inc.</fdic:financial-institution-name>
         <fdic:alias>MLCI</fdic:alias>
     </rdf:Description>
     <rdf:Description rdf:about="&fdic;FI_Merrill_Lynch_Commodities_Inc_ME">
         <rdf:type rdf:resource="&fdic;material-entity-declaration"/>
-        <lumify:title>Merrill Lynch Commodities, Inc. - Material Entity Details</lumify:title>
+        <fdic:financial-institution-name>Merrill Lynch Commodities, Inc.</fdic:financial-institution-name>
         <fdic:material-entity-declaration-out rdf:resource="&fdic;FI_Merrill_Lynch_Commodities_Inc"/>
     </rdf:Description>
 
     <rdf:Description rdf:about="&fdic;FI_Merrill_Lynch_International">
         <rdf:type rdf:resource="&fdic;financial-institution"/>
-        <lumify:title>Merrill Lynch International</lumify:title>
+        <fdic:financial-institution-name>Merrill Lynch International</fdic:financial-institution-name>
         <fdic:alias>MLI</fdic:alias>
     </rdf:Description>
     <rdf:Description rdf:about="&fdic;FI_Merrill_Lynch_International_ME">
         <rdf:type rdf:resource="&fdic;material-entity-declaration"/>
-        <lumify:title>Merrill Lynch International - Material Entity Details</lumify:title>
+        <fdic:financial-institution-name>Merrill Lynch International</fdic:financial-institution-name>
         <fdic:material-entity-declaration-out rdf:resource="&fdic;FI_Merrill_Lynch_International"/>
     </rdf:Description>
 
     <rdf:Description rdf:about="&fdic;FI_Merrill_Lynch_Commodities_Europe_Limited">
         <rdf:type rdf:resource="&fdic;financial-institution"/>
-        <lumify:title>Merrill Lynch Commodities (Europe) Limited</lumify:title>
+        <fdic:financial-institution-name>Merrill Lynch Commodities (Europe) Limited</fdic:financial-institution-name>
         <fdic:alias>MLCE</fdic:alias>
     </rdf:Description>
     <rdf:Description rdf:about="&fdic;FI_Merrill_Lynch_Commodities_Europe_Limited_ME">
         <rdf:type rdf:resource="&fdic;material-entity-declaration"/>
-        <lumify:title>Merrill Lynch Commodities (Europe) Limited - Material Entity Details</lumify:title>
+        <fdic:financial-institution-name>Merrill Lynch Commodities (Europe) Limited</fdic:financial-institution-name>
         <fdic:material-entity-declaration-out rdf:resource="&fdic;FI_Merrill_Lynch_Commodities_Europe_Limited"/>
     </rdf:Description>
 
     <rdf:Description rdf:about="&fdic;FI_Merrill_Lynch_International_Bank_Limited">
         <rdf:type rdf:resource="&fdic;financial-institution"/>
-        <lumify:title>Merrill Lynch International Bank Limited</lumify:title>
+        <fdic:financial-institution-name>Merrill Lynch International Bank Limited</fdic:financial-institution-name>
         <fdic:alias>MLIB</fdic:alias>
     </rdf:Description>
     <rdf:Description rdf:about="&fdic;FI_Merrill_Lynch_International_Bank_Limited_ME">
         <rdf:type rdf:resource="&fdic;material-entity-declaration"/>
-        <lumify:title>Merrill Lynch International Bank Limited - Material Entity Details</lumify:title>
+        <fdic:financial-institution-name>Merrill Lynch International Bank Limited</fdic:financial-institution-name>
         <fdic:material-entity-declaration-out rdf:resource="&fdic;FI_Merrill_Lynch_International_Bank_Limited"/>
     </rdf:Description>
 
     <rdf:Description rdf:about="&fdic;FI_Merrill_Lynch_Japan_Securities_Co_Ltd">
         <rdf:type rdf:resource="&fdic;financial-institution"/>
-        <lumify:title>Merrill Lynch Japan Securities Co., Ltd.</lumify:title>
+        <fdic:financial-institution-name>Merrill Lynch Japan Securities Co., Ltd.</fdic:financial-institution-name>
         <fdic:alias>MLJS</fdic:alias>
     </rdf:Description>
     <rdf:Description rdf:about="&fdic;FI_Merrill_Lynch_Japan_Securities_Co_Ltd_ME">
         <rdf:type rdf:resource="&fdic;material-entity-declaration"/>
-        <lumify:title>Merrill Lynch Japan Securities Co., Ltd. - Material Entity Details</lumify:title>
+        <fdic:financial-institution-name>Merrill Lynch Japan Securities Co., Ltd.</fdic:financial-institution-name>
         <fdic:material-entity-declaration-out rdf:resource="&fdic;FI_Merrill_Lynch_Japan_Securities_Co_Ltd"/>
     </rdf:Description>
 
     <rdf:Description rdf:about="&fdic;FI_Merrill_Lynch_Global_Services_Pte_Ltd">
         <rdf:type rdf:resource="&fdic;financial-institution"/>
-        <lumify:title>Merrill Lynch Global Services Pte. Ltd.</lumify:title>
+        <fdic:financial-institution-name>Merrill Lynch Global Services Pte. Ltd.</fdic:financial-institution-name>
         <fdic:alias>MLGS</fdic:alias>
     </rdf:Description>
     <rdf:Description rdf:about="&fdic;FI_Merrill_Lynch_Global_Services_Pte_Ltd_ME">
         <rdf:type rdf:resource="&fdic;material-entity-declaration"/>
-        <lumify:title>Merrill Lynch Global Services Pte. Ltd. - Material Entity Details</lumify:title>
+        <fdic:financial-institution-name>Merrill Lynch Global Services Pte. Ltd.</fdic:financial-institution-name>
         <fdic:material-entity-declaration-out rdf:resource="&fdic;FI_Merrill_Lynch_Global_Services_Pte_Ltd"/>
     </rdf:Description>
 
     <rdf:Description rdf:about="&fdic;FI_BA_Continuum_India_Private_Limited">
         <rdf:type rdf:resource="&fdic;financial-institution"/>
-        <lumify:title>BA Continuum India Private Limited</lumify:title>
+        <fdic:financial-institution-name>BA Continuum India Private Limited</fdic:financial-institution-name>
         <fdic:alias>BACI</fdic:alias>
     </rdf:Description>
     <rdf:Description rdf:about="&fdic;FI_BA_Continuum_India_Private_Limited_ME">
         <rdf:type rdf:resource="&fdic;material-entity-declaration"/>
-        <lumify:title>BA Continuum India Private Limited - Material Entity Details</lumify:title>
+        <fdic:financial-institution-name>BA Continuum India Private Limited</fdic:financial-institution-name>
         <fdic:material-entity-declaration-out rdf:resource="&fdic;FI_BA_Continuum_India_Private_Limited"/>
     </rdf:Description>
 
     <rdf:Description rdf:about="&fdic;FI_Financial_Data_Services_Inc">
         <rdf:type rdf:resource="&fdic;financial-institution"/>
-        <lumify:title>Financial Data Services, Inc.</lumify:title>
+        <fdic:financial-institution-name>Financial Data Services, Inc.</fdic:financial-institution-name>
         <fdic:alias>FDS</fdic:alias>
     </rdf:Description>
     <rdf:Description rdf:about="&fdic;FI_Financial_Data_Services_Inc_ME">
         <rdf:type rdf:resource="&fdic;material-entity-declaration"/>
-        <lumify:title>Financial Data Services, Inc. - Material Entity Details</lumify:title>
+        <fdic:financial-institution-name>Financial Data Services, Inc.</fdic:financial-institution-name>
         <fdic:material-entity-declaration-out rdf:resource="&fdic;FI_Financial_Data_Services_Inc"/>
     </rdf:Description>
 
     <rdf:Description rdf:about="&fdic;FI_Managed_Account_Advisors_LLC">
         <rdf:type rdf:resource="&fdic;financial-institution"/>
-        <lumify:title>Managed Account Advisors LLC</lumify:title>
+        <fdic:financial-institution-name>Managed Account Advisors LLC</fdic:financial-institution-name>
         <fdic:alias>MAA</fdic:alias>
     </rdf:Description>
     <rdf:Description rdf:about="&fdic;FI_Managed_Account_Advisors_LLC_ME">
         <rdf:type rdf:resource="&fdic;material-entity-declaration"/>
-        <lumify:title>Managed Account Advisors LLC - Material Entity Details</lumify:title>
+        <fdic:financial-institution-name>Managed Account Advisors LLC</fdic:financial-institution-name>
         <fdic:material-entity-declaration-out rdf:resource="&fdic;FI_Managed_Account_Advisors_LLC"/>
     </rdf:Description>
 
@@ -342,5 +411,236 @@
         <lumify:publishedDate>2013-06-30</lumify:publishedDate>
         <fdic:asset-total>158078000000</fdic:asset-total>
         <fdic:liability-total>138685000000</fdic:liability-total>
+    </rdf:Description>
+
+    <rdf:Description rdf:about="&fdic;FI_Clearing_House_Automated_Payment_System">
+        <rdf:type rdf:resource="&fdic;financial-institution"/>
+        <fdic:financial-institution-name>Clearing House Automated Payment System</fdic:financial-institution-name>
+        <fdic:alias>CHAPS</fdic:alias>
+    </rdf:Description>
+    <rdf:Description rdf:about="&fdic;FI_Clearing_House_Automated_Payment_System_FMU">
+        <rdf:type rdf:resource="&fdic;financial-market-utility-membership"/>
+        <fdic:financial-institution-name>Clearing House Automated Payment System</fdic:financial-institution-name>
+        <fdic:financial-market-utility-membership-out rdf:resource="&fdic;FI_Clearing_House_Automated_Payment_System"/>
+    </rdf:Description>
+
+    <rdf:Description rdf:about="&fdic;FI_Clearing_House_Interbank_Payments_System">
+        <rdf:type rdf:resource="&fdic;financial-institution"/>
+        <fdic:financial-institution-name>Clearing House Interbank Payments System</fdic:financial-institution-name>
+        <fdic:alias>CHIPS</fdic:alias>
+    </rdf:Description>
+    <rdf:Description rdf:about="&fdic;FI_Clearing_House_Interbank_Payments_System_FMU">
+        <rdf:type rdf:resource="&fdic;financial-market-utility-membership"/>
+        <fdic:financial-institution-name>Clearing House Interbank Payments System</fdic:financial-institution-name>
+        <fdic:financial-market-utility-membership-out rdf:resource="&fdic;FI_Clearing_House_Interbank_Payments_System"/>
+    </rdf:Description>
+
+    <rdf:Description rdf:about="&fdic;FI_CLS_Bank_International">
+        <rdf:type rdf:resource="&fdic;financial-institution"/>
+        <fdic:financial-institution-name>CLS Bank International</fdic:financial-institution-name>
+        <fdic:alias>CLS Bank</fdic:alias>
+    </rdf:Description>
+    <rdf:Description rdf:about="&fdic;FI_CLS_Bank_International_FMU">
+        <rdf:type rdf:resource="&fdic;financial-market-utility-membership"/>
+        <fdic:financial-institution-name>CLS Bank International</fdic:financial-institution-name>
+        <fdic:financial-market-utility-membership-out rdf:resource="&fdic;FI_CLS_Bank_International"/>
+    </rdf:Description>
+
+    <rdf:Description rdf:about="&fdic;FI_CME_Group_Inc">
+        <rdf:type rdf:resource="&fdic;financial-institution"/>
+        <fdic:financial-institution-name>CME Group Inc.</fdic:financial-institution-name>
+        <fdic:alias>CME Group</fdic:alias>
+    </rdf:Description>
+    <rdf:Description rdf:about="&fdic;FI_CME_Group_Inc_FMU">
+        <rdf:type rdf:resource="&fdic;financial-market-utility-membership"/>
+        <fdic:financial-institution-name>CME Group Inc.</fdic:financial-institution-name>
+        <fdic:financial-market-utility-membership-out rdf:resource="&fdic;FI_CME_Group_Inc"/>
+    </rdf:Description>
+
+    <rdf:Description rdf:about="&fdic;FI_CREST">
+        <rdf:type rdf:resource="&fdic;financial-institution"/>
+        <fdic:financial-institution-name>CREST</fdic:financial-institution-name>
+        <fdic:alias>CREST</fdic:alias>
+    </rdf:Description>
+    <rdf:Description rdf:about="&fdic;FI_CREST_FMU">
+        <rdf:type rdf:resource="&fdic;financial-market-utility-membership"/>
+        <fdic:financial-institution-name>CREST</fdic:financial-institution-name>
+        <fdic:financial-market-utility-membership-out rdf:resource="&fdic;FI_CREST"/>
+    </rdf:Description>
+
+    <rdf:Description rdf:about="&fdic;FI_The_Depository_Trust_Company">
+        <rdf:type rdf:resource="&fdic;financial-institution"/>
+        <fdic:financial-institution-name>The Depository Trust Company</fdic:financial-institution-name>
+        <fdic:alias>DTC</fdic:alias>
+    </rdf:Description>
+    <rdf:Description rdf:about="&fdic;FI_The_Depository_Trust_Company_FMU">
+        <rdf:type rdf:resource="&fdic;financial-market-utility-membership"/>
+        <fdic:financial-institution-name>The Depository Trust Company</fdic:financial-institution-name>
+        <fdic:financial-market-utility-membership-out rdf:resource="&fdic;FI_The_Depository_Trust_Company"/>
+    </rdf:Description>
+
+    <rdf:Description rdf:about="&fdic;FI_Electronic_Payments_Network">
+        <rdf:type rdf:resource="&fdic;financial-institution"/>
+        <fdic:financial-institution-name>Electronic Payments Network</fdic:financial-institution-name>
+        <fdic:alias>EPN</fdic:alias>
+    </rdf:Description>
+    <rdf:Description rdf:about="&fdic;FI_Electronic_Payments_Network_FMU">
+        <rdf:type rdf:resource="&fdic;financial-market-utility-membership"/>
+        <fdic:financial-institution-name>Electronic Payments Network</fdic:financial-institution-name>
+        <fdic:financial-market-utility-membership-out rdf:resource="&fdic;FI_Electronic_Payments_Network"/>
+    </rdf:Description>
+
+    <rdf:Description rdf:about="&fdic;FI_Eurex_Clearing_AG">
+        <rdf:type rdf:resource="&fdic;financial-institution"/>
+        <fdic:financial-institution-name>Eurex Clearing AG</fdic:financial-institution-name>
+    </rdf:Description>
+    <rdf:Description rdf:about="&fdic;FI_Eurex_Clearing_AG_FMU">
+        <rdf:type rdf:resource="&fdic;financial-market-utility-membership"/>
+        <fdic:financial-institution-name>Eurex Clearing AG</fdic:financial-institution-name>
+        <fdic:financial-market-utility-membership-out rdf:resource="&fdic;FI_Eurex_Clearing_AG"/>
+    </rdf:Description>
+
+    <rdf:Description rdf:about="&fdic;FI_Euroclear_Bank">
+        <rdf:type rdf:resource="&fdic;financial-institution"/>
+        <fdic:financial-institution-name>Euroclear Bank</fdic:financial-institution-name>
+    </rdf:Description>
+    <rdf:Description rdf:about="&fdic;FI_Euroclear_Bank_FMU">
+        <rdf:type rdf:resource="&fdic;financial-market-utility-membership"/>
+        <fdic:financial-institution-name>Euroclear Bank</fdic:financial-institution-name>
+        <fdic:financial-market-utility-membership-out rdf:resource="&fdic;FI_Euroclear_Bank"/>
+    </rdf:Description>
+
+    <rdf:Description rdf:about="&fdic;FI_European_Central_Counterparty_Limited">
+        <rdf:type rdf:resource="&fdic;financial-institution"/>
+        <fdic:financial-institution-name>European Central Counterparty Limited</fdic:financial-institution-name>
+    </rdf:Description>
+    <rdf:Description rdf:about="&fdic;FI_European_Central_Counterparty_Limited_FMU">
+        <rdf:type rdf:resource="&fdic;financial-market-utility-membership"/>
+        <fdic:financial-institution-name>European Central Counterparty Limited</fdic:financial-institution-name>
+        <fdic:financial-market-utility-membership-out rdf:resource="&fdic;FI_European_Central_Counterparty_Limited"/>
+    </rdf:Description>
+
+    <rdf:Description rdf:about="&fdic;FI_FedACH_Services">
+        <rdf:type rdf:resource="&fdic;financial-institution"/>
+        <fdic:financial-institution-name>FedACH Services</fdic:financial-institution-name>
+    </rdf:Description>
+    <rdf:Description rdf:about="&fdic;FI_FedACH_Services_FMU">
+        <rdf:type rdf:resource="&fdic;financial-market-utility-membership"/>
+        <fdic:financial-institution-name>FedACH Services</fdic:financial-institution-name>
+        <fdic:financial-market-utility-membership-out rdf:resource="&fdic;FI_FedACH_Services"/>
+    </rdf:Description>
+
+    <rdf:Description rdf:about="&fdic;FI_Fedwire_Funds_Service">
+        <rdf:type rdf:resource="&fdic;financial-institution"/>
+        <fdic:financial-institution-name>Fedwire Funds Service</fdic:financial-institution-name>
+    </rdf:Description>
+    <rdf:Description rdf:about="&fdic;FI_Fedwire_Funds_Service_FMU">
+        <rdf:type rdf:resource="&fdic;financial-market-utility-membership"/>
+        <fdic:financial-institution-name>Fedwire Funds Service</fdic:financial-institution-name>
+        <fdic:financial-market-utility-membership-out rdf:resource="&fdic;FI_Fedwire_Funds_Service"/>
+    </rdf:Description>
+
+    <rdf:Description rdf:about="&fdic;FI_Fedwire_Securities_Service">
+        <rdf:type rdf:resource="&fdic;financial-institution"/>
+        <fdic:financial-institution-name>Fedwire Securities Service</fdic:financial-institution-name>
+    </rdf:Description>
+    <rdf:Description rdf:about="&fdic;FI_Fedwire_Securities_Service_FMU">
+        <rdf:type rdf:resource="&fdic;financial-market-utility-membership"/>
+        <fdic:financial-institution-name>Fedwire Securities Service</fdic:financial-institution-name>
+        <fdic:financial-market-utility-membership-out rdf:resource="&fdic;FI_Fedwire_Securities_Service"/>
+    </rdf:Description>
+
+    <rdf:Description rdf:about="&fdic;FI_Fixed_Income_Clearing_Corporation">
+        <rdf:type rdf:resource="&fdic;financial-institution"/>
+        <fdic:financial-institution-name>Fixed Income Clearing Corporation</fdic:financial-institution-name>
+        <fdic:alias>FICC</fdic:alias>
+    </rdf:Description>
+    <rdf:Description rdf:about="&fdic;FI_Fixed_Income_Clearing_Corporation_FMU">
+        <rdf:type rdf:resource="&fdic;financial-market-utility-membership"/>
+        <fdic:financial-institution-name>Fixed Income Clearing Corporation</fdic:financial-institution-name>
+        <fdic:financial-market-utility-membership-out rdf:resource="&fdic;FI_Fixed_Income_Clearing_Corporation"/>
+    </rdf:Description>
+
+    <rdf:Description rdf:about="&fdic;FI_Japan_Government_Bond_Clearing_Corporation">
+        <rdf:type rdf:resource="&fdic;financial-institution"/>
+        <fdic:financial-institution-name>Japan Government Bond Clearing Corporation</fdic:financial-institution-name>
+    </rdf:Description>
+    <rdf:Description rdf:about="&fdic;FI_Japan_Government_Bond_Clearing_Corporation_FMU">
+        <rdf:type rdf:resource="&fdic;financial-market-utility-membership"/>
+        <fdic:financial-institution-name>Japan Government Bond Clearing Corporation</fdic:financial-institution-name>
+        <fdic:financial-market-utility-membership-out rdf:resource="&fdic;FI_Japan_Government_Bond_Clearing_Corporation"/>
+    </rdf:Description>
+
+    <rdf:Description rdf:about="&fdic;FI_ICE_Clear_Credit_LLC">
+        <rdf:type rdf:resource="&fdic;financial-institution"/>
+        <fdic:financial-institution-name>ICE Clear Credit LLC</fdic:financial-institution-name>
+    </rdf:Description>
+    <rdf:Description rdf:about="&fdic;FI_ICE_Clear_Credit_LLC_FMU">
+        <rdf:type rdf:resource="&fdic;financial-market-utility-membership"/>
+        <fdic:financial-institution-name>ICE Clear Credit LLC</fdic:financial-institution-name>
+        <fdic:financial-market-utility-membership-out rdf:resource="&fdic;FI_ICE_Clear_Credit_LLC"/>
+    </rdf:Description>
+
+    <rdf:Description rdf:about="&fdic;FI_ICE_Clear_Europe">
+        <rdf:type rdf:resource="&fdic;financial-institution"/>
+        <fdic:financial-institution-name>ICE Clear Europe</fdic:financial-institution-name>
+    </rdf:Description>
+    <rdf:Description rdf:about="&fdic;FI_ICE_Clear_Europe_FMU">
+        <rdf:type rdf:resource="&fdic;financial-market-utility-membership"/>
+        <fdic:financial-institution-name>ICE Clear Europe</fdic:financial-institution-name>
+        <fdic:financial-market-utility-membership-out rdf:resource="&fdic;FI_ICE_Clear_Europe"/>
+    </rdf:Description>
+
+    <rdf:Description rdf:about="&fdic;FI_LCH_Clearnet_Limited">
+        <rdf:type rdf:resource="&fdic;financial-institution"/>
+        <fdic:financial-institution-name>LCH.Clearnet Limited</fdic:financial-institution-name>
+    </rdf:Description>
+    <rdf:Description rdf:about="&fdic;FI_LCH_Clearnet_Limited_FMU">
+        <rdf:type rdf:resource="&fdic;financial-market-utility-membership"/>
+        <fdic:financial-institution-name>LCH.Clearnet Limited</fdic:financial-institution-name>
+        <fdic:financial-market-utility-membership-out rdf:resource="&fdic;FI_LCH_Clearnet_Limited"/>
+    </rdf:Description>
+
+    <rdf:Description rdf:about="&fdic;FI_National_Securities_Clearing_Corporation">
+        <rdf:type rdf:resource="&fdic;financial-institution"/>
+        <fdic:financial-institution-name>National Securities Clearing Corporation</fdic:financial-institution-name>
+        <fdic:alias>NSCC</fdic:alias>
+    </rdf:Description>
+    <rdf:Description rdf:about="&fdic;FI_National_Securities_Clearing_Corporation_FMU">
+        <rdf:type rdf:resource="&fdic;financial-market-utility-membership"/>
+        <fdic:financial-institution-name>National Securities Clearing Corporation</fdic:financial-institution-name>
+        <fdic:financial-market-utility-membership-out rdf:resource="&fdic;FI_National_Securities_Clearing_Corporation"/>
+    </rdf:Description>
+
+    <rdf:Description rdf:about="&fdic;FI_Options_Clearing_Corporation">
+        <rdf:type rdf:resource="&fdic;financial-institution"/>
+        <fdic:financial-institution-name>Options Clearing Corporation</fdic:financial-institution-name>
+    </rdf:Description>
+    <rdf:Description rdf:about="&fdic;FI_Options_Clearing_Corporation_FMU">
+        <rdf:type rdf:resource="&fdic;financial-market-utility-membership"/>
+        <fdic:financial-institution-name>Options Clearing Corporation</fdic:financial-institution-name>
+        <fdic:financial-market-utility-membership-out rdf:resource="&fdic;FI_Options_Clearing_Corporation"/>
+    </rdf:Description>
+
+    <rdf:Description rdf:about="&fdic;FI_The_Society_for_Worldwide_Interbank_Financial_Telecommunication">
+        <rdf:type rdf:resource="&fdic;financial-institution"/>
+        <fdic:financial-institution-name>The Society for Worldwide Interbank Financial Telecommunication</fdic:financial-institution-name>
+        <fdic:alias>SWIFT</fdic:alias>
+    </rdf:Description>
+    <rdf:Description rdf:about="&fdic;FI_The_Society_for_Worldwide_Interbank_Financial_Telecommunication_FMU">
+        <rdf:type rdf:resource="&fdic;financial-market-utility-membership"/>
+        <fdic:financial-institution-name>The Society for Worldwide Interbank Financial Telecommunication</fdic:financial-institution-name>
+        <fdic:financial-market-utility-membership-out rdf:resource="&fdic;FI_The_Society_for_Worldwide_Interbank_Financial_Telecommunication"/>
+    </rdf:Description>
+
+    <rdf:Description rdf:about="&fdic;FI_The_TransEuropean_Automated_Realtime_Gross_settlement_Express_Transfer_system">
+        <rdf:type rdf:resource="&fdic;financial-institution"/>
+        <fdic:financial-institution-name>The Trans-European Automated Real-time Gross settlement Express Transfer system</fdic:financial-institution-name>
+        <fdic:alias>TARGET2</fdic:alias>
+    </rdf:Description>
+    <rdf:Description rdf:about="&fdic;FI_The_TransEuropean_Automated_Realtime_Gross_settlement_Express_Transfer_system_FMU">
+        <rdf:type rdf:resource="&fdic;financial-market-utility-membership"/>
+        <fdic:financial-institution-name>The Trans-European Automated Real-time Gross settlement Express Transfer system</fdic:financial-institution-name>
+        <fdic:financial-market-utility-membership-out rdf:resource="&fdic;FI_The_TransEuropean_Automated_Realtime_Gross_settlement_Express_Transfer_system"/>
     </rdf:Description>
 </rdf:RDF>

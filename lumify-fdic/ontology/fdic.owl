@@ -354,6 +354,7 @@
     <owl:Class rdf:about="http://lumify.io/fdic#financial-institution">
         <rdfs:label xml:lang="en">Financial Institution</rdfs:label>
         <rdfs:subClassOf rdf:resource="http://lumify.io/fdic#company"/>
+        <lumify:titleFormula>prop(&apos;http://lumify.io/fdic#financial-institution-name&apos;) || prop(&apos;http://lumify.io#title&apos;) || &apos;Unknown&apos;</lumify:titleFormula>
     </owl:Class>
     
 
@@ -363,6 +364,7 @@
     <owl:Class rdf:about="http://lumify.io/fdic#financial-market-utility-membership">
         <rdfs:label xml:lang="en">Financial Market Utility Membership</rdfs:label>
         <rdfs:subClassOf rdf:resource="http://lumify.io/fdic#event"/>
+        <lumify:titleFormula>(prop(&apos;http://lumify.io/fdic#financial-institution-name&apos;) || prop(&apos;http://lumify.io#title&apos;) || &apos;Unknown&apos;) + &apos; - FMU&apos;</lumify:titleFormula>
     </owl:Class>
     
 
@@ -382,6 +384,7 @@
     <owl:Class rdf:about="http://lumify.io/fdic#material-entity-declaration">
         <rdfs:label xml:lang="en">Material Entity Declaration</rdfs:label>
         <rdfs:subClassOf rdf:resource="http://lumify.io/fdic#event"/>
+        <lumify:titleFormula>(prop(&apos;http://lumify.io/fdic#financial-institution-name&apos;) || prop(&apos;http://lumify.io#title&apos;) || &apos;Unknown&apos;) + &apos; - Material Entity&apos;</lumify:titleFormula>
     </owl:Class>
     
 
