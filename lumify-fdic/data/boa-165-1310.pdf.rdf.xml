@@ -1,0 +1,29 @@
+<?xml version="1.0"?>
+
+<!DOCTYPE rdf:RDF [
+        <!ENTITY owl "http://www.w3.org/2002/07/owl#" >
+        <!ENTITY xsd "http://www.w3.org/2001/XMLSchema#" >
+        <!ENTITY rdfs "http://www.w3.org/2000/01/rdf-schema#" >
+        <!ENTITY rdf "http://www.w3.org/1999/02/22-rdf-syntax-ns#" >
+        <!ENTITY fdic "http://lumify.io/fdic#">
+        ]>
+
+
+<rdf:RDF xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+         xmlns:lumify="http://lumify.io#"
+         xmlns:fdic="http://lumify.io/fdic#">
+
+    <rdf:Description rdf:about="&fdic;RP_boa-165-1310">
+        <rdf:type rdf:resource="&fdic;resolution-plan"/>
+        <lumify:publishedDate>2013-10-01</lumify:publishedDate>
+        <fdic:financial-institution-name>Bank of America Corporation</fdic:financial-institution-name>
+        <lumify:fileName>boa-165-1310.pdf</lumify:fileName>
+        <lumify:raw>streamingValue:{"fileName": "boa-165-1310.pdf"}</lumify:raw>
+    </rdf:Description>
+
+    <rdf:Description rdf:about="&fdic;FI_Bank_of_America_Corporation">
+        <rdf:type rdf:resource="&fdic;financial-institution"/>
+        <lumify:title>Bank of America Corporation</lumify:title>
+        <fdic:has-resolution-plan rdf:resource="&fdic;RP_boa-165-1310"/>
+    </rdf:Description>
+</rdf:RDF>
