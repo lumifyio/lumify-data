@@ -21,5 +21,65 @@
         <%- end -%>
         <lumify:fileName><%= pdf_filename %></lumify:fileName>
         <lumify:raw>streamingValue:{"fileName": "<%= pdf_filename %>"}</lumify:raw>
+
+        <!-- TODO: relationships -->
     </rdf:Description>
+
+    <rdf:Description rdf:about="&fdic;PERSON_Bruce_R_Thompson">
+        <rdf:type rdf:resource="&fdic;person"/>
+        <lumify:title>Bruce R. Thompson</lumify:title>
+    </rdf:Description>
+
+    <%- resolution_plan[:material_entities].each do |me_name, me_properties| -%>
+    <rdf:Description rdf:about="&fdic;<%= me_properties[:id] %>">
+        <rdf:type rdf:resource="&fdic;financial-institution"/>
+        <fdic:financial-institution-name><%= me_name %></fdic:financial-institution-name>
+        <%- if me_properties[:alias] -%>
+        <fdic:alias><%= me_properties[:alias] %></fdic:alias>
+        <%- end -%>
+        <%- if me_properties[:image] -%>
+        <lumify:entityImageVertexId><%= image_id(me_properties[:image]) %></lumify:entityImageVertexId>
+        <fdic:thing-has-image rdf:resource="&fdic;<%= image_id(me_properties[:image]) %>"/>
+        <%- end -%>
+
+        <%- if me_properties[:resolution_plan_id] -%>
+        <fdic:has-resolution-plan rdf:resource="&fdic;<%= me_properties[:resolution_plan_id] %>"/>
+        <%- end -%>
+
+        <!-- TODO: relationships -->
+    </rdf:Description>
+
+
+    <%- if me_properties[:principal_officers] -%>
+    <%- me_properties[:principal_officers].each do |po| -%>
+    <rdf:Description rdf:about="&fdic;PERSON_Gary_G_Lynch_POA_FIA">
+        <rdf:type rdf:resource="&fdic;principal-officer-assignment"/>
+        <lumify:title>Gary G. Lynch</lumify:title>
+        <fdic:position>Global General Counsel</fdic:position>
+        <fdic:position>Head of Compliance</fdic:position>
+        <fdic:position>Regulatory Relations</fdic:position>
+        <fdic:principal-officer-assignment-out rdf:resource="&fdic;PERSON_Gary_G_Lynch"/>
+    </rdf:Description>
+
+    <%- end -%>
+    <%- end -%>
+
+    <%- end -%>
+
+    <%- resolution_plan[:financial_market_utilities].each do |fmu_name, fmu_properties| -%>
+    <rdf:Description rdf:about="&fdic;<%= fmu_properties[:id] %>">
+        <rdf:type rdf:resource="&fdic;financial-institution"/>
+        <fdic:financial-institution-name><%=fmu_name %></fdic:financial-institution-name>
+        <%- if fmu_properties[:alias] -%>
+        <fdic:alias><%= fmu_properties[:alias] %></fdic:alias>
+        <%- end -%>
+        <%- if fmu_properties[:image] -%>
+        <lumify:entityImageVertexId><%= image_id(fmu_properties[:image]) %></lumify:entityImageVertexId>
+        <fdic:thing-has-image rdf:resource="&fdic;<%= image_id(fmu_properties[:image]) %>"/>
+        <%- end -%>
+
+        <!-- TODO: relationships -->
+    </rdf:Description>
+
+    <%- end -%>
 </rdf:RDF>

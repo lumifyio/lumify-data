@@ -76,7 +76,7 @@
     - First Clearing, LLC (“FC LLC”)
     - Wells Fargo Funds Management, LLC (“WFFM”)
     - Wells Capital Management, Incorporated (“Wells Cap”)
-  :financial_market_utility:
+  :financial_market_utilities:
     - Fedwire Funds Service
     - Clearing House Interbank Payments System:
         :alias: CHIPS
@@ -84,7 +84,7 @@
     - Electronic Payment Network:
         :alias: EPN
     - FedACH Services
-    - Fixed Income Clearing Corporation – Government Securities Division (“GSD”) and Mortgage-Backed Securities Division (“MBSD”):
+    - Fixed Income Clearing Corporation:
         :alias: FICC
     - The Depository Trust Company:
         :alias: DTC
