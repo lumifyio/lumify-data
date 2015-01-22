@@ -1,0 +1,100 @@
+---
+:resolution_plan:
+  :financial_institution_name:
+    - Wells Fargo & Company
+    - Wells Fargo Bank, N.A.
+  :date: July 1, 2014
+  :material_entities:
+    - Wells Fargo & Company:
+        :balance_sheet:
+          :date: December 31, 2013
+          :asset_total: $1,523,502
+          :liability_total: $1,523,502
+        :principal_officers:
+          - John G. Stumpf:
+              :position:
+                - President
+                - Chief Executive Officer
+          - Patricia R. Callahan:
+              :position: Chief Administrative Officer
+          - David M. Carroll:
+              :position: Head of Wealth, Brokerage and Retirement
+          - Hope A. Hardison:
+              :position: Head of Human Resources
+          - Michael J. Heid:
+              :position: Head of Home Lending
+          - Richard D. Levy:
+              :position: Controller
+          - Michael J. Loughlin:
+              :position: Chief Risk Officer
+          - Avid Modjtabai:
+              :position: Head of Consumer Lending
+          - Kevin A. Rhein:
+              :position: Chief Information Officer
+          - John R. Shrewsberry:
+              :position: Chief Financial Officer
+          - Timothy J. Sloan:
+              :position: Head of Wholesale Banking
+          - James M. Strother:
+              :position: General Counsel
+          - Carrie L. Tolstedt:
+              :position: Head of Community Banking
+    - WFBNA:
+        :balance_sheet:
+          :date: December 31, 2013
+          :asset_total: $1,373,600
+          :liability_total: $1,373,600
+        :principal_officers:
+          - John G. Stumpf:
+              :position: Chairman
+          - Patricia R. Callahan:
+              :position: Chief Administrative Officer
+          - David M. Carroll:
+              :position: Head of Wealth, Brokerage and Retirement
+          - Hope A. Hardison:
+              :position: Head of Human Resources
+          - Michael J. Heid:
+              :position: Head of Home Lending
+          - Richard D. Levy:
+              :position: Controller
+          - Michael J. Loughlin:
+              :position: Chief Risk Officer
+          - Avid Modjtabai:
+              :position: Head of Consumer Lending
+          - Kevin A. Rhein:
+              :position: Chief Information Officer
+          - John R. Shrewsberry:
+              :position: Chief Financial Officer
+          - Timothy J. Sloan:
+              :position: Head of Wholesale Banking
+          - James M. Strother:
+              :position: General Counsel
+          - Carrie L. Tolstedt:
+              :position: Head of Community Banking
+    - Wells Fargo Securities, LLC (“WFS LLC”)
+    - Wells Fargo Advisors, LLC (“WFA LLC”)
+    - First Clearing, LLC (“FC LLC”)
+    - Wells Fargo Funds Management, LLC (“WFFM”)
+    - Wells Capital Management, Incorporated (“Wells Cap”)
+  :financial_market_utility:
+    - Fedwire Funds Service
+    - Clearing House Interbank Payments System:
+        :alias: CHIPS
+    - Fedwire Securities Service
+    - Electronic Payment Network:
+        :alias: EPN
+    - FedACH Services
+    - Fixed Income Clearing Corporation – Government Securities Division (“GSD”) and Mortgage-Backed Securities Division (“MBSD”):
+        :alias: FICC
+    - The Depository Trust Company:
+        :alias: DTC
+    - Viewpointe Clearing, Settlement & Association Services, LLC
+    - The Small Value Payments Company L.L.C.:
+        :alias: SVPCo
+    - Fed Clearing – the Federal Reserve Clearing Network
+    - Visa, Inc.
+    - Chicago Mercantile Exchange, Inc.:
+        :alias: CME
+    - LCH.Clearnet Ltd.:
+        :alias: LCH
+
