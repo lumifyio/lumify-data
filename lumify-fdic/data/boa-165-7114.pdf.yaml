@@ -1,6 +1,6 @@
 ---
 :resolution_plan:
-  :financial_institution_name:
+  :financial_institution_names:
     - Bank of America Corporation ("BAC")
     - Bank of America, National Association ("BANA")
     - FIA Card Services, National Association ("FIA")
@@ -15,40 +15,49 @@
         :principal_officers:
           - Brian T. Moynihan:
               :image: moynihan-brian-t.jpg
-              :position:
+              :positions:
                 - Chief Executive Officer
           - Catherine P. Bessant:
               :image: bessant-catherine-p.jpg
-              :position:
+              :positions:
                 - Global Technology
                 - Operations Executive
           - David C. Darnell:
               :image: darnell-david-c.jpg
-              :position: Co-Chief Operating Officer
+              :positions:
+                - Co-Chief Operating Officer
           - Anne M. Finucane:
-              :position: Global Strategy and Marketing Officer
+              :positions:
+                - Global Strategy and Marketing Officer
           - Geoffrey S. Greener:
-              : position: Chief Risk Officer
+              :positions:
+                - Chief Risk Officer
           - Christine P. Katziff:
               :image: katziff-christine-p.jpg
-              :position: Corporate General Auditor
+              :positions:
+                - Corporate General Auditor
           - Terry P. Laughlin:
               :image: laughlin-terry-p.jpg
-              :position: President of Strategic Initiatives
+              :positions:
+                - President of Strategic Initiatives
           - Gary G. Lynch:
-              :position:
+              :positions:
                 - Global General Counsel
                 - Head of Compliance and Regulatory Relations
           - Thomas K. Montag:
-              :position: Co-Chief Operating Officer
+              :positions:
+                - Co-Chief Operating Officer
           - Andrea B. Smith:
               :image: smith-andrea-b.jpg
-              :position: Global Head of Human Resources
+              :positions:
+                - Global Head of Human Resources
           - Ron D. Sturzenegger:
               :image: sturzenegger-ron-d.jpg
-              :position: Legacy Asset Servicing Executive
+              :positions:
+                - Legacy Asset Servicing Executive
           - Bruce R. Thompson:
-              :position: Chief Financial Officer
+              :positions:
+                - Chief Financial Officer
     - BAC North America Holding Company (“BACNA”)
     - Bank of America, National Association ("BANA"):
         :image: boa-logo.png
@@ -58,24 +67,29 @@
           :liability_total: 1275865000000
         :principal_officers:
           - Brian T. Moynihan:
-              :position:
+              :positions:
                 - President
                 - Chief Executive Officer
           - Terry P. Laughlin:
-              :position: Chief Risk Officer
+              :positions:
+                - Chief Risk Officer
           - Thomas K. Montag:
-              :position: Co-Chief Operating Officer
+              :positions:
+                - Co-Chief Operating Officer
           - David C. Darnell:
-              :position: Co-Chief Operating Officer
+              :positions:
+                - Co-Chief Operating Officer
           - Gary G. Lynch:
-              :position:
+              :positions:
                 - Global General Counsel
                 - Head of Compliance and Regulatory Relations
           - Bruce R. Thompson:
-              :position: Chief Financial Officer
+              :positions:
+                - Chief Financial Officer
           - Neil A. Cotty:
-              :position: Chief Accounting Officer
-    - Bank of America Merrill Lynch International Limited (“BAMLI”)
+              :positions:
+                - Chief Accounting Officer
+    - Bank of America Merrill Lynch International Limited (“BAMLI”):
         :image: boa-logo.png
     - Bank of America, N.A. - London Branch (“BANA - London”):
         :image: boa-logo.png
@@ -88,17 +102,20 @@
           :liability_total: 137362000000
         :principal_officers:
           - Brian T. Moynihan:
-              :position:
+              :positions:
                 - President
                 - Chief Executive Officer
           - Terry P. Laughlin:
-              :position: Chief Risk Officer
+              :positions:
+                - Chief Risk Officer
           - Bruce R. Thompson:
-              :position: Chief Financial Officer
+              :positions:
+                - Chief Financial Officer
           - Gregory Hackworth:
-              :position: Corporate Treasurer
+              :positions:
+                - Corporate Treasurer
           - Gary G. Lynch:
-              :position:
+              :positions:
                 - Global General Counsel
                 - Head of Compliance and Regulatory Relations
     - Bank of America California, National Association (“BACANA”):
@@ -117,7 +134,7 @@
     - BA Continuum India Private Limited (“BACI”)
     - Financial Data Services, Inc. (“FDS”)
     - Managed Account Advisors LLC (“MAA”)
-  :financial_market_utility:
+  :financial_market_utilities:
     - Clearing House Automated Payment System (“CHAPS”)
     - Clearing House Interbank Payments System (“CHIPS”)
     - Electronic Payments Network (“EPN”)

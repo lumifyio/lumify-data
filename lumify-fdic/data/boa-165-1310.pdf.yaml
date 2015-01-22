@@ -1,6 +1,6 @@
 ---
 :resolution_plan:
-  :financial_institution_name:
+  :financial_institution_names:
     - Bank of America Corporation ("BAC")
     - Bank of America, National Association ("BANA")
     - FIA Card Services, National Association ("FIA")
@@ -119,7 +119,7 @@
     - BA Continuum India Private Limited (“BACI”)
     - Financial Data Services, Inc. (“FDS”)
     - Managed Account Advisors LLC (“MAA”)
-  :financial_market_utility:
+  :financial_market_utilities:
     - Clearing House Automated Payment System (“CHAPS”)
     - Clearing House Interbank Payments System (“CHIPS”)
     - CLS Bank International (“CLS Bank”)
