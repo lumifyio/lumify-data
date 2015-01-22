@@ -17,23 +17,20 @@
           <xs:element ref="lumify:publishedDate"/>
           <xs:element ref="fdic:financial-institution-name"/>
         </xs:choice>
+        <xs:element minOccurs="0" ref="fdic:financial-market-utility-membership-out"/>
+        <xs:element minOccurs="0" ref="fdic:alias"/>
         <xs:choice minOccurs="0">
-          <xs:element ref="fdic:financial-market-utility-membership-out"/>
           <xs:element ref="fdic:material-entity-declaration-out"/>
           <xs:sequence>
             <xs:element ref="fdic:asset-total"/>
             <xs:element ref="fdic:liability-total"/>
           </xs:sequence>
-          <xs:sequence>
-            <xs:element ref="lumify:fileName"/>
-            <xs:element ref="lumify:raw"/>
-            <xs:element maxOccurs="unbounded" ref="fdic:declares-material-entity"/>
-            <xs:element maxOccurs="unbounded" ref="fdic:declares-balance-sheet"/>
-            <xs:element maxOccurs="unbounded" ref="fdic:declares-financial-market-utility"/>
-            <xs:element maxOccurs="unbounded" ref="fdic:declares-principal-officer"/>
-          </xs:sequence>
         </xs:choice>
-        <xs:element minOccurs="0" ref="fdic:alias"/>
+        <xs:element minOccurs="0" ref="lumify:title"/>
+        <xs:sequence minOccurs="0">
+          <xs:element ref="lumify:entityImageVertexId"/>
+          <xs:element ref="fdic:thing-has-image"/>
+        </xs:sequence>
         <xs:sequence minOccurs="0">
           <xs:element ref="fdic:has-resolution-plan"/>
           <xs:element maxOccurs="unbounded" ref="fdic:has-material-entity"/>
@@ -48,11 +45,22 @@
           <xs:element maxOccurs="unbounded" ref="fdic:has-principal-officer"/>
           <xs:element maxOccurs="unbounded" ref="fdic:principal-officer-assignment-in"/>
         </xs:sequence>
-        <xs:element minOccurs="0" ref="lumify:title"/>
         <xs:sequence minOccurs="0">
-          <xs:element maxOccurs="unbounded" ref="fdic:position"/>
-          <xs:element ref="fdic:principal-officer-assignment-out"/>
+          <xs:element ref="lumify:fileName"/>
+          <xs:element ref="lumify:raw"/>
         </xs:sequence>
+        <xs:choice minOccurs="0">
+          <xs:sequence>
+            <xs:element maxOccurs="unbounded" ref="fdic:position"/>
+            <xs:element ref="fdic:principal-officer-assignment-out"/>
+          </xs:sequence>
+          <xs:sequence>
+            <xs:element maxOccurs="unbounded" ref="fdic:declares-material-entity"/>
+            <xs:element maxOccurs="unbounded" ref="fdic:declares-balance-sheet"/>
+            <xs:element maxOccurs="unbounded" ref="fdic:declares-financial-market-utility"/>
+            <xs:element maxOccurs="unbounded" ref="fdic:declares-principal-officer"/>
+          </xs:sequence>
+        </xs:choice>
       </xs:sequence>
       <xs:attribute name="about" use="required" form="qualified" type="xs:anyURI"/>
     </xs:complexType>

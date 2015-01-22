@@ -8,6 +8,7 @@
       <xs:attribute ref="rdf:resource" use="required"/>
     </xs:complexType>
   </xs:element>
+  <xs:element name="alias" type="xs:string"/>
   <xs:element name="material-entity-declaration-out">
     <xs:complexType>
       <xs:attribute ref="rdf:resource" use="required"/>
@@ -15,27 +16,11 @@
   </xs:element>
   <xs:element name="asset-total" type="xs:integer"/>
   <xs:element name="liability-total" type="xs:integer"/>
-  <xs:element name="declares-material-entity">
+  <xs:element name="thing-has-image">
     <xs:complexType>
       <xs:attribute ref="rdf:resource" use="required"/>
     </xs:complexType>
   </xs:element>
-  <xs:element name="declares-balance-sheet">
-    <xs:complexType>
-      <xs:attribute ref="rdf:resource" use="required"/>
-    </xs:complexType>
-  </xs:element>
-  <xs:element name="declares-financial-market-utility">
-    <xs:complexType>
-      <xs:attribute ref="rdf:resource" use="required"/>
-    </xs:complexType>
-  </xs:element>
-  <xs:element name="declares-principal-officer">
-    <xs:complexType>
-      <xs:attribute ref="rdf:resource" use="required"/>
-    </xs:complexType>
-  </xs:element>
-  <xs:element name="alias" type="xs:string"/>
   <xs:element name="has-resolution-plan">
     <xs:complexType>
       <xs:attribute ref="rdf:resource" use="required"/>
@@ -78,6 +63,26 @@
   </xs:element>
   <xs:element name="position" type="xs:string"/>
   <xs:element name="principal-officer-assignment-out">
+    <xs:complexType>
+      <xs:attribute ref="rdf:resource" use="required"/>
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="declares-material-entity">
+    <xs:complexType>
+      <xs:attribute ref="rdf:resource" use="required"/>
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="declares-balance-sheet">
+    <xs:complexType>
+      <xs:attribute ref="rdf:resource" use="required"/>
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="declares-financial-market-utility">
+    <xs:complexType>
+      <xs:attribute ref="rdf:resource" use="required"/>
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="declares-principal-officer">
     <xs:complexType>
       <xs:attribute ref="rdf:resource" use="required"/>
     </xs:complexType>

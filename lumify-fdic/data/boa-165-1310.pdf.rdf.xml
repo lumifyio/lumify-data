@@ -82,10 +82,20 @@
         <fdic:declares-principal-officer rdf:resource="&fdic;PERSON_Thomas_K_Montag"/>
     </rdf:Description>
 
+    <rdf:Description rdf:about="&fdic;FILE_boa-logo.png">
+        <rdf:type rdf:resource="&fdic;image"/>
+        <lumify:title>Bank of America Logo</lumify:title>
+        <lumify:fileName>boa-logo.png</lumify:fileName>
+        <lumify:raw>streamingValue:{"fileName": "boa-logo.png"}</lumify:raw>
+    </rdf:Description>
+
     <rdf:Description rdf:about="&fdic;FI_Bank_of_America_Corporation">
         <rdf:type rdf:resource="&fdic;financial-institution"/>
         <fdic:financial-institution-name>Bank of America Corporation</fdic:financial-institution-name>
         <fdic:alias>BAC</fdic:alias>
+        <lumify:entityImageVertexId>FILE_boa-logo.png</lumify:entityImageVertexId>
+        <fdic:thing-has-image rdf:resource="&fdic;FILE_boa-logo.png"/>
+
         <fdic:has-resolution-plan rdf:resource="&fdic;RP_boa-165-1310"/>
 
         <fdic:has-material-entity rdf:resource="&fdic;FI_Bank_of_America_National_Association"/>
@@ -207,6 +217,8 @@
         <rdf:type rdf:resource="&fdic;financial-institution"/>
         <fdic:financial-institution-name>Bank of America, National Association</fdic:financial-institution-name>
         <fdic:alias>BANA</fdic:alias>
+        <lumify:entityImageVertexId>FILE_boa-logo.png</lumify:entityImageVertexId>
+        <fdic:thing-has-image rdf:resource="&fdic;FILE_boa-logo.png"/>
 
         <fdic:has-balance-sheet rdf:resource="&fdic;RP_boa-165-1310-BS_BANA"/>
 
@@ -236,6 +248,8 @@
         <rdf:type rdf:resource="&fdic;financial-institution"/>
         <fdic:financial-institution-name>Bank of America, N.A. - London Branch</fdic:financial-institution-name>
         <fdic:alias>BANA - London</fdic:alias>
+        <lumify:entityImageVertexId>FILE_boa-logo.png</lumify:entityImageVertexId>
+        <fdic:thing-has-image rdf:resource="&fdic;FILE_boa-logo.png"/>
     </rdf:Description>
     <rdf:Description rdf:about="&fdic;FI_Bank_of_America_NA_London_Branch_ME">
         <rdf:type rdf:resource="&fdic;material-entity-declaration"/>
@@ -247,6 +261,8 @@
         <rdf:type rdf:resource="&fdic;financial-institution"/>
         <fdic:financial-institution-name>Bank of America, N.A. - Frankfurt Branch</fdic:financial-institution-name>
         <fdic:alias>BANA - Frankfurt</fdic:alias>
+        <lumify:entityImageVertexId>FILE_boa-logo.png</lumify:entityImageVertexId>
+        <fdic:thing-has-image rdf:resource="&fdic;FILE_boa-logo.png"/>
     </rdf:Description>
     <rdf:Description rdf:about="&fdic;FI_Bank_of_America_NA_Frankfurt_Branch_ME">
         <rdf:type rdf:resource="&fdic;material-entity-declaration"/>
@@ -713,6 +729,14 @@
     <rdf:Description rdf:about="&fdic;PERSON_Brian_T_Moynihan">
         <rdf:type rdf:resource="&fdic;person"/>
         <lumify:title>Brian T. Moynihan</lumify:title>
+        <lumify:entityImageVertexId>FILE_moynihan-brian-t.jpg</lumify:entityImageVertexId>
+        <fdic:thing-has-image rdf:resource="&fdic;FILE_moynihan-brian-t.jpg"/>
+    </rdf:Description>
+    <rdf:Description rdf:about="&fdic;FILE_moynihan-brian-t.jpg">
+        <rdf:type rdf:resource="&fdic;image"/>
+        <lumify:title>Image of Brian T. Moynihan</lumify:title>
+        <lumify:fileName>moynihan-brian-t.jpg</lumify:fileName>
+        <lumify:raw>streamingValue:{"fileName": "people/moynihan-brian-t.jpg"}</lumify:raw>
     </rdf:Description>
     <rdf:Description rdf:about="&fdic;PERSON_Brian_T_Moynihan_POA_BAC">
         <rdf:type rdf:resource="&fdic;principal-officer-assignment"/>
