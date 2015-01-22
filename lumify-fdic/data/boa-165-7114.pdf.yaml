@@ -4,62 +4,64 @@
     - Bank of America Corporation ("BAC")
     - Bank of America, National Association ("BANA")
     - FIA Card Services, National Association ("FIA")
-  :date: 2013-10-01
+  :date: 2014-07-01
   :material_entities:
     - Bank of America Corporation:
         :image: boa-logo.png
         :balance_sheet:
-          :date: 2013-06-30
-          :asset_total: 2123320000000
-          :liability_total: 1892288000000
+          :date: 2014-03-31
+          :asset_total: 2149851000000
+          :liability_total: 1917963000000
         :principal_officers:
           - Brian T. Moynihan:
               :image: moynihan-brian-t.jpg
               :position:
-                - President
                 - Chief Executive Officer
-          - Christine P. Katziff:
-              :image: katziff-christine-p.jpg
-              :position: Corporate General Auditor
-          - Andrea B. Smith:
-              :image: smith-andrea-b.jpg
-              :position: Global Head of Human Resources
-          - David C. Darnell:
-              :image: darnell-david-c.jpg
-              :position: Co-Chief Operating Officer
-          - Terry P. Laughlin:
-              :image: laughlin-terry-p.jpg
-              :position: Chief Risk Officer
-          - Ron D. Sturzenegger:
-              :image: sturzenegger-ron-d.jpg
-              :position: Legacy Asset Servicing Executive
           - Catherine P. Bessant:
               :image: bessant-catherine-p.jpg
               :position:
                 - Global Technology
                 - Operations Executive
+          - David C. Darnell:
+              :image: darnell-david-c.jpg
+              :position: Co-Chief Operating Officer
+          - Anne M. Finucane:
+              :position: Global Strategy and Marketing Officer
+          - Geoffrey S. Greener:
+              : position: Chief Risk Officer
+          - Christine P. Katziff:
+              :image: katziff-christine-p.jpg
+              :position: Corporate General Auditor
+          - Terry P. Laughlin:
+              :image: laughlin-terry-p.jpg
+              :position: President of Strategic Initiatives
           - Gary G. Lynch:
               :position:
                 - Global General Counsel
                 - Head of Compliance and Regulatory Relations
-          - Bruce R. Thompson:
-              :position: Chief Financial Officer
-          - Anne M. Finucane:
-              :position: Global Strategy and Marketing Officer
           - Thomas K. Montag:
               :position: Co-Chief Operating Officer
+          - Andrea B. Smith:
+              :image: smith-andrea-b.jpg
+              :position: Global Head of Human Resources
+          - Ron D. Sturzenegger:
+              :image: sturzenegger-ron-d.jpg
+              :position: Legacy Asset Servicing Executive
+          - Bruce R. Thompson:
+              :position: Chief Financial Officer
+    - BAC North America Holding Company (“BACNA”)
     - Bank of America, National Association ("BANA"):
         :image: boa-logo.png
         :balance_sheet:
-          :date: 2013-06-30
-          :asset_total: 1427640000000
-          :liability_total: 1249968000000
+          :date: 2014-03-31
+          :asset_total: 1455966000000
+          :liability_total: 1275865000000
         :principal_officers:
           - Brian T. Moynihan:
               :position:
                 - President
                 - Chief Executive Officer
-          - Geoffrey S. Greener:
+          - Terry P. Laughlin:
               :position: Chief Risk Officer
           - Thomas K. Montag:
               :position: Co-Chief Operating Officer
@@ -71,42 +73,38 @@
                 - Head of Compliance and Regulatory Relations
           - Bruce R. Thompson:
               :position: Chief Financial Officer
-          - Terry P. Laughlin:
-              :position: President of Strategic Initiatives
+          - Neil A. Cotty:
+              :position: Chief Accounting Officer
+    - Bank of America Merrill Lynch International Limited (“BAMLI”)
+        :image: boa-logo.png
     - Bank of America, N.A. - London Branch (“BANA - London”):
         :image: boa-logo.png
     - Bank of America, N.A. - Frankfurt Branch (“BANA - Frankfurt”):
         :image: boa-logo.png
     - FIA Card Services, National Association (“FIA”):
         :balance_sheet:
-          :date: 2013-06-30
-          :asset_total: 158078000000
-          :liability_total: 138685000000
+          :date: 2014-03-31
+          :asset_total: 155801000000
+          :liability_total: 137362000000
         :principal_officers:
           - Brian T. Moynihan:
               :position:
-                - Chairman
                 - President
                 - Chief Executive Officer
-          - Geoffrey S. Greener:
+          - Terry P. Laughlin:
               :position: Chief Risk Officer
-          - Thomas K. Montag:
-              :position: Co-Chief Operating Officer
-          - David C. Darnell:
-              :position: Co-Chief Operating Officer
+          - Bruce R. Thompson:
+              :position: Chief Financial Officer
+          - Gregory Hackworth:
+              :position: Corporate Treasurer
           - Gary G. Lynch:
               :position:
                 - Global General Counsel
                 - Head of Compliance and Regulatory Relations
-          - Bruce R. Thompson:
-              :position: Chief Financial Officer
-          - Terry P. Laughlin:
-              :position: President of Strategic Initiatives
     - Bank of America California, National Association (“BACANA”):
         :image: boa-logo.png
     - Countrywide Financial Corporation (“CFC”)
     - Countrywide Home Loans, Inc. (“CHL”)
-    - Merrill Lynch & Co., Inc. (“MLCO”)
     - Merrill Lynch, Pierce, Fenner & Smith, Incorporated (“MLFPS”)
     - Merrill Lynch Professional Clearing Corp. (“MLPRO”)
     - Merrill Lynch Capital Services, Inc. (“MLCS”)
@@ -122,23 +120,26 @@
   :financial_market_utility:
     - Clearing House Automated Payment System (“CHAPS”)
     - Clearing House Interbank Payments System (“CHIPS”)
-    - CLS Bank International (“CLS Bank”)
-    - CME Group Inc. (“CME Group”)
-    - CREST
-    - The Depository Trust Company (“DTC”)
     - Electronic Payments Network (“EPN”)
-    - Eurex Clearing AG
-    - Euroclear Bank
-    - European Central Counterparty Limited
     - FedACH Services
     - Fedwire Funds Service
-    - Fedwire Securities Service
-    - Fixed Income Clearing Corporation (“FICC”)
-    - Japan Government Bond Clearing Corporation
+    - The Trans-European Automated Real-time Gross settlement Express Transfer system (“TARGET2”)
+    - CME Group Inc.
+    - Eurex Clearing AG
+    - European Central Counterparty N.V.
+    - Fixed Income Clearing Corporation - Government Securities Division
+    - Fixed Income Clearing Corporation - Mortgage Backed Securities Division
     - ICE Clear Credit LLC
     - ICE Clear Europe
+    - Japan Securities Clearing Corporation
     - LCH.Clearnet Limited
     - National Securities Clearing Corporation (“NSCC”)
     - Options Clearing Corporation
+    - CLS Bank International (“CLS Bank”)
+    - CREST
+    - The Depository Trust Company (“DTC”)
+    - Euroclear Bank
+    - Fedwire Securities Service
     - The Society for Worldwide Interbank Financial Telecommunication (“SWIFT”)
-    - The Trans-European Automated Real-time Gross settlement Express Transfer system (“TARGET2”)
+    - The Bank of New York Mellon Corporation (“BNY Mellon”)
+    - BNP Paribas Bank
