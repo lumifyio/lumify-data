@@ -785,6 +785,14 @@
     <rdf:Description rdf:about="&fdic;PERSON_David_C_Darnell">
         <rdf:type rdf:resource="&fdic;person"/>
         <lumify:title>David C. Darnell</lumify:title>
+        <lumify:entityImageVertexId>FILE_darnell-david-c.jpg</lumify:entityImageVertexId>
+        <fdic:thing-has-image rdf:resource="&fdic;FILE_darnell-david-c.jpg"/>
+    </rdf:Description>
+    <rdf:Description rdf:about="&fdic;FILE_darnell-david-c.jpg">
+        <rdf:type rdf:resource="&fdic;image"/>
+        <lumify:title>Image of David C. Darnell</lumify:title>
+        <lumify:fileName>darnell-david-c.jpg</lumify:fileName>
+        <lumify:raw>streamingValue:{"fileName": "people/darnell-david-c.jpg"}</lumify:raw>
     </rdf:Description>
     <rdf:Description rdf:about="&fdic;PERSON_David_C_Darnell_POA_BAC">
         <rdf:type rdf:resource="&fdic;principal-officer-assignment"/>
@@ -802,6 +810,14 @@
     <rdf:Description rdf:about="&fdic;PERSON_Terry_P_Laughlin">
         <rdf:type rdf:resource="&fdic;person"/>
         <lumify:title>Terry P. Laughlin</lumify:title>
+        <lumify:entityImageVertexId>FILE_laughlin-terry-p.jpg</lumify:entityImageVertexId>
+        <fdic:thing-has-image rdf:resource="&fdic;FILE_laughlin-terry-p.jpg"/>
+    </rdf:Description>
+    <rdf:Description rdf:about="&fdic;FILE_laughlin-terry-p.jpg">
+        <rdf:type rdf:resource="&fdic;image"/>
+        <lumify:title>Image of Terry P. Laughlin</lumify:title>
+        <lumify:fileName>laughlin-terry-p.jpg</lumify:fileName>
+        <lumify:raw>streamingValue:{"fileName": "people/laughlin-terry-p.jpg"}</lumify:raw>
     </rdf:Description>
     <rdf:Description rdf:about="&fdic;PERSON_Terry_P_Laughlin_POA_BAC">
         <rdf:type rdf:resource="&fdic;principal-officer-assignment"/>
