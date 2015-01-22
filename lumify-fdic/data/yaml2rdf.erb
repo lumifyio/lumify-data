@@ -1,0 +1,25 @@
+<?xml version="1.0"?>
+
+<!DOCTYPE rdf:RDF [
+        <!ENTITY owl "http://www.w3.org/2002/07/owl#" >
+        <!ENTITY xsd "http://www.w3.org/2001/XMLSchema#" >
+        <!ENTITY rdfs "http://www.w3.org/2000/01/rdf-schema#" >
+        <!ENTITY rdf "http://www.w3.org/1999/02/22-rdf-syntax-ns#" >
+        <!ENTITY fdic "http://lumify.io/fdic#">
+        ]>
+
+
+<rdf:RDF xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+         xmlns:lumify="http://lumify.io#"
+         xmlns:fdic="http://lumify.io/fdic#">
+
+    <rdf:Description rdf:about="&fdic;<%= resolution_plan[:id] %>">
+        <rdf:type rdf:resource="&fdic;resolution-plan"/>
+        <lumify:publishedDate><%= to_date(resolution_plan[:date]) %></lumify:publishedDate>
+        <%- resolution_plan[:financial_institution_names].each do |name| -%>
+        <fdic:financial-institution-name><%= name %></fdic:financial-institution-name>
+        <%- end -%>
+        <lumify:fileName><%= pdf_filename %></lumify:fileName>
+        <lumify:raw>streamingValue:{"fileName": "<%= pdf_filename %>"}</lumify:raw>
+    </rdf:Description>
+</rdf:RDF>
