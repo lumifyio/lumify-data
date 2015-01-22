@@ -75,7 +75,7 @@
     <!-- http://lumify.io/fdic#declares-material-entity -->
 
     <owl:ObjectProperty rdf:about="http://lumify.io/fdic#declares-material-entity">
-        <rdfs:label xml:lang="en">Declares Meterial Entity</rdfs:label>
+        <rdfs:label xml:lang="en">Declares Material Entity</rdfs:label>
         <rdfs:range rdf:resource="http://lumify.io/fdic#financial-institution"/>
         <rdfs:domain rdf:resource="http://lumify.io/fdic#resolution-plan"/>
     </owl:ObjectProperty>
@@ -370,8 +370,8 @@
     <owl:Class rdf:about="http://lumify.io/fdic#financial-institution">
         <rdfs:label xml:lang="en">Financial Institution</rdfs:label>
         <rdfs:subClassOf rdf:resource="http://lumify.io/fdic#company"/>
-        <lumify:titleFormula>prop(&apos;http://lumify.io/fdic#financial-institution-name&apos;) || prop(&apos;http://lumify.io#title&apos;) || &apos;Unknown&apos;</lumify:titleFormula>
         <lumify:glyphIconFileName>financial-institution.png</lumify:glyphIconFileName>
+        <lumify:titleFormula>prop(&apos;http://lumify.io/fdic#financial-institution-name&apos;) || prop(&apos;http://lumify.io#title&apos;) || &apos;Unknown&apos;</lumify:titleFormula>
     </owl:Class>
     
 
@@ -419,8 +419,8 @@
 
     <owl:Class rdf:about="http://lumify.io/fdic#person">
         <rdfs:label xml:lang="en">Person</rdfs:label>
-        <lumify:glyphIconFileName>person.png</lumify:glyphIconFileName>
         <rdfs:subClassOf rdf:resource="http://lumify.io/fdic#agent"/>
+        <lumify:glyphIconFileName>person.png</lumify:glyphIconFileName>
     </owl:Class>
     
 

@@ -763,6 +763,14 @@
     <rdf:Description rdf:about="&fdic;PERSON_Christine_Katziff">
         <rdf:type rdf:resource="&fdic;person"/>
         <lumify:title>Christine Katziff</lumify:title>
+        <lumify:entityImageVertexId>FILE_katziff-christine.jpg</lumify:entityImageVertexId>
+        <fdic:thing-has-image rdf:resource="&fdic;FILE_katziff-christine.jpg"/>
+    </rdf:Description>
+    <rdf:Description rdf:about="&fdic;FILE_katziff-christine.jpg">
+        <rdf:type rdf:resource="&fdic;image"/>
+        <lumify:title>Image of Christine Katziff</lumify:title>
+        <lumify:fileName>katziff-christine.jpg</lumify:fileName>
+        <lumify:raw>streamingValue:{"fileName": "people/katziff-christine.jpg"}</lumify:raw>
     </rdf:Description>
     <rdf:Description rdf:about="&fdic;PERSON_Christine_Katziff_POA_BAC">
         <rdf:type rdf:resource="&fdic;principal-officer-assignment"/>
@@ -774,6 +782,14 @@
     <rdf:Description rdf:about="&fdic;PERSON_Andrea_Smith">
         <rdf:type rdf:resource="&fdic;person"/>
         <lumify:title>Andrea Smith</lumify:title>
+        <lumify:entityImageVertexId>FILE_smith-andrea.jpg</lumify:entityImageVertexId>
+        <fdic:thing-has-image rdf:resource="&fdic;FILE_smith-andrea.jpg"/>
+    </rdf:Description>
+    <rdf:Description rdf:about="&fdic;FILE_smith-andrea.jpg">
+        <rdf:type rdf:resource="&fdic;image"/>
+        <lumify:title>Image of Andrea Smith</lumify:title>
+        <lumify:fileName>smith-andrea.jpg</lumify:fileName>
+        <lumify:raw>streamingValue:{"fileName": "people/smith-andrea.jpg"}</lumify:raw>
     </rdf:Description>
     <rdf:Description rdf:about="&fdic;PERSON_Andrea_Smith_POA_BAC">
         <rdf:type rdf:resource="&fdic;principal-officer-assignment"/>
@@ -841,6 +857,14 @@
     <rdf:Description rdf:about="&fdic;PERSON_Ron_Sturzenegger">
         <rdf:type rdf:resource="&fdic;person"/>
         <lumify:title>Ron Sturzenegger</lumify:title>
+        <lumify:entityImageVertexId>FILE_sturzenegger-ron.jpg</lumify:entityImageVertexId>
+        <fdic:thing-has-image rdf:resource="&fdic;FILE_sturzenegger-ron.jpg"/>
+    </rdf:Description>
+    <rdf:Description rdf:about="&fdic;FILE_sturzenegger-ron.jpg">
+        <rdf:type rdf:resource="&fdic;image"/>
+        <lumify:title>Image of Ron Sturzenegger</lumify:title>
+        <lumify:fileName>sturzenegger-ron.jpg</lumify:fileName>
+        <lumify:raw>streamingValue:{"fileName": "people/sturzenegger-ron.jpg"}</lumify:raw>
     </rdf:Description>
     <rdf:Description rdf:about="&fdic;PERSON_Ron_Sturzenegger_POA_BAC">
         <rdf:type rdf:resource="&fdic;principal-officer-assignment"/>
@@ -852,6 +876,14 @@
     <rdf:Description rdf:about="&fdic;PERSON_Catherine_P_Bessant">
         <rdf:type rdf:resource="&fdic;person"/>
         <lumify:title>Catherine P. Bessant</lumify:title>
+        <lumify:entityImageVertexId>FILE_bessant-catherine-p.jpg</lumify:entityImageVertexId>
+        <fdic:thing-has-image rdf:resource="&fdic;FILE_bessant-catherine-p.jpg"/>
+    </rdf:Description>
+    <rdf:Description rdf:about="&fdic;FILE_bessant-catherine-p.jpg">
+        <rdf:type rdf:resource="&fdic;image"/>
+        <lumify:title>Image of Catherine P. Bessant</lumify:title>
+        <lumify:fileName>bessant-catherine-p.jpg</lumify:fileName>
+        <lumify:raw>streamingValue:{"fileName": "people/bessant-catherine-p.jpg"}</lumify:raw>
     </rdf:Description>
     <rdf:Description rdf:about="&fdic;PERSON_Catherine_P_Bessant_POA_BAC">
         <rdf:type rdf:resource="&fdic;principal-officer-assignment"/>
