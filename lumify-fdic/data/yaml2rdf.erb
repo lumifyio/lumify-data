@@ -148,7 +148,7 @@
     <%- images.each do |image_id, image_properties| -%>
     <rdf:Description rdf:about="&fdic;<%= image_id %>">
         <rdf:type rdf:resource="&fdic;image"/>
-        <lumify:title><%= image_properties[:title] %></lumify:title>
+        <lumify:title><%= encode image_properties[:title] %></lumify:title>
         <lumify:fileName><%= image_properties[:filename] %></lumify:fileName>
         <lumify:raw>streamingValue:{"fileName": "<%= image_properties[:filename] %>"}</lumify:raw>
     </rdf:Description>
