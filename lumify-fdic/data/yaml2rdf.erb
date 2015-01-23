@@ -128,9 +128,9 @@
         <rdf:type rdf:resource="&fdic;person"/>
         <lumify:title><%= encode po_name %></lumify:title>
         <%- if po_mes[:image] -%>
-        <lumify:fileName><%= po_mes[:image] %></lumify:fileName>
-        <lumify:raw>streamingValue:{"fileName": "people/<%= po_mes[:image] %>"}</lumify:raw>
-        <%- end -%>
+        <lumify:entityImageVertexId><%= image_id(po_mes[:image]) %></lumify:entityImageVertexId>
+        <fdic:thing-has-image rdf:resource="&fdic;<%= image_id(po_mes[:image]) %>"/>
+      <%- end -%>
     </rdf:Description>
     <%- po_mes[:orgs].each do |po_key, po_me| -%>
     <rdf:Description rdf:about="&fdic;<%= po_me[:id] %>">
@@ -142,6 +142,16 @@
         <fdic:principal-officer-assignment-out rdf:resource="&fdic;<%= person_id(po_name) %>"/>
     </rdf:Description>
     <%- end -%>
+
+    <%- end -%>
+
+    <%- images.each do |image_id, image_properties| -%>
+    <rdf:Description rdf:about="&fdic;<%= image_id %>">
+        <rdf:type rdf:resource="&fdic;image"/>
+        <lumify:title><%= image_properties[:title] %></lumify:title>
+        <lumify:fileName><%= image_properties[:filename] %></lumify:fileName>
+        <lumify:raw>streamingValue:{"fileName": "<%= image_properties[:filename] %>"}</lumify:raw>
+    </rdf:Description>
 
     <%- end -%>
 </rdf:RDF>
