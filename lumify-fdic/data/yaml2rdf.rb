@@ -19,6 +19,10 @@ rescue
   string
 end
 
+def encode(string)
+  string.encode(:xml => :text)
+end
+
 def to_id(name)
   name.gsub('.', '').gsub(/[^a-z0-9]+/i, '_').strip
 end
