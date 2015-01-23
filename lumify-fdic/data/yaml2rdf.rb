@@ -1,7 +1,6 @@
 #!/usr/bin/env ruby
 
 require 'yaml'
-#require 'datetime'
 require 'ostruct'
 require 'erb'
 
@@ -28,12 +27,24 @@ def rp_id(yaml_filename)
   'RP_' + File.basename(yaml_filename, '.pdf.yaml')
 end
 
+def bs_id(yaml_filename, financial_institution)
+  'BS_' + File.basename(yaml_filename, '.pdf.yaml') + '_' + to_id(financial_institution)
+end
+
 def fi_id(name)
   'FI_' + to_id(name)
 end
 
+def me_id(name)
+  'ME_' + to_id(name)
+end
+
+def fmu_id(name)
+  'FMU_' + to_id(name)
+end
+
 def image_id(filename)
-  'FILE_' + filename
+  'IMAGE_' + filename
 end
 
 def person_id(name)
@@ -75,26 +86,31 @@ yaml[:resolution_plan][:material_entities].each do |yaml_me|
   if aka && properties[:alias] == nil
     properties[:alias] = aka
   end
-  material_entity_hash[name] = properties
+
+  if properties[:balance_sheet]
+    properties[:balance_sheet][:id] = bs_id(yaml_filename, name)
+  end
 
   if properties[:principal_officers]
-    properties[:principal_officers].each do |po|
-      po_name = po.keys.first
-      po_properties = po[po_name]
-      if principal_officers_hash[po_name] == nil
-        principal_officers_hash[po_name] = Hash.new
-      end
-      if principal_officers_hash[po_name][:orgs] == nil
-        principal_officers_hash[po_name][:orgs] = Hash.new
-      end
+    properties[:principal_officers].each do |yaml_po|
+      po_name = yaml_po.keys.first
+      po_properties = yaml_po[po_name]
+      principal_officers_hash[po_name] ||= Hash.new
+      principal_officers_hash[po_name][:orgs] ||= Hash.new
       po_properties[:id] = poa_id(po_name, name)
       principal_officers_hash[po_name][:orgs][name] = po_properties
-
+      if po_properties[:positions].kind_of? String
+        po_properties[:positions] = [po_properties[:positions]]
+      end
       if po_properties[:image].kind_of? String
         principal_officers_hash[po_name][:image] = po_properties[:image]
       end
+      properties[:principal_officer_names] ||= Array.new
+      properties[:principal_officer_names] << po_name
     end
   end
+
+  material_entity_hash[name] = properties
 end
 yaml[:resolution_plan][:material_entities] = material_entity_hash
 

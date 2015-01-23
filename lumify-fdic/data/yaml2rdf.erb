@@ -22,7 +22,23 @@
         <lumify:fileName><%= pdf_filename %></lumify:fileName>
         <lumify:raw>streamingValue:{"fileName": "<%= pdf_filename %>"}</lumify:raw>
 
-        <!-- TODO: relationships -->
+        <%- resolution_plan[:material_entities].each do |me_name, me_properties| -%>
+        <fdic:declares-material-entity rdf:resource="&fdic;<%= me_properties[:id] %>"/>
+        <%- end -%>
+
+        <%- resolution_plan[:material_entities].each do |me_name, me_properties| -%>
+        <%- if me_properties[:balance_sheet] -%>
+        <fdic:declares-balance-sheet rdf:resource="&fdic;<%= me_properties[:balance_sheet][:id] %>"/>
+        <%- end -%>
+        <%- end -%>
+
+        <%- resolution_plan[:financial_market_utilities].each do |fmu_name, fmu_properties| -%>
+        <fdic:declares-financial-market-utility rdf:resource="&fdic;<%= fi_id(fmu_name) %>"/>
+        <%- end -%>
+
+        <%- resolution_plan[:principal_officers].keys.each do |po_name| -%>
+        <fdic:declares-principal-officer rdf:resource="&fdic;<%= person_id(po_name) %>"/>
+        <%- end -%>
     </rdf:Description>
 
     <%- resolution_plan[:material_entities].each do |me_name, me_properties| -%>
@@ -41,7 +57,48 @@
         <fdic:has-resolution-plan rdf:resource="&fdic;<%= me_properties[:resolution_plan_id] %>"/>
         <%- end -%>
 
-        <!-- TODO: relationships -->
+        <%- if resolution_plan[:financial_institution_names].include? me_name -%>
+        <%- resolution_plan[:material_entities].each do |sub_me_name, sub_me_properties| -%>
+        <%- if sub_me_name != me_name -%>
+        <fdic:has-material-entity rdf:resource="&fdic;<%= fi_id(sub_me_name) %>"/>
+        <%- end -%>
+        <%- end -%>
+
+        <%- resolution_plan[:material_entities].each do |sub_me_name, sub_me_properties| -%>
+        <%- if sub_me_name != me_name -%>
+        <fdic:material-entity-declaration-in rdf:resource="&fdic;<%= me_id(sub_me_name) %>"/>
+        <%- end -%>
+        <%- end -%>
+        <%- end -%>
+
+        <%- if me_properties[:balance_sheet] -%>
+        <fdic:has-balance-sheet rdf:resource="&fdic;<%= me_properties[:balance_sheet][:id] %>"/>
+        <%- end -%>
+
+        <%- if resolution_plan[:financial_institution_names].include? me_name -%>
+        <%- resolution_plan[:financial_market_utilities].each do |fmu_name, fmu_properties| -%>
+        <fdic:has-financial-market-utility rdf:resource="&fdic;<%= fi_id(fmu_name) %>"/>
+        <%- end -%>
+
+        <%- resolution_plan[:financial_market_utilities].each do |fmu_name, fmu_properties| -%>
+        <fdic:financial-market-utility-membership-in rdf:resource="&fdic;<%= fmu_id(fmu_name) %>"/>
+        <%- end -%>
+        <%- end -%>
+
+        <%- if me_properties[:principal_officer_names] -%>
+        <%- me_properties[:principal_officer_names].each do |po_name| -%>
+        <fdic:has-principal-officer rdf:resource="&fdic;<%= person_id(po_name) %>"/>
+        <%- end -%>
+
+        <%- me_properties[:principal_officer_names].each do |po_name| -%>
+        <fdic:principal-officer-assignment-in rdf:resource="&fdic;<%= poa_id(po_name, me_name) %>"/>
+        <%- end -%>
+        <%- end -%>
+    </rdf:Description>
+    <rdf:Description rdf:about="&fdic;<%= me_id(me_name) %>">
+        <rdf:type rdf:resource="&fdic;material-entity-declaration"/>
+        <fdic:financial-institution-name><%= me_name %></fdic:financial-institution-name>
+        <fdic:material-entity-declaration-out rdf:resource="&fdic;<%= fi_id(me_name) %>"/>
     </rdf:Description>
 
     <%- end -%>
@@ -57,8 +114,11 @@
         <lumify:entityImageVertexId><%= image_id(fmu_properties[:image]) %></lumify:entityImageVertexId>
         <fdic:thing-has-image rdf:resource="&fdic;<%= image_id(fmu_properties[:image]) %>"/>
         <%- end -%>
-
-        <!-- TODO: relationships -->
+    </rdf:Description>
+    <rdf:Description rdf:about="&fdic;<%= fmu_id(fmu_name) %>">
+        <rdf:type rdf:resource="&fdic;financial-market-utility-membership"/>
+        <fdic:financial-institution-name><%= fmu_name %></fdic:financial-institution-name>
+        <fdic:financial-market-utility-membership-out rdf:resource="&fdic;<%= fi_id(fmu_name) %>"/>
     </rdf:Description>
 
     <%- end -%>
@@ -67,12 +127,12 @@
     <rdf:Description rdf:about="&fdic;<%= person_id(po_name) %>">
         <rdf:type rdf:resource="&fdic;person"/>
         <lumify:title><%= po_name %></lumify:title>
-        <%- if pos_mes[:image] -%>
+        <%- if po_mes[:image] -%>
         <lumify:fileName><%= pos_mes[:image] %></lumify:fileName>
         <lumify:raw>streamingValue:{"fileName": "people/<%= pos_mes[:image] %>"}</lumify:raw>
         <%- end -%>
     </rdf:Description>
-    <%- po_mes[:orgs].each do |po_key, po_me|-%>
+    <%- po_mes[:orgs].each do |po_key, po_me| -%>
     <rdf:Description rdf:about="&fdic;<%= po_me[:id] %>">
         <rdf:type rdf:resource="&fdic;principal-officer-assignment"/>
         <lumify:title><%= po_name %></lumify:title>

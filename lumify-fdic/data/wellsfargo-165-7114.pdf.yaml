@@ -12,33 +12,33 @@
           :liability_total: $1,523,502 M
         :principal_officers:
           - John G. Stumpf:
-              :position:
+              :positions:
                 - President
                 - Chief Executive Officer
           - Patricia R. Callahan:
-              :position: Chief Administrative Officer
+              :positions: Chief Administrative Officer
           - David M. Carroll:
-              :position: Head of Wealth, Brokerage and Retirement
+              :positions: Head of Wealth, Brokerage and Retirement
           - Hope A. Hardison:
-              :position: Head of Human Resources
+              :positions: Head of Human Resources
           - Michael J. Heid:
-              :position: Head of Home Lending
+              :positions: Head of Home Lending
           - Richard D. Levy:
-              :position: Controller
+              :positions: Controller
           - Michael J. Loughlin:
-              :position: Chief Risk Officer
+              :positions: Chief Risk Officer
           - Avid Modjtabai:
-              :position: Head of Consumer Lending
+              :positions: Head of Consumer Lending
           - Kevin A. Rhein:
-              :position: Chief Information Officer
+              :positions: Chief Information Officer
           - John R. Shrewsberry:
-              :position: Chief Financial Officer
+              :positions: Chief Financial Officer
           - Timothy J. Sloan:
-              :position: Head of Wholesale Banking
+              :positions: Head of Wholesale Banking
           - James M. Strother:
-              :position: General Counsel
+              :positions: General Counsel
           - Carrie L. Tolstedt:
-              :position: Head of Community Banking
+              :positions: Head of Community Banking
     - WFBNA:
         :balance_sheet:
           :date: December 31, 2013
@@ -46,31 +46,31 @@
           :liability_total: $1,373,600 M
         :principal_officers:
           - John G. Stumpf:
-              :position: Chairman
+              :positions: Chairman
           - Patricia R. Callahan:
-              :position: Chief Administrative Officer
+              :positions: Chief Administrative Officer
           - David M. Carroll:
-              :position: Head of Wealth, Brokerage and Retirement
+              :positions: Head of Wealth, Brokerage and Retirement
           - Hope A. Hardison:
-              :position: Head of Human Resources
+              :positions: Head of Human Resources
           - Michael J. Heid:
-              :position: Head of Home Lending
+              :positions: Head of Home Lending
           - Richard D. Levy:
-              :position: Controller
+              :positions: Controller
           - Michael J. Loughlin:
-              :position: Chief Risk Officer
+              :positions: Chief Risk Officer
           - Avid Modjtabai:
-              :position: Head of Consumer Lending
+              :positions: Head of Consumer Lending
           - Kevin A. Rhein:
-              :position: Chief Information Officer
+              :positions: Chief Information Officer
           - John R. Shrewsberry:
-              :position: Chief Financial Officer
+              :positions: Chief Financial Officer
           - Timothy J. Sloan:
-              :position: Head of Wholesale Banking
+              :positions: Head of Wholesale Banking
           - James M. Strother:
-              :position: General Counsel
+              :positions: General Counsel
           - Carrie L. Tolstedt:
-              :position: Head of Community Banking
+              :positions: Head of Community Banking
     - Wells Fargo Securities, LLC (“WFS LLC”)
     - Wells Fargo Advisors, LLC (“WFA LLC”)
     - First Clearing, LLC (“FC LLC”)
