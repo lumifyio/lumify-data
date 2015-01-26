@@ -342,6 +342,7 @@
     <owl:Class rdf:about="http://lumify.io/fdic#balance-sheet">
         <rdfs:label xml:lang="en">Balance Sheet</rdfs:label>
         <rdfs:subClassOf rdf:resource="http://lumify.io/fdic#document"/>
+        <lumify:glyphIconFileName>glyphicons_119_table@2x.png</lumify:glyphIconFileName>
         <lumify:titleFormula>(prop(&apos;http://lumify.io/fdic#financial-institution-name&apos;) || &apos;&apos;) + &quot; Balance Sheet &quot; + (prop(&apos;http://lumify.io#publishedDate&apos;) || &apos;&apos;)</lumify:titleFormula>
     </owl:Class>
     
@@ -370,7 +371,7 @@
 
     <owl:Class rdf:about="http://lumify.io/fdic#event">
         <rdfs:label xml:lang="en">Event</rdfs:label>
-        <lumify:glyphIconFileName>event.png</lumify:glyphIconFileName>
+        <lumify:glyphIconFileName>glyphicons_050_link@2x.png</lumify:glyphIconFileName>
     </owl:Class>
     
 
