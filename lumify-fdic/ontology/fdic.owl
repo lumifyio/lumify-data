@@ -327,6 +327,16 @@
     
 
 
+    <!-- http://lumify.io/fdic#audio -->
+
+    <owl:Class rdf:about="http://lumify.io/fdic#audio">
+        <rdfs:label xml:lang="en">Audio</rdfs:label>
+        <rdfs:subClassOf rdf:resource="http://lumify.io/fdic#artifact"/>
+        <lumify:displayType>audio</lumify:displayType>
+    </owl:Class>
+    
+
+
     <!-- http://lumify.io/fdic#balance-sheet -->
 
     <owl:Class rdf:about="http://lumify.io/fdic#balance-sheet">
@@ -449,6 +459,16 @@
         <rdfs:label xml:lang="en">Resolution Plan</rdfs:label>
         <rdfs:subClassOf rdf:resource="http://lumify.io/fdic#document"/>
         <lumify:titleFormula>(prop(&apos;http://lumify.io/fdic#financial-institution-name&apos;) || &apos;&apos;) + &quot; Resolution Plan &quot; + (prop(&apos;http://lumify.io#publishedDate&apos;) || &apos;&apos;)</lumify:titleFormula>
+    </owl:Class>
+    
+
+
+    <!-- http://lumify.io/fdic#video -->
+
+    <owl:Class rdf:about="http://lumify.io/fdic#video">
+        <rdfs:label xml:lang="en">Video</rdfs:label>
+        <rdfs:subClassOf rdf:resource="http://lumify.io/fdic#artifact"/>
+        <lumify:displayType>video</lumify:displayType>
     </owl:Class>
 </rdf:RDF>
 
