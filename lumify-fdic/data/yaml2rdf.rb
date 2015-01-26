@@ -13,9 +13,34 @@ def log(message)
 end
 
 def to_date(string)
+  if string.kind_of? Date
+    return string
+  end
+
   DateTime.parse(string).strftime('%Y-%m-%d')
-rescue
-  log "exception parsing date: #{string}"
+rescue => e
+  log "exception parsing date: #{string} [#{e}]"
+  string
+end
+
+def to_dollars(string)
+  if string.kind_of? Fixnum
+    return string
+  end
+
+  dollars = string.gsub(/[^0-9TBM]/i, '')
+  case dollars
+  when /T/i
+    dollars.gsub(/[^0-9]/, '').to_i * 10**12
+  when /B/i
+    dollars.sub(/[^0-9]/, '').to_i * 10**9
+  when /M/i
+    dollars.sub(/[^0-9]/, '').to_i * 10**6
+  else
+    raise 'unexpected multiplier'
+  end
+rescue => e
+  log "exception parsing dollars: #{string} [#{e}]"
   string
 end
 
@@ -64,8 +89,8 @@ def parse_fi_name(name)
   fi_name = match_data[1].strip
   fi_alias = match_data[2] ? match_data[2].gsub(/^[^[0-9A-Za-z]]/, '').gsub(/[^[0-9A-Za-z]]$/, '') : nil
   return fi_name, fi_alias
-rescue
-  log "exception parsing financial institution name: #{name}"
+rescue => e
+  log "exception parsing financial institution name: #{name} [#{e}]"
   name
 end
 

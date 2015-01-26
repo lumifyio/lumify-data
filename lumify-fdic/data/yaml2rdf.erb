@@ -103,6 +103,19 @@
 
     <%- end -%>
 
+    <%- resolution_plan[:material_entities].each do |me_name, me_properties| -%>
+    <%- if me_properties[:balance_sheet] -%>
+    <rdf:Description rdf:about="&fdic;<%= me_properties[:balance_sheet][:id] %>">
+        <rdf:type rdf:resource="&fdic;balance-sheet"/>
+        <fdic:financial-institution-name><%= encode me_name %></fdic:financial-institution-name>
+        <lumify:publishedDate><%= to_date(me_properties[:balance_sheet][:date]) %></lumify:publishedDate>
+        <fdic:asset-total><%= to_dollars(me_properties[:balance_sheet][:asset_total]) %></fdic:asset-total>
+        <fdic:liability-total><%= to_dollars(me_properties[:balance_sheet][:liability_total]) %></fdic:liability-total>
+   </rdf:Description>
+
+    <%- end -%>
+    <%- end -%>
+
     <%- resolution_plan[:financial_market_utilities].each do |fmu_name, fmu_properties| -%>
     <rdf:Description rdf:about="&fdic;<%= fmu_properties[:id] %>">
         <rdf:type rdf:resource="&fdic;financial-institution"/>
