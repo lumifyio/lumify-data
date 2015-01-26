@@ -8,7 +8,7 @@
     - Citigroup Inc.:
         :image: citi-logo.png
         :balance_sheet:
-          :date: 2014
+          :date: 2014-01-01
           :asset_total: 1,895 B
           :liability_total: 1,684 B
         :principal_officers:
@@ -48,7 +48,7 @@
     - Citibank, N.A.:
         :image: citi-logo.png
         :balance_sheet:
-          :date: 2013
+          :date: 2013-01-01
           :asset_total: 1,347 B
           :liability_total: 1,198 B
         :principal_officers:

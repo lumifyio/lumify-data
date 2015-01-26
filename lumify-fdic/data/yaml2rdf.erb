@@ -15,7 +15,7 @@
 
     <rdf:Description rdf:about="&fdic;<%= resolution_plan[:id] %>">
         <rdf:type rdf:resource="&fdic;resolution-plan"/>
-        <lumify:publishedDate><%= to_date(resolution_plan[:date]) %></lumify:publishedDate>
+        <lumify:publishedDate rdf:datatype="http://www.w3.org/2001/XMLSchema#date"><%= to_date(resolution_plan[:date]) %></lumify:publishedDate>
         <%- resolution_plan[:financial_institution_names].each do |name| -%>
         <fdic:financial-institution-name><%= encode parse_fi_name(name)[0] %></fdic:financial-institution-name>
         <%- end -%>
@@ -108,7 +108,7 @@
     <rdf:Description rdf:about="&fdic;<%= me_properties[:balance_sheet][:id] %>">
         <rdf:type rdf:resource="&fdic;balance-sheet"/>
         <fdic:financial-institution-name><%= encode me_name %></fdic:financial-institution-name>
-        <lumify:publishedDate><%= to_date(me_properties[:balance_sheet][:date]) %></lumify:publishedDate>
+        <lumify:publishedDate rdf:datatype="http://www.w3.org/2001/XMLSchema#date"><%= to_date(me_properties[:balance_sheet][:date]) %></lumify:publishedDate>
         <fdic:asset-total><%= to_dollars(me_properties[:balance_sheet][:asset_total]) %></fdic:asset-total>
         <fdic:liability-total><%= to_dollars(me_properties[:balance_sheet][:liability_total]) %></fdic:liability-total>
    </rdf:Description>
