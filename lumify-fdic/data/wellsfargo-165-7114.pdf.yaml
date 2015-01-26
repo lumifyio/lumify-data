@@ -6,39 +6,53 @@
   :date: July 1, 2014
   :material_entities:
     - Wells Fargo & Company:
+        :image: wellsfargo-logo.jpg
         :balance_sheet:
           :date: December 31, 2013
           :asset_total: $1,523,502 M
           :liability_total: $1,523,502 M
         :principal_officers:
           - John G. Stumpf:
-              :position:
+              :positions:
                 - President
                 - Chief Executive Officer
+              :image: stump-john-f.jpg
           - Patricia R. Callahan:
-              :position: Chief Administrative Officer
+              :positions: Chief Administrative Officer
+              :image: callahan-patricia-r.jpg
           - David M. Carroll:
-              :position: Head of Wealth, Brokerage and Retirement
+              :positions: Head of Wealth, Brokerage and Retirement
+              :image: carroll-david-m.jpg
           - Hope A. Hardison:
-              :position: Head of Human Resources
+              :positions: Head of Human Resources
+              :image: hardison-hope-a.jpg
           - Michael J. Heid:
-              :position: Head of Home Lending
+              :positions: Head of Home Lending
+              :image: heid-michael-j.jpg
           - Richard D. Levy:
-              :position: Controller
+              :positions: Controller
+              :image: levy-richard-d.jpg
           - Michael J. Loughlin:
-              :position: Chief Risk Officer
+              :positions: Chief Risk Officer
+              :image: loughlin-michael-j.jpg
           - Avid Modjtabai:
-              :position: Head of Consumer Lending
+              :positions: Head of Consumer Lending
+              :image: modjtabai-avid.jpg
           - Kevin A. Rhein:
-              :position: Chief Information Officer
+              :positions: Chief Information Officer
+              :image: rhein-kevin-a.jpg
           - John R. Shrewsberry:
-              :position: Chief Financial Officer
+              :positions: Chief Financial Officer
+              :image: shrewsberry-john-r.jpg
           - Timothy J. Sloan:
-              :position: Head of Wholesale Banking
+              :positions: Head of Wholesale Banking
+              :image: sloan-timothy-j.jpg
           - James M. Strother:
-              :position: General Counsel
+              :positions: General Counsel
+              :images: strother-james-m.jpg
           - Carrie L. Tolstedt:
-              :position: Head of Community Banking
+              :positions: Head of Community Banking
+              :image: tolstedt-carrie-l.jpg
     - WFBNA:
         :balance_sheet:
           :date: December 31, 2013
@@ -46,31 +60,31 @@
           :liability_total: $1,373,600 M
         :principal_officers:
           - John G. Stumpf:
-              :position: Chairman
+              :positions: Chairman
           - Patricia R. Callahan:
-              :position: Chief Administrative Officer
+              :positions: Chief Administrative Officer
           - David M. Carroll:
-              :position: Head of Wealth, Brokerage and Retirement
+              :positions: Head of Wealth, Brokerage and Retirement
           - Hope A. Hardison:
-              :position: Head of Human Resources
+              :positions: Head of Human Resources
           - Michael J. Heid:
-              :position: Head of Home Lending
+              :positions: Head of Home Lending
           - Richard D. Levy:
-              :position: Controller
+              :positions: Controller
           - Michael J. Loughlin:
-              :position: Chief Risk Officer
+              :positions: Chief Risk Officer
           - Avid Modjtabai:
-              :position: Head of Consumer Lending
+              :positions: Head of Consumer Lending
           - Kevin A. Rhein:
-              :position: Chief Information Officer
+              :positions: Chief Information Officer
           - John R. Shrewsberry:
-              :position: Chief Financial Officer
+              :positions: Chief Financial Officer
           - Timothy J. Sloan:
-              :position: Head of Wholesale Banking
+              :positions: Head of Wholesale Banking
           - James M. Strother:
-              :position: General Counsel
+              :positions: General Counsel
           - Carrie L. Tolstedt:
-              :position: Head of Community Banking
+              :positions: Head of Community Banking
     - Wells Fargo Securities, LLC (“WFS LLC”)
     - Wells Fargo Advisors, LLC (“WFA LLC”)
     - First Clearing, LLC (“FC LLC”)

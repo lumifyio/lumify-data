@@ -15,39 +15,39 @@
         :principal_officers:
           - Brian T. Moynihan:
               :image: moynihan-brian-t.jpg
-              :position:
+              :positions:
                 - President
                 - Chief Executive Officer
           - Christine P. Katziff:
               :image: katziff-christine-p.jpg
-              :position: Corporate General Auditor
+              :positions: Corporate General Auditor
           - Andrea B. Smith:
               :image: smith-andrea-b.jpg
-              :position: Global Head of Human Resources
+              :positions: Global Head of Human Resources
           - David C. Darnell:
               :image: darnell-david-c.jpg
-              :position: Co-Chief Operating Officer
+              :positions: Co-Chief Operating Officer
           - Terry P. Laughlin:
               :image: laughlin-terry-p.jpg
-              :position: Chief Risk Officer
+              :positions: Chief Risk Officer
           - Ron D. Sturzenegger:
               :image: sturzenegger-ron-d.jpg
-              :position: Legacy Asset Servicing Executive
+              :positions: Legacy Asset Servicing Executive
           - Catherine P. Bessant:
               :image: bessant-catherine-p.jpg
-              :position:
+              :positions:
                 - Global Technology
                 - Operations Executive
           - Gary G. Lynch:
-              :position:
+              :positions:
                 - Global General Counsel
                 - Head of Compliance and Regulatory Relations
           - Bruce R. Thompson:
-              :position: Chief Financial Officer
+              :positions: Chief Financial Officer
           - Anne M. Finucane:
-              :position: Global Strategy and Marketing Officer
+              :positions: Global Strategy and Marketing Officer
           - Thomas K. Montag:
-              :position: Co-Chief Operating Officer
+              :positions: Co-Chief Operating Officer
     - Bank of America, National Association ("BANA"):
         :image: boa-logo.png
         :balance_sheet:
@@ -56,23 +56,23 @@
           :liability_total: 1249968000000
         :principal_officers:
           - Brian T. Moynihan:
-              :position:
+              :positions:
                 - President
                 - Chief Executive Officer
           - Geoffrey S. Greener:
-              :position: Chief Risk Officer
+              :positions: Chief Risk Officer
           - Thomas K. Montag:
-              :position: Co-Chief Operating Officer
+              :positions: Co-Chief Operating Officer
           - David C. Darnell:
-              :position: Co-Chief Operating Officer
+              :positions: Co-Chief Operating Officer
           - Gary G. Lynch:
-              :position:
+              :positions:
                 - Global General Counsel
                 - Head of Compliance and Regulatory Relations
           - Bruce R. Thompson:
-              :position: Chief Financial Officer
+              :positions: Chief Financial Officer
           - Terry P. Laughlin:
-              :position: President of Strategic Initiatives
+              :positions: President of Strategic Initiatives
     - Bank of America, N.A. - London Branch (“BANA - London”):
         :image: boa-logo.png
     - Bank of America, N.A. - Frankfurt Branch (“BANA - Frankfurt”):
@@ -84,24 +84,24 @@
           :liability_total: 138685000000
         :principal_officers:
           - Brian T. Moynihan:
-              :position:
+              :positions:
                 - Chairman
                 - President
                 - Chief Executive Officer
           - Geoffrey S. Greener:
-              :position: Chief Risk Officer
+              :positions: Chief Risk Officer
           - Thomas K. Montag:
-              :position: Co-Chief Operating Officer
+              :positions: Co-Chief Operating Officer
           - David C. Darnell:
-              :position: Co-Chief Operating Officer
+              :positions: Co-Chief Operating Officer
           - Gary G. Lynch:
-              :position:
+              :positions:
                 - Global General Counsel
                 - Head of Compliance and Regulatory Relations
           - Bruce R. Thompson:
-              :position: Chief Financial Officer
+              :positions: Chief Financial Officer
           - Terry P. Laughlin:
-              :position: President of Strategic Initiatives
+              :positions: President of Strategic Initiatives
     - Bank of America California, National Association (“BACANA”):
         :image: boa-logo.png
     - Countrywide Financial Corporation (“CFC”)
