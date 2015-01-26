@@ -277,6 +277,17 @@
     
 
 
+    <!-- http://lumify.io/fdic#page-count -->
+
+    <owl:DatatypeProperty rdf:about="http://lumify.io/fdic#page-count">
+        <rdfs:label xml:lang="en">Page Count</rdfs:label>
+        <lumify:intent xml:lang="en">pageCount</lumify:intent>
+        <rdfs:domain rdf:resource="http://lumify.io/fdic#document"/>
+        <rdfs:range rdf:resource="&xsd;int"/>
+    </owl:DatatypeProperty>
+    
+
+
     <!-- http://lumify.io/fdic#position -->
 
     <owl:DatatypeProperty rdf:about="http://lumify.io/fdic#position">
@@ -458,8 +469,8 @@
     <owl:Class rdf:about="http://lumify.io/fdic#resolution-plan">
         <rdfs:label xml:lang="en">Resolution Plan</rdfs:label>
         <rdfs:subClassOf rdf:resource="http://lumify.io/fdic#document"/>
-        <lumify:titleFormula>(prop(&apos;http://lumify.io/fdic#financial-institution-name&apos;) || &apos;&apos;) + &quot; Resolution Plan &quot;</lumify:titleFormula>
         <lumify:timeFormula>(prop(&apos;http://lumify.io#publishedDate&apos;) || &apos;&apos;)</lumify:timeFormula>
+        <lumify:titleFormula>(prop(&apos;http://lumify.io/fdic#financial-institution-name&apos;) || &apos;&apos;) + &quot; Resolution Plan &quot;</lumify:titleFormula>
     </owl:Class>
     
 
