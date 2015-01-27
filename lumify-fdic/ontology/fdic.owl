@@ -550,6 +550,7 @@
         <rdfs:subClassOf rdf:resource="http://lumify.io/fdic#company"/>
         <lumify:glyphIconFileName>financial-institution.png</lumify:glyphIconFileName>
         <lumify:titleFormula>prop(&apos;http://lumify.io/fdic#financial-institution-name&apos;) || prop(&apos;http://lumify.io#title&apos;) || &apos;Unknown&apos;</lumify:titleFormula>
+        <lumify:subtitleFormula>prop(&apos;http://lumify.io/fdic#alias&apos;) || &apos;&apos;</lumify:subtitleFormula>
     </owl:Class>
     
 
