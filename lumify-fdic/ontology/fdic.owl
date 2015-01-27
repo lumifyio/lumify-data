@@ -38,6 +38,7 @@
 
     <owl:ObjectProperty rdf:about="http://lumify.io/fdic#artifact-has-image-of">
         <rdfs:label xml:lang="en">Has Image Of</rdfs:label>
+        <lumify:intent>artifactContainsImageOfEntity</lumify:intent>
         <rdfs:domain rdf:resource="http://lumify.io/fdic#artifact"/>
         <rdfs:range rdf:resource="&owl;Thing"/>
     </owl:ObjectProperty>
@@ -48,6 +49,7 @@
 
     <owl:ObjectProperty rdf:about="http://lumify.io/fdic#artifact-has-thing">
         <rdfs:label xml:lang="en">Has</rdfs:label>
+        <lumify:intent>artifactHasEntity</lumify:intent>
         <rdfs:domain rdf:resource="http://lumify.io/fdic#artifact"/>
         <rdfs:range rdf:resource="&owl;Thing"/>
     </owl:ObjectProperty>
@@ -204,6 +206,7 @@
 
     <owl:ObjectProperty rdf:about="http://lumify.io/fdic#thing-has-image">
         <rdfs:label xml:lang="en">Has Image</rdfs:label>
+        <lumify:intent>entityHasImage</lumify:intent>
         <rdfs:range rdf:resource="http://lumify.io/fdic#image"/>
         <rdfs:domain rdf:resource="&owl;Thing"/>
     </owl:ObjectProperty>
@@ -242,6 +245,20 @@
     
 
 
+    <!-- http://lumify.io/fdic#duration -->
+
+    <owl:DatatypeProperty rdf:about="http://lumify.io/fdic#duration">
+        <rdfs:label xml:lang="en">Duration</rdfs:label>
+        <lumify:intent>audioDuration</lumify:intent>
+        <lumify:intent>media.duration</lumify:intent>
+        <lumify:intent>videoDuration</lumify:intent>
+        <rdfs:domain rdf:resource="http://lumify.io/fdic#audio"/>
+        <rdfs:domain rdf:resource="http://lumify.io/fdic#video"/>
+        <rdfs:range rdf:resource="&xsd;double"/>
+    </owl:DatatypeProperty>
+    
+
+
     <!-- http://lumify.io/fdic#end-date -->
 
     <owl:DatatypeProperty rdf:about="http://lumify.io/fdic#end-date">
@@ -266,6 +283,18 @@
     
 
 
+    <!-- http://lumify.io/fdic#geolocation -->
+
+    <owl:DatatypeProperty rdf:about="http://lumify.io/fdic#geolocation">
+        <rdfs:label xml:lang="en">Geolocation</rdfs:label>
+        <lumify:intent>media.geoLocation</lumify:intent>
+        <lumify:intent>geoLocation</lumify:intent>
+        <rdfs:range rdf:resource="&lumify;geolocation"/>
+        <rdfs:domain rdf:resource="http://lumify.io/fdic#image"/>
+    </owl:DatatypeProperty>
+    
+
+
     <!-- http://lumify.io/fdic#liability-total -->
 
     <owl:DatatypeProperty rdf:about="http://lumify.io/fdic#liability-total">
@@ -281,7 +310,7 @@
 
     <owl:DatatypeProperty rdf:about="http://lumify.io/fdic#page-count">
         <rdfs:label xml:lang="en">Page Count</rdfs:label>
-        <lumify:intent xml:lang="en">pageCount</lumify:intent>
+        <lumify:intent>pageCount</lumify:intent>
         <rdfs:domain rdf:resource="http://lumify.io/fdic#document"/>
         <rdfs:range rdf:resource="&xsd;int"/>
     </owl:DatatypeProperty>
@@ -306,6 +335,129 @@
         <rdfs:domain rdf:resource="http://lumify.io/fdic#material-entity-declaration"/>
         <rdfs:domain rdf:resource="http://lumify.io/fdic#principal-officer-assignment"/>
         <rdfs:range rdf:resource="&xsd;dateTime"/>
+    </owl:DatatypeProperty>
+    
+
+
+    <!-- http://lumify.io/media#clockwiseRotation -->
+
+    <owl:DatatypeProperty rdf:about="http://lumify.io/media#clockwiseRotation">
+        <rdfs:label xml:lang="en">Clockwise Rotation</rdfs:label>
+        <lumify:intent>media.clockwiseRotation</lumify:intent>
+        <lumify:userVisible>false</lumify:userVisible>
+        <rdfs:domain rdf:resource="http://lumify.io/fdic#image"/>
+        <rdfs:range rdf:resource="&xsd;integer"/>
+    </owl:DatatypeProperty>
+    
+
+
+    <!-- http://lumify.io/media#dateTaken -->
+
+    <owl:DatatypeProperty rdf:about="http://lumify.io/media#dateTaken">
+        <rdfs:label xml:lang="en">Date Taken</rdfs:label>
+        <lumify:intent>media.dateTaken</lumify:intent>
+        <rdfs:domain rdf:resource="http://lumify.io/fdic#image"/>
+        <rdfs:domain rdf:resource="http://lumify.io/fdic#video"/>
+        <rdfs:range rdf:resource="&xsd;dateTime"/>
+    </owl:DatatypeProperty>
+    
+
+
+    <!-- http://lumify.io/media#deviceMake -->
+
+    <owl:DatatypeProperty rdf:about="http://lumify.io/media#deviceMake">
+        <rdfs:label xml:lang="en">Device Make</rdfs:label>
+        <lumify:intent>media.deviceMake</lumify:intent>
+        <rdfs:domain rdf:resource="http://lumify.io/fdic#image"/>
+        <rdfs:domain rdf:resource="http://lumify.io/fdic#video"/>
+        <rdfs:range rdf:resource="&xsd;string"/>
+    </owl:DatatypeProperty>
+    
+
+
+    <!-- http://lumify.io/media#deviceModel -->
+
+    <owl:DatatypeProperty rdf:about="http://lumify.io/media#deviceModel">
+        <rdfs:label xml:lang="en">Device Model</rdfs:label>
+        <lumify:intent>media.deviceModel</lumify:intent>
+        <rdfs:domain rdf:resource="http://lumify.io/fdic#image"/>
+        <rdfs:domain rdf:resource="http://lumify.io/fdic#video"/>
+        <rdfs:range rdf:resource="&xsd;string"/>
+    </owl:DatatypeProperty>
+    
+
+
+    <!-- http://lumify.io/media#fileSize -->
+
+    <owl:DatatypeProperty rdf:about="http://lumify.io/media#fileSize">
+        <rdfs:label xml:lang="en">File Size</rdfs:label>
+        <lumify:intent>media.fileSize</lumify:intent>
+        <lumify:displayType xml:lang="en">byte</lumify:displayType>
+        <rdfs:domain rdf:resource="http://lumify.io/fdic#audio"/>
+        <rdfs:domain rdf:resource="http://lumify.io/fdic#image"/>
+        <rdfs:domain rdf:resource="http://lumify.io/fdic#video"/>
+        <rdfs:range rdf:resource="&xsd;integer"/>
+    </owl:DatatypeProperty>
+    
+
+
+    <!-- http://lumify.io/media#height -->
+
+    <owl:DatatypeProperty rdf:about="http://lumify.io/media#height">
+        <rdfs:label xml:lang="en">Height</rdfs:label>
+        <lumify:intent>media.height</lumify:intent>
+        <rdfs:domain rdf:resource="http://lumify.io/fdic#image"/>
+        <rdfs:domain rdf:resource="http://lumify.io/fdic#video"/>
+        <rdfs:range rdf:resource="&xsd;integer"/>
+    </owl:DatatypeProperty>
+    
+
+
+    <!-- http://lumify.io/media#imageHeading -->
+
+    <owl:DatatypeProperty rdf:about="http://lumify.io/media#imageHeading">
+        <rdfs:label xml:lang="en">Image Heading</rdfs:label>
+        <lumify:displayType xml:lang="en">heading</lumify:displayType>
+        <lumify:intent>media.imageHeading</lumify:intent>
+        <rdfs:domain rdf:resource="http://lumify.io/fdic#image"/>
+        <rdfs:range rdf:resource="&xsd;double"/>
+    </owl:DatatypeProperty>
+    
+
+
+    <!-- http://lumify.io/media#metadata -->
+
+    <owl:DatatypeProperty rdf:about="http://lumify.io/media#metadata">
+        <rdfs:label xml:lang="en">Metadata</rdfs:label>
+        <lumify:intent>media.metadata</lumify:intent>
+        <lumify:userVisible>false</lumify:userVisible>
+        <rdfs:domain rdf:resource="http://lumify.io/fdic#image"/>
+        <rdfs:domain rdf:resource="http://lumify.io/fdic#video"/>
+        <rdfs:range rdf:resource="&xsd;string"/>
+    </owl:DatatypeProperty>
+    
+
+
+    <!-- http://lumify.io/media#width -->
+
+    <owl:DatatypeProperty rdf:about="http://lumify.io/media#width">
+        <rdfs:label xml:lang="en">Width</rdfs:label>
+        <lumify:intent>media.width</lumify:intent>
+        <rdfs:domain rdf:resource="http://lumify.io/fdic#image"/>
+        <rdfs:domain rdf:resource="http://lumify.io/fdic#video"/>
+        <rdfs:range rdf:resource="&xsd;integer"/>
+    </owl:DatatypeProperty>
+    
+
+
+    <!-- http://lumify.io/media#yAxisFlipped -->
+
+    <owl:DatatypeProperty rdf:about="http://lumify.io/media#yAxisFlipped">
+        <rdfs:label xml:lang="en">Y Axis Flipped</rdfs:label>
+        <lumify:intent>media.yAxisFlipped</lumify:intent>
+        <lumify:userVisible>false</lumify:userVisible>
+        <rdfs:domain rdf:resource="http://lumify.io/fdic#image"/>
+        <rdfs:range rdf:resource="&xsd;boolean"/>
     </owl:DatatypeProperty>
     
 
@@ -343,6 +495,7 @@
     <owl:Class rdf:about="http://lumify.io/fdic#audio">
         <rdfs:label xml:lang="en">Audio</rdfs:label>
         <rdfs:subClassOf rdf:resource="http://lumify.io/fdic#artifact"/>
+        <lumify:intent>audio</lumify:intent>
         <lumify:displayType>audio</lumify:displayType>
     </owl:Class>
     
@@ -353,8 +506,8 @@
     <owl:Class rdf:about="http://lumify.io/fdic#balance-sheet">
         <rdfs:label xml:lang="en">Balance Sheet</rdfs:label>
         <rdfs:subClassOf rdf:resource="http://lumify.io/fdic#document"/>
-        <lumify:glyphIconFileName>glyphicons_119_table@2x.png</lumify:glyphIconFileName>
         <lumify:titleFormula>(prop(&apos;http://lumify.io/fdic#financial-institution-name&apos;) || &apos;&apos;) + &quot; Balance Sheet &quot; + (prop(&apos;http://lumify.io#publishedDate&apos;) || &apos;&apos;)</lumify:titleFormula>
+        <lumify:glyphIconFileName>glyphicons_119_table@2x.png</lumify:glyphIconFileName>
     </owl:Class>
     
 
@@ -374,6 +527,7 @@
         <rdfs:label xml:lang="en">Document</rdfs:label>
         <rdfs:subClassOf rdf:resource="http://lumify.io/fdic#artifact"/>
         <lumify:displayType>document</lumify:displayType>
+        <lumify:intent>document</lumify:intent>
     </owl:Class>
     
 
@@ -413,7 +567,9 @@
     <owl:Class rdf:about="http://lumify.io/fdic#image">
         <rdfs:label xml:lang="en">Image</rdfs:label>
         <rdfs:subClassOf rdf:resource="http://lumify.io/fdic#artifact"/>
+        <lumify:intent>entityImage</lumify:intent>
         <lumify:displayType>image</lumify:displayType>
+        <lumify:intent>image</lumify:intent>
     </owl:Class>
     
 
@@ -461,6 +617,7 @@
     <owl:Class rdf:about="http://lumify.io/fdic#rdf">
         <rdfs:label xml:lang="en">RDF</rdfs:label>
         <rdfs:subClassOf rdf:resource="http://lumify.io/fdic#document"/>
+        <lumify:intent>rdf</lumify:intent>
     </owl:Class>
     
 
@@ -482,6 +639,7 @@
         <rdfs:label xml:lang="en">Video</rdfs:label>
         <rdfs:subClassOf rdf:resource="http://lumify.io/fdic#artifact"/>
         <lumify:displayType>video</lumify:displayType>
+        <lumify:intent>video</lumify:intent>
     </owl:Class>
 </rdf:RDF>
 
