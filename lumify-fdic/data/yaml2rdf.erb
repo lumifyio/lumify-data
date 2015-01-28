@@ -25,6 +25,9 @@
         <%- resolution_plan[:material_entities].each do |me_name, me_properties| -%>
         <fdic:declares-material-entity rdf:resource="&fdic;<%= me_properties[:id] %>"/>
         <%- end -%>
+        <%- resolution_plan[:material_entities].each do |me_name, me_properties| -%>
+        <fdic:includes-material-entity-declaration rdf:resource="&fdic;<%= me_id(me_name) %>"/>
+        <%- end -%>
 
         <%- resolution_plan[:material_entities].each do |me_name, me_properties| -%>
         <%- if me_properties[:balance_sheet] -%>
@@ -35,9 +38,19 @@
         <%- resolution_plan[:financial_market_utilities].each do |fmu_name, fmu_properties| -%>
         <fdic:declares-financial-market-utility rdf:resource="&fdic;<%= fi_id(fmu_name) %>"/>
         <%- end -%>
+        <%- resolution_plan[:financial_market_utilities].each do |fmu_name, fmu_properties| -%>
+        <fdic:includes-financial-market-utility-membership rdf:resource="&fdic;<%= fmu_id(fmu_name) %>"/>
+        <%- end -%>
 
         <%- resolution_plan[:principal_officers].keys.each do |po_name| -%>
         <fdic:declares-principal-officer rdf:resource="&fdic;<%= person_id(po_name) %>"/>
+        <%- end -%>
+        <%- resolution_plan[:material_entities].each do |me_name, me_properties| -%>
+         <%- if me_properties[:principal_officers] -%>
+         <%- me_properties[:principal_officers].each do |po_hash| -%>
+        <fdic:includes-principal-officer-assignment rdf:resource="&fdic;<%= poa_id(po_hash.keys.first, me_name) %>"/>
+        <%- end -%>
+        <%- end -%>
         <%- end -%>
     </rdf:Description>
 
@@ -57,7 +70,7 @@
         <fdic:has-resolution-plan rdf:resource="&fdic;<%= me_properties[:resolution_plan_id] %>"/>
         <%- end -%>
 
-        <%- if resolution_plan[:financial_institution_names].include? me_name -%>
+        <%- if me_name == resolution_plan[:primary_financial_institution_name] -%>
         <%- resolution_plan[:material_entities].each do |sub_me_name, sub_me_properties| -%>
         <%- if sub_me_name != me_name -%>
         <fdic:has-material-entity rdf:resource="&fdic;<%= fi_id(sub_me_name) %>"/>
@@ -65,9 +78,7 @@
         <%- end -%>
 
         <%- resolution_plan[:material_entities].each do |sub_me_name, sub_me_properties| -%>
-        <%- if sub_me_name != me_name -%>
         <fdic:material-entity-declaration-in rdf:resource="&fdic;<%= me_id(sub_me_name) %>"/>
-        <%- end -%>
         <%- end -%>
         <%- end -%>
 
@@ -75,7 +86,7 @@
         <fdic:has-balance-sheet rdf:resource="&fdic;<%= me_properties[:balance_sheet][:id] %>"/>
         <%- end -%>
 
-        <%- if resolution_plan[:financial_institution_names].include? me_name -%>
+        <%- if resolution_plan[:financial_institution_names].map {|name| fi_name, fi_alias = parse_fi_name(name); fi_name}.include? me_name -%>
         <%- resolution_plan[:financial_market_utilities].each do |fmu_name, fmu_properties| -%>
         <fdic:has-financial-market-utility rdf:resource="&fdic;<%= fi_id(fmu_name) %>"/>
         <%- end -%>

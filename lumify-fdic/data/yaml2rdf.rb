@@ -97,6 +97,7 @@ end
 yaml = YAML.load(File.read(yaml_filename))
 yaml[:pdf_filename] = pdf_filename
 yaml[:resolution_plan][:id] = rp_id(yaml_filename)
+yaml[:resolution_plan][:primary_financial_institution_name], _ = parse_fi_name(yaml[:resolution_plan][:financial_institution_names].first)
 
 material_entity_hash = Hash.new
 principal_officers_hash = Hash.new
