@@ -262,6 +262,7 @@
 
     <owl:DatatypeProperty rdf:about="http://lumify.io/fdic#alias">
         <rdfs:label xml:lang="en">Alias</rdfs:label>
+        <textIndexHints>FULL_TEXT,EXACT_MATCH</textIndexHints>
         <rdfs:domain rdf:resource="http://lumify.io/fdic#financial-institution"/>
         <rdfs:range rdf:resource="&xsd;string"/>
     </owl:DatatypeProperty>
@@ -309,6 +310,8 @@
 
     <owl:DatatypeProperty rdf:about="http://lumify.io/fdic#financial-institution-name">
         <rdfs:label xml:lang="en">Name</rdfs:label>
+        <textIndexHints>FULL_TEXT,EXACT_MATCH</textIndexHints>
+        <boost>1.5</boost>
         <rdfs:domain rdf:resource="http://lumify.io/fdic#balance-sheet"/>
         <rdfs:domain rdf:resource="http://lumify.io/fdic#financial-institution"/>
         <rdfs:domain rdf:resource="http://lumify.io/fdic#resolution-plan"/>
@@ -355,6 +358,7 @@
 
     <owl:DatatypeProperty rdf:about="http://lumify.io/fdic#position">
         <rdfs:label xml:lang="en">Position</rdfs:label>
+        <textIndexHints>FULL_TEXT,EXACT_MATCH</textIndexHints>
         <rdfs:domain rdf:resource="http://lumify.io/fdic#principal-officer-assignment"/>
         <rdfs:range rdf:resource="&xsd;string"/>
     </owl:DatatypeProperty>
@@ -402,6 +406,7 @@
     <owl:DatatypeProperty rdf:about="http://lumify.io/media#deviceMake">
         <rdfs:label xml:lang="en">Device Make</rdfs:label>
         <lumify:intent>media.deviceMake</lumify:intent>
+        <textIndexHints>EXACT_MATCH</textIndexHints>
         <rdfs:domain rdf:resource="http://lumify.io/fdic#image"/>
         <rdfs:domain rdf:resource="http://lumify.io/fdic#video"/>
         <rdfs:range rdf:resource="&xsd;string"/>
@@ -414,6 +419,7 @@
     <owl:DatatypeProperty rdf:about="http://lumify.io/media#deviceModel">
         <rdfs:label xml:lang="en">Device Model</rdfs:label>
         <lumify:intent>media.deviceModel</lumify:intent>
+        <textIndexHints>EXACT_MATCH</textIndexHints>
         <rdfs:domain rdf:resource="http://lumify.io/fdic#image"/>
         <rdfs:domain rdf:resource="http://lumify.io/fdic#video"/>
         <rdfs:range rdf:resource="&xsd;string"/>
@@ -465,6 +471,7 @@
         <rdfs:label xml:lang="en">Metadata</rdfs:label>
         <lumify:intent>media.metadata</lumify:intent>
         <lumify:userVisible>false</lumify:userVisible>
+        <textIndexHints>NONE</textIndexHints>
         <rdfs:domain rdf:resource="http://lumify.io/fdic#image"/>
         <rdfs:domain rdf:resource="http://lumify.io/fdic#video"/>
         <rdfs:range rdf:resource="&xsd;string"/>
