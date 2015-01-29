@@ -2,20 +2,26 @@
 <xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" elementFormDefault="qualified" targetNamespace="http://lumify.io/fdic#" xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#" xmlns:fdic="http://lumify.io/fdic#" xmlns:lumify="http://lumify.io#">
   <xs:import namespace="http://lumify.io#" schemaLocation="lumify.xsd"/>
   <xs:import namespace="http://www.w3.org/1999/02/22-rdf-syntax-ns#" schemaLocation="rdf.xsd"/>
+  <xs:element name="position" type="xs:string"/>
+  <xs:element name="principal-officer-assignment-out">
+    <xs:complexType>
+      <xs:attribute ref="rdf:resource" use="required"/>
+    </xs:complexType>
+  </xs:element>
   <xs:element name="financial-institution-name" type="xs:string"/>
+  <xs:element name="asset-total" type="xs:integer"/>
+  <xs:element name="liability-total" type="xs:integer"/>
+  <xs:element name="alias" type="xs:string"/>
   <xs:element name="financial-market-utility-membership-out">
     <xs:complexType>
       <xs:attribute ref="rdf:resource" use="required"/>
     </xs:complexType>
   </xs:element>
-  <xs:element name="alias" type="xs:string"/>
   <xs:element name="material-entity-declaration-out">
     <xs:complexType>
       <xs:attribute ref="rdf:resource" use="required"/>
     </xs:complexType>
   </xs:element>
-  <xs:element name="asset-total" type="xs:integer"/>
-  <xs:element name="liability-total" type="xs:integer"/>
   <xs:element name="thing-has-image">
     <xs:complexType>
       <xs:attribute ref="rdf:resource" use="required"/>
@@ -61,13 +67,12 @@
       <xs:attribute ref="rdf:resource" use="required"/>
     </xs:complexType>
   </xs:element>
-  <xs:element name="position" type="xs:string"/>
-  <xs:element name="principal-officer-assignment-out">
+  <xs:element name="declares-material-entity">
     <xs:complexType>
       <xs:attribute ref="rdf:resource" use="required"/>
     </xs:complexType>
   </xs:element>
-  <xs:element name="declares-material-entity">
+  <xs:element name="includes-material-entity-declaration">
     <xs:complexType>
       <xs:attribute ref="rdf:resource" use="required"/>
     </xs:complexType>
@@ -82,7 +87,17 @@
       <xs:attribute ref="rdf:resource" use="required"/>
     </xs:complexType>
   </xs:element>
+  <xs:element name="includes-financial-market-utility-membership">
+    <xs:complexType>
+      <xs:attribute ref="rdf:resource" use="required"/>
+    </xs:complexType>
+  </xs:element>
   <xs:element name="declares-principal-officer">
+    <xs:complexType>
+      <xs:attribute ref="rdf:resource" use="required"/>
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="includes-principal-officer-assignment">
     <xs:complexType>
       <xs:attribute ref="rdf:resource" use="required"/>
     </xs:complexType>
