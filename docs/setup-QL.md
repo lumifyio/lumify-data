@@ -4,7 +4,7 @@
 
 * read-only data via custom [securegraph](http://securegraph.org/) implementation
 * user and workspace data stored in MySQL via `SqlUserRepository` and `SqlWorkspaceRepository`
-* ontology loaded from disk via `ReadOnlyInMemoryOntologyRepository`
+* ontology loaded from disk via `InMemoryOntologyRepository`
 * X.509 certificate and LDAP user authentication
 * deployed at `/lumify` on Tomcat and accessed through HTTPd proxy
 
@@ -36,7 +36,7 @@
         repository.longRunningProcess=io.lumify.sql.model.workspace.SqlLongRunningProcessRepository
 
         # read the ontology from disk
-        repository.ontology=io.lumify.core.model.ontology.ReadOnlyInMemoryOntologyRepository
+        repository.ontology=io.lumify.core.model.ontology.InMemoryOntologyRepository
         repository.ontology.owl.1.iri=http://lumify.io/dev
         repository.ontology.owl.1.dir=/opt/lumify/ontology/dev
 
