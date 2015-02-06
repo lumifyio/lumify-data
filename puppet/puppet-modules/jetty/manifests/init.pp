@@ -1,5 +1,5 @@
 class jetty(
-  $version='9.2.5.v20141112'
+  $version='9.2.7.v20150116'
 ){
   require java
 
