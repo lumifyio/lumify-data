@@ -1,0 +1,1317 @@
+<?xml version="1.0"?>
+
+
+<!DOCTYPE rdf:RDF [
+    <!ENTITY lumify "http://lumify.io#" >
+    <!ENTITY owl "http://www.w3.org/2002/07/owl#" >
+    <!ENTITY xsd "http://www.w3.org/2001/XMLSchema#" >
+    <!ENTITY rdfs "http://www.w3.org/2000/01/rdf-schema#" >
+    <!ENTITY rdf "http://www.w3.org/1999/02/22-rdf-syntax-ns#" >
+]>
+
+
+<rdf:RDF xmlns="http://lumify.io/sinaloa#"
+     xml:base="http://lumify.io/sinaloa"
+     xmlns:rdfs="http://www.w3.org/2000/01/rdf-schema#"
+     xmlns:lumify="http://lumify.io#"
+     xmlns:owl="http://www.w3.org/2002/07/owl#"
+     xmlns:xsd="http://www.w3.org/2001/XMLSchema#"
+     xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#">
+    <owl:Ontology rdf:about="http://lumify.io/sinaloa">
+        <owl:imports rdf:resource="http://lumify.io"/>
+    </owl:Ontology>
+    
+
+
+    <!-- 
+    ///////////////////////////////////////////////////////////////////////////////////////
+    //
+    // Object Properties
+    //
+    ///////////////////////////////////////////////////////////////////////////////////////
+     -->
+
+    
+
+
+    <!-- http://lumify.io/sinaloa#entityHasImageRaw -->
+
+    <owl:ObjectProperty rdf:about="http://lumify.io/sinaloa#entityHasImageRaw">
+        <rdfs:label xml:lang="en">Has Image</rdfs:label>
+        <lumify:intent>entityHasImage</lumify:intent>
+        <rdfs:range rdf:resource="http://lumify.io/sinaloa#image"/>
+        <rdfs:domain rdf:resource="&owl;Thing"/>
+    </owl:ObjectProperty>
+    
+
+
+    <!-- http://lumify.io/sinaloa#eventHappenedInLocation -->
+
+    <owl:ObjectProperty rdf:about="http://lumify.io/sinaloa#eventHappenedInLocation">
+        <rdfs:label xml:lang="en">Happened In</rdfs:label>
+        <rdfs:domain rdf:resource="http://lumify.io/sinaloa#event"/>
+        <rdfs:range rdf:resource="http://lumify.io/sinaloa#location"/>
+    </owl:ObjectProperty>
+    
+
+
+    <!-- http://lumify.io/sinaloa#eventPlannedByOrganization -->
+
+    <owl:ObjectProperty rdf:about="http://lumify.io/sinaloa#eventPlannedByOrganization">
+        <rdfs:label>Planned By</rdfs:label>
+        <rdfs:domain rdf:resource="http://lumify.io/sinaloa#event"/>
+        <rdfs:range rdf:resource="http://lumify.io/sinaloa#organization"/>
+    </owl:ObjectProperty>
+    
+
+
+    <!-- http://lumify.io/sinaloa#locationHasLeaderPerson -->
+
+    <owl:ObjectProperty rdf:about="http://lumify.io/sinaloa#locationHasLeaderPerson">
+        <rdfs:label xml:lang="en">Has Leader</rdfs:label>
+        <rdfs:domain rdf:resource="http://lumify.io/sinaloa#location"/>
+        <rdfs:range rdf:resource="http://lumify.io/sinaloa#person"/>
+    </owl:ObjectProperty>
+    
+
+
+    <!-- http://lumify.io/sinaloa#locationIsCaptialOfLocation -->
+
+    <owl:ObjectProperty rdf:about="http://lumify.io/sinaloa#locationIsCaptialOfLocation">
+        <rdfs:label xml:lang="en">Is Capital Of</rdfs:label>
+        <rdfs:range rdf:resource="http://lumify.io/sinaloa#location"/>
+        <rdfs:domain rdf:resource="http://lumify.io/sinaloa#location"/>
+    </owl:ObjectProperty>
+    
+
+
+    <!-- http://lumify.io/sinaloa#locationIsInLocation -->
+
+    <owl:ObjectProperty rdf:about="http://lumify.io/sinaloa#locationIsInLocation">
+        <rdfs:label xml:lang="en">Is In</rdfs:label>
+        <rdfs:range rdf:resource="http://lumify.io/sinaloa#location"/>
+        <rdfs:domain rdf:resource="http://lumify.io/sinaloa#location"/>
+    </owl:ObjectProperty>
+    
+
+
+    <!-- http://lumify.io/sinaloa#organizationHasKeyLeader -->
+
+    <owl:ObjectProperty rdf:about="http://lumify.io/sinaloa#organizationHasKeyLeader">
+        <rdfs:label xml:lang="en">Has Key Leader</rdfs:label>
+        <rdfs:domain rdf:resource="http://lumify.io/sinaloa#organization"/>
+        <rdfs:range rdf:resource="http://lumify.io/sinaloa#person"/>
+    </owl:ObjectProperty>
+    
+
+
+    <!-- http://lumify.io/sinaloa#organizationHasOfficeAtLocation -->
+
+    <owl:ObjectProperty rdf:about="http://lumify.io/sinaloa#organizationHasOfficeAtLocation">
+        <rdfs:label xml:lang="en">Has Office At</rdfs:label>
+        <rdfs:range rdf:resource="http://lumify.io/sinaloa#location"/>
+        <rdfs:domain rdf:resource="http://lumify.io/sinaloa#organization"/>
+    </owl:ObjectProperty>
+    
+
+
+    <!-- http://lumify.io/sinaloa#organizationHeadquarteredAtLocation -->
+
+    <owl:ObjectProperty rdf:about="http://lumify.io/sinaloa#organizationHeadquarteredAtLocation">
+        <rdfs:label xml:lang="en">Headquartered At</rdfs:label>
+        <rdfs:range rdf:resource="http://lumify.io/sinaloa#location"/>
+        <rdfs:domain rdf:resource="http://lumify.io/sinaloa#organization"/>
+    </owl:ObjectProperty>
+    
+
+
+    <!-- http://lumify.io/sinaloa#personHasChildPerson -->
+
+    <owl:ObjectProperty rdf:about="http://lumify.io/sinaloa#personHasChildPerson">
+        <rdfs:label xml:lang="en">Has Child</rdfs:label>
+        <rdfs:range rdf:resource="http://lumify.io/sinaloa#person"/>
+        <rdfs:domain rdf:resource="http://lumify.io/sinaloa#person"/>
+        <owl:inverseOf rdf:resource="http://lumify.io/sinaloa#personHasParentPerson"/>
+    </owl:ObjectProperty>
+    
+
+
+    <!-- http://lumify.io/sinaloa#personHasCitizenshipInCountry -->
+
+    <owl:ObjectProperty rdf:about="http://lumify.io/sinaloa#personHasCitizenshipInCountry">
+        <rdfs:label xml:lang="en">Has Citizenship In</rdfs:label>
+        <rdfs:range rdf:resource="http://lumify.io/sinaloa#country"/>
+        <rdfs:domain rdf:resource="http://lumify.io/sinaloa#person"/>
+    </owl:ObjectProperty>
+    
+
+
+    <!-- http://lumify.io/sinaloa#personHasCoworkerPerson -->
+
+    <owl:ObjectProperty rdf:about="http://lumify.io/sinaloa#personHasCoworkerPerson">
+        <rdfs:label xml:lang="en">Has Coworker</rdfs:label>
+        <rdfs:range rdf:resource="http://lumify.io/sinaloa#person"/>
+        <rdfs:domain rdf:resource="http://lumify.io/sinaloa#person"/>
+    </owl:ObjectProperty>
+    
+
+
+    <!-- http://lumify.io/sinaloa#personHasEmailAddress -->
+
+    <owl:ObjectProperty rdf:about="http://lumify.io/sinaloa#personHasEmailAddress">
+        <rdfs:label xml:lang="en">Has Email Address</rdfs:label>
+        <rdfs:range rdf:resource="http://lumify.io/sinaloa#emailAddress"/>
+        <rdfs:domain rdf:resource="http://lumify.io/sinaloa#organization"/>
+        <rdfs:domain rdf:resource="http://lumify.io/sinaloa#person"/>
+    </owl:ObjectProperty>
+    
+
+
+    <!-- http://lumify.io/sinaloa#personHasFriendPerson -->
+
+    <owl:ObjectProperty rdf:about="http://lumify.io/sinaloa#personHasFriendPerson">
+        <rdfs:label xml:lang="en">Has Friend</rdfs:label>
+        <rdfs:range rdf:resource="http://lumify.io/sinaloa#person"/>
+        <rdfs:domain rdf:resource="http://lumify.io/sinaloa#person"/>
+    </owl:ObjectProperty>
+    
+
+
+    <!-- http://lumify.io/sinaloa#personHasHomeAddressLocation -->
+
+    <owl:ObjectProperty rdf:about="http://lumify.io/sinaloa#personHasHomeAddressLocation">
+        <rdfs:label xml:lang="en">Has Home Address</rdfs:label>
+        <rdfs:range rdf:resource="http://lumify.io/sinaloa#location"/>
+        <rdfs:domain rdf:resource="http://lumify.io/sinaloa#person"/>
+    </owl:ObjectProperty>
+    
+
+
+    <!-- http://lumify.io/sinaloa#personHasLivedLocation -->
+
+    <owl:ObjectProperty rdf:about="http://lumify.io/sinaloa#personHasLivedLocation">
+        <rdfs:label xml:lang="en">Has Lived In</rdfs:label>
+        <rdfs:range rdf:resource="http://lumify.io/sinaloa#location"/>
+        <rdfs:domain rdf:resource="http://lumify.io/sinaloa#person"/>
+    </owl:ObjectProperty>
+    
+
+
+    <!-- http://lumify.io/sinaloa#personHasParentPerson -->
+
+    <owl:ObjectProperty rdf:about="http://lumify.io/sinaloa#personHasParentPerson">
+        <rdfs:label xml:lang="en">Has Parent</rdfs:label>
+        <rdfs:range rdf:resource="http://lumify.io/sinaloa#person"/>
+        <rdfs:domain rdf:resource="http://lumify.io/sinaloa#person"/>
+    </owl:ObjectProperty>
+    
+
+
+    <!-- http://lumify.io/sinaloa#personHasPhoneNumber -->
+
+    <owl:ObjectProperty rdf:about="http://lumify.io/sinaloa#personHasPhoneNumber">
+        <rdfs:label xml:lang="en">Has Phone Number</rdfs:label>
+        <rdfs:domain rdf:resource="http://lumify.io/sinaloa#organization"/>
+        <rdfs:domain rdf:resource="http://lumify.io/sinaloa#person"/>
+        <rdfs:range rdf:resource="http://lumify.io/sinaloa#phoneNumber"/>
+    </owl:ObjectProperty>
+    
+
+
+    <!-- http://lumify.io/sinaloa#personHasSiblingPerson -->
+
+    <owl:ObjectProperty rdf:about="http://lumify.io/sinaloa#personHasSiblingPerson">
+        <rdfs:label xml:lang="en">Has Sibling</rdfs:label>
+        <rdfs:domain rdf:resource="http://lumify.io/sinaloa#person"/>
+        <rdfs:range rdf:resource="http://lumify.io/sinaloa#person"/>
+    </owl:ObjectProperty>
+    
+
+
+    <!-- http://lumify.io/sinaloa#personHasVisitedLocation -->
+
+    <owl:ObjectProperty rdf:about="http://lumify.io/sinaloa#personHasVisitedLocation">
+        <rdfs:label xml:lang="en">Has Visited</rdfs:label>
+        <rdfs:range rdf:resource="http://lumify.io/sinaloa#location"/>
+        <rdfs:domain rdf:resource="http://lumify.io/sinaloa#person"/>
+    </owl:ObjectProperty>
+    
+
+
+    <!-- http://lumify.io/sinaloa#personIsEmployedByOrganizaton -->
+
+    <owl:ObjectProperty rdf:about="http://lumify.io/sinaloa#personIsEmployedByOrganizaton">
+        <rdfs:label xml:lang="en">Is Employed By</rdfs:label>
+        <rdfs:range rdf:resource="http://lumify.io/sinaloa#organization"/>
+        <rdfs:domain rdf:resource="http://lumify.io/sinaloa#person"/>
+    </owl:ObjectProperty>
+    
+
+
+    <!-- http://lumify.io/sinaloa#personIsFromLocation -->
+
+    <owl:ObjectProperty rdf:about="http://lumify.io/sinaloa#personIsFromLocation">
+        <rdfs:label xml:lang="en">Is From</rdfs:label>
+        <rdfs:range rdf:resource="http://lumify.io/sinaloa#location"/>
+        <rdfs:domain rdf:resource="http://lumify.io/sinaloa#person"/>
+    </owl:ObjectProperty>
+    
+
+
+    <!-- http://lumify.io/sinaloa#personIsMemberOfOrganization -->
+
+    <owl:ObjectProperty rdf:about="http://lumify.io/sinaloa#personIsMemberOfOrganization">
+        <rdfs:label xml:lang="en">Is Member Of</rdfs:label>
+        <rdfs:range rdf:resource="http://lumify.io/sinaloa#organization"/>
+        <rdfs:domain rdf:resource="http://lumify.io/sinaloa#person"/>
+    </owl:ObjectProperty>
+    
+
+
+    <!-- http://lumify.io/sinaloa#personKnowsPerson -->
+
+    <owl:ObjectProperty rdf:about="http://lumify.io/sinaloa#personKnowsPerson">
+        <rdfs:label xml:lang="en">Knows</rdfs:label>
+        <rdfs:domain rdf:resource="http://lumify.io/sinaloa#person"/>
+        <rdfs:range rdf:resource="http://lumify.io/sinaloa#person"/>
+    </owl:ObjectProperty>
+    
+
+
+    <!-- http://lumify.io/sinaloa#personLivesAtLocation -->
+
+    <owl:ObjectProperty rdf:about="http://lumify.io/sinaloa#personLivesAtLocation">
+        <rdfs:label xml:lang="en">Lives At</rdfs:label>
+        <rdfs:range rdf:resource="http://lumify.io/sinaloa#location"/>
+        <rdfs:domain rdf:resource="http://lumify.io/sinaloa#person"/>
+    </owl:ObjectProperty>
+    
+
+
+    <!-- http://lumify.io/sinaloa#personLivesWithPerson -->
+
+    <owl:ObjectProperty rdf:about="http://lumify.io/sinaloa#personLivesWithPerson">
+        <rdfs:label xml:lang="en">Lives With</rdfs:label>
+        <rdfs:domain rdf:resource="http://lumify.io/sinaloa#person"/>
+        <rdfs:range rdf:resource="http://lumify.io/sinaloa#person"/>
+    </owl:ObjectProperty>
+    
+
+
+    <!-- http://lumify.io/sinaloa#personOwnsLocation -->
+
+    <owl:ObjectProperty rdf:about="http://lumify.io/sinaloa#personOwnsLocation">
+        <rdfs:label xml:lang="en">Owns</rdfs:label>
+        <rdfs:range rdf:resource="http://lumify.io/sinaloa#location"/>
+        <rdfs:domain rdf:resource="http://lumify.io/sinaloa#person"/>
+    </owl:ObjectProperty>
+    
+
+
+    <!-- http://lumify.io/sinaloa#personSupportsOrganization -->
+
+    <owl:ObjectProperty rdf:about="http://lumify.io/sinaloa#personSupportsOrganization">
+        <rdfs:label xml:lang="en">Supports</rdfs:label>
+        <rdfs:range rdf:resource="http://lumify.io/sinaloa#organization"/>
+        <rdfs:domain rdf:resource="http://lumify.io/sinaloa#person"/>
+    </owl:ObjectProperty>
+    
+
+
+    <!-- http://lumify.io/sinaloa#personWorksAtCompany -->
+
+    <owl:ObjectProperty rdf:about="http://lumify.io/sinaloa#personWorksAtCompany">
+        <rdfs:label xml:lang="en">Works At</rdfs:label>
+        <rdfs:range rdf:resource="http://lumify.io/sinaloa#organization"/>
+        <rdfs:domain rdf:resource="http://lumify.io/sinaloa#person"/>
+    </owl:ObjectProperty>
+    
+
+
+    <!-- http://lumify.io/sinaloa#rawContainsImageOfEntity -->
+
+    <owl:ObjectProperty rdf:about="http://lumify.io/sinaloa#rawContainsImageOfEntity">
+        <rdfs:label xml:lang="en">Contains Image of</rdfs:label>
+        <lumify:intent>artifactContainsImageOfEntity</lumify:intent>
+        <lumify:intent>artifactContainsImage</lumify:intent>
+        <rdfs:domain rdf:resource="http://lumify.io/sinaloa#raw"/>
+        <rdfs:range rdf:resource="&owl;Thing"/>
+    </owl:ObjectProperty>
+    
+
+
+    <!-- http://lumify.io/sinaloa#rawHasEntity -->
+
+    <owl:ObjectProperty rdf:about="http://lumify.io/sinaloa#rawHasEntity">
+        <rdfs:label xml:lang="en">Has Entity</rdfs:label>
+        <lumify:intent>artifactHasEntity</lumify:intent>
+        <rdfs:domain rdf:resource="http://lumify.io/sinaloa#raw"/>
+        <rdfs:range rdf:resource="&owl;Thing"/>
+    </owl:ObjectProperty>
+    
+
+
+    <!-- http://lumify.io/sinaloa#rawHasSourceOrganization -->
+
+    <owl:ObjectProperty rdf:about="http://lumify.io/sinaloa#rawHasSourceOrganization">
+        <rdfs:label xml:lang="en">Has Author</rdfs:label>
+        <rdfs:range rdf:resource="http://lumify.io/sinaloa#person"/>
+        <rdfs:domain rdf:resource="http://lumify.io/sinaloa#raw"/>
+    </owl:ObjectProperty>
+    
+
+
+    <!-- http://lumify.io/sinaloa#rawHasSourcePerson -->
+
+    <owl:ObjectProperty rdf:about="http://lumify.io/sinaloa#rawHasSourcePerson">
+        <rdfs:label xml:lang="en">Has Author</rdfs:label>
+        <rdfs:range rdf:resource="http://lumify.io/sinaloa#person"/>
+        <rdfs:domain rdf:resource="http://lumify.io/sinaloa#raw"/>
+    </owl:ObjectProperty>
+    
+     <!-- http://lumify.io/sinaloa#locationIsAtLocation -->
+    <owl:ObjectProperty rdf:about="http://lumify.io/sinaloa#locationIsAtLocation">
+        <rdfs:label xml:lang="en">is at</rdfs:label>
+        <rdfs:domain rdf:resource="http://lumify.io/sinaloa#location"/>
+        <rdfs:range rdf:resource="http://lumify.io/sinaloa#location"/>
+    </owl:ObjectProperty>
+
+    <!-- http://lumify.io/sinaloa#organizationHasEmailAddress -->
+    <owl:ObjectProperty rdf:about="http://lumify.io/sinaloa#organizationHasEmailAddress">
+        <rdfs:label xml:lang="en">Has Email Address</rdfs:label>
+        <rdfs:range rdf:resource="http://lumify.io/sinaloa#emailAddress"/>
+        <rdfs:domain rdf:resource="http://lumify.io/sinaloa#organization"/>
+    </owl:ObjectProperty>
+
+    <!-- http://lumify.io/sinaloa#organizationHasPhoneNumber -->
+    <owl:ObjectProperty rdf:about="http://lumify.io/sinaloa#organizationHasPhoneNumber">
+        <rdfs:label xml:lang="en">Has Phone Number</rdfs:label>
+        <rdfs:range rdf:resource="http://lumify.io/sinaloa#phoneNumber"/>
+        <rdfs:domain rdf:resource="http://lumify.io/sinaloa#organization"/>
+    </owl:ObjectProperty>
+
+    <!-- http://lumify.io/sinaloa#organizationHasContactInformation -->
+    <owl:ObjectProperty rdf:about="http://lumify.io/sinaloa#organizationHasContactInformation">
+        <rdfs:label xml:lang="en">Has Contact Information</rdfs:label>
+        <rdfs:range rdf:resource="http://lumify.io/sinaloa#contactInformation"/>
+        <rdfs:domain rdf:resource="http://lumify.io/sinaloa#organization"/>
+    </owl:ObjectProperty>
+
+    <!-- http://lumify.io/sinaloa#organizationHasEmployee -->
+    <owl:ObjectProperty rdf:about="http://lumify.io/sinaloa#organizationHasEmployee">
+        <rdfs:label xml:lang="en">has employee</rdfs:label>
+        <rdfs:domain rdf:resource="http://lumify.io/sinaloa#organization"/>
+        <rdfs:range rdf:resource="http://lumify.io/sinaloa#person"/>
+    </owl:ObjectProperty>
+
+    <!-- http://lumify.io/sinaloa#personHasContactInformation -->
+    <owl:ObjectProperty rdf:about="http://lumify.io/sinaloa#personHasContactInformation">
+        <rdfs:label xml:lang="en">Has Contact Information</rdfs:label>
+        <rdfs:range rdf:resource="http://lumify.io/sinaloa#contactInformation"/>
+        <rdfs:domain rdf:resource="http://lumify.io/sinaloa#person"/>
+    </owl:ObjectProperty>
+
+    <!-- http://lumify.io/sinaloa#personHasWorkAddress -->
+    <owl:ObjectProperty rdf:about="http://lumify.io/sinaloa#personHasWorkAddress">
+        <rdfs:label xml:lang="en">has work address</rdfs:label>
+        <rdfs:domain rdf:resource="http://lumify.io/sinaloa#person"/>
+        <rdfs:range rdf:resource="http://lumify.io/sinaloa#location"/>
+    </owl:ObjectProperty>
+
+    <!-- http://lumify.io/sinaloa#personHasGrandparent -->
+    <owl:ObjectProperty rdf:about="http://lumify.io/sinaloa#personHasGrandparent">
+        <rdfs:label xml:lang="en">has grandparent</rdfs:label>
+        <rdfs:domain rdf:resource="http://lumify.io/sinaloa#person"/>
+        <rdfs:range rdf:resource="http://lumify.io/sinaloa#person"/>
+    </owl:ObjectProperty>
+
+    <!-- http://lumify.io/sinaloa#personGrandchild -->
+    <owl:ObjectProperty rdf:about="http://lumify.io/sinaloa#personGrandchild">
+        <rdfs:label xml:lang="en">has grandchild</rdfs:label>
+        <rdfs:domain rdf:resource="http://lumify.io/sinaloa#person"/>
+        <rdfs:range rdf:resource="http://lumify.io/sinaloa#person"/>
+    </owl:ObjectProperty>
+
+    <!-- http://lumify.io/sinaloa#personHasCousin -->  
+    <owl:ObjectProperty rdf:about="http://lumify.io/sinaloa#personHasCousin">
+        <rdfs:label xml:lang="en">has cousin</rdfs:label>
+        <rdfs:domain rdf:resource="http://lumify.io/sinaloa#person"/>
+        <rdfs:range rdf:resource="http://lumify.io/sinaloa#person"/>
+    </owl:ObjectProperty>
+
+    <!-- http://lumify.io/sinaloa#personHasInLaw -->
+    <owl:ObjectProperty rdf:about="http://lumify.io/sinaloa#personHasInLaw">
+        <rdfs:label xml:lang="en">has in-law</rdfs:label>
+        <rdfs:domain rdf:resource="http://lumify.io/sinaloa#person"/>
+        <rdfs:range rdf:resource="http://lumify.io/sinaloa#person"/>
+    </owl:ObjectProperty>
+
+    <!-- http://lumify.io/sinaloa#personHasAunt -->
+    <owl:ObjectProperty rdf:about="http://lumify.io/sinaloa#personHasAunt">
+        <rdfs:label xml:lang="en">has aunt</rdfs:label>
+        <rdfs:domain rdf:resource="http://lumify.io/sinaloa#person"/>
+        <rdfs:range rdf:resource="http://lumify.io/sinaloa#person"/>
+    </owl:ObjectProperty>
+
+    <!-- http://lumify.io/sinaloa#personHasUncle -->
+    <owl:ObjectProperty rdf:about="http://lumify.io/sinaloa#personHasUncle">
+        <rdfs:label xml:lang="en">has uncle</rdfs:label>
+        <rdfs:domain rdf:resource="http://lumify.io/sinaloa#person"/>
+        <rdfs:range rdf:resource="http://lumify.io/sinaloa#person"/>
+    </owl:ObjectProperty>
+
+    <!-- http://lumify.io/sinaloa#personHasNiece -->
+    <owl:ObjectProperty rdf:about="http://lumify.io/sinaloa#personHasNiece">
+        <rdfs:label xml:lang="en">has niece</rdfs:label>
+        <rdfs:domain rdf:resource="http://lumify.io/sinaloa#person"/>
+        <rdfs:range rdf:resource="http://lumify.io/sinaloa#person"/>
+    </owl:ObjectProperty>
+
+    <!-- http://lumify.io/sinaloa#personHasNephew -->
+    <owl:ObjectProperty rdf:about="http://lumify.io/sinaloa#personHasNephew">
+        <rdfs:label xml:lang="en">has nephew</rdfs:label>
+        <rdfs:domain rdf:resource="http://lumify.io/sinaloa#person"/>
+        <rdfs:range rdf:resource="http://lumify.io/sinaloa#person"/>
+    </owl:ObjectProperty>
+
+    <!-- http://lumify.io/sinaloa#eventWasPlannedByPerson -->
+    <owl:ObjectProperty rdf:about="http://lumify.io/sinaloa#eventWasPlannedByPerson">
+        <rdfs:label xml:lang="en">is planned by</rdfs:label>
+        <rdfs:domain rdf:resource="http://lumify.io/sinaloa#event"/>
+        <rdfs:range rdf:resource="http://lumify.io/sinaloa#person"/>
+    </owl:ObjectProperty>
+
+    <!-- http://lumify.io/sinaloa#personIsLeaderOfOrganization -->
+    <owl:ObjectProperty rdf:about="http://lumify.io/sinaloa#personIsLeaderOfOrganization">
+        <rdfs:label xml:lang="en">is leader of</rdfs:label>
+        <rdfs:domain rdf:resource="http://lumify.io/sinaloa#person"/>
+        <rdfs:range rdf:resource="http://lumify.io/sinaloa#organization"/>
+    </owl:ObjectProperty>
+
+    <!-- http://lumify.io/sinaloa#organizationHasLeader -->
+    <owl:ObjectProperty rdf:about="http://lumify.io/sinaloa#organizationHasLeader">
+        <rdfs:label xml:lang="en">has leader</rdfs:label>
+        <rdfs:domain rdf:resource="http://lumify.io/sinaloa#organization"/>
+        <rdfs:range rdf:resource="http://lumify.io/sinaloa#person"/>
+        <owl:inverseOf rdf:resource="http://lumify.io/sinaloa#personIsLeaderOfOrganization"/>
+    </owl:ObjectProperty>
+
+    <!-- http://lumify.io/sinaloa#personAuthoredRaw -->
+    <owl:ObjectProperty rdf:about="http://lumify.io/sinaloa#personAuthoredRaw">
+        <rdfs:label xml:lang="en">authored</rdfs:label>
+        <rdfs:domain rdf:resource="http://lumify.io/sinaloa#person"/>
+        <rdfs:range rdf:resource="http://lumify.io/sinaloa#raw"/>
+    </owl:ObjectProperty>
+
+    <!-- http://lumify.io/sinaloa#organizationAuthoredRaw -->
+    <owl:ObjectProperty rdf:about="http://lumify.io/sinaloa#organizationAuthoredRaw">
+        <rdfs:label xml:lang="en">authored</rdfs:label>
+        <rdfs:domain rdf:resource="http://lumify.io/sinaloa#organization"/>
+        <rdfs:range rdf:resource="http://lumify.io/sinaloa#raw"/>
+    </owl:ObjectProperty>
+
+    <!-- http://lumify.io/sinaloa#organizationPublishedRaw -->
+    <owl:ObjectProperty rdf:about="http://lumify.io/sinaloa#organizationPublishedRaw">
+        <rdfs:label xml:lang="en">published</rdfs:label>
+        <rdfs:domain rdf:resource="http://lumify.io/sinaloa#organization"/>
+        <rdfs:range rdf:resource="http://lumify.io/sinaloa#raw"/>
+    </owl:ObjectProperty>
+
+    <!-- http://lumify.io/sinaloa#organizationPublishedRaw -->
+    <owl:ObjectProperty rdf:about="http://lumify.io/sinaloa#personPurchasedEquipment">
+        <rdfs:label xml:lang="en">purchased</rdfs:label>
+        <rdfs:domain rdf:resource="http://lumify.io/sinaloa#person"/>
+        <rdfs:range rdf:resource="http://lumify.io/sinaloa#equipment"/>
+    </owl:ObjectProperty>
+
+    <!-- http://lumify.io/sinaloa#organizationPublishedRaw -->
+    <owl:ObjectProperty rdf:about="http://lumify.io/sinaloa#organizationPurchasedEquipment">
+        <rdfs:label xml:lang="en">purchased</rdfs:label>
+        <rdfs:domain rdf:resource="http://lumify.io/sinaloa#organization"/>
+        <rdfs:range rdf:resource="http://lumify.io/sinaloa#equipment"/>
+    </owl:ObjectProperty>
+
+    <!-- http://lumify.io/sinaloa#organizationPublishedRaw -->
+    <owl:ObjectProperty rdf:about="http://lumify.io/sinaloa#personBuiltEquipment">
+        <rdfs:label xml:lang="en">built</rdfs:label>
+        <rdfs:domain rdf:resource="http://lumify.io/sinaloa#person"/>
+        <rdfs:range rdf:resource="http://lumify.io/sinaloa#equipment"/>
+    </owl:ObjectProperty>
+
+    <!-- http://lumify.io/sinaloa#organizationPublishedRaw -->
+    <owl:ObjectProperty rdf:about="http://lumify.io/sinaloa#organizationBuiltEquipment">
+        <rdfs:label xml:lang="en">built</rdfs:label>
+        <rdfs:domain rdf:resource="http://lumify.io/sinaloa#organization"/>
+        <rdfs:range rdf:resource="http://lumify.io/sinaloa#equipment"/>
+    </owl:ObjectProperty>
+
+    <!-- http://lumify.io/sinaloa#organizationPublishedRaw -->
+    <owl:ObjectProperty rdf:about="http://lumify.io/sinaloa#organizationHasOfficeInLocation">
+        <rdfs:label xml:lang="en">has office in</rdfs:label>
+        <rdfs:domain rdf:resource="http://lumify.io/sinaloa#organization"/>
+        <rdfs:range rdf:resource="http://lumify.io/sinaloa#location"/>
+    </owl:ObjectProperty>
+
+    <!-- http://lumify.io/sinaloa#organizationPublishedRaw -->
+    <owl:ObjectProperty rdf:about="http://lumify.io/sinaloa#organizationHasSubsidiary">
+        <rdfs:label xml:lang="en">has subsidiary</rdfs:label>
+        <rdfs:domain rdf:resource="http://lumify.io/sinaloa#organization"/>
+        <rdfs:range rdf:resource="http://lumify.io/sinaloa#organization"/>
+    </owl:ObjectProperty>
+
+    <!-- http://lumify.io/sinaloa#organizationPublishedRaw -->
+    <owl:ObjectProperty rdf:about="http://lumify.io/sinaloa#organizationHasPartner">
+        <rdfs:label xml:lang="en">has partner</rdfs:label>
+        <rdfs:domain rdf:resource="http://lumify.io/sinaloa#organization"/>
+        <rdfs:range rdf:resource="http://lumify.io/sinaloa#organization"/>
+    </owl:ObjectProperty>
+
+    <!-- http://lumify.io/sinaloa#personOwnsOrControlsOrganization -->
+    <owl:ObjectProperty rdf:about="http://lumify.io/sinaloa#personOwnsOrControlsOrganization">
+        <rdfs:label xml:lang="en">owns or controls</rdfs:label>
+        <rdfs:domain rdf:resource="http://lumify.io/sinaloa#person"/>
+        <rdfs:range rdf:resource="http://lumify.io/sinaloa#organization"/>
+    </owl:ObjectProperty>
+
+    <!-- http://lumify.io/sinaloa#personHasRelative -->
+    <owl:ObjectProperty rdf:about="http://lumify.io/sinaloa#personHasRelative">
+        <rdfs:label xml:lang="en">has relative</rdfs:label>
+        <rdfs:domain rdf:resource="http://lumify.io/sinaloa#person"/>
+        <rdfs:range rdf:resource="http://lumify.io/sinaloa#person"/>
+    </owl:ObjectProperty>
+
+    <!-- http://lumify.io/sinaloa#personWorksForPerson -->
+    <owl:ObjectProperty rdf:about="http://lumify.io/sinaloa#personWorksForPerson">
+        <rdfs:label xml:lang="en">works for</rdfs:label>
+        <rdfs:domain rdf:resource="http://lumify.io/sinaloa#person"/>
+        <rdfs:range rdf:resource="http://lumify.io/sinaloa#person"/>
+    </owl:ObjectProperty>
+
+    <!-- http://lumify.io/sinaloa#personIsAffiliatedWithOrganization -->
+    <owl:ObjectProperty rdf:about="http://lumify.io/sinaloa#personIsAffiliatedWithOrganization">
+        <rdfs:label xml:lang="en">is affiliated with</rdfs:label>
+        <rdfs:domain rdf:resource="http://lumify.io/sinaloa#person"/>
+        <rdfs:range rdf:resource="http://lumify.io/sinaloa#organization"/>
+    </owl:ObjectProperty>
+
+    <!-- http://lumify.io/sinaloa#phoneMadeCall -->
+    <owl:ObjectProperty rdf:about="http://lumify.io/sinaloa#phoneMadeCall">
+        <rdfs:label xml:lang="en">made call</rdfs:label>
+        <rdfs:domain rdf:resource="http://lumify.io/sinaloa#phoneNumber"/>
+        <rdfs:range rdf:resource="http://lumify.io/sinaloa#phoneCall"/>
+    </owl:ObjectProperty>
+
+    <!-- http://lumify.io/sinaloa#callConnectedPhone -->
+    <owl:ObjectProperty rdf:about="http://lumify.io/sinaloa#callConnectedPhone">
+        <rdfs:label xml:lang="en">call connected</rdfs:label>
+        <rdfs:range rdf:resource="http://lumify.io/sinaloa#phoneCall"/>
+        <rdfs:domain rdf:resource="http://lumify.io/sinaloa#phoneNumber"/>
+    </owl:ObjectProperty>
+
+    <!-- http://lumify.io/sinaloa#phoneCallContainsAudio -->
+    <owl:ObjectProperty rdf:about="http://lumify.io/sinaloa#phoneCallContainsAudio">
+        <rdfs:label xml:lang="en">contains audio</rdfs:label>
+        <rdfs:domain rdf:resource="http://lumify.io/sinaloa#phoneCall"/>
+        <rdfs:range rdf:resource="http://lumify.io/sinaloa#audio"/>
+    </owl:ObjectProperty>
+
+    <!-- http://lumify.io/sinaloa#happenedIn -->
+    <owl:ObjectProperty rdf:about="http://lumify.io/sinaloa#happenedIn">
+        <rdfs:label xml:lang="en">Happened in</rdfs:label>
+        <rdfs:range rdf:resource="http://lumify.io/sinaloa#event"/>
+        <rdfs:domain rdf:resource="http://lumify.io/sinaloa#location"/>
+    </owl:ObjectProperty>
+
+    <!-- http://lumify.io/sinaloa#carriedOutBy -->
+    <owl:ObjectProperty rdf:about="http://lumify.io/sinaloa#carriedOutBy">
+        <rdfs:label xml:lang="en">Carried Out By</rdfs:label>
+        <rdfs:domain rdf:resource="http://lumify.io/sinaloa#person"/>
+        <rdfs:range rdf:resource="http://lumify.io/sinaloa#attack"/>
+    </owl:ObjectProperty>
+
+    <!-- http://lumify.io/sinaloa#responsibleFor -->
+    <owl:ObjectProperty rdf:about="http://lumify.io/sinaloa#responsibleFor">
+        <rdfs:label xml:lang="en">Was Responsible For</rdfs:label>
+        <rdfs:domain rdf:resource="http://lumify.io/sinaloa#organization"/>
+        <rdfs:range rdf:resource="http://lumify.io/sinaloa#attack"/>
+    </owl:ObjectProperty>
+
+    <!-- http://lumify.io/sinaloa#personIsVictimOf -->
+    <owl:ObjectProperty rdf:about="http://lumify.io/sinaloa#personIsVictimOf">
+        <rdfs:label xml:lang="en">is victim of</rdfs:label>
+        <rdfs:domain rdf:resource="http://lumify.io/sinaloa#person"/>
+        <rdfs:range rdf:resource="http://lumify.io/sinaloa#attack"/>
+    </owl:ObjectProperty>
+
+    <!-- http://lumify.io/sinaloa#personHasHomeEmail -->
+    <owl:ObjectProperty rdf:about="http://lumify.io/sinaloa#personHasHomeEmail">
+        <rdfs:label xml:lang="en">has home address</rdfs:label>
+        <rdfs:domain rdf:resource="http://lumify.io/sinaloa#person"/>
+        <rdfs:range rdf:resource="http://lumify.io/sinaloa#emailAddress"/>
+    </owl:ObjectProperty>
+
+    <!-- http://lumify.io/sinaloa#personHasWorkEmail -->
+    <owl:ObjectProperty rdf:about="http://lumify.io/sinaloa#personHasWorkEmail">
+        <rdfs:label xml:lang="en">has work address</rdfs:label>
+        <rdfs:domain rdf:resource="http://lumify.io/sinaloa#person"/>
+        <rdfs:range rdf:resource="http://lumify.io/sinaloa#emailAddress"/>
+    </owl:ObjectProperty>
+
+    <!-- http://lumify.io/sinaloa#personHasHomePhoneNumber -->
+    <owl:ObjectProperty rdf:about="http://lumify.io/sinaloa#personHasHomePhoneNumber">
+        <rdfs:label xml:lang="en">has home phone number</rdfs:label>
+        <rdfs:domain rdf:resource="http://lumify.io/sinaloa#person"/>
+        <rdfs:range rdf:resource="http://lumify.io/sinaloa#phoneNumber"/>
+    </owl:ObjectProperty>
+
+    <!-- http://lumify.io/sinaloa#personHasWorkPhoneNumber -->
+    <owl:ObjectProperty rdf:about="http://lumify.io/sinaloa#personHasWorkPhoneNumber">
+        <rdfs:label xml:lang="en">has work phone number</rdfs:label>
+        <rdfs:domain rdf:resource="http://lumify.io/sinaloa#person"/>
+        <rdfs:range rdf:resource="http://lumify.io/sinaloa#phoneNumber"/>
+    </owl:ObjectProperty>
+
+    <!-- 
+    ///////////////////////////////////////////////////////////////////////////////////////
+    //
+    // Data properties
+    //
+    ///////////////////////////////////////////////////////////////////////////////////////
+     -->
+
+    <!-- http://lumify.io/sinaloa#abbreviation -->
+
+    <owl:DatatypeProperty rdf:about="http://lumify.io/sinaloa#abbreviation">
+        <rdfs:label xml:lang="en">Abbreviation</rdfs:label>
+        <lumify:textIndexHints>FULL_TEXT,EXACT_MATCH</lumify:textIndexHints>
+        <rdfs:domain rdf:resource="http://lumify.io/sinaloa#organization"/>
+        <rdfs:range rdf:resource="&xsd;string"/>
+    </owl:DatatypeProperty>
+    
+
+
+    <!-- http://lumify.io/sinaloa#alias -->
+
+    <owl:DatatypeProperty rdf:about="http://lumify.io/sinaloa#alias">
+        <rdfs:label xml:lang="en">Alias</rdfs:label>
+        <lumify:textIndexHints>FULL_TEXT,EXACT_MATCH</lumify:textIndexHints>
+        <rdfs:domain rdf:resource="http://lumify.io/sinaloa#person"/>
+        <rdfs:range rdf:resource="&xsd;string"/>
+    </owl:DatatypeProperty>
+    
+
+
+    <!-- http://lumify.io/sinaloa#birthDate -->
+
+    <owl:DatatypeProperty rdf:about="http://lumify.io/sinaloa#birthDate">
+        <rdfs:label xml:lang="en">Birth Date</rdfs:label>
+        <lumify:displayType xml:lang="en">dateOnly</lumify:displayType>
+        <rdfs:domain rdf:resource="http://lumify.io/sinaloa#person"/>
+        <rdfs:range rdf:resource="&xsd;dateTime"/>
+    </owl:DatatypeProperty>
+    
+
+
+    <!-- http://lumify.io/sinaloa#date -->
+
+    <owl:DatatypeProperty rdf:about="http://lumify.io/sinaloa#date">
+        <rdfs:label xml:lang="en">Date</rdfs:label>
+        <lumify:displayType xml:lang="en">date</lumify:displayType>
+        <rdfs:domain rdf:resource="http://lumify.io/sinaloa#event"/>
+        <rdfs:range rdf:resource="&xsd;dateTime"/>
+    </owl:DatatypeProperty>
+    
+
+
+    <!-- http://lumify.io/sinaloa#formationDate -->
+
+    <owl:DatatypeProperty rdf:about="http://lumify.io/sinaloa#formationDate">
+        <rdfs:label xml:lang="en">Formation Date</rdfs:label>
+        <lumify:displayType xml:lang="en">date</lumify:displayType>
+        <rdfs:domain rdf:resource="http://lumify.io/sinaloa#organization"/>
+        <rdfs:range rdf:resource="&xsd;dateTime"/>
+    </owl:DatatypeProperty>
+    
+
+
+    <!-- http://lumify.io/sinaloa#gender -->
+
+    <owl:DatatypeProperty rdf:about="http://lumify.io/sinaloa#gender">
+        <rdfs:label xml:lang="en">Gender</rdfs:label>
+        <lumify:textIndexHints>EXACT_MATCH</lumify:textIndexHints>
+        <rdfs:domain rdf:resource="http://lumify.io/sinaloa#person"/>
+        <rdfs:range rdf:resource="&xsd;string"/>
+    </owl:DatatypeProperty>
+    
+
+
+    <!-- http://lumify.io/sinaloa#geolocation -->
+
+    <owl:DatatypeProperty rdf:about="http://lumify.io/sinaloa#geolocation">
+      <rdfs:label xml:lang="en">Geolocation</rdfs:label>
+        <lumify:intent>geoLocation</lumify:intent>
+        <lumify:intent>media.geoLocation</lumify:intent>
+        <lumify:displayType xml:lang="en">geoLocation</lumify:displayType>
+        <rdfs:range rdf:resource="&lumify;geolocation"/>
+        <rdfs:domain rdf:resource="http://lumify.io/sinaloa#event"/>
+        <rdfs:domain rdf:resource="http://lumify.io/sinaloa#location"/>
+    </owl:DatatypeProperty>
+
+
+
+    <!-- http://lumify.io/sinaloa#geoLocationDescription -->
+
+    <owl:DatatypeProperty rdf:about="http://lumify.io/sinaloa#geoLocationDescription">
+        <rdfs:label xml:lang="en">Geolocation Description</rdfs:label>
+        <lumify:textIndexHints>FULL_TEXT,EXACT_MATCH</lumify:textIndexHints>
+        <rdfs:range rdf:resource="&xsd;string"/>
+        <rdfs:domain rdf:resource="http://lumify.io/sinaloa#event"/>
+        <rdfs:domain rdf:resource="http://lumify.io/sinaloa#location"/>
+     </owl:DatatypeProperty>
+
+
+
+    <!-- http://lumify.io/sinaloa#netIncome -->
+
+    <owl:DatatypeProperty rdf:about="http://lumify.io/sinaloa#netIncome">
+        <rdfs:label xml:lang="en">Net Income</rdfs:label>
+        <lumify:displayType xml:lang="en">currency</lumify:displayType>
+        <rdfs:range rdf:resource="&lumify;currency"/>
+        <rdfs:domain rdf:resource="http://lumify.io/sinaloa#company"/>
+    </owl:DatatypeProperty>
+    
+
+
+    <!-- http://lumify.io/sinaloa#publishedDate -->
+
+    <owl:DatatypeProperty rdf:about="http://lumify.io/sinaloa#publishedDate">
+        <rdfs:label xml:lang="en">Published Date</rdfs:label>
+        <lumify:displayType xml:lang="en">date</lumify:displayType>
+        <rdfs:domain rdf:resource="http://lumify.io/sinaloa#raw"/>
+        <rdfs:range rdf:resource="&xsd;dateTime"/>
+    </owl:DatatypeProperty>
+    
+
+
+    <!-- http://lumify.io/sinaloa#source -->
+
+    <owl:DatatypeProperty rdf:about="http://lumify.io/sinaloa#source">
+        <rdfs:label xml:lang="en">Source</rdfs:label>
+        <lumify:textIndexHints>FULL_TEXT,EXACT_MATCH</lumify:textIndexHints>
+        <rdfs:range rdf:resource="&xsd;string"/>
+        <rdfs:domain rdf:resource="&owl;Thing"/>
+    </owl:DatatypeProperty>
+    
+    <!-- http://lumify.io/sinaloa#type -->
+    <owl:DatatypeProperty rdf:about="http://lumify.io/sinaloa#type">
+        <rdfs:label xml:lang="en">type</rdfs:label>
+        <lumify:textIndexHints>FULL_TEXT,EXACT_MATCH</lumify:textIndexHints>
+        <rdfs:domain rdf:resource="http://lumify.io/sinaloa#equipment"/>
+        <rdfs:range rdf:resource="&xsd;string"/>
+    </owl:DatatypeProperty>
+
+    <!-- http://lumify.io/sinaloa#strength -->
+    <owl:DatatypeProperty rdf:about="http://lumify.io/sinaloa#strength">
+        <rdfs:label xml:lang="en">strength</rdfs:label>
+        <lumify:textIndexHints>FULL_TEXT,EXACT_MATCH</lumify:textIndexHints>
+        <rdfs:domain rdf:resource="http://lumify.io/sinaloa#strength"/>
+        <rdfs:range rdf:resource="&xsd;string"/>
+    </owl:DatatypeProperty>
+
+    <!-- http://lumify.io/sinaloa#ideology -->
+    <owl:DatatypeProperty rdf:about="http://lumify.io/sinaloa#ideology">
+        <rdfs:label xml:lang="en">ideology</rdfs:label>
+        <lumify:textIndexHints>FULL_TEXT,EXACT_MATCH</lumify:textIndexHints>
+        <rdfs:domain rdf:resource="http://lumify.io/sinaloa#ideology"/>
+        <rdfs:range rdf:resource="&xsd;string"/>
+    </owl:DatatypeProperty>
+
+    <!-- http://lumify.io/sinaloa#financialSources -->
+    <owl:DatatypeProperty rdf:about="http://lumify.io/sinaloa#financialSources">
+        <rdfs:label xml:lang="en">Financial Sources</rdfs:label>
+        <lumify:textIndexHints>FULL_TEXT,EXACT_MATCH</lumify:textIndexHints>
+        <rdfs:domain rdf:resource="http://lumify.io/sinaloa#financialSources"/>
+        <rdfs:range rdf:resource="&xsd;string"/>
+    </owl:DatatypeProperty> 
+
+    <!-- http://lumify.io/sinaloa#relatedGroups -->
+    <owl:DatatypeProperty rdf:about="http://lumify.io/sinaloa#relatedGroups">
+        <rdfs:label xml:lang="en">related groups</rdfs:label>
+        <lumify:textIndexHints>FULL_TEXT,EXACT_MATCH</lumify:textIndexHints>
+        <rdfs:domain rdf:resource="http://lumify.io/sinaloa#relatedGroups"/>
+        <rdfs:range rdf:resource="&xsd;string"/>
+    </owl:DatatypeProperty>
+
+    <!-- http://lumify.io/sinaloa#goals -->
+    <owl:DatatypeProperty rdf:about="http://lumify.io/sinaloa#goals">
+        <rdfs:label xml:lang="en">goals</rdfs:label>
+        <lumify:textIndexHints>FULL_TEXT,EXACT_MATCH</lumify:textIndexHints>
+        <rdfs:domain rdf:resource="http://lumify.io/sinaloa#goals"/>
+        <rdfs:range rdf:resource="&xsd;string"/>
+    </owl:DatatypeProperty>
+
+    <!-- http://lumify.io/sinaloa#fatalities -->
+    <owl:DatatypeProperty rdf:about="http://lumify.io/sinaloa#fatalities">
+        <rdfs:label xml:lang="en">fatalities</rdfs:label>
+        <lumify:textIndexHints>FULL_TEXT,EXACT_MATCH</lumify:textIndexHints>
+        <rdfs:domain rdf:resource="http://lumify.io/sinaloa#attack"/>
+        <rdfs:range rdf:resource="&xsd;string"/>
+    </owl:DatatypeProperty>
+
+    <!-- http://lumify.io/sinaloa#injured -->
+    <owl:DatatypeProperty rdf:about="http://lumify.io/sinaloa#injured">
+        <rdfs:label xml:lang="en">injured</rdfs:label>
+        <lumify:textIndexHints>FULL_TEXT,EXACT_MATCH</lumify:textIndexHints>
+        <rdfs:domain rdf:resource="http://lumify.io/sinaloa#attack"/>
+        <rdfs:range rdf:resource="&xsd;string"/>
+    </owl:DatatypeProperty>
+
+    <!-- http://lumify.io/sinaloa#attackType -->
+    <owl:DatatypeProperty rdf:about="http://lumify.io/sinaloa#attackType">
+        <rdfs:label xml:lang="en">attack type</rdfs:label>
+        <lumify:textIndexHints>FULL_TEXT,EXACT_MATCH</lumify:textIndexHints>
+        <rdfs:domain rdf:resource="http://lumify.io/sinaloa#attack"/>
+        <rdfs:range rdf:resource="&xsd;string"/>
+    </owl:DatatypeProperty>
+
+    <!-- http://lumify.io/sinaloa#targeted -->
+    <owl:DatatypeProperty rdf:about="http://lumify.io/sinaloa#targeted">
+        <rdfs:label xml:lang="en">targeted</rdfs:label>
+        <lumify:textIndexHints>FULL_TEXT,EXACT_MATCH</lumify:textIndexHints>
+        <rdfs:domain rdf:resource="http://lumify.io/sinaloa#attack"/>
+        <rdfs:range rdf:resource="&xsd;string"/>
+    </owl:DatatypeProperty>
+
+    <!-- http://lumify.io/sinaloa#callDate -->
+    <owl:DatatypeProperty rdf:about="http://lumify.io/sinaloa#callDate">
+        <rdfs:label xml:lang="en">callDate</rdfs:label>
+        <rdfs:domain rdf:resource="http://lumify.io/sinaloa#phoneCall"/>
+        <lumify:displayType xml:lang="en">date</lumify:displayType>
+        <rdfs:range rdf:resource="&xsd;dateTime"/>
+    </owl:DatatypeProperty>
+
+    <!-- http://lumify.io/sinaloa#duration -->
+    <owl:DatatypeProperty rdf:about="http://lumify.io/sinaloa#duration">
+        <rdfs:label xml:lang="en">duration (seconds)</rdfs:label>
+        <lumify:textIndexHints>FULL_TEXT,EXACT_MATCH</lumify:textIndexHints>
+        <lumify:intent>audioDuration</lumify:intent>
+        <lumify:intent>media.duration</lumify:intent>
+        <lumify:intent>videoDuration</lumify:intent>
+        <rdfs:domain rdf:resource="http://lumify.io/sinaloa#phoneCall"/>
+        <rdfs:range rdf:resource="&xsd;string"/>
+    </owl:DatatypeProperty>
+
+   <!-- http://lumify.io/media#clockwiseRotation -->
+
+    <owl:DatatypeProperty rdf:about="http://lumify.io/media#clockwiseRotation">
+        <rdfs:label xml:lang="en">Clockwise Rotation</rdfs:label>
+        <lumify:intent>media.clockwiseRotation</lumify:intent>
+        <lumify:userVisible>false</lumify:userVisible>
+        <rdfs:domain rdf:resource="http://lumify.io/sinaloa#image"/>
+        <rdfs:range rdf:resource="&xsd;integer"/>
+    </owl:DatatypeProperty>
+    
+
+
+    <!-- http://lumify.io/media#dateTaken -->
+
+    <owl:DatatypeProperty rdf:about="http://lumify.io/media#dateTaken">
+        <rdfs:label xml:lang="en">Date Taken</rdfs:label>
+        <lumify:intent>media.dateTaken</lumify:intent>
+        <rdfs:domain rdf:resource="http://lumify.io/sinaloa#image"/>
+        <rdfs:domain rdf:resource="http://lumify.io/sinaloa#video"/>
+        <rdfs:range rdf:resource="&xsd;dateTime"/>
+    </owl:DatatypeProperty>
+    
+
+
+    <!-- http://lumify.io/media#deviceMake -->
+
+    <owl:DatatypeProperty rdf:about="http://lumify.io/media#deviceMake">
+        <rdfs:label xml:lang="en">Device Make</rdfs:label>
+        <lumify:textIndexHints>FULL_TEXT,EXACT_MATCH</lumify:textIndexHints>
+        <lumify:intent>media.deviceMake</lumify:intent>
+        <rdfs:domain rdf:resource="http://lumify.io/sinaloa#image"/>
+        <rdfs:domain rdf:resource="http://lumify.io/sinaloa#video"/>
+        <rdfs:range rdf:resource="&xsd;string"/>
+    </owl:DatatypeProperty>
+    
+
+
+    <!-- http://lumify.io/media#deviceModel -->
+
+    <owl:DatatypeProperty rdf:about="http://lumify.io/media#deviceModel">
+        <rdfs:label xml:lang="en">Device Model</rdfs:label>
+        <lumify:textIndexHints>FULL_TEXT,EXACT_MATCH</lumify:textIndexHints>
+        <lumify:intent>media.deviceModel</lumify:intent>
+        <rdfs:domain rdf:resource="http://lumify.io/sinaloa#image"/>
+        <rdfs:domain rdf:resource="http://lumify.io/sinaloa#video"/>
+        <rdfs:range rdf:resource="&xsd;string"/>
+    </owl:DatatypeProperty>
+    
+
+
+    <!-- http://lumify.io/media#fileSize -->
+
+    <owl:DatatypeProperty rdf:about="http://lumify.io/media#fileSize">
+        <rdfs:label xml:lang="en">File Size</rdfs:label>
+        <lumify:intent>media.fileSize</lumify:intent>
+        <lumify:displayType xml:lang="en">byte</lumify:displayType>
+        <rdfs:domain rdf:resource="http://lumify.io/sinaloa#audio"/>
+        <rdfs:domain rdf:resource="http://lumify.io/sinaloa#image"/>
+        <rdfs:domain rdf:resource="http://lumify.io/sinaloa#video"/>
+        <rdfs:range rdf:resource="&xsd;integer"/>
+    </owl:DatatypeProperty>
+    
+
+
+    <!-- http://lumify.io/media#height -->
+
+    <owl:DatatypeProperty rdf:about="http://lumify.io/media#height">
+        <rdfs:label xml:lang="en">Height</rdfs:label>
+        <lumify:intent>media.height</lumify:intent>
+        <rdfs:domain rdf:resource="http://lumify.io/sinaloa#image"/>
+        <rdfs:domain rdf:resource="http://lumify.io/sinaloa#video"/>
+        <rdfs:range rdf:resource="&xsd;integer"/>
+    </owl:DatatypeProperty>
+    
+
+
+    <!-- http://lumify.io/media#imageHeading -->
+
+    <owl:DatatypeProperty rdf:about="http://lumify.io/media#imageHeading">
+        <rdfs:label xml:lang="en">Image Heading</rdfs:label>
+        <lumify:displayType xml:lang="en">heading</lumify:displayType>
+        <lumify:intent>media.imageHeading</lumify:intent>
+        <rdfs:domain rdf:resource="http://lumify.io/sinaloa#image"/>
+        <rdfs:range rdf:resource="&xsd;double"/>
+    </owl:DatatypeProperty>
+    
+
+
+    <!-- http://lumify.io/media#metadata -->
+
+    <owl:DatatypeProperty rdf:about="http://lumify.io/media#metadata">
+        <rdfs:label xml:lang="en">Metadata</rdfs:label>
+        <lumify:textIndexHints>FULL_TEXT</lumify:textIndexHints>
+        <lumify:intent>media.metadata</lumify:intent>
+        <lumify:userVisible>false</lumify:userVisible>
+        <rdfs:domain rdf:resource="http://lumify.io/sinaloa#image"/>
+        <rdfs:domain rdf:resource="http://lumify.io/sinaloa#video"/>
+        <rdfs:range rdf:resource="&xsd;string"/>
+    </owl:DatatypeProperty>
+    
+
+
+    <!-- http://lumify.io/media#width -->
+
+    <owl:DatatypeProperty rdf:about="http://lumify.io/media#width">
+        <rdfs:label xml:lang="en">Width</rdfs:label>
+        <lumify:intent>media.width</lumify:intent>
+        <rdfs:domain rdf:resource="http://lumify.io/sinaloa#image"/>
+        <rdfs:domain rdf:resource="http://lumify.io/sinaloa#video"/>
+        <rdfs:range rdf:resource="&xsd;integer"/>
+    </owl:DatatypeProperty>
+    
+
+
+    <!-- http://lumify.io/media#yAxisFlipped -->
+
+    <owl:DatatypeProperty rdf:about="http://lumify.io/media#yAxisFlipped">
+        <rdfs:label xml:lang="en">Y Axis Flipped</rdfs:label>
+        <lumify:intent>media.yAxisFlipped</lumify:intent>
+        <lumify:userVisible>false</lumify:userVisible>
+        <rdfs:domain rdf:resource="http://lumify.io/sinaloa#image"/>
+        <rdfs:range rdf:resource="&xsd;boolean"/>
+    </owl:DatatypeProperty>
+
+
+    <!-- 
+    ///////////////////////////////////////////////////////////////////////////////////////
+    //
+    // Classes
+    //
+    ///////////////////////////////////////////////////////////////////////////////////////
+     -->
+
+    
+
+
+    <!-- http://lumify.io/sinaloa#address -->
+
+    <owl:Class rdf:about="http://lumify.io/sinaloa#address">
+        <rdfs:label xml:lang="en">Address</rdfs:label>
+        <rdfs:subClassOf rdf:resource="http://lumify.io/sinaloa#location"/>
+        <lumify:glyphIconFileName xml:lang="en">glyphicons_020_home@2x.png</lumify:glyphIconFileName>
+        <lumify:color xml:lang="en">rgb(219, 63, 219)</lumify:color>
+    </owl:Class>
+    
+
+
+    <!-- http://lumify.io/sinaloa#audio -->
+
+    <owl:Class rdf:about="http://lumify.io/sinaloa#audio">
+        <rdfs:label xml:lang="en">Audio</rdfs:label>
+        <rdfs:subClassOf rdf:resource="http://lumify.io/sinaloa#raw"/>
+        <lumify:intent>audio</lumify:intent>
+        <lumify:displayType xml:lang="en">audio</lumify:displayType>
+        <lumify:color xml:lang="en">rgb(149, 138, 218)</lumify:color>
+    </owl:Class>
+    
+
+
+    <!-- http://lumify.io/sinaloa#city -->
+
+    <owl:Class rdf:about="http://lumify.io/sinaloa#city">
+        <rdfs:label xml:lang="en">City</rdfs:label>
+        <rdfs:subClassOf rdf:resource="http://lumify.io/sinaloa#location"/>
+        <lumify:intent>city</lumify:intent>
+        <lumify:glyphIconFileName xml:lang="en">city.png</lumify:glyphIconFileName>
+        <lumify:color xml:lang="en">rgb(191, 13, 191)</lumify:color>
+    </owl:Class>
+    
+
+
+    <!-- http://lumify.io/sinaloa#company -->
+
+    <owl:Class rdf:about="http://lumify.io/sinaloa#company">
+        <rdfs:label xml:lang="en">Company</rdfs:label>
+        <rdfs:subClassOf rdf:resource="http://lumify.io/sinaloa#organization"/>
+        <lumify:glyphIconFileName xml:lang="en">glyphicons_263_bank@2x.png</lumify:glyphIconFileName>
+        <lumify:color xml:lang="en">rgb(210, 52, 32)</lumify:color>
+    </owl:Class>
+    
+
+
+    <!-- http://lumify.io/sinaloa#contactInformation -->
+
+    <owl:Class rdf:about="http://lumify.io/sinaloa#contactInformation">
+        <rdfs:label xml:lang="en">Contact Information</rdfs:label>
+        <lumify:glyphIconFileName xml:lang="en">glyphicons_088_address_book@2x.png</lumify:glyphIconFileName>
+        <lumify:color xml:lang="en">rgb(225, 128, 0)</lumify:color>
+    </owl:Class>
+    
+
+
+    <!-- http://lumify.io/sinaloa#country -->
+
+    <owl:Class rdf:about="http://lumify.io/sinaloa#country">
+        <rdfs:label xml:lang="en">Country</rdfs:label>
+        <rdfs:subClassOf rdf:resource="http://lumify.io/sinaloa#location"/>
+        <lumify:intent>country</lumify:intent>
+        <lumify:glyphIconFileName xml:lang="en">glyphicons_266_flag@2x.png</lumify:glyphIconFileName>
+        <lumify:color xml:lang="en">rgb(112, 0, 112)</lumify:color>
+    </owl:Class>
+    
+
+
+    <!-- http://lumify.io/sinaloa#document -->
+
+    <owl:Class rdf:about="http://lumify.io/sinaloa#document">
+        <rdfs:label xml:lang="en">Document</rdfs:label>
+        <rdfs:subClassOf rdf:resource="http://lumify.io/sinaloa#raw"/>
+        <lumify:intent>document</lumify:intent>
+        <lumify:displayType xml:lang="en">document</lumify:displayType>
+        <lumify:color xml:lang="en">rgb(28, 137, 28)</lumify:color>
+        <lumify:subtitleFormula xml:lang="en">prop(&apos;http://lumify.io#author&apos;) || &apos;&apos;</lumify:subtitleFormula>
+    </owl:Class>
+    
+
+
+    <!-- http://lumify.io/sinaloa#emailAddress -->
+
+    <owl:Class rdf:about="http://lumify.io/sinaloa#emailAddress">
+        <rdfs:label xml:lang="en">Email Address</rdfs:label>
+        <rdfs:subClassOf rdf:resource="http://lumify.io/sinaloa#contactInformation"/>
+        <lumify:intent>email</lumify:intent>
+        <lumify:glyphIconFileName xml:lang="en">glyphicons_010_envelope@2x.png</lumify:glyphIconFileName>
+        <lumify:color xml:lang="en">rgb(203, 130, 4)</lumify:color>
+    </owl:Class>
+    
+
+
+    <!-- http://lumify.io/sinaloa#event -->
+
+    <owl:Class rdf:about="http://lumify.io/sinaloa#event">
+        <rdfs:label xml:lang="en">Event</rdfs:label>
+        <lumify:glyphIconFileName xml:lang="en">glyphicons_045_calendar@2x.png</lumify:glyphIconFileName>
+        <lumify:color xml:lang="en">rgb(23, 30, 239)</lumify:color>
+    </owl:Class>
+    
+
+
+    <!-- http://lumify.io/sinaloa#image -->
+
+    <owl:Class rdf:about="http://lumify.io/sinaloa#image">
+        <rdfs:label xml:lang="en">Image</rdfs:label>
+        <rdfs:subClassOf rdf:resource="http://lumify.io/sinaloa#raw"/>
+        <lumify:intent>entityImage</lumify:intent>
+        <lumify:intent>image</lumify:intent>
+        <lumify:displayType xml:lang="en">image</lumify:displayType>
+        <lumify:color xml:lang="en">rgb(176, 87, 53)</lumify:color>
+    </owl:Class>
+    
+
+
+    <!-- http://lumify.io/sinaloa#location -->
+
+    <owl:Class rdf:about="http://lumify.io/sinaloa#location">
+        <rdfs:label xml:lang="en">Location</rdfs:label>
+        <lumify:intent>location</lumify:intent>
+        <lumify:glyphIconFileName xml:lang="en">pin@2x.png</lumify:glyphIconFileName>
+        <lumify:color xml:lang="en">rgb(160, 7, 206)</lumify:color>
+    </owl:Class>
+    
+
+
+    <!-- http://lumify.io/sinaloa#organization -->
+
+    <owl:Class rdf:about="http://lumify.io/sinaloa#organization">
+        <rdfs:label xml:lang="en">Organization</rdfs:label>
+        <lumify:intent>organization</lumify:intent>
+        <lumify:glyphIconFileName xml:lang="en">glyphicons_043_group@2x.png</lumify:glyphIconFileName>
+        <lumify:color xml:lang="en">rgb(137, 39, 26)</lumify:color>
+        <lumify:subtitleFormula xml:lang="en">prop(&apos;http://lumify.io/sinaloa#abbreviation&apos;) || &apos;&apos;</lumify:subtitleFormula>
+         <lumify:timeFormula xml:lang="en">prop(&apos;http://lumify.io/sinaloa#formationDate&apos;) || &apos;&apos;</lumify:timeFormula>
+    </owl:Class>
+
+    <owl:Class rdf:about="http://lumify.io/sinaloa#zipCode">
+        <rdfs:label xml:lang="en">Zip Code</rdfs:label>
+        <rdfs:subClassOf rdf:resource="http://lumify.io/sinaloa#location"/>
+        <lumify:intent>zipCode</lumify:intent>
+        <lumify:glyphIconFileName xml:lang="en">glyphicons_020_home@2x.png</lumify:glyphIconFileName>
+        <lumify:color xml:lang="en">rgb(219, 63, 219)</lumify:color>
+    </owl:Class>
+    
+
+
+    <!-- http://lumify.io/sinaloa#person -->
+
+    <owl:Class rdf:about="http://lumify.io/sinaloa#person">
+        <rdfs:label xml:lang="en">Person</rdfs:label>
+        <lumify:intent>face</lumify:intent>
+        <lumify:intent>person</lumify:intent>
+        <lumify:glyphIconFileName xml:lang="en">glyphicons_003_user@2x.png</lumify:glyphIconFileName>
+        <lumify:color xml:lang="en">rgb(28, 137, 28)</lumify:color>
+        <lumify:subtitleFormula xml:lang="en">prop(&apos;http://lumify.io/sinaloa#alias&apos;) || &apos;&apos;</lumify:subtitleFormula>
+        <lumify:timeFormula xml:lang="en">prop(&apos;http://lumify.io/sinaloa#birthDate&apos;) || &apos;&apos;</lumify:timeFormula>
+    </owl:Class>
+    
+
+
+    <!-- http://lumify.io/sinaloa#phoneNumber -->
+
+    <owl:Class rdf:about="http://lumify.io/sinaloa#phoneNumber">
+        <rdfs:label xml:lang="en">Phone Number</rdfs:label>
+        <rdfs:subClassOf rdf:resource="http://lumify.io/sinaloa#contactInformation"/>
+        <lumify:intent>phoneNumber</lumify:intent>
+        <lumify:glyphIconFileName xml:lang="en">glyphicons_139_phone@2x.png</lumify:glyphIconFileName>
+        <lumify:color xml:lang="en">rgb(225, 225, 24)</lumify:color>
+    </owl:Class>
+    
+
+
+    <!-- http://lumify.io/sinaloa#raw -->
+
+    <owl:Class rdf:about="http://lumify.io/sinaloa#raw">
+        <rdfs:label xml:lang="en">Raw</rdfs:label>
+        <lumify:glyphIconFileName xml:lang="en">artifact.png</lumify:glyphIconFileName>
+        <lumify:color xml:lang="en">rgb(28, 137, 28)</lumify:color>
+    </owl:Class>
+    
+
+
+    <!-- http://lumify.io/sinaloa#state -->
+
+    <owl:Class rdf:about="http://lumify.io/sinaloa#state">
+        <rdfs:label xml:lang="en">State</rdfs:label>
+        <rdfs:subClassOf rdf:resource="http://lumify.io/sinaloa#location"/>
+        <lumify:intent>state</lumify:intent>
+        <lumify:color xml:lang="en">rgb(153, 0, 153)</lumify:color>
+        <lumify:glyphIconFileName xml:lang="en">state.png</lumify:glyphIconFileName>
+    </owl:Class>
+    
+
+
+    <!-- http://lumify.io/sinaloa#video -->
+
+    <owl:Class rdf:about="http://lumify.io/sinaloa#video">
+        <rdfs:label xml:lang="en">Video</rdfs:label>
+        <rdfs:subClassOf rdf:resource="http://lumify.io/sinaloa#raw"/>
+        <lumify:intent>video</lumify:intent>
+        <lumify:color xml:lang="en">rgb(149, 138, 218)</lumify:color>
+        <lumify:displayType xml:lang="en">video</lumify:displayType>
+    </owl:Class>
+    
+    <!-- http://lumify.io/sinaloa#equipment -->
+    <owl:Class rdf:about="http://lumify.io/sinaloa#equipment">
+        <rdfs:label xml:lang="en">Equipment</rdfs:label>
+        <lumify:color xml:lang="en">rgb(203, 130, 4)</lumify:color>
+        <lumify:glyphIconFileName xml:lang="en">glyphicons_411_package@2x.png</lumify:glyphIconFileName>
+        <lumify:subtitleFormula xml:lang="en">prop(&apos;http://lumify.io/sinaloa#type&apos;) || &apos;&apos;</lumify:subtitleFormula>
+    </owl:Class>
+
+    <!-- http://lumify.io/sinaloa#phoneCall -->    
+    <owl:Class rdf:about="http://lumify.io/sinaloa#phoneCall">
+        <rdfs:label xml:lang="en">Phone Call</rdfs:label>
+        <lumify:color xml:lang="en">rgb(225, 225, 24)</lumify:color>
+        <lumify:glyphIconFileName xml:lang="en">glyphicons_164_iphone_transfer@2x.png</lumify:glyphIconFileName>
+        <rdfs:subClassOf rdf:resource="http://lumify.io/sinaloa#event"/>
+        <lumify:subtitleFormula xml:lang="en">prop(&apos;http://lumify.io/sinaloa#duration&apos;) || &apos;&apos;</lumify:subtitleFormula>
+        <lumify:timeFormula xml:lang="en">prop(&apos;http://lumify.io/sinaloa#callDate&apos;) || &apos;&apos;</lumify:timeFormula>
+    </owl:Class>
+
+    <!-- http://lumify.io/sinaloa#attack -->    
+    <owl:Class rdf:about="http://lumify.io/sinaloa#attack">
+        <rdfs:label xml:lang="en">Attack</rdfs:label>
+        <lumify:color xml:lang="en">rgb(23, 192, 239)</lumify:color>
+        <lumify:glyphIconFileName xml:lang="en">glyphicons_078_warning_sign@2x.png</lumify:glyphIconFileName>
+        <rdfs:subClassOf rdf:resource="http://lumify.io/sinaloa#event"/>
+        <lumify:subtitleFormula xml:lang="en">prop(&apos;http://lumify.io/sinaloa#attack&apos;) || &apos;&apos;</lumify:subtitleFormula>
+    </owl:Class>
+
+    <!-- http://lumify.io/sinaloa#university -->
+    <owl:Class rdf:about="http://lumify.io/sinaloa#university">
+        <rdfs:label xml:lang="en">University</rdfs:label>
+        <lumify:color xml:lang="en">rgb(210, 52, 32)</lumify:color>
+        <lumify:glyphIconFileName xml:lang="en">glyphicons_351_book_open@2x.png</lumify:glyphIconFileName>
+        <rdfs:subClassOf rdf:resource="http://lumify.io/sinaloa#organization"/>
+    </owl:Class>
+    
+    <!-- http://lumify.io/sinaloa#ngo -->
+    <owl:Class rdf:about="http://lumify.io/sinaloa#ngo">
+        <rdfs:label xml:lang="en">NGO</rdfs:label>
+        <lumify:color xml:lang="en">rgb(210, 52, 32)</lumify:color>
+        <lumify:glyphIconFileName xml:lang="en">glyphicons_298_hospital@2x.png</lumify:glyphIconFileName>
+        <rdfs:subClassOf rdf:resource="http://lumify.io/sinaloa#organization"/>
+    </owl:Class>
+
+    <!-- http://lumify.io/sinaloa#drugTraffickingOrganization -->    
+    <owl:Class rdf:about="http://lumify.io/sinaloa#drugTraffickingOrganization">
+        <rdfs:label xml:lang="en">Drug Trafficking Organization</rdfs:label>
+        <lumify:color xml:lang="en">rgb(239, 23, 77)</lumify:color>
+        <lumify:glyphIconFileName xml:lang="en">glyphicons_290_skull@2x.png</lumify:glyphIconFileName>
+        <rdfs:subClassOf rdf:resource="http://lumify.io/sinaloa#organization"/>
+    </owl:Class>
+    
+    <!-- http://lumify.io/sinaloa#governmentAgency -->
+    <owl:Class rdf:about="http://lumify.io/sinaloa#governmentAgency">
+        <rdfs:label xml:lang="en">Government Agency</rdfs:label>
+        <lumify:color xml:lang="en">rgb(210, 52, 32)</lumify:color>
+        <lumify:glyphIconFileName xml:lang="en">glyphicons_263_bank@2x.png</lumify:glyphIconFileName>
+        <rdfs:subClassOf rdf:resource="http://lumify.io/sinaloa#organization"/>
+    </owl:Class>
+
+    <!-- http://lumify.io/sinaloa#terroristOrganization -->    
+    <owl:Class rdf:about="http://lumify.io/sinaloa#terroristOrganization">
+        <rdfs:label xml:lang="en">Terrorist Organization</rdfs:label>
+        <lumify:color xml:lang="en">rgb(239, 23, 77)</lumify:color>
+        <lumify:glyphIconFileName xml:lang="en">glyphicons_248_asterisk@2x.png</lumify:glyphIconFileName>
+        <rdfs:subClassOf rdf:resource="http://lumify.io/sinaloa#organization"/>
+    </owl:Class>
+</rdf:RDF>
+
+
+
+<!-- Generated by the OWL API (version 3.4.2) http://owlapi.sourceforge.net -->
+
