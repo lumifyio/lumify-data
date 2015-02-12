@@ -87,6 +87,7 @@
         <sinaloa:alias>El Senor de los Cielos</sinaloa:alias>
         <lumify:entityImageVertexId>FILE_Amado_Carrillo_Fuentes.jpg</lumify:entityImageVertexId>
         <sinaloa:entityHasImageRaw rdf:resource="&sinaloa;FILE_Amado_Carrillo_Fuentes.jpg"/>
+        <sinaloa:personIsLeaderOfOrganization rdf:resource="&sinaloa;ORG_Sinaloa_Cartel"/>
     </rdf:Description>
     <rdf:Description rdf:about="&sinaloa;FILE_Amado_Carrillo_Fuentes.jpg">
         <rdf:type rdf:resource="&sinaloa;image"/>
@@ -127,6 +128,7 @@
         <sinaloa:personIsLeaderOfOrganization rdf:resource="&sinaloa;COMPANY_Casa_Comercial_oro_Rapido"/>
         <sinaloa:personIsLeaderOfOrganization rdf:resource="&sinaloa;COMPANY_Agricola_y_Ganadera_Cuemir"/>
         <sinaloa:personIsLeaderOfOrganization rdf:resource="&sinaloa;COMPANY_Casa_Comercial_uni_Quince_Compraventa"/>
+        <sinaloa:personIsLeaderOfOrganization rdf:resource="&sinaloa;ORG_Cuellar_Hurtado_Network"/>
         <lumify:entityImageVertexId>FILE_fredy.png</lumify:entityImageVertexId>
         <sinaloa:entityHasImageRaw rdf:resource="&sinaloa;FILE_fredy.png"/>
     </rdf:Description>
@@ -149,6 +151,7 @@
         <sinaloa:alias>El Azul</sinaloa:alias>
         <lumify:entityImageVertexId>FILE_azul.jpeg</lumify:entityImageVertexId>
         <sinaloa:entityHasImageRaw rdf:resource="&sinaloa;FILE_azul.jpeg"/>
+        <sinaloa:personIsLeaderOfOrganization rdf:resource="&sinaloa;ORG_Sinaloa_Cartel"/>
     </rdf:Description>
     <rdf:Description rdf:about="&sinaloa;FILE_azul.jpeg">
         <rdf:type rdf:resource="&sinaloa;image"/>
@@ -254,6 +257,7 @@
         <lumify:title>Victor Emilio Cazares Salazar</lumify:title>
         <lumify:entityImageVertexId>FILE_victor.jpg</lumify:entityImageVertexId>
         <sinaloa:entityHasImageRaw rdf:resource="&sinaloa;FILE_victor.jpg"/>
+        <sinaloa:personIsLeaderOfOrganization rdf:resource="&sinaloa;ORG_Sinaloa_Cartel"/>
     </rdf:Description>
     <rdf:Description rdf:about="&sinaloa;FILE_victor.jpg">
         <rdf:type rdf:resource="&sinaloa;image"/>
@@ -274,6 +278,7 @@
         <sinaloa:alias>El Mayo</sinaloa:alias>
         <lumify:entityImageVertexId>FILE_mayo.jpg</lumify:entityImageVertexId>
         <sinaloa:entityHasImageRaw rdf:resource="&sinaloa;FILE_mayo.jpg"/>
+        <sinaloa:personIsLeaderOfOrganization rdf:resource="&sinaloa;ORG_Sinaloa_Cartel"/>
     </rdf:Description>
     <rdf:Description rdf:about="&sinaloa;FILE_mayo.jpg">
         <rdf:type rdf:resource="&sinaloa;image"/>
@@ -294,6 +299,7 @@
         <sinaloa:alias>El Chapo</sinaloa:alias>
         <lumify:entityImageVertexId>FILE_chapo.jpg</lumify:entityImageVertexId>
         <sinaloa:entityHasImageRaw rdf:resource="&sinaloa;FILE_chapo.jpg"/>
+        <sinaloa:personIsLeaderOfOrganization rdf:resource="&sinaloa;ORG_Sinaloa_Cartel"/>
     </rdf:Description>
     <rdf:Description rdf:about="&sinaloa;FILE_chapo.jpg">
         <rdf:type rdf:resource="&sinaloa;image"/>
@@ -502,6 +508,7 @@
         <sinaloa:personIsLeaderOfOrganization rdf:resource="&sinaloa;COMPANY_Monedeux_Financial_Services_Colombia"/>
         <lumify:entityImageVertexId>FILE_jorge.jpg</lumify:entityImageVertexId>
         <sinaloa:entityHasImageRaw rdf:resource="&sinaloa;FILE_jorge.jpg"/>
+        <sinaloa:personIsLeaderOfOrganization rdf:resource="&sinaloa;ORG_Cifuentes-Villa_Drug_Trafficking_Organization"/>
     </rdf:Description>
     <rdf:Description rdf:about="&sinaloa;FILE_jorge.jpg">
         <rdf:type rdf:resource="&sinaloa;image"/>
@@ -534,6 +541,7 @@
         <sinaloa:alias>Nacho</sinaloa:alias>
         <lumify:entityImageVertexId>FILE_nacho.jpg</lumify:entityImageVertexId>
         <sinaloa:entityHasImageRaw rdf:resource="&sinaloa;FILE_nacho.jpg"/>
+        <sinaloa:personIsLeaderOfOrganization rdf:resource="&sinaloa;ORG_Sinaloa_Cartel"/>
     </rdf:Description>
     <rdf:Description rdf:about="&sinaloa;FILE_nacho.jpg">
         <rdf:type rdf:resource="&sinaloa;image"/>
@@ -796,6 +804,7 @@
         <lumify:title>Hugo Cuellar Hurtado</lumify:title>
         <lumify:entityImageVertexId>FILE_hugo.jpg</lumify:entityImageVertexId>
         <sinaloa:entityHasImageRaw rdf:resource="&sinaloa;FILE_hugo.jpg"/>
+        <sinaloa:personIsLeaderOfOrganization rdf:resource="&sinaloa;ORG_Cuellar_Hurtado_Network"/>
     </rdf:Description>
     <rdf:Description rdf:about="&sinaloa;FILE_hugo.jpg">
         <rdf:type rdf:resource="&sinaloa;image"/>
