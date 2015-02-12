@@ -1,0 +1,2438 @@
+<?xml version="1.0"?>
+
+<!DOCTYPE rdf:RDF [
+        <!ENTITY owl "http://www.w3.org/2002/07/owl#" >
+        <!ENTITY xsd "http://www.w3.org/2001/XMLSchema#" >
+        <!ENTITY rdfs "http://www.w3.org/2000/01/rdf-schema#" >
+        <!ENTITY rdf "http://www.w3.org/1999/02/22-rdf-syntax-ns#" >
+        <!ENTITY sinaloa "http://lumify.io/sinaloa#">
+        ]>
+
+
+<rdf:RDF xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+         xmlns:lumify="http://lumify.io#"
+         xmlns:sinaloa="http://lumify.io/sinaloa#">
+
+
+    <!-- people -->
+
+    <rdf:Description rdf:about="&sinaloa;PERSON_Marco_Tulia_Florez_Sepulveda">
+        <rdf:type rdf:resource="&sinaloa;person"/>
+        <lumify:title>Marco Tulia Florez Sepulveda</lumify:title>
+        <sinaloa:personWorksForPerson rdf:resource="&sinaloa;PERSON_Jorge_Milton_Cifuentes_Villa"/>
+    </rdf:Description>
+
+    <rdf:Description rdf:about="&sinaloa;PERSON_Winston_Nicholls_Eastman">
+        <rdf:type rdf:resource="&sinaloa;person"/>
+        <lumify:title>Winston Nicholls Eastman</lumify:title>
+        <sinaloa:personWorksForPerson rdf:resource="&sinaloa;PERSON_Jorge_Milton_Cifuentes_Villa"/>
+    </rdf:Description>
+
+    <rdf:Description rdf:about="&sinaloa;PERSON_Juan_Fernando_Gonzalez_Jaramillo">
+        <rdf:type rdf:resource="&sinaloa;person"/>
+        <lumify:title>Juan Fernando Gonzalez Jaramillo</lumify:title>
+        <sinaloa:personWorksForPerson rdf:resource="&sinaloa;PERSON_Jorge_Milton_Cifuentes_Villa"/>
+    </rdf:Description>
+
+    <rdf:Description rdf:about="&sinaloa;PERSON_Marco_Antonio_Olivas_Ojeda">
+        <rdf:type rdf:resource="&sinaloa;person"/>
+        <lumify:title>Marco Antonio Olivas Ojeda</lumify:title>
+        <sinaloa:personWorksForPerson rdf:resource="&sinaloa;PERSON_Blanca_Margarita_Cazares_Salazar"/>
+    </rdf:Description>
+
+    <rdf:Description rdf:about="&sinaloa;PERSON_Victor_Hugo_Cuellar_Silva">
+        <rdf:type rdf:resource="&sinaloa;person"/>
+        <lumify:title>Victor Hugo Cuellar Silva</lumify:title>
+        <sinaloa:personWorksForPerson rdf:resource="&sinaloa;PERSON_John_Fredy_Cuellar_Silva"/>
+    </rdf:Description>
+
+    <rdf:Description rdf:about="&sinaloa;PERSON_Alejandro_Flores_Cacho">
+        <rdf:type rdf:resource="&sinaloa;person"/>
+        <lumify:title>Alejandro Flores Cacho</lumify:title>
+        <sinaloa:alias>Alejandro Bolanos Cacho</sinaloa:alias>
+        <sinaloa:personWorksForPerson rdf:resource="&sinaloa;PERSON_Joaquin_Guzman_Loera"/>
+        <sinaloa:personWorksForPerson rdf:resource="&sinaloa;PERSON_Ismael_Zambada_Garcia"/>
+    </rdf:Description>
+
+    <rdf:Description rdf:about="&sinaloa;PERSON_Lucy_Amparo_Vargas_Nunez">
+        <rdf:type rdf:resource="&sinaloa;person"/>
+        <lumify:title>Lucy Amparo Vargas Nunez</lumify:title>
+        <sinaloa:personWorksForPerson rdf:resource="&sinaloa;PERSON_John_Fredy_Cuellar_Silva"/>
+    </rdf:Description>
+
+    <rdf:Description rdf:about="&sinaloa;PERSON_Maria_Tiburcia_Cazarez_Perez">
+        <rdf:type rdf:resource="&sinaloa;person"/>
+        <lumify:title>Maria Tiburcia Cazarez Perez</lumify:title>
+        <sinaloa:personWorksForPerson rdf:resource="&sinaloa;PERSON_Blanca_Margarita_Cazares_Salazar"/>
+    </rdf:Description>
+
+    <rdf:Description rdf:about="&sinaloa;PERSON_Javier_Torres_Felix">
+        <rdf:type rdf:resource="&sinaloa;person"/>
+        <lumify:title>Javier Torres Felix</lumify:title>
+        <sinaloa:alias>Horacio Tamayo Torres</sinaloa:alias>
+        <sinaloa:personWorksForPerson rdf:resource="&sinaloa;PERSON_Ismael_Zambada_Garcia"/>
+        <lumify:entityImageVertexId>FILE_felix-felix.png</lumify:entityImageVertexId>
+        <sinaloa:entityHasImageRaw rdf:resource="&sinaloa;FILE_felix-felix.png"/>
+    </rdf:Description>
+    <rdf:Description rdf:about="&sinaloa;FILE_felix-felix.png">
+        <rdf:type rdf:resource="&sinaloa;image"/>
+        <lumify:title>Image of Javier Torres Felix</lumify:title>
+        <lumify:fileName>felix-felix.png</lumify:fileName>
+        <lumify:raw>streamingValue:{"fileName": "peopleImages/felix-felix.png"}</lumify:raw>
+    </rdf:Description>
+
+    <rdf:Description rdf:about="&sinaloa;PERSON_Amado_Carrillo_Fuentes">
+        <rdf:type rdf:resource="&sinaloa;person"/>
+        <lumify:title>Amado Carrillo Fuentes</lumify:title>
+        <sinaloa:alias>El Senor de los Cielos</sinaloa:alias>
+        <lumify:entityImageVertexId>FILE_Amado_Carrillo_Fuentes.jpg</lumify:entityImageVertexId>
+        <sinaloa:entityHasImageRaw rdf:resource="&sinaloa;FILE_Amado_Carrillo_Fuentes.jpg"/>
+    </rdf:Description>
+    <rdf:Description rdf:about="&sinaloa;FILE_Amado_Carrillo_Fuentes.jpg">
+        <rdf:type rdf:resource="&sinaloa;image"/>
+        <lumify:title>Image of Amado Carrillo Fuentes</lumify:title>
+        <lumify:fileName>Amado_Carrillo_Fuentes.jpg</lumify:fileName>
+        <lumify:raw>streamingValue:{"fileName": "peopleImages/Amado_Carrillo_Fuentes.jpg"}</lumify:raw>
+    </rdf:Description>
+
+    <rdf:Description rdf:about="&sinaloa;PERSON_Fabian_Rodrigo_Gallego_Marin">
+        <rdf:type rdf:resource="&sinaloa;person"/>
+        <lumify:title>Fabian Rodrigo Gallego Marin</lumify:title>
+        <sinaloa:personWorksForPerson rdf:resource="&sinaloa;PERSON_Jorge_Milton_Cifuentes_Villa"/>
+    </rdf:Description>
+
+    <rdf:Description rdf:about="&sinaloa;PERSON_Nadia_Patricia_Esparragoza_Gastelum">
+        <rdf:type rdf:resource="&sinaloa;person"/>
+        <lumify:title>Nadia Patricia Esparragoza Gastelum</lumify:title>
+        <sinaloa:personWorksForPerson rdf:resource="&sinaloa;PERSON_Juan_Jose_Esparragoza_Moreno"/>
+    </rdf:Description>
+
+    <rdf:Description rdf:about="&sinaloa;PERSON_Dolly_de_Jesus_Cifuentes_Villa">
+        <rdf:type rdf:resource="&sinaloa;person"/>
+        <lumify:title>Dolly de Jesus Cifuentes Villa</lumify:title>
+        <sinaloa:personWorksForPerson rdf:resource="&sinaloa;PERSON_Jorge_Milton_Cifuentes_Villa"/>
+    </rdf:Description>
+
+    <rdf:Description rdf:about="&sinaloa;PERSON_John_Fredy_Cuellar_Silva">
+        <rdf:type rdf:resource="&sinaloa;person"/>
+        <lumify:title>John Fredy Cuellar Silva</lumify:title>
+        <sinaloa:personIsLeaderOfOrganization rdf:resource="&sinaloa;COMPANY_Inversiones_Hunel_LTDA"/>
+        <sinaloa:personIsLeaderOfOrganization rdf:resource="&sinaloa;COMPANY_Casa_de_Empeno_Guadalajara"/>
+        <sinaloa:personIsLeaderOfOrganization rdf:resource="&sinaloa;COMPANY_Cooperativa_Avestruz_Cuemir"/>
+        <sinaloa:personIsLeaderOfOrganization
+                rdf:resource="&sinaloa;COMPANY_Agro_y_Comercio_de_Santa_Barbara_Lagromer"/>
+        <sinaloa:personIsLeaderOfOrganization rdf:resource="&sinaloa;COMPANY_Compania_Agro_Comercial_Cueta"/>
+        <sinaloa:personIsLeaderOfOrganization rdf:resource="&sinaloa;COMPANY_Prenda_Todo"/>
+        <sinaloa:personIsLeaderOfOrganization rdf:resource="&sinaloa;COMPANY_Hotel_Paraiso_Resort_en_Arrendamiento"/>
+        <sinaloa:personIsLeaderOfOrganization rdf:resource="&sinaloa;COMPANY_Casa_Comercial_oro_Rapido"/>
+        <sinaloa:personIsLeaderOfOrganization rdf:resource="&sinaloa;COMPANY_Agricola_y_Ganadera_Cuemir"/>
+        <sinaloa:personIsLeaderOfOrganization rdf:resource="&sinaloa;COMPANY_Casa_Comercial_uni_Quince_Compraventa"/>
+        <lumify:entityImageVertexId>FILE_fredy.png</lumify:entityImageVertexId>
+        <sinaloa:entityHasImageRaw rdf:resource="&sinaloa;FILE_fredy.png"/>
+    </rdf:Description>
+    <rdf:Description rdf:about="&sinaloa;FILE_fredy.png">
+        <rdf:type rdf:resource="&sinaloa;image"/>
+        <lumify:title>Image of John Fredy Cuellar Silva</lumify:title>
+        <lumify:fileName>fredy.png</lumify:fileName>
+        <lumify:raw>streamingValue:{"fileName": "peopleImages/fredy.png"}</lumify:raw>
+    </rdf:Description>
+
+    <rdf:Description rdf:about="&sinaloa;PERSON_Jenny_Johanna_Cuellar_Silva">
+        <rdf:type rdf:resource="&sinaloa;person"/>
+        <lumify:title>Jenny Johanna Cuellar Silva</lumify:title>
+        <sinaloa:personWorksForPerson rdf:resource="&sinaloa;PERSON_John_Fredy_Cuellar_Silva"/>
+    </rdf:Description>
+
+    <rdf:Description rdf:about="&sinaloa;PERSON_Juan_Jose_Esparragoza_Moreno">
+        <rdf:type rdf:resource="&sinaloa;person"/>
+        <lumify:title>Juan Jose Esparragoza Moreno</lumify:title>
+        <sinaloa:alias>El Azul</sinaloa:alias>
+        <lumify:entityImageVertexId>FILE_azul.jpeg</lumify:entityImageVertexId>
+        <sinaloa:entityHasImageRaw rdf:resource="&sinaloa;FILE_azul.jpeg"/>
+    </rdf:Description>
+    <rdf:Description rdf:about="&sinaloa;FILE_azul.jpeg">
+        <rdf:type rdf:resource="&sinaloa;image"/>
+        <lumify:title>Image of Juan Jose Esparragoza Moreno</lumify:title>
+        <lumify:fileName>azul.jpeg</lumify:fileName>
+        <lumify:raw>streamingValue:{"fileName": "peopleImages/azul.jpeg"}</lumify:raw>
+    </rdf:Description>
+
+    <rdf:Description rdf:about="&sinaloa;PERSON_Omar_Mejia_Zuluaga">
+        <rdf:type rdf:resource="&sinaloa;person"/>
+        <lumify:title>Omar Mejia Zuluaga</lumify:title>
+        <sinaloa:personWorksForPerson rdf:resource="&sinaloa;PERSON_Jorge_Milton_Cifuentes_Villa"/>
+    </rdf:Description>
+
+    <rdf:Description rdf:about="&sinaloa;PERSON_Mario_Parra_Sanchez">
+        <rdf:type rdf:resource="&sinaloa;person"/>
+        <lumify:title>Mario Parra Sanchez</lumify:title>
+        <sinaloa:personWorksForPerson rdf:resource="&sinaloa;PERSON_Juan_Jose_Esparragoza_Moreno"/>
+    </rdf:Description>
+
+    <rdf:Description rdf:about="&sinaloa;PERSON_Noel_Salgueiro_Nevarez">
+        <rdf:type rdf:resource="&sinaloa;person"/>
+        <lumify:title>Noel Salgueiro Nevarez</lumify:title>
+        <sinaloa:alias>El Flaco</sinaloa:alias>
+        <sinaloa:personWorksForPerson rdf:resource="&sinaloa;PERSON_Joaquin_Guzman_Loera"/>
+    </rdf:Description>
+
+    <rdf:Description rdf:about="&sinaloa;PERSON_Mauricio_Barcenas_Rivera">
+        <rdf:type rdf:resource="&sinaloa;person"/>
+        <lumify:title>Mauricio Barcenas Rivera</lumify:title>
+        <sinaloa:personWorksForPerson rdf:resource="&sinaloa;PERSON_Jorge_Milton_Cifuentes_Villa"/>
+    </rdf:Description>
+
+    <rdf:Description rdf:about="&sinaloa;PERSON_Shimon_Yalin_Yelinek">
+        <rdf:type rdf:resource="&sinaloa;person"/>
+        <lumify:title>Shimon Yalin Yelinek</lumify:title>
+        <sinaloa:personWorksForPerson rdf:resource="&sinaloa;PERSON_Jorge_Milton_Cifuentes_Villa"/>
+    </rdf:Description>
+
+    <rdf:Description rdf:about="&sinaloa;PERSON_Jose_de_Jesus_Sanchez_Barba">
+        <rdf:type rdf:resource="&sinaloa;person"/>
+        <lumify:title>Jose de Jesus Sanchez Barba</lumify:title>
+        <sinaloa:personWorksForPerson rdf:resource="&sinaloa;PERSON_Rafael_Caro_Quintero"/>
+    </rdf:Description>
+
+    <rdf:Description rdf:about="&sinaloa;PERSON_Agustin_Reyes_Garza">
+        <rdf:type rdf:resource="&sinaloa;person"/>
+        <lumify:title>Agustin Reyes Garza</lumify:title>
+        <sinaloa:alias>Don Pilo</sinaloa:alias>
+        <sinaloa:personIsLeaderOfOrganization rdf:resource="&sinaloa;COMPANY_Estetic_Carr_de_Occidente"/>
+        <sinaloa:personIsLeaderOfOrganization rdf:resource="&sinaloa;COMPANY_Estetica_Car_Wash"/>
+    </rdf:Description>
+
+    <rdf:Description rdf:about="&sinaloa;PERSON_Arturo_Ruia_de_Chavez_Martinez">
+        <rdf:type rdf:resource="&sinaloa;person"/>
+        <lumify:title>Arturo Ruia de Chavez Martinez</lumify:title>
+        <sinaloa:personWorksForPerson rdf:resource="&sinaloa;PERSON_Alejandro_Flores_Cacho"/>
+    </rdf:Description>
+
+    <rdf:Description rdf:about="&sinaloa;PERSON_Jose_Guadalupe_Tapia_Quintero">
+        <rdf:type rdf:resource="&sinaloa;person"/>
+        <lumify:title>Jose Guadalupe Tapia Quintero</lumify:title>
+        <sinaloa:personWorksForPerson rdf:resource="&sinaloa;PERSON_Joaquin_Guzman_Loera"/>
+        <sinaloa:personWorksForPerson rdf:resource="&sinaloa;PERSON_Ismael_Zambada_Garcia"/>
+        <lumify:entityImageVertexId>FILE_tapia.png</lumify:entityImageVertexId>
+        <sinaloa:entityHasImageRaw rdf:resource="&sinaloa;FILE_tapia.png"/>
+    </rdf:Description>
+    <rdf:Description rdf:about="&sinaloa;FILE_tapia.png">
+        <rdf:type rdf:resource="&sinaloa;image"/>
+        <lumify:title>Image of Jose Guadalupe Tapia Quintero</lumify:title>
+        <lumify:fileName>tapia.png</lumify:fileName>
+        <lumify:raw>streamingValue:{"fileName": "peopleImages/tapia.png"}</lumify:raw>
+    </rdf:Description>
+
+    <rdf:Description rdf:about="&sinaloa;PERSON_Zynthia_Borboa_Zazueta">
+        <rdf:type rdf:resource="&sinaloa;person"/>
+        <lumify:title>Zynthia Borboa Zazueta</lumify:title>
+        <sinaloa:personIsLeaderOfOrganization rdf:resource="&sinaloa;COMPANY_Zarka_de_Occidente"/>
+        <sinaloa:personIsLeaderOfOrganization rdf:resource="&sinaloa;COMPANY_Zarka_de_Mexico"/>
+        <sinaloa:personWorksForPerson rdf:resource="&sinaloa;PERSON_Ismael_Zambada_Garcia"/>
+    </rdf:Description>
+
+    <rdf:Description rdf:about="&sinaloa;PERSON_Pablo_Alberto_Gomez_Zuluaga">
+        <rdf:type rdf:resource="&sinaloa;person"/>
+        <lumify:title>Pablo Alberto Gomez Zuluaga</lumify:title>
+        <sinaloa:personWorksForPerson rdf:resource="&sinaloa;PERSON_Jorge_Milton_Cifuentes_Villa"/>
+    </rdf:Description>
+
+    <rdf:Description rdf:about="&sinaloa;PERSON_Eduadro_Massa_Camacho">
+        <rdf:type rdf:resource="&sinaloa;person"/>
+        <lumify:title>Eduadro Massa Camacho</lumify:title>
+        <sinaloa:personWorksForPerson rdf:resource="&sinaloa;PERSON_Alejandro_Flores_Cacho"/>
+    </rdf:Description>
+
+    <rdf:Description rdf:about="&sinaloa;PERSON_Edmon_Felipe_Vargas_Cifuentes">
+        <rdf:type rdf:resource="&sinaloa;person"/>
+        <lumify:title>Edmon Felipe Vargas Cifuentes</lumify:title>
+        <sinaloa:personWorksForPerson rdf:resource="&sinaloa;PERSON_Jorge_Milton_Cifuentes_Villa"/>
+    </rdf:Description>
+
+    <rdf:Description rdf:about="&sinaloa;PERSON_Victor_Emilio_Cazares_Salazar">
+        <rdf:type rdf:resource="&sinaloa;person"/>
+        <lumify:title>Victor Emilio Cazares Salazar</lumify:title>
+        <lumify:entityImageVertexId>FILE_victor.jpg</lumify:entityImageVertexId>
+        <sinaloa:entityHasImageRaw rdf:resource="&sinaloa;FILE_victor.jpg"/>
+    </rdf:Description>
+    <rdf:Description rdf:about="&sinaloa;FILE_victor.jpg">
+        <rdf:type rdf:resource="&sinaloa;image"/>
+        <lumify:title>Image of Victor Emilio Cazares Salazar</lumify:title>
+        <lumify:fileName>victor.jpg</lumify:fileName>
+        <lumify:raw>streamingValue:{"fileName": "peopleImages/victor.jpg"}</lumify:raw>
+    </rdf:Description>
+
+    <rdf:Description rdf:about="&sinaloa;PERSON_Diana_Lorena_Toro_Diaz">
+        <rdf:type rdf:resource="&sinaloa;person"/>
+        <lumify:title>Diana Lorena Toro Diaz</lumify:title>
+        <sinaloa:personWorksForPerson rdf:resource="&sinaloa;PERSON_Alejandro_Flores_Cacho"/>
+    </rdf:Description>
+
+    <rdf:Description rdf:about="&sinaloa;PERSON_Ismael_Zambada_Garcia">
+        <rdf:type rdf:resource="&sinaloa;person"/>
+        <lumify:title>Ismael Zambada Garcia</lumify:title>
+        <sinaloa:alias>El Mayo</sinaloa:alias>
+        <lumify:entityImageVertexId>FILE_mayo.jpg</lumify:entityImageVertexId>
+        <sinaloa:entityHasImageRaw rdf:resource="&sinaloa;FILE_mayo.jpg"/>
+    </rdf:Description>
+    <rdf:Description rdf:about="&sinaloa;FILE_mayo.jpg">
+        <rdf:type rdf:resource="&sinaloa;image"/>
+        <lumify:title>Image of Ismael Zambada Garcia</lumify:title>
+        <lumify:fileName>mayo.jpg</lumify:fileName>
+        <lumify:raw>streamingValue:{"fileName": "peopleImages/mayo.jpg"}</lumify:raw>
+    </rdf:Description>
+
+    <rdf:Description rdf:about="&sinaloa;PERSON_Oscar_Arturo_Jasso_Rocha">
+        <rdf:type rdf:resource="&sinaloa;person"/>
+        <lumify:title>Oscar Arturo Jasso Rocha</lumify:title>
+        <sinaloa:personWorksForPerson rdf:resource="&sinaloa;PERSON_Alejandro_Flores_Cacho"/>
+    </rdf:Description>
+
+    <rdf:Description rdf:about="&sinaloa;PERSON_Joaquin_Guzman_Loera">
+        <rdf:type rdf:resource="&sinaloa;person"/>
+        <lumify:title>Joaquin Guzman Loera</lumify:title>
+        <sinaloa:alias>El Chapo</sinaloa:alias>
+        <lumify:entityImageVertexId>FILE_chapo.jpg</lumify:entityImageVertexId>
+        <sinaloa:entityHasImageRaw rdf:resource="&sinaloa;FILE_chapo.jpg"/>
+    </rdf:Description>
+    <rdf:Description rdf:about="&sinaloa;FILE_chapo.jpg">
+        <rdf:type rdf:resource="&sinaloa;image"/>
+        <lumify:title>Image of Joaquin Guzman Loera</lumify:title>
+        <lumify:fileName>chapo.jpg</lumify:fileName>
+        <lumify:raw>streamingValue:{"fileName": "peopleImages/chapo.jpg"}</lumify:raw>
+    </rdf:Description>
+
+    <rdf:Description rdf:about="&sinaloa;PERSON_Jaime_Andres_Gonzalez_Medina">
+        <rdf:type rdf:resource="&sinaloa;person"/>
+        <lumify:title>Jaime Andres Gonzalez Medina</lumify:title>
+        <sinaloa:personWorksForPerson rdf:resource="&sinaloa;PERSON_Alejandro_Flores_Cacho"/>
+    </rdf:Description>
+
+    <rdf:Description rdf:about="&sinaloa;PERSON_Paula_Andrea_Vargas_Cifuentes">
+        <rdf:type rdf:resource="&sinaloa;person"/>
+        <lumify:title>Paula Andrea Vargas Cifuentes</lumify:title>
+        <sinaloa:personWorksForPerson rdf:resource="&sinaloa;PERSON_Jorge_Milton_Cifuentes_Villa"/>
+    </rdf:Description>
+
+    <rdf:Description rdf:about="&sinaloa;PERSON_Irma_Mery_Basto_Delgado">
+        <rdf:type rdf:resource="&sinaloa;person"/>
+        <lumify:title>Irma Mery Basto Delgado</lumify:title>
+        <sinaloa:personWorksForPerson rdf:resource="&sinaloa;PERSON_Jorge_Milton_Cifuentes_Villa"/>
+    </rdf:Description>
+
+    <rdf:Description rdf:about="&sinaloa;PERSON_Brenda_Guadalupe_Esparragoza_Gastelum">
+        <rdf:type rdf:resource="&sinaloa;person"/>
+        <lumify:title>Brenda Guadalupe Esparragoza Gastelum</lumify:title>
+        <sinaloa:personWorksForPerson rdf:resource="&sinaloa;PERSON_Juan_Jose_Esparragoza_Moreno"/>
+    </rdf:Description>
+
+    <rdf:Description rdf:about="&sinaloa;PERSON_Rafael_Duarte_Torres">
+        <rdf:type rdf:resource="&sinaloa;person"/>
+        <lumify:title>Rafael Duarte Torres</lumify:title>
+        <sinaloa:personWorksForPerson rdf:resource="&sinaloa;PERSON_Alejandro_Flores_Cacho"/>
+        <lumify:entityImageVertexId>FILE_caro.png</lumify:entityImageVertexId>
+        <sinaloa:entityHasImageRaw rdf:resource="&sinaloa;FILE_caro.png"/>
+    </rdf:Description>
+    <rdf:Description rdf:about="&sinaloa;FILE_caro.png">
+        <rdf:type rdf:resource="&sinaloa;image"/>
+        <lumify:title>Image of Rafael Duarte Torres</lumify:title>
+        <lumify:fileName>caro.png</lumify:fileName>
+        <lumify:raw>streamingValue:{"fileName": "peopleImages/caro.png"}</lumify:raw>
+    </rdf:Description>
+
+    <rdf:Description rdf:about="&sinaloa;PERSON_Hector_Mario_Cifuentes_Villa">
+        <rdf:type rdf:resource="&sinaloa;person"/>
+        <lumify:title>Hector Mario Cifuentes Villa</lumify:title>
+        <sinaloa:personWorksForPerson rdf:resource="&sinaloa;PERSON_Jorge_Milton_Cifuentes_Villa"/>
+    </rdf:Description>
+
+    <rdf:Description rdf:about="&sinaloa;PERSON_Blanca_Margarita_Cazares_Salazar">
+        <rdf:type rdf:resource="&sinaloa;person"/>
+        <lumify:title>Blanca Margarita Cazares Salazar</lumify:title>
+        <sinaloa:alias>Chiquis Cazares Salazar</sinaloa:alias>
+        <sinaloa:personIsLeaderOfOrganization rdf:resource="&sinaloa;COMPANY_Sin-Mex_Importadora"/>
+        <sinaloa:personIsLeaderOfOrganization rdf:resource="&sinaloa;COMPANY_Agbas_Consultores"/>
+        <sinaloa:personIsLeaderOfOrganization rdf:resource="&sinaloa;COMPANY_Comercializadora_Brimar's"/>
+        <sinaloa:personIsLeaderOfOrganization rdf:resource="&sinaloa;COMPANY_Multiservicios_Agsa"/>
+        <sinaloa:personIsLeaderOfOrganization rdf:resource="&sinaloa;COMPANY_Mexglobo"/>
+        <sinaloa:personIsLeaderOfOrganization
+                rdf:resource="&sinaloa;COMPANY_Consorcio_Inmobiliario_del_Valle_de_Culiacan"/>
+        <sinaloa:personIsLeaderOfOrganization rdf:resource="&sinaloa;COMPANY_Sepriv"/>
+        <sinaloa:personIsLeaderOfOrganization rdf:resource="&sinaloa;COMPANY_Technologia_Digital_y_Servicios"/>
+        <sinaloa:personIsLeaderOfOrganization rdf:resource="&sinaloa;COMPANY_Sistema_de_Radio_de_Sinaloa"/>
+        <sinaloa:personIsLeaderOfOrganization rdf:resource="&sinaloa;COMPANY_Cocina_de_Tijuana"/>
+        <sinaloa:personIsLeaderOfOrganization rdf:resource="&sinaloa;COMPANY_Comercial_Joana"/>
+        <sinaloa:personIsLeaderOfOrganization rdf:resource="&sinaloa;COMPANY_Toys_Factory"/>
+        <sinaloa:personIsLeaderOfOrganization rdf:resource="&sinaloa;COMPANY_Comercializadora_Toquin"/>
+        <sinaloa:personIsLeaderOfOrganization rdf:resource="&sinaloa;COMPANY_Cazper_Importaciones"/>
+        <sinaloa:personIsLeaderOfOrganization rdf:resource="&sinaloa;COMPANY_Comercial_Domely"/>
+        <sinaloa:personIsLeaderOfOrganization rdf:resource="&sinaloa;COMPANY_Hacienda_Cien_Anos_de_Tijuana"/>
+        <sinaloa:personIsLeaderOfOrganization rdf:resource="&sinaloa;COMPANY_Comercializadora_Jalsin"/>
+        <sinaloa:personIsLeaderOfOrganization rdf:resource="&sinaloa;COMPANY_Patraca"/>
+        <sinaloa:personIsLeaderOfOrganization rdf:resource="&sinaloa;COMPANY_Operadora_Integral_de_Comercio"/>
+        <sinaloa:personWorksForPerson rdf:resource="&sinaloa;PERSON_Ismael_Zambada_Garcia"/>
+        <sinaloa:personWorksForPerson rdf:resource="&sinaloa;PERSON_Victor_Emilio_Cazares_Salazar"/>
+        <lumify:entityImageVertexId>FILE_blanca.jpg</lumify:entityImageVertexId>
+        <sinaloa:entityHasImageRaw rdf:resource="&sinaloa;FILE_blanca.jpg"/>
+    </rdf:Description>
+    <rdf:Description rdf:about="&sinaloa;FILE_blanca.jpg">
+        <rdf:type rdf:resource="&sinaloa;image"/>
+        <lumify:title>Image of Blanca Margarita Cazares Salazar</lumify:title>
+        <lumify:fileName>blanca.jpg</lumify:fileName>
+        <lumify:raw>streamingValue:{"fileName": "peopleImages/blanca.jpg"}</lumify:raw>
+    </rdf:Description>
+
+    <rdf:Description rdf:about="&sinaloa;PERSON_Juan_Carlos_Villegas_Loera">
+        <rdf:type rdf:resource="&sinaloa;person"/>
+        <lumify:title>Juan Carlos Villegas Loera</lumify:title>
+        <sinaloa:personWorksForPerson rdf:resource="&sinaloa;PERSON_Juan_Jose_Esparragoza_Moreno"/>
+    </rdf:Description>
+
+    <rdf:Description rdf:about="&sinaloa;PERSON_Jose_Rodrigo_Arechiga_Gamboa">
+        <rdf:type rdf:resource="&sinaloa;person"/>
+        <lumify:title>Jose Rodrigo Arechiga Gamboa</lumify:title>
+        <sinaloa:alias>Chino Antrax</sinaloa:alias>
+        <sinaloa:personWorksForPerson rdf:resource="&sinaloa;PERSON_Joaquin_Guzman_Loera"/>
+        <sinaloa:personWorksForPerson rdf:resource="&sinaloa;PERSON_Ismael_Zambada_Garcia"/>
+    </rdf:Description>
+
+    <rdf:Description rdf:about="&sinaloa;PERSON_Jesus_Reynaldo_Zambada_Garcia">
+        <rdf:type rdf:resource="&sinaloa;person"/>
+        <lumify:title>Jesus Reynaldo Zambada Garcia</lumify:title>
+        <sinaloa:alias>El Rey</sinaloa:alias>
+        <sinaloa:personWorksForPerson rdf:resource="&sinaloa;PERSON_Ismael_Zambada_Garcia"/>
+    </rdf:Description>
+
+    <rdf:Description rdf:about="&sinaloa;PERSON_Milton_Geovany_Martinez_Gomez">
+        <rdf:type rdf:resource="&sinaloa;person"/>
+        <lumify:title>Milton Geovany Martinez Gomez</lumify:title>
+        <sinaloa:personWorksForPerson rdf:resource="&sinaloa;PERSON_Jorge_Milton_Cifuentes_Villa"/>
+    </rdf:Description>
+
+    <rdf:Description rdf:about="&sinaloa;PERSON_Yenny_Mabel_Sanchez_Puentes">
+        <rdf:type rdf:resource="&sinaloa;person"/>
+        <lumify:title>Yenny Mabel Sanchez Puentes</lumify:title>
+        <sinaloa:personWorksForPerson rdf:resource="&sinaloa;PERSON_Jorge_Milton_Cifuentes_Villa"/>
+    </rdf:Description>
+
+    <rdf:Description rdf:about="&sinaloa;PERSON_Jorge_Normando_Patraca_Ponce">
+        <rdf:type rdf:resource="&sinaloa;person"/>
+        <lumify:title>Jorge Normando Patraca Ponce</lumify:title>
+        <sinaloa:personWorksForPerson rdf:resource="&sinaloa;PERSON_Blanca_Margarita_Cazares_Salazar"/>
+    </rdf:Description>
+
+    <rdf:Description rdf:about="&sinaloa;PERSON_Oscar_Alvarez_Zepeda">
+        <rdf:type rdf:resource="&sinaloa;person"/>
+        <lumify:title>Oscar Alvarez Zepeda</lumify:title>
+        <sinaloa:personWorksForPerson rdf:resource="&sinaloa;PERSON_Jorge_Milton_Cifuentes_Villa"/>
+    </rdf:Description>
+
+    <rdf:Description rdf:about="&sinaloa;PERSON_Jorge_Andres_Cifuentes_Osorio">
+        <rdf:type rdf:resource="&sinaloa;person"/>
+        <lumify:title>Jorge Andres Cifuentes Osorio</lumify:title>
+        <sinaloa:personWorksForPerson rdf:resource="&sinaloa;PERSON_Jorge_Milton_Cifuentes_Villa"/>
+    </rdf:Description>
+
+    <rdf:Description rdf:about="&sinaloa;PERSON_Manuel_Arturo_Valdez_Rodriguez">
+        <rdf:type rdf:resource="&sinaloa;person"/>
+        <lumify:title>Manuel Arturo Valdez Rodriguez</lumify:title>
+        <sinaloa:personWorksForPerson rdf:resource="&sinaloa;PERSON_Juan_Jose_Esparragoza_Moreno"/>
+    </rdf:Description>
+
+    <rdf:Description rdf:about="&sinaloa;PERSON_Arturo_Olvera_Estrada">
+        <rdf:type rdf:resource="&sinaloa;person"/>
+        <lumify:title>Arturo Olvera Estrada</lumify:title>
+        <sinaloa:personWorksForPerson rdf:resource="&sinaloa;PERSON_Alejandro_Flores_Cacho"/>
+    </rdf:Description>
+
+    <rdf:Description rdf:about="&sinaloa;PERSON_Roberto_Perez_Verduzco">
+        <rdf:type rdf:resource="&sinaloa;person"/>
+        <lumify:title>Roberto Perez Verduzco</lumify:title>
+        <sinaloa:personWorksForPerson rdf:resource="&sinaloa;PERSON_Blanca_Margarita_Cazares_Salazar"/>
+    </rdf:Description>
+
+    <rdf:Description rdf:about="&sinaloa;PERSON_Jorge_Milton_Cifuentes_Villa">
+        <rdf:type rdf:resource="&sinaloa;person"/>
+        <lumify:title>Jorge Milton Cifuentes Villa</lumify:title>
+        <sinaloa:alias>Elkin de Jesus Lopez Salazar</sinaloa:alias>
+        <sinaloa:personIsLeaderOfOrganization rdf:resource="&sinaloa;COMPANY_Crocker_Jeans_Corp"/>
+        <sinaloa:personIsLeaderOfOrganization rdf:resource="&sinaloa;COMPANY_Fox_Fashion"/>
+        <sinaloa:personIsLeaderOfOrganization rdf:resource="&sinaloa;COMPANY_Cubi_Cafe_Click_Cube_Mexico"/>
+        <sinaloa:personIsLeaderOfOrganization
+                rdf:resource="&sinaloa;COMPANY_Monedeux_Financial_Services_North_America_Inc"/>
+        <sinaloa:personIsLeaderOfOrganization rdf:resource="&sinaloa;COMPANY_Cross_Winds"/>
+        <sinaloa:personIsLeaderOfOrganization rdf:resource="&sinaloa;COMPANY_Red_Mundial_Inmobiliaria"/>
+        <sinaloa:personIsLeaderOfOrganization rdf:resource="&sinaloa;COMPANY_IGA_LTDA."/>
+        <sinaloa:personIsLeaderOfOrganization rdf:resource="&sinaloa;COMPANY_Union_de_Constructores_Conusa"/>
+        <sinaloa:personIsLeaderOfOrganization rdf:resource="&sinaloa;COMPANY_Fundacion_Salva_la_Selva"/>
+        <sinaloa:personIsLeaderOfOrganization
+                rdf:resource="&sinaloa;COMPANY_Fundacion_para_el_Bienestar_y_el_Porvenir"/>
+        <sinaloa:personIsLeaderOfOrganization rdf:resource="&sinaloa;COMPANY_Dolphin_Dive_School"/>
+        <sinaloa:personIsLeaderOfOrganization rdf:resource="&sinaloa;COMPANY_Obras_y_Proyectos_Piqueherva"/>
+        <sinaloa:personIsLeaderOfOrganization rdf:resource="&sinaloa;COMPANY_Hoteles_y_Bienes"/>
+        <sinaloa:personIsLeaderOfOrganization rdf:resource="&sinaloa;COMPANY_Ecovivero_el_Matorral"/>
+        <sinaloa:personIsLeaderOfOrganization rdf:resource="&sinaloa;COMPANY_Montray"/>
+        <sinaloa:personIsLeaderOfOrganization rdf:resource="&sinaloa;COMPANY_Le_Claude"/>
+        <sinaloa:personIsLeaderOfOrganization rdf:resource="&sinaloa;COMPANY_Inverpunto_del_Valle"/>
+        <sinaloa:personIsLeaderOfOrganization rdf:resource="&sinaloa;COMPANY_Ruta_33_Motocicletas_y_Accesorios"/>
+        <sinaloa:personIsLeaderOfOrganization rdf:resource="&sinaloa;COMPANY_Operadora_Nueva_Granada"/>
+        <sinaloa:personIsLeaderOfOrganization
+                rdf:resource="&sinaloa;COMPANY_C.I._Distribuidora_de_Servicios_Combustibles_y_Mineria"/>
+        <sinaloa:personIsLeaderOfOrganization rdf:resource="&sinaloa;COMPANY_C.I._Global_Investments"/>
+        <sinaloa:personIsLeaderOfOrganization rdf:resource="&sinaloa;COMPANY_Parques_Tematicos"/>
+        <sinaloa:personIsLeaderOfOrganization rdf:resource="&sinaloa;COMPANY_Bio_Forestal"/>
+        <sinaloa:personIsLeaderOfOrganization rdf:resource="&sinaloa;COMPANY_Federal_Capital_Group"/>
+        <sinaloa:personIsLeaderOfOrganization rdf:resource="&sinaloa;COMPANY_Roble_de_Minas"/>
+        <sinaloa:personIsLeaderOfOrganization rdf:resource="&sinaloa;COMPANY_Monedeux_International_Services"/>
+        <sinaloa:personIsLeaderOfOrganization rdf:resource="&sinaloa;COMPANY_Gestores_del_Ecuador_Gestorum"/>
+        <sinaloa:personIsLeaderOfOrganization rdf:resource="&sinaloa;COMPANY_C.I._Metalurgia_Extractiva_de_Colombia"/>
+        <sinaloa:personIsLeaderOfOrganization rdf:resource="&sinaloa;COMPANY_Cifuentes_Uribe_y_Cia"/>
+        <sinaloa:personIsLeaderOfOrganization rdf:resource="&sinaloa;COMPANY_Promo_Raiz"/>
+        <sinaloa:personIsLeaderOfOrganization rdf:resource="&sinaloa;COMPANY_Gandaeria_la_Sorguita"/>
+        <sinaloa:personIsLeaderOfOrganization rdf:resource="&sinaloa;COMPANY_Lineas_Aereas_Andinas_Lincandisa"/>
+        <sinaloa:personIsLeaderOfOrganization rdf:resource="&sinaloa;COMPANY_Mondedeux_Latina_America"/>
+        <sinaloa:personIsLeaderOfOrganization rdf:resource="&sinaloa;COMPANY_Internetstations"/>
+        <sinaloa:personIsLeaderOfOrganization rdf:resource="&sinaloa;COMPANY_Linea_Aerea_Pueblos_Amazonicos"/>
+        <sinaloa:personIsLeaderOfOrganization rdf:resource="&sinaloa;COMPANY_Inversiones_Cifuentes_y_Cia"/>
+        <sinaloa:personIsLeaderOfOrganization rdf:resource="&sinaloa;COMPANY_Crocker_Jeans_Station_Corporation"/>
+        <sinaloa:personIsLeaderOfOrganization
+                rdf:resource="&sinaloa;COMPANY_Transportadora_y_Comercializadora_Systole"/>
+        <sinaloa:personIsLeaderOfOrganization rdf:resource="&sinaloa;COMPANY_Monedeux_Europa"/>
+        <sinaloa:personIsLeaderOfOrganization rdf:resource="&sinaloa;COMPANY_DMR_C.I."/>
+        <sinaloa:personIsLeaderOfOrganization rdf:resource="&sinaloa;COMPANY_Monedeux_Financial_Services_Colombia"/>
+        <lumify:entityImageVertexId>FILE_jorge.jpg</lumify:entityImageVertexId>
+        <sinaloa:entityHasImageRaw rdf:resource="&sinaloa;FILE_jorge.jpg"/>
+    </rdf:Description>
+    <rdf:Description rdf:about="&sinaloa;FILE_jorge.jpg">
+        <rdf:type rdf:resource="&sinaloa;image"/>
+        <lumify:title>Image of Jorge Milton Cifuentes Villa</lumify:title>
+        <lumify:fileName>jorge.jpg</lumify:fileName>
+        <lumify:raw>streamingValue:{"fileName": "peopleImages/jorge.jpg"}</lumify:raw>
+    </rdf:Description>
+
+    <rdf:Description rdf:about="&sinaloa;PERSON_Angello_de_Jesus_Solis_Aviles">
+        <rdf:type rdf:resource="&sinaloa;person"/>
+        <lumify:title>Angello de Jesus Solis Aviles</lumify:title>
+        <sinaloa:personWorksForPerson rdf:resource="&sinaloa;PERSON_Juan_Jose_Esparragoza_Moreno"/>
+    </rdf:Description>
+
+    <rdf:Description rdf:about="&sinaloa;PERSON_Ama_Patricia_Roldan_Cardona">
+        <rdf:type rdf:resource="&sinaloa;person"/>
+        <lumify:title>Ama Patricia Roldan Cardona</lumify:title>
+        <sinaloa:personWorksForPerson rdf:resource="&sinaloa;PERSON_Jorge_Milton_Cifuentes_Villa"/>
+    </rdf:Description>
+
+    <rdf:Description rdf:about="&sinaloa;PERSON_Ricardo_Garcia_Sanchez">
+        <rdf:type rdf:resource="&sinaloa;person"/>
+        <lumify:title>Ricardo Garcia Sanchez</lumify:title>
+        <sinaloa:personWorksForPerson rdf:resource="&sinaloa;PERSON_Alejandro_Flores_Cacho"/>
+    </rdf:Description>
+
+    <rdf:Description rdf:about="&sinaloa;PERSON_Ignacio_Coronel_Villareal">
+        <rdf:type rdf:resource="&sinaloa;person"/>
+        <lumify:title>Ignacio Coronel Villareal</lumify:title>
+        <sinaloa:alias>Nacho</sinaloa:alias>
+        <lumify:entityImageVertexId>FILE_nacho.jpg</lumify:entityImageVertexId>
+        <sinaloa:entityHasImageRaw rdf:resource="&sinaloa;FILE_nacho.jpg"/>
+    </rdf:Description>
+    <rdf:Description rdf:about="&sinaloa;FILE_nacho.jpg">
+        <rdf:type rdf:resource="&sinaloa;image"/>
+        <lumify:title>Image of Ignacio Coronel Villareal</lumify:title>
+        <lumify:fileName>nacho.jpg</lumify:fileName>
+        <lumify:raw>streamingValue:{"fileName": "peopleImages/nacho.jpg"}</lumify:raw>
+    </rdf:Description>
+
+    <rdf:Description rdf:about="&sinaloa;PERSON_Santos_Bueno_Garcia">
+        <rdf:type rdf:resource="&sinaloa;person"/>
+        <lumify:title>Santos Bueno Garcia</lumify:title>
+        <sinaloa:personWorksForPerson rdf:resource="&sinaloa;PERSON_Ismael_Zambada_Garcia"/>
+    </rdf:Description>
+
+    <rdf:Description rdf:about="&sinaloa;PERSON_Monica_Janeth_Verdugo_Garcia">
+        <rdf:type rdf:resource="&sinaloa;person"/>
+        <lumify:title>Monica Janeth Verdugo Garcia</lumify:title>
+        <sinaloa:personWorksForPerson rdf:resource="&sinaloa;PERSON_Ismael_Zambada_Garcia"/>
+        <sinaloa:personIsEmployedByOrganizaton rdf:resource="&sinaloa;COMPANY_Rancho_Agricola_Ganadero_los_Mezquites"/>
+        <sinaloa:personIsEmployedByOrganizaton rdf:resource="&sinaloa;COMPANY_Centro_Comercial_y_Habitacional_Lomas"/>
+        <sinaloa:personIsEmployedByOrganizaton rdf:resource="&sinaloa;COMPANY_Parque_Acuatico_los_Casabeles"/>
+    </rdf:Description>
+
+    <rdf:Description rdf:about="&sinaloa;PERSON_Maria_Teresa_Zambada_Niebla">
+        <rdf:type rdf:resource="&sinaloa;person"/>
+        <lumify:title>Maria Teresa Zambada Niebla</lumify:title>
+        <sinaloa:personIsLeaderOfOrganization rdf:resource="&sinaloa;COMPANY_Autotransportes_Jym"/>
+        <sinaloa:personIsLeaderOfOrganization rdf:resource="&sinaloa;COMPANY_Arte_y_Diseno_de_Culiacan"/>
+        <sinaloa:personWorksForPerson rdf:resource="&sinaloa;PERSON_Ismael_Zambada_Garcia"/>
+    </rdf:Description>
+
+    <rdf:Description rdf:about="&sinaloa;PERSON_Nestor_Alonso_Tarazona_Enciso">
+        <rdf:type rdf:resource="&sinaloa;person"/>
+        <lumify:title>Nestor Alonso Tarazona Enciso</lumify:title>
+        <sinaloa:personIsLeaderOfOrganization rdf:resource="&sinaloa;COMPANY_Criadero_las_Cabanas_LTDA"/>
+        <sinaloa:personIsLeaderOfOrganization rdf:resource="&sinaloa;COMPANY_Agropecuaria_la_Cruz"/>
+    </rdf:Description>
+
+    <rdf:Description rdf:about="&sinaloa;PERSON_Monica_del_Rosario_Zambada_Niebla">
+        <rdf:type rdf:resource="&sinaloa;person"/>
+        <lumify:title>Monica del Rosario Zambada Niebla</lumify:title>
+        <sinaloa:personWorksForPerson rdf:resource="&sinaloa;PERSON_Ismael_Zambada_Garcia"/>
+    </rdf:Description>
+
+    <rdf:Description rdf:about="&sinaloa;PERSON_Rodolfo_Olvera_Estrada">
+        <rdf:type rdf:resource="&sinaloa;person"/>
+        <lumify:title>Rodolfo Olvera Estrada</lumify:title>
+        <sinaloa:personWorksForPerson rdf:resource="&sinaloa;PERSON_Alejandro_Flores_Cacho"/>
+    </rdf:Description>
+
+    <rdf:Description rdf:about="&sinaloa;PERSON_Ovidio_Guzman_Lopez">
+        <rdf:type rdf:resource="&sinaloa;person"/>
+        <lumify:title>Ovidio Guzman Lopez</lumify:title>
+        <sinaloa:personWorksForPerson rdf:resource="&sinaloa;PERSON_Joaquin_Guzman_Loera"/>
+    </rdf:Description>
+
+    <rdf:Description rdf:about="&sinaloa;PERSON_Alvaro_Padro_Pastor">
+        <rdf:type rdf:resource="&sinaloa;person"/>
+        <lumify:title>Alvaro Padro Pastor</lumify:title>
+        <sinaloa:personIsLeaderOfOrganization rdf:resource="&sinaloa;COMPANY_Casa_V_Banquet_Hall"/>
+        <sinaloa:personIsLeaderOfOrganization rdf:resource="&sinaloa;COMPANY_Piscilanea_Swimming_Pool_Company"/>
+    </rdf:Description>
+
+    <rdf:Description rdf:about="&sinaloa;PERSON_Carlina_Villa_de_Cifuentes">
+        <rdf:type rdf:resource="&sinaloa;person"/>
+        <lumify:title>Carlina Villa de Cifuentes</lumify:title>
+        <sinaloa:personWorksForPerson rdf:resource="&sinaloa;PERSON_Jorge_Milton_Cifuentes_Villa"/>
+    </rdf:Description>
+
+    <rdf:Description rdf:about="&sinaloa;PERSON_Claudia_Estela_Lopez_Mejia">
+        <rdf:type rdf:resource="&sinaloa;person"/>
+        <lumify:title>Claudia Estela Lopez Mejia</lumify:title>
+        <sinaloa:personWorksForPerson rdf:resource="&sinaloa;PERSON_Jorge_Milton_Cifuentes_Villa"/>
+    </rdf:Description>
+
+    <rdf:Description rdf:about="&sinaloa;PERSON_Blanca_Armida_Aguirre_Sanchez">
+        <rdf:type rdf:resource="&sinaloa;person"/>
+        <lumify:title>Blanca Armida Aguirre Sanchez</lumify:title>
+        <sinaloa:personWorksForPerson rdf:resource="&sinaloa;PERSON_Blanca_Margarita_Cazares_Salazar"/>
+    </rdf:Description>
+
+    <rdf:Description rdf:about="&sinaloa;PERSON_Rosario_Niebla_Cardoza">
+        <rdf:type rdf:resource="&sinaloa;person"/>
+        <lumify:title>Rosario Niebla Cardoza</lumify:title>
+        <sinaloa:personWorksForPerson rdf:resource="&sinaloa;PERSON_Ismael_Zambada_Garcia"/>
+    </rdf:Description>
+
+    <rdf:Description rdf:about="&sinaloa;PERSON_Jesus_Alfredo_Guzman_Salazar">
+        <rdf:type rdf:resource="&sinaloa;person"/>
+        <lumify:title>Jesus Alfredo Guzman Salazar</lumify:title>
+        <sinaloa:personWorksForPerson rdf:resource="&sinaloa;PERSON_Joaquin_Guzman_Loera"/>
+    </rdf:Description>
+
+    <rdf:Description rdf:about="&sinaloa;PERSON_Griselda_Lopez_Perez">
+        <rdf:type rdf:resource="&sinaloa;person"/>
+        <lumify:title>Griselda Lopez Perez</lumify:title>
+        <sinaloa:personWorksForPerson rdf:resource="&sinaloa;PERSON_Joaquin_Guzman_Loera"/>
+    </rdf:Description>
+
+    <rdf:Description rdf:about="&sinaloa;PERSON_Hildebrando_Alexander_Cifuentes_VIlla">
+        <rdf:type rdf:resource="&sinaloa;person"/>
+        <lumify:title>Hildebrando Alexander Cifuentes VIlla</lumify:title>
+        <sinaloa:personWorksForPerson rdf:resource="&sinaloa;PERSON_Jorge_Milton_Cifuentes_Villa"/>
+    </rdf:Description>
+
+    <rdf:Description rdf:about="&sinaloa;PERSON_Jesus_Maria_Castro">
+        <rdf:type rdf:resource="&sinaloa;person"/>
+        <lumify:title>Jesus Maria Castro</lumify:title>
+        <sinaloa:personWorksForPerson rdf:resource="&sinaloa;PERSON_Jorge_Milton_Cifuentes_Villa"/>
+    </rdf:Description>
+
+    <rdf:Description rdf:about="&sinaloa;PERSON_Ruben_Raygoza_Contreras">
+        <rdf:type rdf:resource="&sinaloa;person"/>
+        <lumify:title>Ruben Raygoza Contreras</lumify:title>
+        <sinaloa:personWorksForPerson rdf:resource="&sinaloa;PERSON_Jorge_Milton_Cifuentes_Villa"/>
+    </rdf:Description>
+
+    <rdf:Description rdf:about="&sinaloa;PERSON_Arturo_Meza_Cazares">
+        <rdf:type rdf:resource="&sinaloa;person"/>
+        <lumify:title>Arturo Meza Cazares</lumify:title>
+        <sinaloa:personWorksForPerson rdf:resource="&sinaloa;PERSON_Blanca_Margarita_Cazares_Salazar"/>
+    </rdf:Description>
+
+    <rdf:Description rdf:about="&sinaloa;PERSON_Catalina_Alexandra_Montoya_Zapata">
+        <rdf:type rdf:resource="&sinaloa;person"/>
+        <lumify:title>Catalina Alexandra Montoya Zapata</lumify:title>
+        <sinaloa:personWorksForPerson rdf:resource="&sinaloa;PERSON_Jorge_Milton_Cifuentes_Villa"/>
+    </rdf:Description>
+
+    <rdf:Description rdf:about="&sinaloa;PERSON_Javier_Flores_Cacho">
+        <rdf:type rdf:resource="&sinaloa;person"/>
+        <lumify:title>Javier Flores Cacho</lumify:title>
+        <sinaloa:personWorksForPerson rdf:resource="&sinaloa;PERSON_Alejandro_Flores_Cacho"/>
+    </rdf:Description>
+
+    <rdf:Description rdf:about="&sinaloa;PERSON_Arturo_Meza_Gaspar">
+        <rdf:type rdf:resource="&sinaloa;person"/>
+        <lumify:title>Arturo Meza Gaspar</lumify:title>
+        <sinaloa:personWorksForPerson rdf:resource="&sinaloa;PERSON_Blanca_Margarita_Cazares_Salazar"/>
+    </rdf:Description>
+
+    <rdf:Description rdf:about="&sinaloa;PERSON_Jaime_Alberto_Roll_Cifuentes">
+        <rdf:type rdf:resource="&sinaloa;person"/>
+        <lumify:title>Jaime Alberto Roll Cifuentes</lumify:title>
+        <sinaloa:personWorksForPerson rdf:resource="&sinaloa;PERSON_Jorge_Milton_Cifuentes_Villa"/>
+    </rdf:Description>
+
+    <rdf:Description rdf:about="&sinaloa;PERSON_David_Gomez_Ortiz">
+        <rdf:type rdf:resource="&sinaloa;person"/>
+        <lumify:title>David Gomez Ortiz</lumify:title>
+        <sinaloa:personWorksForPerson rdf:resource="&sinaloa;PERSON_Jorge_Milton_Cifuentes_Villa"/>
+    </rdf:Description>
+
+    <rdf:Description rdf:about="&sinaloa;PERSON_Ana_Maria_Uribe_Cifuentes">
+        <rdf:type rdf:resource="&sinaloa;person"/>
+        <lumify:title>Ana Maria Uribe Cifuentes</lumify:title>
+        <sinaloa:personWorksForPerson rdf:resource="&sinaloa;PERSON_Jorge_Milton_Cifuentes_Villa"/>
+    </rdf:Description>
+
+    <rdf:Description rdf:about="&sinaloa;PERSON_Gipsy_Meza_Cazares">
+        <rdf:type rdf:resource="&sinaloa;person"/>
+        <lumify:title>Gipsy Meza Cazares</lumify:title>
+        <sinaloa:personWorksForPerson rdf:resource="&sinaloa;PERSON_Blanca_Margarita_Cazares_Salazar"/>
+    </rdf:Description>
+
+    <rdf:Description rdf:about="&sinaloa;PERSON_Maria_Alejandrina_Salazar_Hernandez">
+        <rdf:type rdf:resource="&sinaloa;person"/>
+        <lumify:title>Maria Alejandrina Salazar Hernandez</lumify:title>
+        <sinaloa:personWorksForPerson rdf:resource="&sinaloa;PERSON_Joaquin_Guzman_Loera"/>
+    </rdf:Description>
+
+    <rdf:Description rdf:about="&sinaloa;PERSON_Jose_Luis_Gomez_Piqueras">
+        <rdf:type rdf:resource="&sinaloa;person"/>
+        <lumify:title>Jose Luis Gomez Piqueras</lumify:title>
+        <sinaloa:personWorksForPerson rdf:resource="&sinaloa;PERSON_Jorge_Milton_Cifuentes_Villa"/>
+    </rdf:Description>
+
+    <rdf:Description rdf:about="&sinaloa;PERSON_Carmen_Amelia_Araujo_Laveaga">
+        <rdf:type rdf:resource="&sinaloa;person"/>
+        <lumify:title>Carmen Amelia Araujo Laveaga</lumify:title>
+        <sinaloa:personWorksForPerson rdf:resource="&sinaloa;PERSON_Ismael_Zambada_Garcia"/>
+    </rdf:Description>
+
+    <rdf:Description rdf:about="&sinaloa;PERSON_Damaso_Lopez_Nunez">
+        <rdf:type rdf:resource="&sinaloa;person"/>
+        <lumify:title>Damaso Lopez Nunez</lumify:title>
+        <sinaloa:personWorksForPerson rdf:resource="&sinaloa;PERSON_Joaquin_Guzman_Loera"/>
+    </rdf:Description>
+
+    <rdf:Description rdf:about="&sinaloa;PERSON_Lucia_Ines_Cifuentes_Villa">
+        <rdf:type rdf:resource="&sinaloa;person"/>
+        <lumify:title>Lucia Ines Cifuentes Villa</lumify:title>
+        <sinaloa:personWorksForPerson rdf:resource="&sinaloa;PERSON_Jorge_Milton_Cifuentes_Villa"/>
+    </rdf:Description>
+
+    <rdf:Description rdf:about="&sinaloa;PERSON_Lizbeth_Meza_Cazares">
+        <rdf:type rdf:resource="&sinaloa;person"/>
+        <lumify:title>Lizbeth Meza Cazares</lumify:title>
+        <sinaloa:personWorksForPerson rdf:resource="&sinaloa;PERSON_Blanca_Margarita_Cazares_Salazar"/>
+    </rdf:Description>
+
+    <rdf:Description rdf:about="&sinaloa;PERSON_Carlos_Mario_Torres_Hoyos">
+        <rdf:type rdf:resource="&sinaloa;person"/>
+        <lumify:title>Carlos Mario Torres Hoyos</lumify:title>
+        <sinaloa:personWorksForPerson rdf:resource="&sinaloa;PERSON_Jorge_Milton_Cifuentes_Villa"/>
+    </rdf:Description>
+
+    <rdf:Description rdf:about="&sinaloa;PERSON_Midiam_Patricia_Zambada_Niebla">
+        <rdf:type rdf:resource="&sinaloa;person"/>
+        <lumify:title>Midiam Patricia Zambada Niebla</lumify:title>
+        <sinaloa:personWorksForPerson rdf:resource="&sinaloa;PERSON_Ismael_Zambada_Garcia"/>
+    </rdf:Description>
+
+    <rdf:Description rdf:about="&sinaloa;PERSON_Jose_Antonia_Nunez_Bedoya">
+        <rdf:type rdf:resource="&sinaloa;person"/>
+        <lumify:title>Jose Antonia Nunez Bedoya</lumify:title>
+        <sinaloa:personIsLeaderOfOrganization rdf:resource="&sinaloa;COMPANY_Rancho_Agricola_Ganadero_los_Mezquites"/>
+        <sinaloa:personIsLeaderOfOrganization rdf:resource="&sinaloa;COMPANY_Centro_Comercial_y_Habitacional_Lomas"/>
+        <sinaloa:personIsLeaderOfOrganization rdf:resource="&sinaloa;COMPANY_Parque_Acuatico_los_Casabeles"/>
+        <sinaloa:personWorksForPerson rdf:resource="&sinaloa;PERSON_Ismael_Zambada_Garcia"/>
+        <sinaloa:personIsEmployedByOrganizaton rdf:resource="&sinaloa;COMPANY_Estancia_Infantil_Nino_Feliz"/>
+        <sinaloa:personIsEmployedByOrganizaton
+                rdf:resource="&sinaloa;COMPANY_Nueva_Industria_de_Ganaderos_de_Culiacan"/>
+        <sinaloa:personIsEmployedByOrganizaton rdf:resource="&sinaloa;COMPANY_Establo_Puerto_Rico"/>
+    </rdf:Description>
+
+    <rdf:Description rdf:about="&sinaloa;PERSON_Alfredo_Alvarez_Zepeda">
+        <rdf:type rdf:resource="&sinaloa;person"/>
+        <lumify:title>Alfredo Alvarez Zepeda</lumify:title>
+        <sinaloa:alias>Gabino Ontiveros Rios</sinaloa:alias>
+        <sinaloa:personWorksForPerson rdf:resource="&sinaloa;PERSON_Jorge_Milton_Cifuentes_Villa"/>
+    </rdf:Description>
+
+    <rdf:Description rdf:about="&sinaloa;PERSON_Enrique_Torres_Gomez">
+        <rdf:type rdf:resource="&sinaloa;person"/>
+        <lumify:title>Enrique Torres Gomez</lumify:title>
+        <sinaloa:personWorksForPerson rdf:resource="&sinaloa;PERSON_Alejandro_Flores_Cacho"/>
+    </rdf:Description>
+
+    <rdf:Description rdf:about="&sinaloa;PERSON_Mauricio_Sanchez_Garza">
+        <rdf:type rdf:resource="&sinaloa;person"/>
+        <lumify:title>Mauricio Sanchez Garza</lumify:title>
+        <sinaloa:personWorksForPerson rdf:resource="&sinaloa;PERSON_Rafael_Caro_Quintero"/>
+    </rdf:Description>
+
+    <rdf:Description rdf:about="&sinaloa;PERSON_Rafael_Caro_Quintero">
+        <rdf:type rdf:resource="&sinaloa;person"/>
+        <lumify:title>Rafael Caro Quintero</lumify:title>
+        <sinaloa:personWorksForPerson rdf:resource="&sinaloa;PERSON_Juan_Jose_Esparragoza_Moreno"/>
+    </rdf:Description>
+
+    <rdf:Description rdf:about="&sinaloa;PERSON_Gabriela_Amarillas_Lopez">
+        <rdf:type rdf:resource="&sinaloa;person"/>
+        <lumify:title>Gabriela Amarillas Lopez</lumify:title>
+        <sinaloa:personWorksForPerson rdf:resource="&sinaloa;PERSON_John_Fredy_Cuellar_Silva"/>
+    </rdf:Description>
+
+    <rdf:Description rdf:about="&sinaloa;PERSON_Hugo_Cuellar_Hurtado">
+        <rdf:type rdf:resource="&sinaloa;person"/>
+        <lumify:title>Hugo Cuellar Hurtado</lumify:title>
+        <lumify:entityImageVertexId>FILE_hugo.jpg</lumify:entityImageVertexId>
+        <sinaloa:entityHasImageRaw rdf:resource="&sinaloa;FILE_hugo.jpg"/>
+    </rdf:Description>
+    <rdf:Description rdf:about="&sinaloa;FILE_hugo.jpg">
+        <rdf:type rdf:resource="&sinaloa;image"/>
+        <lumify:title>Image of Hugo Cuellar Hurtado</lumify:title>
+        <lumify:fileName>hugo.jpg</lumify:fileName>
+        <lumify:raw>streamingValue:{"fileName": "peopleImages/hugo.jpg"}</lumify:raw>
+    </rdf:Description>
+
+    <rdf:Description rdf:about="&sinaloa;PERSON_Onecimo_Antonia_Amaya_Aleman">
+        <rdf:type rdf:resource="&sinaloa;person"/>
+        <lumify:title>Onecimo Antonia Amaya Aleman</lumify:title>
+        <sinaloa:personWorksForPerson rdf:resource="&sinaloa;PERSON_Alejandro_Flores_Cacho"/>
+    </rdf:Description>
+
+    <rdf:Description rdf:about="&sinaloa;PERSON_Tomasa_Garcia_Rios">
+        <rdf:type rdf:resource="&sinaloa;person"/>
+        <lumify:title>Tomasa Garcia Rios</lumify:title>
+        <sinaloa:personWorksForPerson rdf:resource="&sinaloa;PERSON_Ismael_Zambada_Garcia"/>
+        <sinaloa:personIsEmployedByOrganizaton rdf:resource="&sinaloa;COMPANY_Rancho_Agricola_Ganadero_los_Mezquites"/>
+        <sinaloa:personIsEmployedByOrganizaton rdf:resource="&sinaloa;COMPANY_Centro_Comercial_y_Habitacional_Lomas"/>
+        <sinaloa:personIsEmployedByOrganizaton rdf:resource="&sinaloa;COMPANY_Parque_Acuatico_los_Casabeles"/>
+    </rdf:Description>
+
+    <rdf:Description rdf:about="&sinaloa;PERSON_Jair_Fernando_Urrea_Lenis">
+        <rdf:type rdf:resource="&sinaloa;person"/>
+        <lumify:title>Jair Fernando Urrea Lenis</lumify:title>
+        <sinaloa:personWorksForPerson rdf:resource="&sinaloa;PERSON_Alejandro_Flores_Cacho"/>
+    </rdf:Description>
+
+    <rdf:Description rdf:about="&sinaloa;PERSON_Jose_Luis_Rodarte_Grijalva">
+        <rdf:type rdf:resource="&sinaloa;person"/>
+        <lumify:title>Jose Luis Rodarte Grijalva</lumify:title>
+        <sinaloa:personWorksForPerson rdf:resource="&sinaloa;PERSON_Alejandro_Flores_Cacho"/>
+    </rdf:Description>
+
+    <rdf:Description rdf:about="&sinaloa;PERSON_Luis_Francisco_Vallarta_Escalante">
+        <rdf:type rdf:resource="&sinaloa;person"/>
+        <lumify:title>Luis Francisco Vallarta Escalante</lumify:title>
+        <sinaloa:personIsLeaderOfOrganization rdf:resource="&sinaloa;COMPANY_Socialika_Rentas_y_Catering"/>
+    </rdf:Description>
+
+    <rdf:Description rdf:about="&sinaloa;PERSON_Ofelia_Margarita_Miramontez_Gutierrez">
+        <rdf:type rdf:resource="&sinaloa;person"/>
+        <lumify:title>Ofelia Margarita Miramontez Gutierrez</lumify:title>
+        <sinaloa:personWorksForPerson rdf:resource="&sinaloa;PERSON_John_Fredy_Cuellar_Silva"/>
+    </rdf:Description>
+
+    <rdf:Description rdf:about="&sinaloa;PERSON_Juan_Pablo_Antonia_Londono_Ramirez">
+        <rdf:type rdf:resource="&sinaloa;person"/>
+        <lumify:title>Juan Pablo Antonia Londono Ramirez</lumify:title>
+        <sinaloa:personWorksForPerson rdf:resource="&sinaloa;PERSON_Jorge_Milton_Cifuentes_Villa"/>
+    </rdf:Description>
+
+    <rdf:Description rdf:about="&sinaloa;PERSON_Ruben_Sanchez_Gonzalez">
+        <rdf:type rdf:resource="&sinaloa;person"/>
+        <lumify:title>Ruben Sanchez Gonzalez</lumify:title>
+        <sinaloa:personIsLeaderOfOrganization rdf:resource="&sinaloa;COMPANY_Piscilanea_Swimming_Pool_Company"/>
+        <sinaloa:personWorksForPerson rdf:resource="&sinaloa;PERSON_Jose_de_Jesus_Sanchez_Barba"/>
+        <sinaloa:personWorksForPerson rdf:resource="&sinaloa;PERSON_Mauricio_Sanchez_Garza"/>
+    </rdf:Description>
+
+    <rdf:Description rdf:about="&sinaloa;PERSON_Modesta_Zambada_Niebla">
+        <rdf:type rdf:resource="&sinaloa;person"/>
+        <lumify:title>Modesta Zambada Niebla</lumify:title>
+        <sinaloa:personWorksForPerson rdf:resource="&sinaloa;PERSON_Ismael_Zambada_Garcia"/>
+    </rdf:Description>
+
+    <rdf:Description rdf:about="&sinaloa;PERSON_Ana_Yesennia_Pacheco_Parra">
+        <rdf:type rdf:resource="&sinaloa;person"/>
+        <lumify:title>Ana Yesennia Pacheco Parra</lumify:title>
+        <sinaloa:personWorksForPerson rdf:resource="&sinaloa;PERSON_Jorge_Milton_Cifuentes_Villa"/>
+    </rdf:Description>
+
+    <rdf:Description rdf:about="&sinaloa;PERSON_Vanessa_Valenzuela_Valenzuela">
+        <rdf:type rdf:resource="&sinaloa;person"/>
+        <lumify:title>Vanessa Valenzuela Valenzuela</lumify:title>
+        <sinaloa:alias>Vanessa de Cortez</sinaloa:alias>
+        <sinaloa:personWorksForPerson rdf:resource="&sinaloa;PERSON_Juan_Jose_Esparragoza_Moreno"/>
+    </rdf:Description>
+
+    <rdf:Description rdf:about="&sinaloa;PERSON_Vicente_Zambada_Niebla">
+        <rdf:type rdf:resource="&sinaloa;person"/>
+        <lumify:title>Vicente Zambada Niebla</lumify:title>
+        <sinaloa:alias>Vicente Sotelo Guzman</sinaloa:alias>
+        <sinaloa:personWorksForPerson rdf:resource="&sinaloa;PERSON_Ismael_Zambada_Garcia"/>
+    </rdf:Description>
+
+    <rdf:Description rdf:about="&sinaloa;PERSON_Jose_Antonio_Peregrina_Taboada">
+        <rdf:type rdf:resource="&sinaloa;person"/>
+        <lumify:title>Jose Antonio Peregrina Taboada</lumify:title>
+        <sinaloa:personWorksForPerson rdf:resource="&sinaloa;PERSON_Ismael_Zambada_Garcia"/>
+    </rdf:Description>
+
+    <rdf:Description rdf:about="&sinaloa;PERSON_Juan_Carlos_Cobo_Ledesma">
+        <rdf:type rdf:resource="&sinaloa;person"/>
+        <lumify:title>Juan Carlos Cobo Ledesma</lumify:title>
+        <sinaloa:personWorksForPerson rdf:resource="&sinaloa;PERSON_Alejandro_Flores_Cacho"/>
+    </rdf:Description>
+
+    <rdf:Description rdf:about="&sinaloa;PERSON_Joel_Valdez_Benites">
+        <rdf:type rdf:resource="&sinaloa;person"/>
+        <lumify:title>Joel Valdez Benites</lumify:title>
+        <sinaloa:personWorksForPerson rdf:resource="&sinaloa;PERSON_Jorge_Milton_Cifuentes_Villa"/>
+    </rdf:Description>
+
+    <rdf:Description rdf:about="&sinaloa;PERSON_Milvia_Yaneth_Restrepo_Zapata">
+        <rdf:type rdf:resource="&sinaloa;person"/>
+        <lumify:title>Milvia Yaneth Restrepo Zapata</lumify:title>
+        <sinaloa:personWorksForPerson rdf:resource="&sinaloa;PERSON_Jorge_Milton_Cifuentes_Villa"/>
+    </rdf:Description>
+
+    <rdf:Description rdf:about="&sinaloa;PERSON_Ofelioa_Monzon_Araujo">
+        <rdf:type rdf:resource="&sinaloa;person"/>
+        <lumify:title>Ofelioa Monzon Araujo</lumify:title>
+        <sinaloa:personIsLeaderOfOrganization rdf:resource="&sinaloa;COMPANY_Petrobarrancos"/>
+        <sinaloa:personIsLeaderOfOrganization rdf:resource="&sinaloa;COMPANY_Buenos_Aires_Servicios"/>
+        <sinaloa:personIsLeaderOfOrganization rdf:resource="&sinaloa;COMPANY_Estaciones_de_Servicios_Canarias"/>
+        <sinaloa:personIsLeaderOfOrganization rdf:resource="&sinaloa;COMPANY_Servicios_Chulavista"/>
+        <sinaloa:personIsLeaderOfOrganization rdf:resource="&sinaloa;COMPANY_Gasodiesel_y_Servicios_Ancona"/>
+        <sinaloa:personIsLeaderOfOrganization rdf:resource="&sinaloa;COMPANY_Gasolinera_y_Servicios_Villabonita"/>
+        <sinaloa:personIsLeaderOfOrganization rdf:resource="&sinaloa;COMPANY_Gasolinera_Alamos_Country"/>
+        <sinaloa:personWorksForPerson rdf:resource="&sinaloa;PERSON_Juan_Jose_Esparragoza_Moreno"/>
+    </rdf:Description>
+
+    <rdf:Description rdf:about="&sinaloa;PERSON_Jesus_Alfonso_Lopez_Diaz">
+        <rdf:type rdf:resource="&sinaloa;person"/>
+        <lumify:title>Jesus Alfonso Lopez Diaz</lumify:title>
+        <sinaloa:personWorksForPerson rdf:resource="&sinaloa;PERSON_Ismael_Zambada_Garcia"/>
+    </rdf:Description>
+
+    <rdf:Description rdf:about="&sinaloa;PERSON_Ovidio_Limon_Sanchez">
+        <rdf:type rdf:resource="&sinaloa;person"/>
+        <lumify:title>Ovidio Limon Sanchez</lumify:title>
+        <sinaloa:personWorksForPerson rdf:resource="&sinaloa;PERSON_Joaquin_Guzman_Loera"/>
+        <lumify:entityImageVertexId>FILE_limon.png</lumify:entityImageVertexId>
+        <sinaloa:entityHasImageRaw rdf:resource="&sinaloa;FILE_limon.png"/>
+    </rdf:Description>
+    <rdf:Description rdf:about="&sinaloa;FILE_limon.png">
+        <rdf:type rdf:resource="&sinaloa;image"/>
+        <lumify:title>Image of Ovidio Limon Sanchez</lumify:title>
+        <lumify:fileName>limon.png</lumify:fileName>
+        <lumify:raw>streamingValue:{"fileName": "peopleImages/limon.png"}</lumify:raw>
+    </rdf:Description>
+
+    <rdf:Description rdf:about="&sinaloa;PERSON_Jorge_Luis_Llanos_Gazia">
+        <rdf:type rdf:resource="&sinaloa;person"/>
+        <lumify:title>Jorge Luis Llanos Gazia</lumify:title>
+        <sinaloa:personIsLeaderOfOrganization rdf:resource="&sinaloa;COMPANY_Audio_Alarmas"/>
+        <sinaloa:personIsLeaderOfOrganization rdf:resource="&sinaloa;COMPANY_Basaltos_Tonala"/>
+    </rdf:Description>
+
+    <rdf:Description rdf:about="&sinaloa;PERSON_Ivan_Archivaldo_Guzman_Salazar">
+        <rdf:type rdf:resource="&sinaloa;person"/>
+        <lumify:title>Ivan Archivaldo Guzman Salazar</lumify:title>
+        <sinaloa:alias>El Chapito</sinaloa:alias>
+        <sinaloa:personWorksForPerson rdf:resource="&sinaloa;PERSON_Joaquin_Guzman_Loera"/>
+    </rdf:Description>
+
+    <rdf:Description rdf:about="&sinaloa;PERSON_Epifano_Zazueta_Urrea">
+        <rdf:type rdf:resource="&sinaloa;person"/>
+        <lumify:title>Epifano Zazueta Urrea</lumify:title>
+        <sinaloa:personWorksForPerson rdf:resource="&sinaloa;PERSON_Blanca_Margarita_Cazares_Salazar"/>
+    </rdf:Description>
+
+    <rdf:Description rdf:about="&sinaloa;PERSON_Jose_Widoblo_Hernandez">
+        <rdf:type rdf:resource="&sinaloa;person"/>
+        <lumify:title>Jose Widoblo Hernandez</lumify:title>
+        <sinaloa:personWorksForPerson rdf:resource="&sinaloa;PERSON_Alejandro_Flores_Cacho"/>
+    </rdf:Description>
+
+    <rdf:Description rdf:about="&sinaloa;PERSON_Teresa_de_Jesus_Cifuentes_Villa">
+        <rdf:type rdf:resource="&sinaloa;person"/>
+        <lumify:title>Teresa de Jesus Cifuentes Villa</lumify:title>
+        <sinaloa:personWorksForPerson rdf:resource="&sinaloa;PERSON_Jorge_Milton_Cifuentes_Villa"/>
+    </rdf:Description>
+
+
+    <!-- companies -->
+
+    <rdf:Description rdf:about="&sinaloa;COMPANY_Casa_de_Empeno_Guadalajara">
+        <rdf:type rdf:resource="&sinaloa;company"/>
+        <lumify:title>Casa de Empeno Guadalajara</lumify:title>
+        <sinaloa:organizationHeadquarteredAtLocation rdf:resource="&sinaloa;LOCATION_Zapopan"/>
+    </rdf:Description>
+
+    <rdf:Description rdf:about="&sinaloa;COMPANY_Fox_Fashion">
+        <rdf:type rdf:resource="&sinaloa;company"/>
+        <lumify:title>Fox Fashion</lumify:title>
+        <sinaloa:organizationHeadquarteredAtLocation rdf:resource="&sinaloa;LOCATION_Panama_City"/>
+        <lumify:entityImageVertexId>FILE_fox.png</lumify:entityImageVertexId>
+        <sinaloa:entityHasImageRaw rdf:resource="&sinaloa;FILE_fox.png"/>
+    </rdf:Description>
+    <rdf:Description rdf:about="&sinaloa;FILE_fox.png">
+        <rdf:type rdf:resource="&sinaloa;image"/>
+        <lumify:title>Image of Fox Fashion</lumify:title>
+        <lumify:fileName>fox.png</lumify:fileName>
+        <lumify:raw>streamingValue:{"fileName": "companyImages/fox.png"}</lumify:raw>
+    </rdf:Description>
+
+    <rdf:Description rdf:about="&sinaloa;COMPANY_Cocina_de_Tijuana">
+        <rdf:type rdf:resource="&sinaloa;company"/>
+        <lumify:title>Cocina de Tijuana</lumify:title>
+        <sinaloa:organizationHeadquarteredAtLocation rdf:resource="&sinaloa;LOCATION_Tijuana"/>
+    </rdf:Description>
+
+    <rdf:Description rdf:about="&sinaloa;COMPANY_Promo_Raiz">
+        <rdf:type rdf:resource="&sinaloa;company"/>
+        <lumify:title>Promo Raiz</lumify:title>
+        <sinaloa:organizationHeadquarteredAtLocation rdf:resource="&sinaloa;LOCATION_Medellin"/>
+    </rdf:Description>
+
+    <rdf:Description rdf:about="&sinaloa;COMPANY_IGA_LTDA.">
+        <rdf:type rdf:resource="&sinaloa;company"/>
+        <lumify:title>IGA LTDA.</lumify:title>
+        <sinaloa:organizationHeadquarteredAtLocation rdf:resource="&sinaloa;LOCATION_Itagui"/>
+    </rdf:Description>
+
+    <rdf:Description rdf:about="&sinaloa;COMPANY_Montray">
+        <rdf:type rdf:resource="&sinaloa;company"/>
+        <lumify:title>Montray</lumify:title>
+        <sinaloa:organizationHeadquarteredAtLocation rdf:resource="&sinaloa;LOCATION_Guadalajara"/>
+    </rdf:Description>
+
+    <rdf:Description rdf:about="&sinaloa;COMPANY_Cazper_Importaciones">
+        <rdf:type rdf:resource="&sinaloa;company"/>
+        <lumify:title>Cazper Importaciones</lumify:title>
+        <sinaloa:organizationHeadquarteredAtLocation rdf:resource="&sinaloa;LOCATION_Culiacan"/>
+        <lumify:entityImageVertexId>FILE_cazper.png</lumify:entityImageVertexId>
+        <sinaloa:entityHasImageRaw rdf:resource="&sinaloa;FILE_cazper.png"/>
+    </rdf:Description>
+    <rdf:Description rdf:about="&sinaloa;FILE_cazper.png">
+        <rdf:type rdf:resource="&sinaloa;image"/>
+        <lumify:title>Image of Cazper Importaciones</lumify:title>
+        <lumify:fileName>cazper.png</lumify:fileName>
+        <lumify:raw>streamingValue:{"fileName": "companyImages/cazper.png"}</lumify:raw>
+    </rdf:Description>
+
+    <rdf:Description rdf:about="&sinaloa;COMPANY_Multiservicios_Agsa">
+        <rdf:type rdf:resource="&sinaloa;company"/>
+        <lumify:title>Multiservicios Agsa</lumify:title>
+        <sinaloa:organizationHeadquarteredAtLocation rdf:resource="&sinaloa;LOCATION_Tijuana"/>
+    </rdf:Description>
+
+    <rdf:Description rdf:about="&sinaloa;COMPANY_Zarka_de_Mexico">
+        <rdf:type rdf:resource="&sinaloa;company"/>
+        <lumify:title>Zarka de Mexico</lumify:title>
+        <sinaloa:organizationHeadquarteredAtLocation rdf:resource="&sinaloa;LOCATION_Culiacan"/>
+    </rdf:Description>
+
+    <rdf:Description rdf:about="&sinaloa;COMPANY_Ruta_33_Motocicletas_y_Accesorios">
+        <rdf:type rdf:resource="&sinaloa;company"/>
+        <lumify:title>Ruta 33 Motocicletas y Accesorios</lumify:title>
+        <sinaloa:organizationHeadquarteredAtLocation rdf:resource="&sinaloa;LOCATION_Medellin"/>
+    </rdf:Description>
+
+    <rdf:Description rdf:about="&sinaloa;COMPANY_Sistema_de_Radio_de_Sinaloa">
+        <rdf:type rdf:resource="&sinaloa;company"/>
+        <lumify:title>Sistema de Radio de Sinaloa</lumify:title>
+        <sinaloa:organizationHeadquarteredAtLocation rdf:resource="&sinaloa;LOCATION_Culiacan"/>
+    </rdf:Description>
+
+    <rdf:Description rdf:about="&sinaloa;COMPANY_Monedeux_International_Services">
+        <rdf:type rdf:resource="&sinaloa;company"/>
+        <lumify:title>Monedeux International Services</lumify:title>
+        <sinaloa:organizationHeadquarteredAtLocation rdf:resource="&sinaloa;LOCATION_Panama_City"/>
+        <lumify:entityImageVertexId>FILE_monedeux.png</lumify:entityImageVertexId>
+        <sinaloa:entityHasImageRaw rdf:resource="&sinaloa;FILE_monedeux.png"/>
+    </rdf:Description>
+    <rdf:Description rdf:about="&sinaloa;FILE_monedeux.png">
+        <rdf:type rdf:resource="&sinaloa;image"/>
+        <lumify:title>Image of Monedeux International Services</lumify:title>
+        <lumify:fileName>monedeux.png</lumify:fileName>
+        <lumify:raw>streamingValue:{"fileName": "companyImages/monedeux.png"}</lumify:raw>
+    </rdf:Description>
+
+    <rdf:Description rdf:about="&sinaloa;COMPANY_Gasodiesel_y_Servicios_Ancona">
+        <rdf:type rdf:resource="&sinaloa;company"/>
+        <lumify:title>Gasodiesel y Servicios Ancona</lumify:title>
+        <sinaloa:organizationHeadquarteredAtLocation rdf:resource="&sinaloa;LOCATION_Culiacan"/>
+    </rdf:Description>
+
+    <rdf:Description rdf:about="&sinaloa;COMPANY_C.I._Metalurgia_Extractiva_de_Colombia">
+        <rdf:type rdf:resource="&sinaloa;company"/>
+        <lumify:title>C.I. Metalurgia Extractiva de Colombia</lumify:title>
+        <sinaloa:organizationHeadquarteredAtLocation rdf:resource="&sinaloa;LOCATION_Bogota"/>
+    </rdf:Description>
+
+    <rdf:Description rdf:about="&sinaloa;COMPANY_Estetica_Car_Wash">
+        <rdf:type rdf:resource="&sinaloa;company"/>
+        <lumify:title>Estetica Car Wash</lumify:title>
+        <sinaloa:organizationHeadquarteredAtLocation rdf:resource="&sinaloa;LOCATION_Zapopan"/>
+        <lumify:entityImageVertexId>FILE_wash.png</lumify:entityImageVertexId>
+        <sinaloa:entityHasImageRaw rdf:resource="&sinaloa;FILE_wash.png"/>
+    </rdf:Description>
+    <rdf:Description rdf:about="&sinaloa;FILE_wash.png">
+        <rdf:type rdf:resource="&sinaloa;image"/>
+        <lumify:title>Image of Estetica Car Wash</lumify:title>
+        <lumify:fileName>wash.png</lumify:fileName>
+        <lumify:raw>streamingValue:{"fileName": "companyImages/wash.png"}</lumify:raw>
+    </rdf:Description>
+
+    <rdf:Description rdf:about="&sinaloa;COMPANY_Sin-Mex_Importadora">
+        <rdf:type rdf:resource="&sinaloa;company"/>
+        <lumify:title>Sin-Mex Importadora</lumify:title>
+        <sinaloa:organizationHeadquarteredAtLocation rdf:resource="&sinaloa;LOCATION_Distrito_Federal"/>
+    </rdf:Description>
+
+    <rdf:Description rdf:about="&sinaloa;COMPANY_Toys_Factory">
+        <rdf:type rdf:resource="&sinaloa;company"/>
+        <lumify:title>Toys Factory</lumify:title>
+        <sinaloa:organizationHeadquarteredAtLocation rdf:resource="&sinaloa;LOCATION_Tijuana"/>
+    </rdf:Description>
+
+    <rdf:Description rdf:about="&sinaloa;COMPANY_Roble_de_Minas">
+        <rdf:type rdf:resource="&sinaloa;company"/>
+        <lumify:title>Roble de Minas</lumify:title>
+        <sinaloa:organizationHeadquarteredAtLocation rdf:resource="&sinaloa;LOCATION_Medellin"/>
+    </rdf:Description>
+
+    <rdf:Description rdf:about="&sinaloa;COMPANY_Mondedeux_Latina_America">
+        <rdf:type rdf:resource="&sinaloa;company"/>
+        <lumify:title>Mondedeux Latina America</lumify:title>
+        <sinaloa:organizationHeadquarteredAtLocation rdf:resource="&sinaloa;LOCATION_Mexico_City"/>
+        <lumify:entityImageVertexId>FILE_monedeux.png</lumify:entityImageVertexId>
+        <sinaloa:entityHasImageRaw rdf:resource="&sinaloa;FILE_monedeux.png"/>
+    </rdf:Description>
+    <rdf:Description rdf:about="&sinaloa;FILE_monedeux.png">
+        <rdf:type rdf:resource="&sinaloa;image"/>
+        <lumify:title>Image of Mondedeux Latina America</lumify:title>
+        <lumify:fileName>monedeux.png</lumify:fileName>
+        <lumify:raw>streamingValue:{"fileName": "companyImages/monedeux.png"}</lumify:raw>
+    </rdf:Description>
+
+    <rdf:Description rdf:about="&sinaloa;COMPANY_Audio_Alarmas">
+        <rdf:type rdf:resource="&sinaloa;company"/>
+        <lumify:title>Audio Alarmas</lumify:title>
+        <sinaloa:organizationHeadquarteredAtLocation rdf:resource="&sinaloa;LOCATION_Zapopan"/>
+    </rdf:Description>
+
+    <rdf:Description rdf:about="&sinaloa;COMPANY_Agropecuaria_la_Cruz">
+        <rdf:type rdf:resource="&sinaloa;company"/>
+        <lumify:title>Agropecuaria la Cruz</lumify:title>
+        <sinaloa:organizationHeadquarteredAtLocation rdf:resource="&sinaloa;LOCATION_Bogota"/>
+    </rdf:Description>
+
+    <rdf:Description rdf:about="&sinaloa;COMPANY_Hacienda_Cien_Anos_de_Tijuana">
+        <rdf:type rdf:resource="&sinaloa;company"/>
+        <lumify:title>Hacienda Cien Anos de Tijuana</lumify:title>
+        <sinaloa:organizationHeadquarteredAtLocation rdf:resource="&sinaloa;LOCATION_Tijuana"/>
+    </rdf:Description>
+
+    <rdf:Description rdf:about="&sinaloa;COMPANY_Gasolinera_y_Servicios_Villabonita">
+        <rdf:type rdf:resource="&sinaloa;company"/>
+        <lumify:title>Gasolinera y Servicios Villabonita</lumify:title>
+        <sinaloa:organizationHeadquarteredAtLocation rdf:resource="&sinaloa;LOCATION_Culiacan"/>
+    </rdf:Description>
+
+    <rdf:Description rdf:about="&sinaloa;COMPANY_Estancia_Infantil_Nino_Feliz">
+        <rdf:type rdf:resource="&sinaloa;company"/>
+        <lumify:title>Estancia Infantil Nino Feliz</lumify:title>
+        <sinaloa:organizationHeadquarteredAtLocation rdf:resource="&sinaloa;LOCATION_Culiacan"/>
+    </rdf:Description>
+
+    <rdf:Description rdf:about="&sinaloa;COMPANY_Agbas_Consultores">
+        <rdf:type rdf:resource="&sinaloa;company"/>
+        <lumify:title>Agbas Consultores</lumify:title>
+        <sinaloa:organizationHeadquarteredAtLocation rdf:resource="&sinaloa;LOCATION_Tijuana"/>
+    </rdf:Description>
+
+    <rdf:Description rdf:about="&sinaloa;COMPANY_Cubi_Cafe_Click_Cube_Mexico">
+        <rdf:type rdf:resource="&sinaloa;company"/>
+        <lumify:title>Cubi Cafe Click Cube Mexico</lumify:title>
+        <sinaloa:organizationHeadquarteredAtLocation rdf:resource="&sinaloa;LOCATION_Mexico_City"/>
+    </rdf:Description>
+
+    <rdf:Description rdf:about="&sinaloa;COMPANY_Technologia_Digital_y_Servicios">
+        <rdf:type rdf:resource="&sinaloa;company"/>
+        <lumify:title>Technologia Digital y Servicios</lumify:title>
+        <sinaloa:organizationHeadquarteredAtLocation rdf:resource="&sinaloa;LOCATION_Tijuana"/>
+    </rdf:Description>
+
+    <rdf:Description rdf:about="&sinaloa;COMPANY_Union_de_Constructores_Conusa">
+        <rdf:type rdf:resource="&sinaloa;company"/>
+        <lumify:title>Union de Constructores Conusa</lumify:title>
+        <sinaloa:organizationHeadquarteredAtLocation rdf:resource="&sinaloa;LOCATION_Bogota"/>
+        <lumify:entityImageVertexId>FILE_union.png</lumify:entityImageVertexId>
+        <sinaloa:entityHasImageRaw rdf:resource="&sinaloa;FILE_union.png"/>
+    </rdf:Description>
+    <rdf:Description rdf:about="&sinaloa;FILE_union.png">
+        <rdf:type rdf:resource="&sinaloa;image"/>
+        <lumify:title>Image of Union de Constructores Conusa</lumify:title>
+        <lumify:fileName>union.png</lumify:fileName>
+        <lumify:raw>streamingValue:{"fileName": "companyImages/union.png"}</lumify:raw>
+    </rdf:Description>
+
+    <rdf:Description rdf:about="&sinaloa;COMPANY_Fundacion_Salva_la_Selva">
+        <rdf:type rdf:resource="&sinaloa;company"/>
+        <lumify:title>Fundacion Salva la Selva</lumify:title>
+        <sinaloa:organizationHeadquarteredAtLocation rdf:resource="&sinaloa;LOCATION_Bogota"/>
+        <lumify:entityImageVertexId>FILE_salva.png</lumify:entityImageVertexId>
+        <sinaloa:entityHasImageRaw rdf:resource="&sinaloa;FILE_salva.png"/>
+    </rdf:Description>
+    <rdf:Description rdf:about="&sinaloa;FILE_salva.png">
+        <rdf:type rdf:resource="&sinaloa;image"/>
+        <lumify:title>Image of Fundacion Salva la Selva</lumify:title>
+        <lumify:fileName>salva.png</lumify:fileName>
+        <lumify:raw>streamingValue:{"fileName": "companyImages/salva.png"}</lumify:raw>
+    </rdf:Description>
+
+    <rdf:Description rdf:about="&sinaloa;COMPANY_Linea_Aerea_Pueblos_Amazonicos">
+        <rdf:type rdf:resource="&sinaloa;company"/>
+        <lumify:title>Linea Aerea Pueblos Amazonicos</lumify:title>
+        <sinaloa:organizationHeadquarteredAtLocation rdf:resource="&sinaloa;LOCATION_Bogota"/>
+    </rdf:Description>
+
+    <rdf:Description rdf:about="&sinaloa;COMPANY_Autotransportes_Jym">
+        <rdf:type rdf:resource="&sinaloa;company"/>
+        <lumify:title>Autotransportes Jym</lumify:title>
+        <sinaloa:organizationHeadquarteredAtLocation rdf:resource="&sinaloa;LOCATION_Culiacan"/>
+    </rdf:Description>
+
+    <rdf:Description rdf:about="&sinaloa;COMPANY_Gasolinera_Alamos_Country">
+        <rdf:type rdf:resource="&sinaloa;company"/>
+        <lumify:title>Gasolinera Alamos Country</lumify:title>
+        <sinaloa:organizationHeadquarteredAtLocation rdf:resource="&sinaloa;LOCATION_Culiacan"/>
+    </rdf:Description>
+
+    <rdf:Description rdf:about="&sinaloa;COMPANY_Obras_y_Proyectos_Piqueherva">
+        <rdf:type rdf:resource="&sinaloa;company"/>
+        <lumify:title>Obras y Proyectos Piqueherva</lumify:title>
+        <sinaloa:organizationHeadquarteredAtLocation rdf:resource="&sinaloa;LOCATION_Madrid"/>
+    </rdf:Description>
+
+    <rdf:Description rdf:about="&sinaloa;COMPANY_Establo_Puerto_Rico">
+        <rdf:type rdf:resource="&sinaloa;company"/>
+        <lumify:title>Establo Puerto Rico</lumify:title>
+        <sinaloa:organizationHeadquarteredAtLocation rdf:resource="&sinaloa;LOCATION_Culiacan"/>
+    </rdf:Description>
+
+    <rdf:Description rdf:about="&sinaloa;COMPANY_Comercializadora_Brimar's">
+        <rdf:type rdf:resource="&sinaloa;company"/>
+        <lumify:title>Comercializadora Brimar's</lumify:title>
+        <sinaloa:organizationHeadquarteredAtLocation rdf:resource="&sinaloa;LOCATION_Culiacan"/>
+    </rdf:Description>
+
+    <rdf:Description rdf:about="&sinaloa;COMPANY_Prenda_Todo">
+        <rdf:type rdf:resource="&sinaloa;company"/>
+        <lumify:title>Prenda Todo</lumify:title>
+        <sinaloa:organizationHeadquarteredAtLocation rdf:resource="&sinaloa;LOCATION_Guadalajara"/>
+    </rdf:Description>
+
+    <rdf:Description rdf:about="&sinaloa;COMPANY_Hotel_Paraiso_Resort_en_Arrendamiento">
+        <rdf:type rdf:resource="&sinaloa;company"/>
+        <lumify:title>Hotel Paraiso Resort en Arrendamiento</lumify:title>
+        <sinaloa:organizationHeadquarteredAtLocation rdf:resource="&sinaloa;LOCATION_Rivera"/>
+    </rdf:Description>
+
+    <rdf:Description rdf:about="&sinaloa;COMPANY_Comercializadora_Toquin">
+        <rdf:type rdf:resource="&sinaloa;company"/>
+        <lumify:title>Comercializadora Toquin</lumify:title>
+        <sinaloa:organizationHeadquarteredAtLocation rdf:resource="&sinaloa;LOCATION_Guadalajara"/>
+    </rdf:Description>
+
+    <rdf:Description rdf:about="&sinaloa;COMPANY_Inverpunto_del_Valle">
+        <rdf:type rdf:resource="&sinaloa;company"/>
+        <lumify:title>Inverpunto del Valle</lumify:title>
+        <sinaloa:organizationHeadquarteredAtLocation rdf:resource="&sinaloa;LOCATION_Cali"/>
+    </rdf:Description>
+
+    <rdf:Description rdf:about="&sinaloa;COMPANY_Criadero_las_Cabanas_LTDA">
+        <rdf:type rdf:resource="&sinaloa;company"/>
+        <lumify:title>Criadero las Cabanas LTDA</lumify:title>
+        <sinaloa:organizationHeadquarteredAtLocation rdf:resource="&sinaloa;LOCATION_Bogota"/>
+    </rdf:Description>
+
+    <rdf:Description rdf:about="&sinaloa;COMPANY_Arte_y_Diseno_de_Culiacan">
+        <rdf:type rdf:resource="&sinaloa;company"/>
+        <lumify:title>Arte y Diseno de Culiacan</lumify:title>
+        <sinaloa:organizationHeadquarteredAtLocation rdf:resource="&sinaloa;LOCATION_Culiacan"/>
+    </rdf:Description>
+
+    <rdf:Description rdf:about="&sinaloa;COMPANY_Gestores_del_Ecuador_Gestorum">
+        <rdf:type rdf:resource="&sinaloa;company"/>
+        <lumify:title>Gestores del Ecuador Gestorum</lumify:title>
+        <sinaloa:organizationHeadquarteredAtLocation rdf:resource="&sinaloa;LOCATION_Quito"/>
+    </rdf:Description>
+
+    <rdf:Description rdf:about="&sinaloa;COMPANY_Casa_Comercial_oro_Rapido">
+        <rdf:type rdf:resource="&sinaloa;company"/>
+        <lumify:title>Casa Comercial oro Rapido</lumify:title>
+        <sinaloa:organizationHeadquarteredAtLocation rdf:resource="&sinaloa;LOCATION_Girardet"/>
+    </rdf:Description>
+
+    <rdf:Description rdf:about="&sinaloa;COMPANY_Basaltos_Tonala">
+        <rdf:type rdf:resource="&sinaloa;company"/>
+        <lumify:title>Basaltos Tonala</lumify:title>
+        <sinaloa:organizationHeadquarteredAtLocation rdf:resource="&sinaloa;LOCATION_Tonala"/>
+    </rdf:Description>
+
+    <rdf:Description rdf:about="&sinaloa;COMPANY_Cifuentes_Uribe_y_Cia">
+        <rdf:type rdf:resource="&sinaloa;company"/>
+        <lumify:title>Cifuentes Uribe y Cia</lumify:title>
+        <sinaloa:organizationHeadquarteredAtLocation rdf:resource="&sinaloa;LOCATION_Medellin"/>
+    </rdf:Description>
+
+    <rdf:Description rdf:about="&sinaloa;COMPANY_Comercial_Domely">
+        <rdf:type rdf:resource="&sinaloa;company"/>
+        <lumify:title>Comercial Domely</lumify:title>
+        <sinaloa:organizationHeadquarteredAtLocation rdf:resource="&sinaloa;LOCATION_Culiacan"/>
+    </rdf:Description>
+
+    <rdf:Description rdf:about="&sinaloa;COMPANY_Gandaeria_la_Sorguita">
+        <rdf:type rdf:resource="&sinaloa;company"/>
+        <lumify:title>Gandaeria la Sorguita</lumify:title>
+        <sinaloa:organizationHeadquarteredAtLocation rdf:resource="&sinaloa;LOCATION_Medellin"/>
+        <lumify:entityImageVertexId>FILE_sorguita.png</lumify:entityImageVertexId>
+        <sinaloa:entityHasImageRaw rdf:resource="&sinaloa;FILE_sorguita.png"/>
+    </rdf:Description>
+    <rdf:Description rdf:about="&sinaloa;FILE_sorguita.png">
+        <rdf:type rdf:resource="&sinaloa;image"/>
+        <lumify:title>Image of Gandaeria la Sorguita</lumify:title>
+        <lumify:fileName>sorguita.png</lumify:fileName>
+        <lumify:raw>streamingValue:{"fileName": "companyImages/sorguita.png"}</lumify:raw>
+    </rdf:Description>
+
+    <rdf:Description rdf:about="&sinaloa;COMPANY_Nueva_Industria_de_Ganaderos_de_Culiacan">
+        <rdf:type rdf:resource="&sinaloa;company"/>
+        <lumify:title>Nueva Industria de Ganaderos de Culiacan</lumify:title>
+        <sinaloa:organizationHeadquarteredAtLocation rdf:resource="&sinaloa;LOCATION_Culiacan"/>
+        <lumify:entityImageVertexId>FILE_nueva.png</lumify:entityImageVertexId>
+        <sinaloa:entityHasImageRaw rdf:resource="&sinaloa;FILE_nueva.png"/>
+    </rdf:Description>
+    <rdf:Description rdf:about="&sinaloa;FILE_nueva.png">
+        <rdf:type rdf:resource="&sinaloa;image"/>
+        <lumify:title>Image of Nueva Industria de Ganaderos de Culiacan</lumify:title>
+        <lumify:fileName>nueva.png</lumify:fileName>
+        <lumify:raw>streamingValue:{"fileName": "companyImages/nueva.png"}</lumify:raw>
+    </rdf:Description>
+
+    <rdf:Description rdf:about="&sinaloa;COMPANY_Sepriv">
+        <rdf:type rdf:resource="&sinaloa;company"/>
+        <lumify:title>Sepriv</lumify:title>
+        <sinaloa:organizationHeadquarteredAtLocation rdf:resource="&sinaloa;LOCATION_Culiacan"/>
+    </rdf:Description>
+
+    <rdf:Description rdf:about="&sinaloa;COMPANY_Inversiones_Cifuentes_y_Cia">
+        <rdf:type rdf:resource="&sinaloa;company"/>
+        <lumify:title>Inversiones Cifuentes y Cia</lumify:title>
+        <sinaloa:organizationHeadquarteredAtLocation rdf:resource="&sinaloa;LOCATION_Medellin"/>
+    </rdf:Description>
+
+    <rdf:Description rdf:about="&sinaloa;COMPANY_Patraca">
+        <rdf:type rdf:resource="&sinaloa;company"/>
+        <lumify:title>Patraca</lumify:title>
+        <sinaloa:organizationHeadquarteredAtLocation rdf:resource="&sinaloa;LOCATION_Culiacan"/>
+    </rdf:Description>
+
+    <rdf:Description rdf:about="&sinaloa;COMPANY_Monedeux_Financial_Services_Colombia">
+        <rdf:type rdf:resource="&sinaloa;company"/>
+        <lumify:title>Monedeux Financial Services Colombia</lumify:title>
+        <sinaloa:organizationHeadquarteredAtLocation rdf:resource="&sinaloa;LOCATION_Bogota"/>
+        <lumify:entityImageVertexId>FILE_monedeux.png</lumify:entityImageVertexId>
+        <sinaloa:entityHasImageRaw rdf:resource="&sinaloa;FILE_monedeux.png"/>
+    </rdf:Description>
+    <rdf:Description rdf:about="&sinaloa;FILE_monedeux.png">
+        <rdf:type rdf:resource="&sinaloa;image"/>
+        <lumify:title>Image of Monedeux Financial Services Colombia</lumify:title>
+        <lumify:fileName>monedeux.png</lumify:fileName>
+        <lumify:raw>streamingValue:{"fileName": "companyImages/monedeux.png"}</lumify:raw>
+    </rdf:Description>
+
+    <rdf:Description rdf:about="&sinaloa;COMPANY_Monedeux_Europa">
+        <rdf:type rdf:resource="&sinaloa;company"/>
+        <lumify:title>Monedeux Europa</lumify:title>
+        <sinaloa:organizationHeadquarteredAtLocation rdf:resource="&sinaloa;LOCATION_Madrid"/>
+        <lumify:entityImageVertexId>FILE_monedeux.png</lumify:entityImageVertexId>
+        <sinaloa:entityHasImageRaw rdf:resource="&sinaloa;FILE_monedeux.png"/>
+    </rdf:Description>
+    <rdf:Description rdf:about="&sinaloa;FILE_monedeux.png">
+        <rdf:type rdf:resource="&sinaloa;image"/>
+        <lumify:title>Image of Monedeux Europa</lumify:title>
+        <lumify:fileName>monedeux.png</lumify:fileName>
+        <lumify:raw>streamingValue:{"fileName": "companyImages/monedeux.png"}</lumify:raw>
+    </rdf:Description>
+
+    <rdf:Description rdf:about="&sinaloa;COMPANY_Agricola_y_Ganadera_Cuemir">
+        <rdf:type rdf:resource="&sinaloa;company"/>
+        <lumify:title>Agricola y Ganadera Cuemir</lumify:title>
+        <sinaloa:organizationHeadquarteredAtLocation rdf:resource="&sinaloa;LOCATION_Tlajomulco_de_Zuniga"/>
+    </rdf:Description>
+
+    <rdf:Description rdf:about="&sinaloa;COMPANY_Monedeux_Financial_Services_North_America_Inc">
+        <rdf:type rdf:resource="&sinaloa;company"/>
+        <lumify:title>Monedeux Financial Services North America Inc</lumify:title>
+        <sinaloa:organizationHeadquarteredAtLocation rdf:resource="&sinaloa;LOCATION_Miami"/>
+    </rdf:Description>
+
+    <rdf:Description rdf:about="&sinaloa;COMPANY_Cross_Winds">
+        <rdf:type rdf:resource="&sinaloa;company"/>
+        <lumify:title>Cross Winds</lumify:title>
+        <sinaloa:organizationHeadquarteredAtLocation rdf:resource="&sinaloa;LOCATION_Panama_City"/>
+    </rdf:Description>
+
+    <rdf:Description rdf:about="&sinaloa;COMPANY_Federal_Capital_Group">
+        <rdf:type rdf:resource="&sinaloa;company"/>
+        <lumify:title>Federal Capital Group</lumify:title>
+        <sinaloa:organizationHeadquarteredAtLocation rdf:resource="&sinaloa;LOCATION_Panama_City"/>
+    </rdf:Description>
+
+    <rdf:Description rdf:about="&sinaloa;COMPANY_Parque_Acuatico_los_Casabeles">
+        <rdf:type rdf:resource="&sinaloa;company"/>
+        <lumify:title>Parque Acuatico los Casabeles</lumify:title>
+        <sinaloa:organizationHeadquarteredAtLocation rdf:resource="&sinaloa;LOCATION_Culiacan"/>
+        <lumify:entityImageVertexId>FILE_acuatico.png</lumify:entityImageVertexId>
+        <sinaloa:entityHasImageRaw rdf:resource="&sinaloa;FILE_acuatico.png"/>
+    </rdf:Description>
+    <rdf:Description rdf:about="&sinaloa;FILE_acuatico.png">
+        <rdf:type rdf:resource="&sinaloa;image"/>
+        <lumify:title>Image of Parque Acuatico los Casabeles</lumify:title>
+        <lumify:fileName>acuatico.png</lumify:fileName>
+        <lumify:raw>streamingValue:{"fileName": "companyImages/acuatico.png"}</lumify:raw>
+    </rdf:Description>
+
+    <rdf:Description rdf:about="&sinaloa;COMPANY_Ecovivero_el_Matorral">
+        <rdf:type rdf:resource="&sinaloa;company"/>
+        <lumify:title>Ecovivero el Matorral</lumify:title>
+        <sinaloa:organizationHeadquarteredAtLocation rdf:resource="&sinaloa;LOCATION_Medellin"/>
+    </rdf:Description>
+
+    <rdf:Description rdf:about="&sinaloa;COMPANY_Red_Mundial_Inmobiliaria">
+        <rdf:type rdf:resource="&sinaloa;company"/>
+        <lumify:title>Red Mundial Inmobiliaria</lumify:title>
+        <sinaloa:organizationHeadquarteredAtLocation rdf:resource="&sinaloa;LOCATION_Mexico_City"/>
+        <lumify:entityImageVertexId>FILE_mundial.png</lumify:entityImageVertexId>
+        <sinaloa:entityHasImageRaw rdf:resource="&sinaloa;FILE_mundial.png"/>
+    </rdf:Description>
+    <rdf:Description rdf:about="&sinaloa;FILE_mundial.png">
+        <rdf:type rdf:resource="&sinaloa;image"/>
+        <lumify:title>Image of Red Mundial Inmobiliaria</lumify:title>
+        <lumify:fileName>mundial.png</lumify:fileName>
+        <lumify:raw>streamingValue:{"fileName": "companyImages/mundial.png"}</lumify:raw>
+    </rdf:Description>
+
+    <rdf:Description rdf:about="&sinaloa;COMPANY_Comercial_Joana">
+        <rdf:type rdf:resource="&sinaloa;company"/>
+        <lumify:title>Comercial Joana</lumify:title>
+        <sinaloa:organizationHeadquarteredAtLocation rdf:resource="&sinaloa;LOCATION_Guadalajara"/>
+    </rdf:Description>
+
+    <rdf:Description rdf:about="&sinaloa;COMPANY_Le_Claude">
+        <rdf:type rdf:resource="&sinaloa;company"/>
+        <lumify:title>Le Claude</lumify:title>
+        <sinaloa:organizationHeadquarteredAtLocation rdf:resource="&sinaloa;LOCATION_Mexico_City"/>
+    </rdf:Description>
+
+    <rdf:Description rdf:about="&sinaloa;COMPANY_Inversiones_Hunel_LTDA">
+        <rdf:type rdf:resource="&sinaloa;company"/>
+        <lumify:title>Inversiones Hunel LTDA</lumify:title>
+        <sinaloa:organizationHeadquarteredAtLocation rdf:resource="&sinaloa;LOCATION_Bogota"/>
+    </rdf:Description>
+
+    <rdf:Description rdf:about="&sinaloa;COMPANY_C.I._Distribuidora_de_Servicios_Combustibles_y_Mineria">
+        <rdf:type rdf:resource="&sinaloa;company"/>
+        <lumify:title>C.I. Distribuidora de Servicios Combustibles y Mineria</lumify:title>
+        <sinaloa:organizationHeadquarteredAtLocation rdf:resource="&sinaloa;LOCATION_Bogota"/>
+        <lumify:entityImageVertexId>FILE_mineria.png</lumify:entityImageVertexId>
+        <sinaloa:entityHasImageRaw rdf:resource="&sinaloa;FILE_mineria.png"/>
+    </rdf:Description>
+    <rdf:Description rdf:about="&sinaloa;FILE_mineria.png">
+        <rdf:type rdf:resource="&sinaloa;image"/>
+        <lumify:title>Image of C.I. Distribuidora de Servicios Combustibles y Mineria</lumify:title>
+        <lumify:fileName>mineria.png</lumify:fileName>
+        <lumify:raw>streamingValue:{"fileName": "companyImages/mineria.png"}</lumify:raw>
+    </rdf:Description>
+
+    <rdf:Description rdf:about="&sinaloa;COMPANY_Parques_Tematicos">
+        <rdf:type rdf:resource="&sinaloa;company"/>
+        <lumify:title>Parques Tematicos</lumify:title>
+        <sinaloa:organizationHeadquarteredAtLocation rdf:resource="&sinaloa;LOCATION_Medellin"/>
+        <lumify:entityImageVertexId>FILE_tematicos.png</lumify:entityImageVertexId>
+        <sinaloa:entityHasImageRaw rdf:resource="&sinaloa;FILE_tematicos.png"/>
+    </rdf:Description>
+    <rdf:Description rdf:about="&sinaloa;FILE_tematicos.png">
+        <rdf:type rdf:resource="&sinaloa;image"/>
+        <lumify:title>Image of Parques Tematicos</lumify:title>
+        <lumify:fileName>tematicos.png</lumify:fileName>
+        <lumify:raw>streamingValue:{"fileName": "companyImages/tematicos.png"}</lumify:raw>
+    </rdf:Description>
+
+    <rdf:Description rdf:about="&sinaloa;COMPANY_Bio_Forestal">
+        <rdf:type rdf:resource="&sinaloa;company"/>
+        <lumify:title>Bio Forestal</lumify:title>
+        <sinaloa:organizationHeadquarteredAtLocation rdf:resource="&sinaloa;LOCATION_Medellin"/>
+        <lumify:entityImageVertexId>FILE_forestal.png</lumify:entityImageVertexId>
+        <sinaloa:entityHasImageRaw rdf:resource="&sinaloa;FILE_forestal.png"/>
+    </rdf:Description>
+    <rdf:Description rdf:about="&sinaloa;FILE_forestal.png">
+        <rdf:type rdf:resource="&sinaloa;image"/>
+        <lumify:title>Image of Bio Forestal</lumify:title>
+        <lumify:fileName>forestal.png</lumify:fileName>
+        <lumify:raw>streamingValue:{"fileName": "companyImages/forestal.png"}</lumify:raw>
+    </rdf:Description>
+
+    <rdf:Description rdf:about="&sinaloa;COMPANY_Lineas_Aereas_Andinas_Lincandisa">
+        <rdf:type rdf:resource="&sinaloa;company"/>
+        <lumify:title>Lineas Aereas Andinas Lincandisa</lumify:title>
+        <sinaloa:organizationHeadquarteredAtLocation rdf:resource="&sinaloa;LOCATION_Quito"/>
+    </rdf:Description>
+
+    <rdf:Description rdf:about="&sinaloa;COMPANY_Socialika_Rentas_y_Catering">
+        <rdf:type rdf:resource="&sinaloa;company"/>
+        <lumify:title>Socialika Rentas y Catering</lumify:title>
+        <sinaloa:organizationHeadquarteredAtLocation rdf:resource="&sinaloa;LOCATION_Jalisco"/>
+    </rdf:Description>
+
+    <rdf:Description rdf:about="&sinaloa;COMPANY_Fundacion_para_el_Bienestar_y_el_Porvenir">
+        <rdf:type rdf:resource="&sinaloa;company"/>
+        <lumify:title>Fundacion para el Bienestar y el Porvenir</lumify:title>
+        <sinaloa:organizationHeadquarteredAtLocation rdf:resource="&sinaloa;LOCATION_Medellin"/>
+        <lumify:entityImageVertexId>FILE_porvenir.png</lumify:entityImageVertexId>
+        <sinaloa:entityHasImageRaw rdf:resource="&sinaloa;FILE_porvenir.png"/>
+    </rdf:Description>
+    <rdf:Description rdf:about="&sinaloa;FILE_porvenir.png">
+        <rdf:type rdf:resource="&sinaloa;image"/>
+        <lumify:title>Image of Fundacion para el Bienestar y el Porvenir</lumify:title>
+        <lumify:fileName>porvenir.png</lumify:fileName>
+        <lumify:raw>streamingValue:{"fileName": "companyImages/porvenir.png"}</lumify:raw>
+    </rdf:Description>
+
+    <rdf:Description rdf:about="&sinaloa;COMPANY_Agro_y_Comercio_de_Santa_Barbara_Lagromer">
+        <rdf:type rdf:resource="&sinaloa;company"/>
+        <lumify:title>Agro y Comercio de Santa Barbara Lagromer</lumify:title>
+        <sinaloa:organizationHeadquarteredAtLocation rdf:resource="&sinaloa;LOCATION_Bogota"/>
+    </rdf:Description>
+
+    <rdf:Description rdf:about="&sinaloa;COMPANY_Consorcio_Inmobiliario_del_Valle_de_Culiacan">
+        <rdf:type rdf:resource="&sinaloa;company"/>
+        <lumify:title>Consorcio Inmobiliario del Valle de Culiacan</lumify:title>
+        <sinaloa:organizationHeadquarteredAtLocation rdf:resource="&sinaloa;LOCATION_Culiacan"/>
+    </rdf:Description>
+
+    <rdf:Description rdf:about="&sinaloa;COMPANY_Estetic_Carr_de_Occidente">
+        <rdf:type rdf:resource="&sinaloa;company"/>
+        <lumify:title>Estetic Carr de Occidente</lumify:title>
+        <sinaloa:organizationHeadquarteredAtLocation rdf:resource="&sinaloa;LOCATION_Zapopan"/>
+    </rdf:Description>
+
+    <rdf:Description rdf:about="&sinaloa;COMPANY_Crocker_Jeans_Station_Corporation">
+        <rdf:type rdf:resource="&sinaloa;company"/>
+        <lumify:title>Crocker Jeans Station Corporation</lumify:title>
+        <sinaloa:organizationHeadquarteredAtLocation rdf:resource="&sinaloa;LOCATION_Panama_City"/>
+    </rdf:Description>
+
+    <rdf:Description rdf:about="&sinaloa;COMPANY_DMR_C.I.">
+        <rdf:type rdf:resource="&sinaloa;company"/>
+        <lumify:title>DMR C.I.</lumify:title>
+        <sinaloa:organizationHeadquarteredAtLocation rdf:resource="&sinaloa;LOCATION_Bogota"/>
+        <lumify:entityImageVertexId>FILE_dmr.png</lumify:entityImageVertexId>
+        <sinaloa:entityHasImageRaw rdf:resource="&sinaloa;FILE_dmr.png"/>
+    </rdf:Description>
+    <rdf:Description rdf:about="&sinaloa;FILE_dmr.png">
+        <rdf:type rdf:resource="&sinaloa;image"/>
+        <lumify:title>Image of DMR C.I.</lumify:title>
+        <lumify:fileName>dmr.png</lumify:fileName>
+        <lumify:raw>streamingValue:{"fileName": "companyImages/dmr.png"}</lumify:raw>
+    </rdf:Description>
+
+    <rdf:Description rdf:about="&sinaloa;COMPANY_Transportadora_y_Comercializadora_Systole">
+        <rdf:type rdf:resource="&sinaloa;company"/>
+        <lumify:title>Transportadora y Comercializadora Systole</lumify:title>
+        <sinaloa:organizationHeadquarteredAtLocation rdf:resource="&sinaloa;LOCATION_Envigado"/>
+    </rdf:Description>
+
+    <rdf:Description rdf:about="&sinaloa;COMPANY_Petrobarrancos">
+        <rdf:type rdf:resource="&sinaloa;company"/>
+        <lumify:title>Petrobarrancos</lumify:title>
+        <sinaloa:organizationHeadquarteredAtLocation rdf:resource="&sinaloa;LOCATION_Culiacan"/>
+    </rdf:Description>
+
+    <rdf:Description rdf:about="&sinaloa;COMPANY_Compania_Agro_Comercial_Cueta">
+        <rdf:type rdf:resource="&sinaloa;company"/>
+        <lumify:title>Compania Agro Comercial Cueta</lumify:title>
+        <sinaloa:organizationHeadquarteredAtLocation rdf:resource="&sinaloa;LOCATION_Bogota"/>
+    </rdf:Description>
+
+    <rdf:Description rdf:about="&sinaloa;COMPANY_Piscilanea_Swimming_Pool_Company">
+        <rdf:type rdf:resource="&sinaloa;company"/>
+        <lumify:title>Piscilanea Swimming Pool Company</lumify:title>
+        <sinaloa:organizationHeadquarteredAtLocation rdf:resource="&sinaloa;LOCATION_Guadalajara"/>
+    </rdf:Description>
+
+    <rdf:Description rdf:about="&sinaloa;COMPANY_Dolphin_Dive_School">
+        <rdf:type rdf:resource="&sinaloa;company"/>
+        <lumify:title>Dolphin Dive School</lumify:title>
+        <sinaloa:organizationHeadquarteredAtLocation rdf:resource="&sinaloa;LOCATION_Cartagena"/>
+        <lumify:entityImageVertexId>FILE_dolphin.png</lumify:entityImageVertexId>
+        <sinaloa:entityHasImageRaw rdf:resource="&sinaloa;FILE_dolphin.png"/>
+    </rdf:Description>
+    <rdf:Description rdf:about="&sinaloa;FILE_dolphin.png">
+        <rdf:type rdf:resource="&sinaloa;image"/>
+        <lumify:title>Image of Dolphin Dive School</lumify:title>
+        <lumify:fileName>dolphin.png</lumify:fileName>
+        <lumify:raw>streamingValue:{"fileName": "companyImages/dolphin.png"}</lumify:raw>
+    </rdf:Description>
+
+    <rdf:Description rdf:about="&sinaloa;COMPANY_Rancho_Agricola_Ganadero_los_Mezquites">
+        <rdf:type rdf:resource="&sinaloa;company"/>
+        <lumify:title>Rancho Agricola Ganadero los Mezquites</lumify:title>
+        <sinaloa:organizationHeadquarteredAtLocation rdf:resource="&sinaloa;LOCATION_Culiacan"/>
+    </rdf:Description>
+
+    <rdf:Description rdf:about="&sinaloa;COMPANY_Hoteles_y_Bienes">
+        <rdf:type rdf:resource="&sinaloa;company"/>
+        <lumify:title>Hoteles y Bienes</lumify:title>
+        <sinaloa:organizationHeadquarteredAtLocation rdf:resource="&sinaloa;LOCATION_Bogota"/>
+    </rdf:Description>
+
+    <rdf:Description rdf:about="&sinaloa;COMPANY_Cooperativa_Avestruz_Cuemir">
+        <rdf:type rdf:resource="&sinaloa;company"/>
+        <lumify:title>Cooperativa Avestruz Cuemir</lumify:title>
+        <sinaloa:organizationHeadquarteredAtLocation rdf:resource="&sinaloa;LOCATION_Tlajomulco_de_Zuniga"/>
+    </rdf:Description>
+
+    <rdf:Description rdf:about="&sinaloa;COMPANY_Buenos_Aires_Servicios">
+        <rdf:type rdf:resource="&sinaloa;company"/>
+        <lumify:title>Buenos Aires Servicios</lumify:title>
+        <sinaloa:organizationHeadquarteredAtLocation rdf:resource="&sinaloa;LOCATION_Culiacan"/>
+    </rdf:Description>
+
+    <rdf:Description rdf:about="&sinaloa;COMPANY_Operadora_Nueva_Granada">
+        <rdf:type rdf:resource="&sinaloa;company"/>
+        <lumify:title>Operadora Nueva Granada</lumify:title>
+        <sinaloa:organizationHeadquarteredAtLocation rdf:resource="&sinaloa;LOCATION_Mexico_City"/>
+    </rdf:Description>
+
+    <rdf:Description rdf:about="&sinaloa;COMPANY_Casa_V_Banquet_Hall">
+        <rdf:type rdf:resource="&sinaloa;company"/>
+        <lumify:title>Casa V Banquet Hall</lumify:title>
+        <sinaloa:organizationHeadquarteredAtLocation rdf:resource="&sinaloa;LOCATION_Jalisco"/>
+    </rdf:Description>
+
+    <rdf:Description rdf:about="&sinaloa;COMPANY_Centro_Comercial_y_Habitacional_Lomas">
+        <rdf:type rdf:resource="&sinaloa;company"/>
+        <lumify:title>Centro Comercial y Habitacional Lomas</lumify:title>
+        <sinaloa:organizationHeadquarteredAtLocation rdf:resource="&sinaloa;LOCATION_Culiacan"/>
+    </rdf:Description>
+
+    <rdf:Description rdf:about="&sinaloa;COMPANY_C.I._Global_Investments">
+        <rdf:type rdf:resource="&sinaloa;company"/>
+        <lumify:title>C.I. Global Investments</lumify:title>
+        <sinaloa:organizationHeadquarteredAtLocation rdf:resource="&sinaloa;LOCATION_Medellin"/>
+    </rdf:Description>
+
+    <rdf:Description rdf:about="&sinaloa;COMPANY_Zarka_de_Occidente">
+        <rdf:type rdf:resource="&sinaloa;company"/>
+        <lumify:title>Zarka de Occidente</lumify:title>
+        <sinaloa:organizationHeadquarteredAtLocation rdf:resource="&sinaloa;LOCATION_Culiacan"/>
+    </rdf:Description>
+
+    <rdf:Description rdf:about="&sinaloa;COMPANY_Crocker_Jeans_Corp">
+        <rdf:type rdf:resource="&sinaloa;company"/>
+        <lumify:title>Crocker Jeans Corp</lumify:title>
+        <sinaloa:organizationHeadquarteredAtLocation rdf:resource="&sinaloa;LOCATION_Panama_City"/>
+    </rdf:Description>
+
+    <rdf:Description rdf:about="&sinaloa;COMPANY_Mexglobo">
+        <rdf:type rdf:resource="&sinaloa;company"/>
+        <lumify:title>Mexglobo</lumify:title>
+        <sinaloa:organizationHeadquarteredAtLocation rdf:resource="&sinaloa;LOCATION_Tijuana"/>
+    </rdf:Description>
+
+    <rdf:Description rdf:about="&sinaloa;COMPANY_Servicios_Chulavista">
+        <rdf:type rdf:resource="&sinaloa;company"/>
+        <lumify:title>Servicios Chulavista</lumify:title>
+        <sinaloa:organizationHeadquarteredAtLocation rdf:resource="&sinaloa;LOCATION_Culiacan"/>
+    </rdf:Description>
+
+    <rdf:Description rdf:about="&sinaloa;COMPANY_Comercializadora_Jalsin">
+        <rdf:type rdf:resource="&sinaloa;company"/>
+        <lumify:title>Comercializadora Jalsin</lumify:title>
+        <sinaloa:organizationHeadquarteredAtLocation rdf:resource="&sinaloa;LOCATION_Guadalajara"/>
+    </rdf:Description>
+
+    <rdf:Description rdf:about="&sinaloa;COMPANY_Operadora_Integral_de_Comercio">
+        <rdf:type rdf:resource="&sinaloa;company"/>
+        <lumify:title>Operadora Integral de Comercio</lumify:title>
+        <sinaloa:organizationHeadquarteredAtLocation rdf:resource="&sinaloa;LOCATION_Tijuana"/>
+    </rdf:Description>
+
+    <rdf:Description rdf:about="&sinaloa;COMPANY_Internetstations">
+        <rdf:type rdf:resource="&sinaloa;company"/>
+        <lumify:title>Internetstations</lumify:title>
+        <sinaloa:organizationHeadquarteredAtLocation rdf:resource="&sinaloa;LOCATION_Medellin"/>
+    </rdf:Description>
+
+    <rdf:Description rdf:about="&sinaloa;COMPANY_Estaciones_de_Servicios_Canarias">
+        <rdf:type rdf:resource="&sinaloa;company"/>
+        <lumify:title>Estaciones de Servicios Canarias</lumify:title>
+        <sinaloa:organizationHeadquarteredAtLocation rdf:resource="&sinaloa;LOCATION_Culiacan"/>
+    </rdf:Description>
+
+    <rdf:Description rdf:about="&sinaloa;COMPANY_Casa_Comercial_uni_Quince_Compraventa">
+        <rdf:type rdf:resource="&sinaloa;company"/>
+        <lumify:title>Casa Comercial uni Quince Compraventa</lumify:title>
+        <sinaloa:organizationHeadquarteredAtLocation rdf:resource="&sinaloa;LOCATION_Bogota"/>
+    </rdf:Description>
+
+
+    <!-- locations -->
+
+    <rdf:Description rdf:about="&sinaloa;LOCATION_Mexico_City">
+        <rdf:type rdf:resource="&sinaloa;location"/>
+        <lumify:title>Mexico City</lumify:title>
+    </rdf:Description>
+
+    <rdf:Description rdf:about="&sinaloa;LOCATION_Girardet">
+        <rdf:type rdf:resource="&sinaloa;location"/>
+        <lumify:title>Girardet</lumify:title>
+    </rdf:Description>
+
+    <rdf:Description rdf:about="&sinaloa;LOCATION_Distrito_Federal">
+        <rdf:type rdf:resource="&sinaloa;location"/>
+        <lumify:title>Distrito Federal</lumify:title>
+    </rdf:Description>
+
+    <rdf:Description rdf:about="&sinaloa;LOCATION_Quito">
+        <rdf:type rdf:resource="&sinaloa;location"/>
+        <lumify:title>Quito</lumify:title>
+    </rdf:Description>
+
+    <rdf:Description rdf:about="&sinaloa;LOCATION_Medellin">
+        <rdf:type rdf:resource="&sinaloa;location"/>
+        <lumify:title>Medellin</lumify:title>
+    </rdf:Description>
+
+    <rdf:Description rdf:about="&sinaloa;LOCATION_Tonala">
+        <rdf:type rdf:resource="&sinaloa;location"/>
+        <lumify:title>Tonala</lumify:title>
+    </rdf:Description>
+
+    <rdf:Description rdf:about="&sinaloa;LOCATION_Bogota">
+        <rdf:type rdf:resource="&sinaloa;location"/>
+        <lumify:title>Bogota</lumify:title>
+    </rdf:Description>
+
+    <rdf:Description rdf:about="&sinaloa;LOCATION_Madrid">
+        <rdf:type rdf:resource="&sinaloa;location"/>
+        <lumify:title>Madrid</lumify:title>
+    </rdf:Description>
+
+    <rdf:Description rdf:about="&sinaloa;LOCATION_Culiacan">
+        <rdf:type rdf:resource="&sinaloa;location"/>
+        <lumify:title>Culiacan</lumify:title>
+    </rdf:Description>
+
+    <rdf:Description rdf:about="&sinaloa;LOCATION_Envigado">
+        <rdf:type rdf:resource="&sinaloa;location"/>
+        <lumify:title>Envigado</lumify:title>
+    </rdf:Description>
+
+    <rdf:Description rdf:about="&sinaloa;LOCATION_Guadalajara">
+        <rdf:type rdf:resource="&sinaloa;location"/>
+        <lumify:title>Guadalajara</lumify:title>
+    </rdf:Description>
+
+    <rdf:Description rdf:about="&sinaloa;LOCATION_Cali">
+        <rdf:type rdf:resource="&sinaloa;location"/>
+        <lumify:title>Cali</lumify:title>
+    </rdf:Description>
+
+    <rdf:Description rdf:about="&sinaloa;LOCATION_Zapopan">
+        <rdf:type rdf:resource="&sinaloa;location"/>
+        <lumify:title>Zapopan</lumify:title>
+    </rdf:Description>
+
+    <rdf:Description rdf:about="&sinaloa;LOCATION_Jalisco">
+        <rdf:type rdf:resource="&sinaloa;location"/>
+        <lumify:title>Jalisco</lumify:title>
+    </rdf:Description>
+
+    <rdf:Description rdf:about="&sinaloa;LOCATION_Tijuana">
+        <rdf:type rdf:resource="&sinaloa;location"/>
+        <lumify:title>Tijuana</lumify:title>
+    </rdf:Description>
+
+    <rdf:Description rdf:about="&sinaloa;LOCATION_Miami">
+        <rdf:type rdf:resource="&sinaloa;location"/>
+        <lumify:title>Miami</lumify:title>
+    </rdf:Description>
+
+    <rdf:Description rdf:about="&sinaloa;LOCATION_Tlajomulco_de_Zuniga">
+        <rdf:type rdf:resource="&sinaloa;location"/>
+        <lumify:title>Tlajomulco de Zuniga</lumify:title>
+    </rdf:Description>
+
+    <rdf:Description rdf:about="&sinaloa;LOCATION_Panama_City">
+        <rdf:type rdf:resource="&sinaloa;location"/>
+        <lumify:title>Panama City</lumify:title>
+    </rdf:Description>
+
+    <rdf:Description rdf:about="&sinaloa;LOCATION_Itagui">
+        <rdf:type rdf:resource="&sinaloa;location"/>
+        <lumify:title>Itagui</lumify:title>
+    </rdf:Description>
+
+    <rdf:Description rdf:about="&sinaloa;LOCATION_Rivera">
+        <rdf:type rdf:resource="&sinaloa;location"/>
+        <lumify:title>Rivera</lumify:title>
+    </rdf:Description>
+
+    <rdf:Description rdf:about="&sinaloa;LOCATION_Cartagena">
+        <rdf:type rdf:resource="&sinaloa;location"/>
+        <lumify:title>Cartagena</lumify:title>
+    </rdf:Description>
+
+
+    <!-- drugTraffickingOrganization -->
+
+    <rdf:Description rdf:about="&sinaloa;ORG_Sinaloa_Cartel">
+        <rdf:type rdf:resource="&sinaloa;drugTraffickingOrganization"/>
+        <lumify:title>Sinaloa Cartel</lumify:title>
+    </rdf:Description>
+
+    <rdf:Description rdf:about="&sinaloa;ORG_Juarez_Cartel">
+        <rdf:type rdf:resource="&sinaloa;drugTraffickingOrganization"/>
+        <lumify:title>Juarez Cartel</lumify:title>
+    </rdf:Description>
+
+    <rdf:Description rdf:about="&sinaloa;ORG_Cuellar_Hurtado_Network">
+        <rdf:type rdf:resource="&sinaloa;drugTraffickingOrganization"/>
+        <lumify:title>Cuellar Hurtado Network</lumify:title>
+    </rdf:Description>
+
+    <rdf:Description rdf:about="&sinaloa;ORG_Cifuentes-Villa_Drug_Trafficking_Organization">
+        <rdf:type rdf:resource="&sinaloa;drugTraffickingOrganization"/>
+        <lumify:title>Cifuentes-Villa Drug Trafficking Organization</lumify:title>
+    </rdf:Description>
+
+
+    <!-- countries -->
+
+    <rdf:Description rdf:about="&sinaloa;COUNTRY_Republic_of_Turkey_(TR,_00)">
+        <rdf:type rdf:resource="&sinaloa;country"/>
+        <lumify:title>Republic of Turkey (TR, 00)</lumify:title>
+        <lumify:entityImageVertexId>FILE_Turkey.png</lumify:entityImageVertexId>
+        <sinaloa:entityHasImageRaw rdf:resource="&sinaloa;FILE_Turkey.png"/>
+    </rdf:Description>
+    <rdf:Description rdf:about="&sinaloa;FILE_Turkey.png">
+        <rdf:type rdf:resource="&sinaloa;image"/>
+        <lumify:title>Image of Republic of Turkey (TR, 00)</lumify:title>
+        <lumify:fileName>Turkey.png</lumify:fileName>
+        <lumify:raw>streamingValue:{"fileName": "flags/Turkey.png"}</lumify:raw>
+    </rdf:Description>
+
+    <rdf:Description rdf:about="&sinaloa;COUNTRY_Republic_of_Ecuador_(EC,_00)">
+        <rdf:type rdf:resource="&sinaloa;country"/>
+        <lumify:title>Republic of Ecuador (EC, 00)</lumify:title>
+        <lumify:entityImageVertexId>FILE_Ecuador.png</lumify:entityImageVertexId>
+        <sinaloa:entityHasImageRaw rdf:resource="&sinaloa;FILE_Ecuador.png"/>
+    </rdf:Description>
+    <rdf:Description rdf:about="&sinaloa;FILE_Ecuador.png">
+        <rdf:type rdf:resource="&sinaloa;image"/>
+        <lumify:title>Image of Republic of Ecuador (EC, 00)</lumify:title>
+        <lumify:fileName>Ecuador.png</lumify:fileName>
+        <lumify:raw>streamingValue:{"fileName": "flags/Ecuador.png"}</lumify:raw>
+    </rdf:Description>
+
+    <rdf:Description rdf:about="&sinaloa;COUNTRY_People's_Republic_of_China_(CN,_00)">
+        <rdf:type rdf:resource="&sinaloa;country"/>
+        <lumify:title>People's Republic of China (CN, 00)</lumify:title>
+        <lumify:entityImageVertexId>FILE_China.png</lumify:entityImageVertexId>
+        <sinaloa:entityHasImageRaw rdf:resource="&sinaloa;FILE_China.png"/>
+    </rdf:Description>
+    <rdf:Description rdf:about="&sinaloa;FILE_China.png">
+        <rdf:type rdf:resource="&sinaloa;image"/>
+        <lumify:title>Image of People's Republic of China (CN, 00)</lumify:title>
+        <lumify:fileName>China.png</lumify:fileName>
+        <lumify:raw>streamingValue:{"fileName": "flags/China.png"}</lumify:raw>
+    </rdf:Description>
+
+    <rdf:Description rdf:about="&sinaloa;COUNTRY_Republic_of_Korea_(KR,_00)">
+        <rdf:type rdf:resource="&sinaloa;country"/>
+        <lumify:title>Republic of Korea (KR, 00)</lumify:title>
+        <lumify:entityImageVertexId>FILE_South_Korea.png</lumify:entityImageVertexId>
+        <sinaloa:entityHasImageRaw rdf:resource="&sinaloa;FILE_South_Korea.png"/>
+    </rdf:Description>
+    <rdf:Description rdf:about="&sinaloa;FILE_South_Korea.png">
+        <rdf:type rdf:resource="&sinaloa;image"/>
+        <lumify:title>Image of Republic of Korea (KR, 00)</lumify:title>
+        <lumify:fileName>South_Korea.png</lumify:fileName>
+        <lumify:raw>streamingValue:{"fileName": "flags/South_Korea.png"}</lumify:raw>
+    </rdf:Description>
+
+    <rdf:Description rdf:about="&sinaloa;COUNTRY_Socialist_Republic_of_Vietnam_(VN,_00)">
+        <rdf:type rdf:resource="&sinaloa;country"/>
+        <lumify:title>Socialist Republic of Vietnam (VN, 00)</lumify:title>
+        <lumify:entityImageVertexId>FILE_Vietnam.png</lumify:entityImageVertexId>
+        <sinaloa:entityHasImageRaw rdf:resource="&sinaloa;FILE_Vietnam.png"/>
+    </rdf:Description>
+    <rdf:Description rdf:about="&sinaloa;FILE_Vietnam.png">
+        <rdf:type rdf:resource="&sinaloa;image"/>
+        <lumify:title>Image of Socialist Republic of Vietnam (VN, 00)</lumify:title>
+        <lumify:fileName>Vietnam.png</lumify:fileName>
+        <lumify:raw>streamingValue:{"fileName": "flags/Vietnam.png"}</lumify:raw>
+    </rdf:Description>
+
+    <rdf:Description rdf:about="&sinaloa;COUNTRY_Republic_of_France_(FR,_00)">
+        <rdf:type rdf:resource="&sinaloa;country"/>
+        <lumify:title>Republic of France (FR, 00)</lumify:title>
+        <lumify:entityImageVertexId>FILE_France.png</lumify:entityImageVertexId>
+        <sinaloa:entityHasImageRaw rdf:resource="&sinaloa;FILE_France.png"/>
+    </rdf:Description>
+    <rdf:Description rdf:about="&sinaloa;FILE_France.png">
+        <rdf:type rdf:resource="&sinaloa;image"/>
+        <lumify:title>Image of Republic of France (FR, 00)</lumify:title>
+        <lumify:fileName>France.png</lumify:fileName>
+        <lumify:raw>streamingValue:{"fileName": "flags/France.png"}</lumify:raw>
+    </rdf:Description>
+
+    <rdf:Description rdf:about="&sinaloa;COUNTRY_Canada_(CA,_00)">
+        <rdf:type rdf:resource="&sinaloa;country"/>
+        <lumify:title>Canada (CA, 00)</lumify:title>
+        <lumify:entityImageVertexId>FILE_Canada.png</lumify:entityImageVertexId>
+        <sinaloa:entityHasImageRaw rdf:resource="&sinaloa;FILE_Canada.png"/>
+    </rdf:Description>
+    <rdf:Description rdf:about="&sinaloa;FILE_Canada.png">
+        <rdf:type rdf:resource="&sinaloa;image"/>
+        <lumify:title>Image of Canada (CA, 00)</lumify:title>
+        <lumify:fileName>Canada.png</lumify:fileName>
+        <lumify:raw>streamingValue:{"fileName": "flags/Canada.png"}</lumify:raw>
+    </rdf:Description>
+
+    <rdf:Description rdf:about="&sinaloa;COUNTRY_Republic_of_the_Sudan_(SD,_00)">
+        <rdf:type rdf:resource="&sinaloa;country"/>
+        <lumify:title>Republic of the Sudan (SD, 00)</lumify:title>
+        <lumify:entityImageVertexId>FILE_Sudan.png</lumify:entityImageVertexId>
+        <sinaloa:entityHasImageRaw rdf:resource="&sinaloa;FILE_Sudan.png"/>
+    </rdf:Description>
+    <rdf:Description rdf:about="&sinaloa;FILE_Sudan.png">
+        <rdf:type rdf:resource="&sinaloa;image"/>
+        <lumify:title>Image of Republic of the Sudan (SD, 00)</lumify:title>
+        <lumify:fileName>Sudan.png</lumify:fileName>
+        <lumify:raw>streamingValue:{"fileName": "flags/Sudan.png"}</lumify:raw>
+    </rdf:Description>
+
+    <rdf:Description rdf:about="&sinaloa;COUNTRY_Federative_Republic_of_Brazil_(BR,_00)">
+        <rdf:type rdf:resource="&sinaloa;country"/>
+        <lumify:title>Federative Republic of Brazil (BR, 00)</lumify:title>
+        <lumify:entityImageVertexId>FILE_Brazil.png</lumify:entityImageVertexId>
+        <sinaloa:entityHasImageRaw rdf:resource="&sinaloa;FILE_Brazil.png"/>
+    </rdf:Description>
+    <rdf:Description rdf:about="&sinaloa;FILE_Brazil.png">
+        <rdf:type rdf:resource="&sinaloa;image"/>
+        <lumify:title>Image of Federative Republic of Brazil (BR, 00)</lumify:title>
+        <lumify:fileName>Brazil.png</lumify:fileName>
+        <lumify:raw>streamingValue:{"fileName": "flags/Brazil.png"}</lumify:raw>
+    </rdf:Description>
+
+    <rdf:Description rdf:about="&sinaloa;COUNTRY_Democratic_People's_Republic_of_Korea_(KP,_00)">
+        <rdf:type rdf:resource="&sinaloa;country"/>
+        <lumify:title>Democratic People's Republic of Korea (KP, 00)</lumify:title>
+        <lumify:entityImageVertexId>FILE_North_Korea.png</lumify:entityImageVertexId>
+        <sinaloa:entityHasImageRaw rdf:resource="&sinaloa;FILE_North_Korea.png"/>
+    </rdf:Description>
+    <rdf:Description rdf:about="&sinaloa;FILE_North_Korea.png">
+        <rdf:type rdf:resource="&sinaloa;image"/>
+        <lumify:title>Image of Democratic People's Republic of Korea (KP, 00)</lumify:title>
+        <lumify:fileName>North_Korea.png</lumify:fileName>
+        <lumify:raw>streamingValue:{"fileName": "flags/North_Korea.png"}</lumify:raw>
+    </rdf:Description>
+
+    <rdf:Description rdf:about="&sinaloa;COUNTRY_Tunisian_Republic_(TN,_00)">
+        <rdf:type rdf:resource="&sinaloa;country"/>
+        <lumify:title>Tunisian Republic (TN, 00)</lumify:title>
+        <lumify:entityImageVertexId>FILE_Tunisian.png</lumify:entityImageVertexId>
+        <sinaloa:entityHasImageRaw rdf:resource="&sinaloa;FILE_Tunisian.png"/>
+    </rdf:Description>
+    <rdf:Description rdf:about="&sinaloa;FILE_Tunisian.png">
+        <rdf:type rdf:resource="&sinaloa;image"/>
+        <lumify:title>Image of Tunisian Republic (TN, 00)</lumify:title>
+        <lumify:fileName>Tunisian.png</lumify:fileName>
+        <lumify:raw>streamingValue:{"fileName": "flags/Tunisian.png"}</lumify:raw>
+    </rdf:Description>
+
+    <rdf:Description rdf:about="&sinaloa;COUNTRY_Republic_of_Cuba_(CU,_00)">
+        <rdf:type rdf:resource="&sinaloa;country"/>
+        <lumify:title>Republic of Cuba (CU, 00)</lumify:title>
+        <lumify:entityImageVertexId>FILE_Cuba.png</lumify:entityImageVertexId>
+        <sinaloa:entityHasImageRaw rdf:resource="&sinaloa;FILE_Cuba.png"/>
+    </rdf:Description>
+    <rdf:Description rdf:about="&sinaloa;FILE_Cuba.png">
+        <rdf:type rdf:resource="&sinaloa;image"/>
+        <lumify:title>Image of Republic of Cuba (CU, 00)</lumify:title>
+        <lumify:fileName>Cuba.png</lumify:fileName>
+        <lumify:raw>streamingValue:{"fileName": "flags/Cuba.png"}</lumify:raw>
+    </rdf:Description>
+
+    <rdf:Description rdf:about="&sinaloa;COUNTRY_Republic_of_El_Salvador_(SV,_00)">
+        <rdf:type rdf:resource="&sinaloa;country"/>
+        <lumify:title>Republic of El Salvador (SV, 00)</lumify:title>
+        <lumify:entityImageVertexId>FILE_El_Salvador.png</lumify:entityImageVertexId>
+        <sinaloa:entityHasImageRaw rdf:resource="&sinaloa;FILE_El_Salvador.png"/>
+    </rdf:Description>
+    <rdf:Description rdf:about="&sinaloa;FILE_El_Salvador.png">
+        <rdf:type rdf:resource="&sinaloa;image"/>
+        <lumify:title>Image of Republic of El Salvador (SV, 00)</lumify:title>
+        <lumify:fileName>El_Salvador.png</lumify:fileName>
+        <lumify:raw>streamingValue:{"fileName": "flags/El_Salvador.png"}</lumify:raw>
+    </rdf:Description>
+
+    <rdf:Description rdf:about="&sinaloa;COUNTRY_Republic_of_Costa_Rica_(CR,_00)">
+        <rdf:type rdf:resource="&sinaloa;country"/>
+        <lumify:title>Republic of Costa Rica (CR, 00)</lumify:title>
+        <lumify:entityImageVertexId>FILE_Costa_Rica.png</lumify:entityImageVertexId>
+        <sinaloa:entityHasImageRaw rdf:resource="&sinaloa;FILE_Costa_Rica.png"/>
+    </rdf:Description>
+    <rdf:Description rdf:about="&sinaloa;FILE_Costa_Rica.png">
+        <rdf:type rdf:resource="&sinaloa;image"/>
+        <lumify:title>Image of Republic of Costa Rica (CR, 00)</lumify:title>
+        <lumify:fileName>Costa_Rica.png</lumify:fileName>
+        <lumify:raw>streamingValue:{"fileName": "flags/Costa_Rica.png"}</lumify:raw>
+    </rdf:Description>
+
+    <rdf:Description rdf:about="&sinaloa;COUNTRY_Dominican_Republic_(DO,_00)">
+        <rdf:type rdf:resource="&sinaloa;country"/>
+        <lumify:title>Dominican Republic (DO, 00)</lumify:title>
+        <lumify:entityImageVertexId>FILE_Dominican_Republic.png</lumify:entityImageVertexId>
+        <sinaloa:entityHasImageRaw rdf:resource="&sinaloa;FILE_Dominican_Republic.png"/>
+    </rdf:Description>
+    <rdf:Description rdf:about="&sinaloa;FILE_Dominican_Republic.png">
+        <rdf:type rdf:resource="&sinaloa;image"/>
+        <lumify:title>Image of Dominican Republic (DO, 00)</lumify:title>
+        <lumify:fileName>Dominican_Republic.png</lumify:fileName>
+        <lumify:raw>streamingValue:{"fileName": "flags/Dominican_Republic.png"}</lumify:raw>
+    </rdf:Description>
+
+    <rdf:Description rdf:about="&sinaloa;COUNTRY_Republic_of_Rwanda_(RW,_00)">
+        <rdf:type rdf:resource="&sinaloa;country"/>
+        <lumify:title>Republic of Rwanda (RW, 00)</lumify:title>
+        <lumify:entityImageVertexId>FILE_Rwanda.png</lumify:entityImageVertexId>
+        <sinaloa:entityHasImageRaw rdf:resource="&sinaloa;FILE_Rwanda.png"/>
+    </rdf:Description>
+    <rdf:Description rdf:about="&sinaloa;FILE_Rwanda.png">
+        <rdf:type rdf:resource="&sinaloa;image"/>
+        <lumify:title>Image of Republic of Rwanda (RW, 00)</lumify:title>
+        <lumify:fileName>Rwanda.png</lumify:fileName>
+        <lumify:raw>streamingValue:{"fileName": "flags/Rwanda.png"}</lumify:raw>
+    </rdf:Description>
+
+    <rdf:Description rdf:about="&sinaloa;COUNTRY_Jamaica_(JM,_00)">
+        <rdf:type rdf:resource="&sinaloa;country"/>
+        <lumify:title>Jamaica (JM, 00)</lumify:title>
+        <lumify:entityImageVertexId>FILE_Jamaica.png</lumify:entityImageVertexId>
+        <sinaloa:entityHasImageRaw rdf:resource="&sinaloa;FILE_Jamaica.png"/>
+    </rdf:Description>
+    <rdf:Description rdf:about="&sinaloa;FILE_Jamaica.png">
+        <rdf:type rdf:resource="&sinaloa;image"/>
+        <lumify:title>Image of Jamaica (JM, 00)</lumify:title>
+        <lumify:fileName>Jamaica.png</lumify:fileName>
+        <lumify:raw>streamingValue:{"fileName": "flags/Jamaica.png"}</lumify:raw>
+    </rdf:Description>
+
+    <rdf:Description rdf:about="&sinaloa;COUNTRY_Federal_Republic_of_Germany_(DE,_00)">
+        <rdf:type rdf:resource="&sinaloa;country"/>
+        <lumify:title>Federal Republic of Germany (DE, 00)</lumify:title>
+        <lumify:entityImageVertexId>FILE_Germany.png</lumify:entityImageVertexId>
+        <sinaloa:entityHasImageRaw rdf:resource="&sinaloa;FILE_Germany.png"/>
+    </rdf:Description>
+    <rdf:Description rdf:about="&sinaloa;FILE_Germany.png">
+        <rdf:type rdf:resource="&sinaloa;image"/>
+        <lumify:title>Image of Federal Republic of Germany (DE, 00)</lumify:title>
+        <lumify:fileName>Germany.png</lumify:fileName>
+        <lumify:raw>streamingValue:{"fileName": "flags/Germany.png"}</lumify:raw>
+    </rdf:Description>
+
+    <rdf:Description rdf:about="&sinaloa;COUNTRY_Commonwealth_of_The_Bahamas_(BS,_00)">
+        <rdf:type rdf:resource="&sinaloa;country"/>
+        <lumify:title>Commonwealth of The Bahamas (BS, 00)</lumify:title>
+        <lumify:entityImageVertexId>FILE_Bahamas.png</lumify:entityImageVertexId>
+        <sinaloa:entityHasImageRaw rdf:resource="&sinaloa;FILE_Bahamas.png"/>
+    </rdf:Description>
+    <rdf:Description rdf:about="&sinaloa;FILE_Bahamas.png">
+        <rdf:type rdf:resource="&sinaloa;image"/>
+        <lumify:title>Image of Commonwealth of The Bahamas (BS, 00)</lumify:title>
+        <lumify:fileName>Bahamas.png</lumify:fileName>
+        <lumify:raw>streamingValue:{"fileName": "flags/Bahamas.png"}</lumify:raw>
+    </rdf:Description>
+
+    <rdf:Description rdf:about="&sinaloa;COUNTRY_Republic_of_Benin_(BJ,_00)">
+        <rdf:type rdf:resource="&sinaloa;country"/>
+        <lumify:title>Republic of Benin (BJ, 00)</lumify:title>
+        <lumify:entityImageVertexId>FILE_Benin.png</lumify:entityImageVertexId>
+        <sinaloa:entityHasImageRaw rdf:resource="&sinaloa;FILE_Benin.png"/>
+    </rdf:Description>
+    <rdf:Description rdf:about="&sinaloa;FILE_Benin.png">
+        <rdf:type rdf:resource="&sinaloa;image"/>
+        <lumify:title>Image of Republic of Benin (BJ, 00)</lumify:title>
+        <lumify:fileName>Benin.png</lumify:fileName>
+        <lumify:raw>streamingValue:{"fileName": "flags/Benin.png"}</lumify:raw>
+    </rdf:Description>
+
+    <rdf:Description rdf:about="&sinaloa;COUNTRY_Mexico_(MX,_00)">
+        <rdf:type rdf:resource="&sinaloa;country"/>
+        <lumify:title>Mexico (MX, 00)</lumify:title>
+        <lumify:entityImageVertexId>FILE_Mexico.png</lumify:entityImageVertexId>
+        <sinaloa:entityHasImageRaw rdf:resource="&sinaloa;FILE_Mexico.png"/>
+    </rdf:Description>
+    <rdf:Description rdf:about="&sinaloa;FILE_Mexico.png">
+        <rdf:type rdf:resource="&sinaloa;image"/>
+        <lumify:title>Image of Mexico (MX, 00)</lumify:title>
+        <lumify:fileName>Mexico.png</lumify:fileName>
+        <lumify:raw>streamingValue:{"fileName": "flags/Mexico.png"}</lumify:raw>
+    </rdf:Description>
+
+    <rdf:Description rdf:about="&sinaloa;COUNTRY_Kingdom_of_Spain_(ES,_00)">
+        <rdf:type rdf:resource="&sinaloa;country"/>
+        <lumify:title>Kingdom of Spain (ES, 00)</lumify:title>
+        <lumify:entityImageVertexId>FILE_Spain.png</lumify:entityImageVertexId>
+        <sinaloa:entityHasImageRaw rdf:resource="&sinaloa;FILE_Spain.png"/>
+    </rdf:Description>
+    <rdf:Description rdf:about="&sinaloa;FILE_Spain.png">
+        <rdf:type rdf:resource="&sinaloa;image"/>
+        <lumify:title>Image of Kingdom of Spain (ES, 00)</lumify:title>
+        <lumify:fileName>Spain.png</lumify:fileName>
+        <lumify:raw>streamingValue:{"fileName": "flags/Spain.png"}</lumify:raw>
+    </rdf:Description>
+
+    <rdf:Description rdf:about="&sinaloa;COUNTRY_Republic_of_Panama_(PA,_00)">
+        <rdf:type rdf:resource="&sinaloa;country"/>
+        <lumify:title>Republic of Panama (PA, 00)</lumify:title>
+        <lumify:entityImageVertexId>FILE_Panama.png</lumify:entityImageVertexId>
+        <sinaloa:entityHasImageRaw rdf:resource="&sinaloa;FILE_Panama.png"/>
+    </rdf:Description>
+    <rdf:Description rdf:about="&sinaloa;FILE_Panama.png">
+        <rdf:type rdf:resource="&sinaloa;image"/>
+        <lumify:title>Image of Republic of Panama (PA, 00)</lumify:title>
+        <lumify:fileName>Panama.png</lumify:fileName>
+        <lumify:raw>streamingValue:{"fileName": "flags/Panama.png"}</lumify:raw>
+    </rdf:Description>
+
+    <rdf:Description rdf:about="&sinaloa;COUNTRY_Plurinational_State_of_Bolivia_(BO,_00)">
+        <rdf:type rdf:resource="&sinaloa;country"/>
+        <lumify:title>Plurinational State of Bolivia (BO, 00)</lumify:title>
+        <lumify:entityImageVertexId>FILE_Bolivia.png</lumify:entityImageVertexId>
+        <sinaloa:entityHasImageRaw rdf:resource="&sinaloa;FILE_Bolivia.png"/>
+    </rdf:Description>
+    <rdf:Description rdf:about="&sinaloa;FILE_Bolivia.png">
+        <rdf:type rdf:resource="&sinaloa;image"/>
+        <lumify:title>Image of Plurinational State of Bolivia (BO, 00)</lumify:title>
+        <lumify:fileName>Bolivia.png</lumify:fileName>
+        <lumify:raw>streamingValue:{"fileName": "flags/Bolivia.png"}</lumify:raw>
+    </rdf:Description>
+
+    <rdf:Description rdf:about="&sinaloa;COUNTRY_Republic_of_Iraq_(IQ,_00)">
+        <rdf:type rdf:resource="&sinaloa;country"/>
+        <lumify:title>Republic of Iraq (IQ, 00)</lumify:title>
+        <lumify:entityImageVertexId>FILE_Iraq.png</lumify:entityImageVertexId>
+        <sinaloa:entityHasImageRaw rdf:resource="&sinaloa;FILE_Iraq.png"/>
+    </rdf:Description>
+    <rdf:Description rdf:about="&sinaloa;FILE_Iraq.png">
+        <rdf:type rdf:resource="&sinaloa;image"/>
+        <lumify:title>Image of Republic of Iraq (IQ, 00)</lumify:title>
+        <lumify:fileName>Iraq.png</lumify:fileName>
+        <lumify:raw>streamingValue:{"fileName": "flags/Iraq.png"}</lumify:raw>
+    </rdf:Description>
+
+    <rdf:Description rdf:about="&sinaloa;COUNTRY_Georgia_(GE,_00)">
+        <rdf:type rdf:resource="&sinaloa;country"/>
+        <lumify:title>Georgia (GE, 00)</lumify:title>
+        <lumify:entityImageVertexId>FILE_Georgia.png</lumify:entityImageVertexId>
+        <sinaloa:entityHasImageRaw rdf:resource="&sinaloa;FILE_Georgia.png"/>
+    </rdf:Description>
+    <rdf:Description rdf:about="&sinaloa;FILE_Georgia.png">
+        <rdf:type rdf:resource="&sinaloa;image"/>
+        <lumify:title>Image of Georgia (GE, 00)</lumify:title>
+        <lumify:fileName>Georgia.png</lumify:fileName>
+        <lumify:raw>streamingValue:{"fileName": "flags/Georgia.png"}</lumify:raw>
+    </rdf:Description>
+
+    <rdf:Description rdf:about="&sinaloa;COUNTRY_Republic_of_Angola_(AO,_00)">
+        <rdf:type rdf:resource="&sinaloa;country"/>
+        <lumify:title>Republic of Angola (AO, 00)</lumify:title>
+        <lumify:entityImageVertexId>FILE_Angola.png</lumify:entityImageVertexId>
+        <sinaloa:entityHasImageRaw rdf:resource="&sinaloa;FILE_Angola.png"/>
+    </rdf:Description>
+    <rdf:Description rdf:about="&sinaloa;FILE_Angola.png">
+        <rdf:type rdf:resource="&sinaloa;image"/>
+        <lumify:title>Image of Republic of Angola (AO, 00)</lumify:title>
+        <lumify:fileName>Angola.png</lumify:fileName>
+        <lumify:raw>streamingValue:{"fileName": "flags/Angola.png"}</lumify:raw>
+    </rdf:Description>
+
+    <rdf:Description rdf:about="&sinaloa;COUNTRY_Republic_of_the_Philippines_(PH,_00)">
+        <rdf:type rdf:resource="&sinaloa;country"/>
+        <lumify:title>Republic of the Philippines (PH, 00)</lumify:title>
+        <lumify:entityImageVertexId>FILE_Philippines.png</lumify:entityImageVertexId>
+        <sinaloa:entityHasImageRaw rdf:resource="&sinaloa;FILE_Philippines.png"/>
+    </rdf:Description>
+    <rdf:Description rdf:about="&sinaloa;FILE_Philippines.png">
+        <rdf:type rdf:resource="&sinaloa;image"/>
+        <lumify:title>Image of Republic of the Philippines (PH, 00)</lumify:title>
+        <lumify:fileName>Philippines.png</lumify:fileName>
+        <lumify:raw>streamingValue:{"fileName": "flags/Philippines.png"}</lumify:raw>
+    </rdf:Description>
+
+    <rdf:Description rdf:about="&sinaloa;COUNTRY_Republic_of_Peru_(PE,_00)">
+        <rdf:type rdf:resource="&sinaloa;country"/>
+        <lumify:title>Republic of Peru (PE, 00)</lumify:title>
+        <lumify:entityImageVertexId>FILE_Peru.png</lumify:entityImageVertexId>
+        <sinaloa:entityHasImageRaw rdf:resource="&sinaloa;FILE_Peru.png"/>
+    </rdf:Description>
+    <rdf:Description rdf:about="&sinaloa;FILE_Peru.png">
+        <rdf:type rdf:resource="&sinaloa;image"/>
+        <lumify:title>Image of Republic of Peru (PE, 00)</lumify:title>
+        <lumify:fileName>Peru.png</lumify:fileName>
+        <lumify:raw>streamingValue:{"fileName": "flags/Peru.png"}</lumify:raw>
+    </rdf:Description>
+
+    <rdf:Description rdf:about="&sinaloa;COUNTRY_Libya_(LY,_00)">
+        <rdf:type rdf:resource="&sinaloa;country"/>
+        <lumify:title>Libya (LY, 00)</lumify:title>
+        <lumify:entityImageVertexId>FILE_Libya.png</lumify:entityImageVertexId>
+        <sinaloa:entityHasImageRaw rdf:resource="&sinaloa;FILE_Libya.png"/>
+    </rdf:Description>
+    <rdf:Description rdf:about="&sinaloa;FILE_Libya.png">
+        <rdf:type rdf:resource="&sinaloa;image"/>
+        <lumify:title>Image of Libya (LY, 00)</lumify:title>
+        <lumify:fileName>Libya.png</lumify:fileName>
+        <lumify:raw>streamingValue:{"fileName": "flags/Libya.png"}</lumify:raw>
+    </rdf:Description>
+
+    <rdf:Description rdf:about="&sinaloa;COUNTRY_Arab_Republic_of_Egypt_(EG,_00)">
+        <rdf:type rdf:resource="&sinaloa;country"/>
+        <lumify:title>Arab Republic of Egypt (EG, 00)</lumify:title>
+        <lumify:entityImageVertexId>FILE_Egypt.png</lumify:entityImageVertexId>
+        <sinaloa:entityHasImageRaw rdf:resource="&sinaloa;FILE_Egypt.png"/>
+    </rdf:Description>
+    <rdf:Description rdf:about="&sinaloa;FILE_Egypt.png">
+        <rdf:type rdf:resource="&sinaloa;image"/>
+        <lumify:title>Image of Arab Republic of Egypt (EG, 00)</lumify:title>
+        <lumify:fileName>Egypt.png</lumify:fileName>
+        <lumify:raw>streamingValue:{"fileName": "flags/Egypt.png"}</lumify:raw>
+    </rdf:Description>
+
+    <rdf:Description rdf:about="&sinaloa;COUNTRY_Republic_of_Guatemala_(GT,_00)">
+        <rdf:type rdf:resource="&sinaloa;country"/>
+        <lumify:title>Republic of Guatemala (GT, 00)</lumify:title>
+        <lumify:entityImageVertexId>FILE_Guatemala.png</lumify:entityImageVertexId>
+        <sinaloa:entityHasImageRaw rdf:resource="&sinaloa;FILE_Guatemala.png"/>
+    </rdf:Description>
+    <rdf:Description rdf:about="&sinaloa;FILE_Guatemala.png">
+        <rdf:type rdf:resource="&sinaloa;image"/>
+        <lumify:title>Image of Republic of Guatemala (GT, 00)</lumify:title>
+        <lumify:fileName>Guatemala.png</lumify:fileName>
+        <lumify:raw>streamingValue:{"fileName": "flags/Guatemala.png"}</lumify:raw>
+    </rdf:Description>
+
+    <rdf:Description rdf:about="&sinaloa;COUNTRY_Republic_of_India_(IN,_00)">
+        <rdf:type rdf:resource="&sinaloa;country"/>
+        <lumify:title>Republic of India (IN, 00)</lumify:title>
+        <lumify:entityImageVertexId>FILE_India.png</lumify:entityImageVertexId>
+        <sinaloa:entityHasImageRaw rdf:resource="&sinaloa;FILE_India.png"/>
+    </rdf:Description>
+    <rdf:Description rdf:about="&sinaloa;FILE_India.png">
+        <rdf:type rdf:resource="&sinaloa;image"/>
+        <lumify:title>Image of Republic of India (IN, 00)</lumify:title>
+        <lumify:fileName>India.png</lumify:fileName>
+        <lumify:raw>streamingValue:{"fileName": "flags/India.png"}</lumify:raw>
+    </rdf:Description>
+
+    <rdf:Description rdf:about="&sinaloa;COUNTRY_Belize_(BZ,_00)">
+        <rdf:type rdf:resource="&sinaloa;country"/>
+        <lumify:title>Belize (BZ, 00)</lumify:title>
+        <lumify:entityImageVertexId>FILE_Belize.png</lumify:entityImageVertexId>
+        <sinaloa:entityHasImageRaw rdf:resource="&sinaloa;FILE_Belize.png"/>
+    </rdf:Description>
+    <rdf:Description rdf:about="&sinaloa;FILE_Belize.png">
+        <rdf:type rdf:resource="&sinaloa;image"/>
+        <lumify:title>Image of Belize (BZ, 00)</lumify:title>
+        <lumify:fileName>Belize.png</lumify:fileName>
+        <lumify:raw>streamingValue:{"fileName": "flags/Belize.png"}</lumify:raw>
+    </rdf:Description>
+
+    <rdf:Description rdf:about="&sinaloa;COUNTRY_State_of_Israel_(IL,_00)">
+        <rdf:type rdf:resource="&sinaloa;country"/>
+        <lumify:title>State of Israel (IL, 00)</lumify:title>
+        <lumify:entityImageVertexId>FILE_Israel.png</lumify:entityImageVertexId>
+        <sinaloa:entityHasImageRaw rdf:resource="&sinaloa;FILE_Israel.png"/>
+    </rdf:Description>
+    <rdf:Description rdf:about="&sinaloa;FILE_Israel.png">
+        <rdf:type rdf:resource="&sinaloa;image"/>
+        <lumify:title>Image of State of Israel (IL, 00)</lumify:title>
+        <lumify:fileName>Israel.png</lumify:fileName>
+        <lumify:raw>streamingValue:{"fileName": "flags/Israel.png"}</lumify:raw>
+    </rdf:Description>
+
+    <rdf:Description rdf:about="&sinaloa;COUNTRY_Islamic_Republic_of_Afghanistan_(AF,_00)">
+        <rdf:type rdf:resource="&sinaloa;country"/>
+        <lumify:title>Islamic Republic of Afghanistan (AF, 00)</lumify:title>
+        <lumify:entityImageVertexId>FILE_Afghanistan.png</lumify:entityImageVertexId>
+        <sinaloa:entityHasImageRaw rdf:resource="&sinaloa;FILE_Afghanistan.png"/>
+    </rdf:Description>
+    <rdf:Description rdf:about="&sinaloa;FILE_Afghanistan.png">
+        <rdf:type rdf:resource="&sinaloa;image"/>
+        <lumify:title>Image of Islamic Republic of Afghanistan (AF, 00)</lumify:title>
+        <lumify:fileName>Afghanistan.png</lumify:fileName>
+        <lumify:raw>streamingValue:{"fileName": "flags/Afghanistan.png"}</lumify:raw>
+    </rdf:Description>
+
+    <rdf:Description rdf:about="&sinaloa;COUNTRY_Republic_of_Albania_(AL,_00)">
+        <rdf:type rdf:resource="&sinaloa;country"/>
+        <lumify:title>Republic of Albania (AL, 00)</lumify:title>
+        <lumify:entityImageVertexId>FILE_Albania.png</lumify:entityImageVertexId>
+        <sinaloa:entityHasImageRaw rdf:resource="&sinaloa;FILE_Albania.png"/>
+    </rdf:Description>
+    <rdf:Description rdf:about="&sinaloa;FILE_Albania.png">
+        <rdf:type rdf:resource="&sinaloa;image"/>
+        <lumify:title>Image of Republic of Albania (AL, 00)</lumify:title>
+        <lumify:fileName>Albania.png</lumify:fileName>
+        <lumify:raw>streamingValue:{"fileName": "flags/Albania.png"}</lumify:raw>
+    </rdf:Description>
+
+    <rdf:Description rdf:about="&sinaloa;COUNTRY_Republic_of_Honduras_(HN,_00)">
+        <rdf:type rdf:resource="&sinaloa;country"/>
+        <lumify:title>Republic of Honduras (HN, 00)</lumify:title>
+        <lumify:entityImageVertexId>FILE_Honduras.png</lumify:entityImageVertexId>
+        <sinaloa:entityHasImageRaw rdf:resource="&sinaloa;FILE_Honduras.png"/>
+    </rdf:Description>
+    <rdf:Description rdf:about="&sinaloa;FILE_Honduras.png">
+        <rdf:type rdf:resource="&sinaloa;image"/>
+        <lumify:title>Image of Republic of Honduras (HN, 00)</lumify:title>
+        <lumify:fileName>Honduras.png</lumify:fileName>
+        <lumify:raw>streamingValue:{"fileName": "flags/Honduras.png"}</lumify:raw>
+    </rdf:Description>
+
+    <rdf:Description rdf:about="&sinaloa;COUNTRY_Republic_of_Colombia_(CO,_00)">
+        <rdf:type rdf:resource="&sinaloa;country"/>
+        <lumify:title>Republic of Colombia (CO, 00)</lumify:title>
+        <lumify:entityImageVertexId>FILE_Colombia.png</lumify:entityImageVertexId>
+        <sinaloa:entityHasImageRaw rdf:resource="&sinaloa;FILE_Colombia.png"/>
+    </rdf:Description>
+    <rdf:Description rdf:about="&sinaloa;FILE_Colombia.png">
+        <rdf:type rdf:resource="&sinaloa;image"/>
+        <lumify:title>Image of Republic of Colombia (CO, 00)</lumify:title>
+        <lumify:fileName>Colombia.png</lumify:fileName>
+        <lumify:raw>streamingValue:{"fileName": "flags/Colombia.png"}</lumify:raw>
+    </rdf:Description>
+
+    <rdf:Description rdf:about="&sinaloa;COUNTRY_United_States_(US,_00)">
+        <rdf:type rdf:resource="&sinaloa;country"/>
+        <lumify:title>United States (US, 00)</lumify:title>
+        <lumify:entityImageVertexId>FILE_United_States.png</lumify:entityImageVertexId>
+        <sinaloa:entityHasImageRaw rdf:resource="&sinaloa;FILE_United_States.png"/>
+    </rdf:Description>
+    <rdf:Description rdf:about="&sinaloa;FILE_United_States.png">
+        <rdf:type rdf:resource="&sinaloa;image"/>
+        <lumify:title>Image of United States (US, 00)</lumify:title>
+        <lumify:fileName>United_States.png</lumify:fileName>
+        <lumify:raw>streamingValue:{"fileName": "flags/United_States.png"}</lumify:raw>
+    </rdf:Description>
+
+    <rdf:Description rdf:about="&sinaloa;COUNTRY_United_Kingdom_of_Great_Britain_and_Northern_Ireland_(GB,_00)">
+        <rdf:type rdf:resource="&sinaloa;country"/>
+        <lumify:title>United Kingdom of Great Britain and Northern Ireland (GB, 00)</lumify:title>
+        <lumify:entityImageVertexId>FILE_United_Kingdom.png</lumify:entityImageVertexId>
+        <sinaloa:entityHasImageRaw rdf:resource="&sinaloa;FILE_United_Kingdom.png"/>
+    </rdf:Description>
+    <rdf:Description rdf:about="&sinaloa;FILE_United_Kingdom.png">
+        <rdf:type rdf:resource="&sinaloa;image"/>
+        <lumify:title>Image of United Kingdom of Great Britain and Northern Ireland (GB, 00)</lumify:title>
+        <lumify:fileName>United_Kingdom.png</lumify:fileName>
+        <lumify:raw>streamingValue:{"fileName": "flags/United_Kingdom.png"}</lumify:raw>
+    </rdf:Description>
+
+    <rdf:Description rdf:about="&sinaloa;COUNTRY_Commonwealth_of_Australia_(AU,_00)">
+        <rdf:type rdf:resource="&sinaloa;country"/>
+        <lumify:title>Commonwealth of Australia (AU, 00)</lumify:title>
+        <lumify:entityImageVertexId>FILE_Australia.png</lumify:entityImageVertexId>
+        <sinaloa:entityHasImageRaw rdf:resource="&sinaloa;FILE_Australia.png"/>
+    </rdf:Description>
+    <rdf:Description rdf:about="&sinaloa;FILE_Australia.png">
+        <rdf:type rdf:resource="&sinaloa;image"/>
+        <lumify:title>Image of Commonwealth of Australia (AU, 00)</lumify:title>
+        <lumify:fileName>Australia.png</lumify:fileName>
+        <lumify:raw>streamingValue:{"fileName": "flags/Australia.png"}</lumify:raw>
+    </rdf:Description>
+
+    <rdf:Description rdf:about="&sinaloa;COUNTRY_Islamic_Republic_of_Pakistan_(PK,_00)">
+        <rdf:type rdf:resource="&sinaloa;country"/>
+        <lumify:title>Islamic Republic of Pakistan (PK, 00)</lumify:title>
+        <lumify:entityImageVertexId>FILE_Pakistan.png</lumify:entityImageVertexId>
+        <sinaloa:entityHasImageRaw rdf:resource="&sinaloa;FILE_Pakistan.png"/>
+    </rdf:Description>
+    <rdf:Description rdf:about="&sinaloa;FILE_Pakistan.png">
+        <rdf:type rdf:resource="&sinaloa;image"/>
+        <lumify:title>Image of Islamic Republic of Pakistan (PK, 00)</lumify:title>
+        <lumify:fileName>Pakistan.png</lumify:fileName>
+        <lumify:raw>streamingValue:{"fileName": "flags/Pakistan.png"}</lumify:raw>
+    </rdf:Description>
+
+    <rdf:Description rdf:about="&sinaloa;COUNTRY_Republic_of_Armenia_(AM,_00)">
+        <rdf:type rdf:resource="&sinaloa;country"/>
+        <lumify:title>Republic of Armenia (AM, 00)</lumify:title>
+        <lumify:entityImageVertexId>FILE_Armenia.png</lumify:entityImageVertexId>
+        <sinaloa:entityHasImageRaw rdf:resource="&sinaloa;FILE_Armenia.png"/>
+    </rdf:Description>
+    <rdf:Description rdf:about="&sinaloa;FILE_Armenia.png">
+        <rdf:type rdf:resource="&sinaloa;image"/>
+        <lumify:title>Image of Republic of Armenia (AM, 00)</lumify:title>
+        <lumify:fileName>Armenia.png</lumify:fileName>
+        <lumify:raw>streamingValue:{"fileName": "flags/Armenia.png"}</lumify:raw>
+    </rdf:Description>
+
+    <rdf:Description rdf:about="&sinaloa;COUNTRY_Islamic_Republic_of_Iran_(IR,_00)">
+        <rdf:type rdf:resource="&sinaloa;country"/>
+        <lumify:title>Islamic Republic of Iran (IR, 00)</lumify:title>
+        <lumify:entityImageVertexId>FILE_Iran.png</lumify:entityImageVertexId>
+        <sinaloa:entityHasImageRaw rdf:resource="&sinaloa;FILE_Iran.png"/>
+    </rdf:Description>
+    <rdf:Description rdf:about="&sinaloa;FILE_Iran.png">
+        <rdf:type rdf:resource="&sinaloa;image"/>
+        <lumify:title>Image of Islamic Republic of Iran (IR, 00)</lumify:title>
+        <lumify:fileName>Iran.png</lumify:fileName>
+        <lumify:raw>streamingValue:{"fileName": "flags/Iran.png"}</lumify:raw>
+    </rdf:Description>
+
+    <rdf:Description rdf:about="&sinaloa;COUNTRY_Union_of_Burma_(MM,_00)">
+        <rdf:type rdf:resource="&sinaloa;country"/>
+        <lumify:title>Union of Burma (MM, 00)</lumify:title>
+        <lumify:entityImageVertexId>FILE_Burma.png</lumify:entityImageVertexId>
+        <sinaloa:entityHasImageRaw rdf:resource="&sinaloa;FILE_Burma.png"/>
+    </rdf:Description>
+    <rdf:Description rdf:about="&sinaloa;FILE_Burma.png">
+        <rdf:type rdf:resource="&sinaloa;image"/>
+        <lumify:title>Image of Union of Burma (MM, 00)</lumify:title>
+        <lumify:fileName>Burma.png</lumify:fileName>
+        <lumify:raw>streamingValue:{"fileName": "flags/Burma.png"}</lumify:raw>
+    </rdf:Description>
+
+</rdf:RDF>
