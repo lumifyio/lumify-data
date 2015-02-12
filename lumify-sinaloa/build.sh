@@ -4,17 +4,18 @@ DIR=$(cd $(dirname "$0") && pwd)
 BUILD_DIR=${DIR}/build
 
 function create_zip {
-    NAME=$1
-    ZIP_FILE_NAME=${BUILD_DIR}/sinaloa-${NAME}.zip
-    echo "Creating build/$(basename ${ZIP_FILE_NAME})"
+    local name=$1
+    local zip_file_name=${BUILD_DIR}/sinaloa-${name}.zip
+    echo "Creating build/$(basename ${zip_file_name})"
     (
-        cd ${DIR}/${NAME}
-        zip -rq ${ZIP_FILE_NAME} .
+        cd ${DIR}/${name}
+        zip -rq ${zip_file_name} .
     )
 }
 
-rm -rf ${BUILD_DIR}/*
+rm -rf ${BUILD_DIR}
 mkdir -p ${BUILD_DIR}
 create_zip ontology
 create_zip data-rdf
+create_zip data
 echo "DONE"
