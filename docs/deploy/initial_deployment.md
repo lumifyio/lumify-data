@@ -285,7 +285,6 @@ A hosts file must be created that defines the nodes in the cluster and their rol
 	<puppet>  $ ssh -A 10.0.3.Y1
 	<worker>  $ puppet agent -t
 	
-	// if worker node is a web server
 	<worker>  $ mkdir -p /opt/lumify/config /opt/lumify/lib
 	<worker>  $ ssh -A $EXISTING_WEB_INSTANCE
 	<oth-web> $ cd /opt/lumify/config
@@ -294,6 +293,7 @@ A hosts file must be created that defines the nodes in the cluster and their rol
 	            root@10.0.3.Y1:/opt/lumify/config
 	<oth-web> $ exit
 	<worker>  $ exit
+	
 	<puppet>  $ scp weblib/* root@10.0.3.Y1:/opt/lumify/lib
 	<puppet>  $ scp gpw/* root@10.0.3.Y1:~
 	<puppet>  $ scp -r yarn root@10.0.3.Y1:/tmp
