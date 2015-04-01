@@ -34,7 +34,7 @@ else
 fi
 if [ ! -f /opt/${jdk_rpm_filename} ]; then
   mkdir -p /opt
-  curl "https://s3.amazonaws.com/RedDawn/puppet-repo/java/${jdk_rpm_filename}" -s -L --fail -o /opt/${jdk_rpm_filename}
+  curl "https://s3.amazonaws.com/red-dawn/puppet-repo/java/${jdk_rpm_filename}" -s -L --fail -o /opt/${jdk_rpm_filename}
 fi
 
 rpm -q jdk-1.6.0_45-fcs > /dev/null \
