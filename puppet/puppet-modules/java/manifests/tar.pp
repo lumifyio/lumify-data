@@ -6,7 +6,7 @@ class java::tar($dir, $creates, $tmpdir = '/tmp', $version = '7u51') {
     default: { fail "unsupported architecture: ${architecture}" }
   }
 
-  macro::download { "http://s3.amazonaws.com/RedDawn/puppet-repo/java/${tgz}" :
+  macro::download { "http://s3.amazonaws.com/red-dawn/puppet-repo/java/${tgz}" :
     path => "${tmpdir}/${tgz}",
   } -> macro::extract { "${tmpdir}/${tgz}" :
     path => $dir,
