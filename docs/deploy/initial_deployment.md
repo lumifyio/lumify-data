@@ -15,7 +15,7 @@ Symbol        | Value
 `$SEC_GRAPH`  | Local directory where secure-graph project is cloned
 `$PUPPET_IP`  | The Elastic IP assigned to the Puppet Master
 `$NODE_IP`    | The Elastic IP assigned to the worker/web node in a single node cluster
-`${VERSION}`  | The Lumify or SecureGraph version
+`${VERSION}`  | The Lumify or SecureGraph versionn)
 
 ### IP Addresses
 
@@ -74,21 +74,28 @@ Alias               | Purpose
 -	Clone [`lumify-all`](https://github.com/altamiracorp/lumify-all) into `$LUMIFY_ALL`
 -	Clone [`lumify`](https://github.com/lumifyio/lumify) as `$LUMIFY_ALL/lumify-public`
 -	Clone [`secure-graph`](https://github.com/lumifyio/securegraph) into `$SEC_GRAPH`
+	
+	```
+	git clone ssh://git@github.com/altamiracorp/lumify-all
+	cd lumify-all
+	git clone ssh://git@github.com/lumifyio/lumify lumify-public
+	cd ..
+	git clone ssh://git@github.com/lumifyio/securegraph
+	```
+	
 -	Build all `lumify` artifacts
 	
 	```
-	<local> $ cd $LUMIFY_ALL/lumify-public
-	<local> $ mvn -DskipTests=true -Pweb-war clean install
+	cd $LUMIFY_ALL/lumify-public
+	mvn -DskipTests=true -Pweb-war clean install
 	```
+	
 -	Build all SecureGraph artifacts
 
 	```
 	<local> $ cd $SEC_GRAPH
 	<local> $ mvn -DskipTests=true clean install
 	```
--	Download Java Advanced Imaging installers (Linux AMD64)
-	-	[JAI](https://bits.lumify.io/extra/jai-1_1_3-lib-linux-amd64-jdk.bin)
-	-	[JAI ImageIO](https://bits.lumify.io/extra/jai_imageio-1_1-lib-linux-amd64-jdk.bin)
 -	Create a directory for the cluster deployment and copy files needed for deployment.
 
 	```
@@ -119,8 +126,8 @@ Alias               | Purpose
 	             
 	<local> $ mkdir deployment/lumify_demo_0Y/jai
 	<local> $ cd deployment/lumify_demo_0Y/jai
-	<local> $ wget --no-check-certificate https://bits.lumify.io/extra/jai-1_1_3-lib-linux-amd64-jdk.bin
-	<local> $ wget --no-check-certificate https://bits.lumify.io/extra/jai-1_1_3-lib-linux-amd64-jdk.bin
+	<local> $ wget https://bits.lumify.io/extra/jai-1_1_3-lib-linux-amd64-jdk.bin
+	<local> $ wget https://bits.lumify.io/extra/jai_imageio-1_1-lib-linux-amd64-jdk.bin
 	```
 ---
 
@@ -252,7 +259,8 @@ A hosts file must be created that defines the nodes in the cluster and their rol
 -	Create `$LUMIFY_ALL/deployment/lumify_demo_0Y/demo_0Y_hosts` with the following contents (one line per node):
 
 	```
-	10.0.3.Y0    ip-10-0-3-Y0.ec2.internal    ip-10-0-3-Y0 puppet proxy syslog                                                              	10.0.3.Y1    ip-10-0-3-Y1.ec2.internal    ip-10-0-3-Y1 namenode resourcemanager secondarynamenode accumulomaster rabbitmqY1 nodeY1 esY1 zkY1 wwwY1
+	10.0.3.Y0    ip-10-0-3-Y0.ec2.internal    ip-10-0-3-Y0 puppet proxy syslog
+	10.0.3.Y1    ip-10-0-3-Y1.ec2.internal    ip-10-0-3-Y1 namenode resourcemanager secondarynamenode accumulomaster rabbitmqY1 nodeY1 esY1 zkY1 wwwY1
 	```
 
 ### Push to Puppet Master
@@ -265,41 +273,39 @@ A hosts file must be created that defines the nodes in the cluster and their rol
 	<local> $ scp -r lumify.xml lumify_demo_0Y/* root@PUPPET_IP:~
 	```
 
--	Execute the following to configure the cluster.
+-	Execute the following to configure a single node cluster.
 	
 	 _If the `puppet agent` command reports there is already a puppet configuration running, continue with the file copies until it is done. The `puppet agent` command must be run before continuing to HDFS configuration._
 
 	```
-	<local>  $ ssh -A root@$PUPPET_IP
-	<puppet> $ ./init.sh demo_0Y_hosts
+	<local>   $ ssh -A root@$PUPPET_IP
+	<puppet>  $ ./init.sh demo_0Y_hosts
 	
-	// For each worker node, N, in the cluster
-	<puppet>  $ scp lumify-cli-${VERSION}-with-dependencies.jar root@10.0.3.YN:~
-	<puppet>  $ ssh -A 10.0.3.YN
-	<workerN> $ puppet agent -t
+	<puppet>  $ scp lumify-cli-${VERSION}-with-dependencies.jar root@10.0.3.Y1:~
+	<puppet>  $ ssh -A 10.0.3.Y1
+	<worker>  $ puppet agent -t
 	
 	// if worker node is a web server
-	<workerN> $ mkdir -p /opt/lumify/config /opt/lumify/lib
-	<workerN> $ ssh -A $EXISTING_WEB_INSTANCE
+	<worker>  $ mkdir -p /opt/lumify/config /opt/lumify/lib
+	<worker>  $ ssh -A $EXISTING_WEB_INSTANCE
 	<oth-web> $ cd /opt/lumify/config
 	<oth-web> $ scp google-analytics.properties lumify-oauth.properties \
 	            lumify-terms-of-use.properties z-sinaloa.properties \
-	            root@10.0.3.YN:/opt/lumify/config
+	            root@10.0.3.Y1:/opt/lumify/config
 	<oth-web> $ exit
-	<workerN> $ exit
-	<puppet>  $ scp weblib/* root@10.0.3.YN:/opt/lumify/lib
+	<worker>  $ exit
+	<puppet>  $ scp weblib/* root@10.0.3.Y1:/opt/lumify/lib
+	<puppet>  $ scp gpw/* root@10.0.3.Y1:~
+	<puppet>  $ scp -r yarn root@10.0.3.Y1:/tmp
+	<puppet>  $ scp elasticsearch-securegraph-${VERSION}.zip root@10.0.3.Y1:~
 	
-	// if worker node is an HDFS nodemanager
-	<puppet>  $ scp jai/* root@10.0.3.YN:/usr/java/default/
-	<puppet>  $ scp gpw/* root@10.0.3.YN:~
-	<puppet>  $ scp -r yarn root@10.0.3.YN:/tmp
-	<puppet>  $ ssh -A 10.0.3.YN
-	<workerN> $ cd /usr/java/default
-	<workerN> $ ./jai-1_1_3-lib-linux-amd64-jdk.bin && ./jai_imageio-1_1-lib-linux-amd64-jdk.bin
-	<workerN> $ exit
-	
-	// if worker node is an ElasticSearch node
-	<puppet>  $ scp elasticsearch-securegraph-${VERSION}.zip root@10.0.3.YN:~
+	// puppet agent -t must complete before this section is executed
+	<puppet>  $ scp jai/* root@10.0.3.Y1:/usr/java/default/
+	<puppet>  $ ssh -A 10.0.3.Y1
+	<worker>  $ cd /usr/java/default
+	<worker>  $ chmod u+x jai*.bin
+	<worker>  $ ./jai-1_1_3-lib-linux-amd64-jdk.bin && ./jai_imageio-1_1-lib-linux-amd64-jdk.bin
+	<worker>  $ exit
 	```
 
 -	Configure HDFS and Accumulo
@@ -308,12 +314,13 @@ A hosts file must be created that defines the nodes in the cluster and their rol
 	<puppet> $ ./control.sh demo_0Y_hosts first
 	
 	// in separate session (2)
-	<2.local>  $ ssh -A root@$WORKER_IP
+	<2.local>  $ ssh -A root@$NODE_IP
 	<2.worker> $ su - hdfs
 	<2.worker> $ hdfs namenode -format
 	<2.worker> $ exit
 	// type yes to continue control.sh script
 	
+	// when prompted by control.sh
 	<2.worker> $ su - accumulo
 	<2.worker> $ /opt/accumulo/bin/accumulo init
 	// when prompted by init script
@@ -322,6 +329,7 @@ A hosts file must be created that defines the nodes in the cluster and their rol
 	<2.worker> $ exit
 	// type yes to continue control.sh script
 	
+	// after control.sh completes
 	<2.worker> $ ./setup_hdfs.sh
 	<2.worker> $ ./setup_config.sh
 	<2.worker> $ ./setup_libcache.sh
@@ -331,12 +339,12 @@ A hosts file must be created that defines the nodes in the cluster and their rol
 
 	```
 	<worker> $ /usr/share/elasticsearch/bin/plugin -r securegraph
-	<worker> $ /usr/share/elasticsearch/bin/plugin -u file:///root/elasticsearch-securegraph-${VERSION}.zip -i securegraph
+	<worker> $ /usr/share/elasticsearch/bin/plugin -u file:///root/elasticsearch-securegraph-${VERSION}ERSION.zip -i securegraph
 	<puppet> $ ./control.sh demo_0Y_hosts restart elasticsearch
 	```
 
 -	Restart the web server
 
 	```
-	<worker> $ service jetty stop && rm -f /opt/jetty/logs/* /opt/lumify/logs/lumify-jetty-* && service jetty start && tail -f /opt/lumify/logs/lumify-jetty-*
+	<puppet> $ ./control.sh demo_0Y_hosts restart jetty
 	```
