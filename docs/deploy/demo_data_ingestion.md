@@ -66,21 +66,9 @@
 	<yarn-server> $ java -jar lumify-cli-${VERSION}-with-dependencies.jar Import \
 	                -datadir sinaloa-data
 	```
-	
-	
 
-From lumify-all/lumify-sinoloa directory, build the dataset: `./build.sh`
-Copy demo data to web server: `scp build/sinaloa-data* root@<web_server_location>`
-Upload the sinaloa ontology zip file via the Admin tools plugin ontology import
-Unzip the data zip archives
+-	Start Puppet Agent
 
-Import the RDF data:
-Execute `java -jar lumify-cli-0.4.1-SNAPSHOT-with-dependencies.jar RdfImport -infile sinaloa-data-rdf/sinaloa.rdf.xml`
-
-Import the unstructured data:
-Execute `java -jar lumify-cli-0.4.1-SNAPSHOT-with-dependencies.jar Import -datadir sinaloa-data`
-
-
-Ensure that all required graph property workers are stored in HDFS: `hadoop fs -ls /lumify/libcache`
-Copy the graph-property-worker and long-running-process executable jars from the repository to the /tmp directory of the machine running YARN
-
+	```
+	<web-server> $ service puppet start
+	```
