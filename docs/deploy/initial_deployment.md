@@ -343,6 +343,12 @@ A hosts file must be created that defines the nodes in the cluster and their rol
 	<puppet> $ ./control.sh demo_0Y_hosts restart elasticsearch
 	```
 
+-	Download `lumify.io.jks` from the `red-dawn/private-deploy` S3 bucket and push it to the webserver.
+	
+	```
+	<local> $ scp lumify.io.jks root@$NODE_IP:/opt/lumify/config
+	```
+	
 -	Restart the web server
 
 	```

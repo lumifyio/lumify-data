@@ -80,10 +80,10 @@ else
   hiera['spark_driver_memory'] = '1g'
 
   hiera['jetty_confidential_redirect_port'] = 443
-  hiera['jetty_key_store_path'] = '/opt/lumify/config/jetty.jks'
-  hiera['jetty_key_store_password'] = 'OBF:1v2j1uum1xtv1zej1zer1xtn1uvk1v1v'
-  hiera['jetty_trust_store_path'] = '/opt/lumify/config/jetty.jks'
-  hiera['jetty_trust_store_password'] = 'OBF:1v2j1uum1xtv1zej1zer1xtn1uvk1v1v'
+  hiera['jetty_key_store_path'] = '/opt/lumify/config/lumify.io.jks'
+  hiera['jetty_key_store_password'] = 'OBF:1j0u1pxx1nzh1oks1x1d1jg81kfx1w8j1f2s1v981vv11tb01nid1kfr1u9t1hh21vni1ta01nyp1yeq1jdg1ai31rwf1aj71jfu1yfg1nxp1tae1vnk1he01u9p1kcn1nll1t9e1vu91v9e1f1m1w971kch1jd21x191oia1nwx1pwp1j00'
+  hiera['jetty_trust_store_path'] = '/opt/lumify/config/lumify.io.jks'
+  hiera['jetty_trust_store_password'] = 'OBF:1j0u1pxx1nzh1oks1x1d1jg81kfx1w8j1f2s1v981vv11tb01nid1kfr1u9t1hh21vni1ta01nyp1yeq1jdg1ai31rwf1aj71jfu1yfg1nxp1tae1vnk1he01u9p1kcn1nll1t9e1vu91v9e1f1m1w971kch1jd21x191oia1nwx1pwp1j00'
   hiera['jetty_client_auth'] = 'false'
 end
 
