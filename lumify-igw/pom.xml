@@ -4,9 +4,14 @@
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
     <artifactId>lumify-igw</artifactId>
+
+    <parent>
+        <groupId>io.lumify</groupId>
+        <artifactId>lumify-all</artifactId>
+        <version>0.4.1</version>
+    </parent>
+
     <name>Lumify: IGW</name>
-    <groupId>io.lumify</groupId>
-    <version>0.4.1-SNAPSHOT</version>
 
     <properties>
         <javax.servlet.api.version>3.0.1</javax.servlet.api.version>
